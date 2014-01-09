@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+    
+    <style name="SRBaseTheme" parent="@android:style/Theme.Holo.Light">
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <style name="FullscreenTheme" parent="android:Theme.NoTitleBar">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="buttonBarStyle">@style/ButtonBar</item>
+        <item name="buttonBarButtonStyle">@style/ButtonBarButton</item>
+        <item name="android:windowActionBar">false</item>
+		<item name="android:windowTitleSize">0dp</item>
+    </style>
+
+    <style name="ButtonBar">
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingRight">2dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:background">@android:drawable/bottom_bar</item>
+    </style>
+
+    <style name="ButtonBarButton" />
+    
+    <style name="SRTheme" parent="SRBaseTheme">
+        <item name="android:actionBarStyle">@style/SRActionBar</item>
+    </style>
+
+    <style name="SRActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">@color/sr_bg_actionbar</item>
+        <item name="android:actionMenuTextAppearance">@style/SRActionBar.MenuTextStyle</item>
+        <item name="android:titleTextStyle">@style/SRActionBar.TitleTextStyle</item>
+        <!--  item name="android:icon">@drawable/ic_icon_custom</item -->
+        <item name="android:displayOptions">showHome|useLogo|showCustom</item>
+    </style>
+    
+    <style name="SRActionBar.MenuTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Menu">
+	    <item name="android:textColor">@color/sr_text_ab</item>
+	</style>
+	
+	<style name="SRActionBar.TitleTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+	    <item name="android:textColor">#FFF</item>
+	</style>
+	
+</resources>

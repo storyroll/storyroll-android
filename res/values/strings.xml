@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">StoryRoll</string>
+    <string name="app_desc">Create your story and let it roll.</string>
+    
+    <string name="dummy_button">Proceed</string>
+    <string name="dummy_content">STORYROLL\nCollaborative storytelling</string>
+    <string name="login_text">Please choose your login method</string>
+    <string name="user_name">User name</string>
+    <string name="email">E-mail</string>
+    <string name="password">Password</string>
+    <string name="location">City</string>
+    <string name="done">Done</string>
+    <string name="register">Register</string>
+    <string name="cast">Cast:</string>
+    
+    <string name="ready">GOT IT!</string>
+    <string name="record">REC</string>
+    <string name="go">GO</string>
+    <string name="upload">UPLOAD</string>
+    <string name="again">AGAIN</string>
+    <string name="sym_left">&lt;</string>
+    
+    <string name="action_join">Join Some Roll</string>
+    
+    
+    <string name="facebook_button">Connect with Facebook</string>
+    <string name="play_roll_info">To see next roll, swipe left</string>
+
+    <string name="app_id">556141531146952</string>
+    
+    <string name="me">Me</string>
+    
+    <string name="connecting_facebook">Connecting Facebook</string>
+    <string name="facebook_login">Facebook Login</string>
+           
+        
+	<string name="sharing">Sharing</string>
+	<string name="shared">Shared</string>
+	<string name="commented">Commented</string>
+	<string name="updated">Updated</string>
+	<string name="liked">Liked</string>
+	<string name="share_app_message">Liking this Facebook app on Android</string>
+	<string name="videocap_ready_message">Your sequel goes after this episode</string>
+	<string name="video_uploaded_message">We\'ll send notification when the story is completed and posted!</string>
+	<string name="no_rolls_message">No rolls to display in this section.</string>
+	
+			
+	<string name="settings">Settings</string>    
+	
+    <string name="action_rolls_top">Top Rolls</string>    
+    <string name="action_rolls_new">New Rolls</string>    
+    <string name="action_rolls_my">My Rolls</string>    
+    <string name="action_rolls_favs">Fav Rolls</string>    
+    
+	<string name="action_settings">Settings</string>    
+	<string name="action_profile">Profile</string>
+	
+	<string name="connection_failed">Connection Failed</string>
+	<string name="retry">Retry</string>
+	<string name="refresh">Refresh</string>
+	
+	<string name="status_update">Status Update</string> 
+	<string name="comment">Comment</string> 
+	<string name="send">Send</string> 
+	<string name="cancel">Cancel</string>  
+	
+	    
+	<string name="share">Share</string> 
+	<string name="share_app_sum">Share this app</string> 
+	<string name="review">Review</string> 
+	<string name="review_app_sum">Review this app</string> 
+	<string name="logout">Logout</string> 
+	<string name="logout_sum">Logout StoryRoll</string>    
+    <string name="version">Version</string>   
+    
+    <string name="feedback">Feedback</string>
+    <string name="comments">comments</string> 
+    <string name="sending">Sending</string>
+    
+    <string name="p_no_content">No Content</string>
+            
+    <string name="like">Like</string> 
+    <string name="see_comments">See Comments</string>     
+    <string name="report_problem">StoryRoll: Report Problem</string>  
+    <string name="report_problem_sum">Send report to developer</string>     
+    <string name="send_email">Send Email</string> 
+        
+    <string name="photo">Photo</string> 
+    <string name="no_permission">Permission Denied</string> 
+    <string name="discuss">Discuss / Feature Request</string>
+    
+    <string name="view_photo">View Photo</string>
+    <string name="view_web">Open Webpage</string>    
+    <string name="play_video">Play Video</string>
+    
+    <string name="pending_upload">Photo will be uploaded.</string>
+        
+    <string name="upload_failed">Upload Failed</string>    
+    <string name="photo_upload">Photo Upload</string> 
+    <string name="upload_completed">Upload Completed</string> 
+    <string name="no_sd">No SD Card</string> 
+    
+    <string name="photo_album">Photo Album</string> 
+    <string name="delete">Delete</string>
+    
+    <string name="marked_read">Marked as Read</string>    
+        
+    <string name="n_friends">Friends</string>
+    <string name="n_movies">Movies</string>
+    <string name="n_likes">Likes</string>
+    <string name="n_music">Music</string>
+    <string name="n_books">Books</string>
+    <string name="n_notes">Notes</string>
+    <string name="n_videos">Videos</string> 
+    <string name="n_events">Events</string> 
+    <string name="n_groups">Groups</string> 
+    <string name="n_checkins">Checkins</string>  
+    <string name="n_locations">Locations</string>  
+    <string name="n_notifications">Notifications</string>  
+    
+    <string name="v_search">Search</string>
+    <string name="enable_gps">Enable GPS</string>
+    
+    <string name="n_sso">Single Sign On</string>
+    <string name="p_sso_sum">Use device account to sign on</string>
+    <string name="p_location_update">Location update</string>   
+        
+    <string name="other_data">Other Info</string>  
+</resources>

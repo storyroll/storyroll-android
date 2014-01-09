@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.storyroll"
+    android:versionCode="3"
+    android:versionName="0.12b" >
+
+    <!-- You can control the behaviors and visibility of the action bar with the ActionBar APIs, which were added in Android 3.0 (API level 11) -->
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="18" />
+    
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+	<uses-feature android:name="android.hardware.camera"/>
+	<uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+	
+    
+    <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" 
+        android:name="com.storyroll.MainApplication"
+        android:hardwareAccelerated="true"
+        android:screenOrientation="portrait">
+                    <!--  android:theme="@style/FullscreenTheme"  -->
+        <activity
+            android:name=".activity.LaunchActivity"
+            android:configChanges="keyboardHidden|screenSize"
+            android:label="@string/app_name"
+
+            android:theme="@style/SRTheme"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity 
+            android:name=".activity.SettingsActivity" 
+            android:label="@string/app_name"
+            android:theme="@style/SRTheme"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity 
+            android:name=".activity.LoginActivity" 
+            android:label="@string/app_name"
+            android:theme="@style/SRTheme"
+            android:screenOrientation="portrait">
+        </activity>        
+        <activity 
+            android:name=".activity.ProfileActivity" 
+            android:screenOrientation="portrait"
+            android:theme="@style/SRTheme"
+            android:label="@string/app_name">
+        </activity>
+        <activity 
+            android:name=".activity.RollFlipPlayActivity" 
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/SRTheme">
+        </activity>
+        <activity 
+            android:name=".activity.VideoCaptureActivity"
+            android:label="@string/app_name"
+            android:theme="@style/SRTheme"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity 
+            android:name=".activity.CameraTestActivity"
+            android:label="@string/app_name"
+            android:theme="@style/SRTheme"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity 
+            android:name=".activity.CameraPreview"
+            android:label="@string/app_name"
+            android:theme="@style/SRTheme"
+            android:screenOrientation="portrait">
+        </activity>      
+        <activity 
+            android:name=".activity.VideoSendActivity" 
+            android:label="@string/app_name"
+            android:theme="@style/SRTheme"
+            android:screenOrientation="portrait">
+        </activity>
+
+                
+        <!-- SERVICES --> 
+        
+        <service android:name="ru.jecklandin.stickman.vp.ProcessingService" android:process=":remote">
+            <!-- intent-filter>
+                <action android:name="ru.jecklandin.stickman.STOP_ACTION" />
+                <action android:name="ru.jecklandin.stickman.START_ACTION" />
+            </intent-filter -->
+        </service>
+
+        <service android:name="ru.jecklandin.stickman.vp.ProcessingService1" android:process=":remote1">
+        </service>
+
+        <service android:name="ru.jecklandin.stickman.vp.ProcessingService2" android:process=":remote2">
+        </service>
+    </application>
+
+</manifest>

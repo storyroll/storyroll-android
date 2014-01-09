@@ -1,0 +1,31 @@
+<resources>
+
+    <color name="black_overlay">#66000000</color>
+	<color name="ph">#FFEEEEEE</color>
+   	<color name="fb">#3B5998</color>
+   	
+   	<color name="sr_text_ab">#f5f3e6</color>
+   	
+	<color name="sr_bg">#f5f3e6</color>
+	<color name="sr_bg_splash">#569bb8</color>
+	<color name="sr_bg_actionbar">#569bb8</color>
+	<color name="sr_bg_cast">#ffffff</color>
+	
+	<color name="sr_bg_vidcap">#303030</color>
+	<color name="sr_vidcap_ctrl_text">#ebe8c9</color>
+	<color name="sr_vidcap_capture_text">#a1a2a6</color>
+	<color name="sr_video_uploaded_text">#ebe8c7</color>
+	
+	<color name="sr_bg_rec_button">#ce3c3d</color>
+	<color name="sr_bg_rec_button_flash">#ebe7ca</color>
+	<color name="sr_text_rec_button">#ebe7ca</color>
+	<color name="sr_text_rec_button_flash">#464646</color>
+	
+	<color name="sr_stroke_rec_button">#464646</color>
+	
+	
+		
+	
+		
+		
+</resources>

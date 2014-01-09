@@ -1,0 +1,104 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/sr_bg_splash"
+    tools:context=".activity.LauncherActivity" >
+
+    <!--
+         The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc.
+    -->
+    <LinearLayout
+        android:id="@+id/fullscreen_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:keepScreenOn="true"
+        android:orientation="vertical"
+        >
+
+	    <ImageView
+	        android:id="@+id/logo"
+	        android:layout_height="wrap_content"
+	        android:layout_width="200dp"
+	        android:gravity="center"
+	        android:src="@drawable/sr_logo"
+	        android:contentDescription="@string/app_name"
+	        android:paddingBottom="30dp" />
+	    
+	    <!-- ProgressBar
+		    android:id="@+id/progress"
+	         android:layout_width="match_parent"
+	         android:layout_height="20pt"
+	         style="@android:style/Widget.ProgressBar.Small"
+         	android:layout_marginLeft="5dp"
+         	android:visibility="invisible" /-->
+         	<LinearLayout
+         	    android:id="@+id/progressMarker"
+         	    android:visibility="visible"
+         	    android:layout_width="wrap_content"
+		         android:layout_height="wrap_content"
+		         android:background="@drawable/rounded_edges"
+         	    >
+         	    <TextView
+         	        android:layout_width="wrap_content"
+		         	android:layout_height="wrap_content"
+         	        android:paddingTop="10dp"
+         	        android:paddingBottom="10dp"
+         	        android:paddingLeft="25dp"
+         	        android:paddingRight="25dp"
+		         	android:textSize="8pt"
+		         	android:text="Loading ..."
+		         	android:textColor="#ebe8c9"
+		        />
+         	</LinearLayout>
+	    
+    </LinearLayout>
+
+    <!--
+         This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows.
+    -->
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true" >
+
+        <LinearLayout
+            android:id="@+id/fullscreen_content_controls"
+            style="?buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:background="@color/black_overlay"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent" >
+           <Button
+                android:id="@+id/test_button"
+                style="?buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Test FFMPEG" />
+           <Button
+                android:id="@+id/camera_button"
+                style="?buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Test Camera" />
+            <Button
+                android:id="@+id/dummy_button"
+                style="?buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/dummy_button" />
+
+        </LinearLayout>
+    </FrameLayout>
+
+</FrameLayout>

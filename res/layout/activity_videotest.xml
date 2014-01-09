@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@color/sr_bg_vidcap"
+    android:screenOrientation="portrait">
+    
+	<ProgressBar
+	    android:id="@+id/customProgressBar"
+	    style="?android:attr/progressBarStyleHorizontal"
+	    android:progressDrawable="@drawable/custom_progressbar"         
+	    android:layout_width="fill_parent"
+	    android:layout_height="16dp"
+	    android:visibility="visible"
+	    />
+	
+    <RelativeLayout
+        android:id="@+id/videoHolder"
+        android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:background="@android:color/holo_green_light">
+    	<!-- 
+	<SurfaceView
+	        android:id="@+id/CameraView"	        
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:visibility="invisible" >
+	    </SurfaceView>
+	    
+	<FrameLayout
+	    android:layout_width="fill_parent"
+    	android:layout_height="200px"
+	     />
+	    
+	<VideoView
+		    android:id="@+id/videoPlayerView"
+		    android:layout_alignParentTop="true"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:visibility="invisible">
+	    </VideoView>
+	    -->
+	    <Button
+	        android:id="@+id/rotateButton"
+	        android:background="@drawable/ctrl_camera_rotate" 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentTop="true"
+	        android:layout_alignParentRight="true"
+	        android:layout_marginRight="20dp"
+	        android:layout_marginTop="30dp"
+	        android:visibility="visible" 
+        />
+
+	    </RelativeLayout>
+	    
+    
+	    
+<!--     <FrameLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+	    
+	    <FrameLayout
+	        android:id="@+id/redButton"
+	        android:layout_gravity="center_horizontal"
+	        android:layout_width="150dp"
+	    	android:layout_height="150dp"
+	    	android:padding="15dp"
+	         >
+	       <View
+	        android:id="@+id/redButtonCircle"
+	    	android:scaleType="fitCenter"
+	    	android:background="@drawable/circle_flash"
+	    	android:layout_height="fill_parent"
+	        android:layout_width="fill_parent"
+	    	/>
+	        <TextView
+	            android:id="@+id/redButtonText"
+		        android:textSize="24sp"
+		        android:textColor="@color/sr_text_rec_button_flash"
+		        android:textStyle="bold"
+		        android:layout_height="fill_parent"
+		        android:layout_width="fill_parent"
+		        android:gravity="center"
+		        android:text="@string/ready"
+	        />
+	    </FrameLayout>
+
+	    
+    </FrameLayout> -->
+	    
+
+    
+</LinearLayout>
