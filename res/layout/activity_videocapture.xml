@@ -30,6 +30,7 @@
 		    android:layout_height="wrap_content"
 		    android:visibility="invisible">
 	    </VideoView>
+	    
 	    <SurfaceView
 	        android:id="@+id/CameraView"
 	        android:layout_alignParentTop="true"
@@ -37,6 +38,7 @@
 	        android:layout_height="wrap_content"
 	        android:visibility="invisible" >
 	    </SurfaceView>
+	    
 	    <Button
 	        android:id="@+id/rotateButton"
 	        android:background="@drawable/ctrl_camera_rotate" 
