@@ -1,5 +1,6 @@
 package com.storyroll.activity;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -240,8 +241,14 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     	AppUtility.logout(this);
         	Log.w(LOGTAG, "logout");
         	AppUtility.purgeProfile(this);
+    		
+        	// delete avatar picture
+    		File file = new File(AppUtility.getAppWorkingDir()+File.separator+"avatar.jpg");
+    		if (file.exists()) {
+    			file.delete();
+    		}
         	
-        	// TODO: empty cache
+    		// TODO: empty cache
 			
 			// go to Login
 	    	Intent intent = new Intent(this, LoginActivity.class);

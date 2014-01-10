@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -54,7 +55,14 @@ public class LoginActivity extends BaseActivity {
 	public void doneButtonClicked(View button){
 		// login via API
 		profile = new Profile();
-		profile.email = aq.id(R.id.email).getText().toString();
+		profile.email = aq.id(R.id.email).getText().toString().trim();
+		profile.password = aq.id(R.id.password).getText().toString().trim();
+		profile.authMethod = Profile.AUTH_EMAIL;
+		
+		if (TextUtils.isEmpty(profile.password) || TextUtils.isEmpty(profile.email) ) {
+            Toast.makeText(aq.getContext(), R.string.msg_password_email_required, Toast.LENGTH_SHORT).show();
+			return;
+		}
 		String apiUrl = AppUtility.API_URL + "getProfile?uuid="+profile.email;
 		aq.ajax(apiUrl, JSONObject.class, LoginActivity.this, "getSrProfileCb");
 	}
@@ -73,73 +81,73 @@ public class LoginActivity extends BaseActivity {
 	                    populateProfileFromFbJson(json);
 	                    
 	                    // query API, user exists?
-	    				String apiUrl = AppUtility.API_URL + "getProfile?uuid="+profile.email;
-						aq.ajax(apiUrl, JSONObject.class, LoginActivity.this, "getSrProfileCb");
+	    				String apiUrl = AppUtility.API_URL + "hasUser?uuid="+profile.email;
+						aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "hasUserCb");
 						
 					} catch (JSONException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
             }else{
-                    
-                    //ajax error, show error code
-                    Toast.makeText(aq.getContext(), "Error: "+status.getMessage()+" ("+ status.getCode()+")", Toast.LENGTH_LONG).show();
+            	apiError(LOGTAG, "Error: "+status.getMessage()+" ("+ status.getCode()+")");
             }
     }
     
-	public void getSrProfileCb(String url, JSONObject json, AjaxStatus status){
+	public void hasUserCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
+		Log.v(LOGTAG, "hasUserCb");
+		boolean userExists = false;
+		if(json!=null){
+			userExists = json.getBoolean("result");
+		}
+		Log.i(LOGTAG, "checkUserExistsBooleanCb user exists: "+ userExists);
+
+		if (userExists) {
+			// ...
+			profile.loggedIn = true;
+			persistProfile(profile);
+			startActivity(new Intent(getApplicationContext(), RollFlipPlayActivity.class));
+		}
+		else {
+			// user not in db, go to registration
+			nextActionRegister();
+		}
+    }
+	
+	public void getSrProfileCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
 		Log.v(LOGTAG, "getSrProfileCb");
 		if(json != null){
 			
-			// user exists, update profile and mark as signed in
-			try {
-				populateProfileFromSrJson(json);
-				profile.loggedIn = true;
-				persistProfile(profile);
+			// user exists, check password
+			String srPassword = json.getString("password");
+			if (!srPassword.equals(aq.id(R.id.password).getText().toString().trim())) {
+	        	Toast.makeText(aq.getContext(), "Password incorrect, change it and try again.", Toast.LENGTH_LONG).show();
+	        	return;
+			}
+			
+			// update profile and mark as signed in
+			profile = populateProfileFromSrJson(json, true);
+			profile.loggedIn = true;
+			persistProfile(profile);
 
-				startActivity(new Intent(getApplicationContext(), RollFlipPlayActivity.class));
-
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	  
+			startActivity(new Intent(getApplicationContext(), RollFlipPlayActivity.class));
 		
 		}else{
-		  // user not in db, add user to db first
-		  aq.ajax(AppUtility.API_URL + "addUser?uuid="+profile.email, JSONObject.class, this, "addUserCb");
+			// user not in db, go to registration
+			nextActionRegister();
 	  }
 	}
-
-	public void addUserCb(String url, JSONObject json, AjaxStatus status){
-	        
-        if(json != null){               
-            //successful ajax call
-        	Toast.makeText(aq.getContext(), "Registered successfully", Toast.LENGTH_LONG).show();
-        	Log.v(LOGTAG, "addUserCb: "+json.toString());
-        	try {
-				populateProfileFromSrJson(json);
-				profile.loggedIn = true;
-				if (connectedViaFacebook) {
-					profile.authMethod = Profile.AUTH_FACEBOOK;
-				}
-				else {
-					profile.authMethod = Profile.AUTH_EMAIL;
-				}
-				persistProfile(profile);
-				
-				Intent intent =  new Intent(this, ProfileActivity.class);
-				intent.putExtra("registration", true);
-				startActivity(intent);
-				
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        }else{          
-            //ajax error
-        	Log.e(LOGTAG, "addUserCb: could not register user");
-        	Toast.makeText(aq.getContext(), "There was an error registering user", Toast.LENGTH_LONG).show();
-        }
+	
+	private void nextActionRegister() {
+		if (connectedViaFacebook) {
+			profile.authMethod = Profile.AUTH_FACEBOOK;
+		}
+		else {
+			profile.authMethod = Profile.AUTH_EMAIL;
+		}
+		Intent intent =  new Intent(this, ProfileActivity.class);
+		intent.putExtra("registration", true);
+		intent.putExtra("profile", profile);
+		startActivity(intent);
 	}
     
     // populate profile from facebook response
@@ -153,26 +161,6 @@ public class LoginActivity extends BaseActivity {
 		profile.username = json.getString("first_name");
 		JSONObject location = json.getJSONObject("location");
 		profile.location = location.getString("name");
-	}
-	
-    // populate profile from StoryRoll API response
-	public void populateProfileFromSrJson(JSONObject json) throws JSONException{
-		if (profile==null) {
-			profile = new Profile();
-		}
-		profile.email = json.getString("uuid");
-		// in case no name set yet, make one from email
-		if (profile.username==null || "".equals(profile.username.trim())) {
-			profile.username = profile.email.trim().split("@")[0];
-		}
-		// set avatar id
-		if (json.has("avatar") && !json.isNull("avatar")) {
-			Log.v(LOGTAG, "has avatar");
-			JSONObject avatarJson = json.getJSONObject("avatar");
-			profile.avatar = avatarJson.getInt("id");
-		}
-		else
-			Log.v(LOGTAG, "has NO avatar");
 	}
 	
 	@Override

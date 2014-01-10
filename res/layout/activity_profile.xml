@@ -10,6 +10,15 @@
     android:orientation="vertical" 
     android:screenOrientation="portrait" >
     
+    <TextView
+        android:id="@+id/profileMessage"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Edit Profile"
+        android:textSize="10pt"
+        android:layout_marginBottom="16dp"
+        />
+        
     <ImageView
         android:id="@+id/avatar"   
         android:layout_width="200px"

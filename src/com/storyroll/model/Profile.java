@@ -1,6 +1,11 @@
 package com.storyroll.model;
 
-public class Profile {
+import java.io.Serializable;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Profile implements Serializable {
 	
 	public static final Integer AUTH_UNKNOWN = 0;
 	public static final Integer AUTH_EMAIL = 1;
@@ -10,22 +15,62 @@ public class Profile {
 	
 	public String id = null;
     public String username = null;
+    public String password = null;
     public String email = null;
     public Integer avatar = null;
     public Boolean loggedIn = false;
     public Integer authMethod = AUTH_UNKNOWN;
     public String location = null;
     
+    public Profile() {
+    	
+    }
+    
+    public Profile(String id, String username, String password, String location, Integer authMethod) {
+    	this.id = id;
+    	this.username = username;
+    	this.password = password;
+    	this.location = location;
+    	this.authMethod = authMethod;
+    }
+    
     public boolean isAuthFacebook() {
-    	return authMethod == AUTH_FACEBOOK;
+    	return AUTH_FACEBOOK.equals(authMethod);
+    }
+    
+    public boolean isAuthEmail() {
+    	return AUTH_EMAIL.equals(authMethod);
+    }
+    
+    public String toParamString(boolean addUsername, boolean forceAllFields) {
+    	String s = "uuid="+email;
+    	if (addUsername && username!=null) {
+    		s+="&username="+username;
+    	} else if (forceAllFields) {
+    		s+="&username="+(username==null?"":username);
+    	};
+    	
+    	if (location!=null) {
+    		s+="&location="+location;
+    	}
+    	else if (forceAllFields) {
+    		s+="&location="+(location==null?"":location);
+    	};
+    	
+    	if (forceAllFields) {
+    		s+="&auth_method="+(authMethod==null?AUTH_UNKNOWN:authMethod);
+    		s+="&password="+(password==null?"":password);
+    	}
+    	return s;
     }
     
 	@Override
 	public String toString() {
 		return "Profile [id=" + id + ", name=" + username + ", email=" + email
 				+ ", avatar=" + avatar + ", location=" + location + ", loggedIn=" + loggedIn
-				+ ", `auth=" + authMethod + "]";
+				+ ", auth=" + authMethod+ ", pass=" + password + "]";
 	}
+
 
 
 }

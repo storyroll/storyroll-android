@@ -1,5 +1,8 @@
 package com.storyroll.base;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -10,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import com.androidquery.util.AQUtility;
 import com.storyroll.PQuery;
@@ -72,6 +76,7 @@ public class BaseActivity extends Activity {
 		p.username = settings.getString(Constants.PREF_USERNAME, null);
 		p.authMethod = settings.getInt(Constants.PREF_AUTH_METHOD, Profile.AUTH_UNKNOWN);
 		p.loggedIn = settings.getBoolean(Constants.PREF_IS_LOGGED_IN, false);
+		p.location = settings.getString(Constants.PREF_LOCATION, null);
 		if (settings.contains(Constants.PREF_AVATAR)) {
 			p.avatar = settings.getInt(Constants.PREF_AVATAR, 0);
 		}
@@ -81,15 +86,16 @@ public class BaseActivity extends Activity {
 	}
 	
 	protected void persistProfile(Profile profile) {
-		persistProfile(profile.email, profile.username, profile.avatar, profile.authMethod, profile.loggedIn);
+		persistProfile(profile.email, profile.username, profile.avatar, profile.authMethod, profile.location, profile.loggedIn);
 	}
-	protected void persistProfile(String email, String username, Integer avatar, Integer authMethod, Boolean isLoggedIn) {
+	protected void persistProfile(String email, String username, Integer avatar, Integer authMethod, String location, Boolean isLoggedIn) {
 		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString(Constants.PREF_EMAIL, email);
 		editor.putString(Constants.PREF_USERNAME, username);
 		editor.putInt(Constants.PREF_AUTH_METHOD, authMethod);
 		editor.putBoolean(Constants.PREF_IS_LOGGED_IN, isLoggedIn);
+		editor.putString(Constants.PREF_LOCATION, location);
 		if (avatar==null) {
 			editor.remove(Constants.PREF_AVATAR);
 		}
@@ -100,4 +106,29 @@ public class BaseActivity extends Activity {
 		editor.commit();	
 	}
 	
+	protected void apiError(String logtag, String s) {
+		Log.e(logtag, "API Error: " + s);
+    	Toast.makeText(aq.getContext(), s, Toast.LENGTH_SHORT).show();
+	}
+	
+    // populate profile from StoryRoll API response
+	public Profile populateProfileFromSrJson(JSONObject json, boolean addAuthMethod) throws JSONException{
+		Profile	profile = new Profile();
+		profile.email = json.getString("uuid");
+		profile.username = json.getString("username");
+		// in case no name set yet, make one from email
+		if (profile.username==null || "".equals(profile.username.trim())) {
+			profile.username = profile.email.trim().split("@")[0];
+		}
+		profile.location = json.getString("location");
+		if (addAuthMethod) {
+			profile.authMethod = json.getInt("authMethod");
+		}
+		// set avatar id
+		if (json.has("avatar") && !json.isNull("avatar")) {
+			JSONObject avatarJson = json.getJSONObject("avatar");
+			profile.avatar = avatarJson.getInt("id");
+		}
+		return profile;
+	}
 }

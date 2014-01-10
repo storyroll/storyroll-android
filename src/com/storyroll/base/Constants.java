@@ -16,10 +16,12 @@ public interface Constants {
 	public static final String PREF_IS_LOGGED_IN = "sr.pref.loggedin";
 	public static final String PREF_AUTH_METHOD = "sr.pref.auth.method";
 	public static final String PREF_AVATAR = "sr.pref.avatar";
+	public static final String PREF_LOCATION = "sr.pref.location";
 	
-	public String PREF_SSO = "sf.pref.sso";
-	public String PREF_NID = "aq.fb.nid";
-	public String PREF_ACTION_ITEM = "aq.fb.item";
-	public String PREF_LAST_NOTI = "aq.fb.noti";
+	public static String PREF_SSO = "sf.pref.sso";
+	public static String PREF_NID = "aq.fb.nid";
+	public static String PREF_ACTION_ITEM = "aq.fb.item";
+	public static String PREF_LAST_NOTI = "aq.fb.noti";
+
 	
 }

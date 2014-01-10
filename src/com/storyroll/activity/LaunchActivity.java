@@ -152,8 +152,7 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 		// Upon interacting with UI controls, delay any scheduled hide()
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
-		bt = (Button) findViewById(R.id.dummy_button);
-		bt.setEnabled(false);
+		bt = (Button) findViewById(R.id.proceed_button);
 		bt.setOnTouchListener(mDelayHideTouchListener);
 
 		bt.setOnClickListener(new Button.OnClickListener() {

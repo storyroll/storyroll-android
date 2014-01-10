@@ -91,12 +91,13 @@
                 android:layout_weight="1"
                 android:text="Test Camera" />
             <Button
-                android:id="@+id/dummy_button"
+                android:id="@+id/proceed_button"
                 style="?buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/dummy_button" />
+                android:text="@string/dummy_button"
+                android:enabled="true" />
 
         </LinearLayout>
     </FrameLayout>

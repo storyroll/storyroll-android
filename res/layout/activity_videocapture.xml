@@ -20,7 +20,7 @@
     <RelativeLayout
         android:id="@+id/videoHolder"
         android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
+    	android:layout_height="fill_parent"
     	android:layout_marginTop="@dimen/custom_progressbar_height"
     	>
 	    <VideoView

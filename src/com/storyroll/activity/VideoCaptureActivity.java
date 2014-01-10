@@ -103,7 +103,9 @@ public class VideoCaptureActivity extends BaseActivity implements
 	private Integer storyId;
 	private boolean isStartNew = false;
 	private int cameraOrientation;
-	private Camera.Size bestSize;
+	private Camera.Size bestPreviewSize;
+	private Camera.Size bestRecordSize;
+
 	private Integer currentCameraId = null;
 
 	@Override
@@ -843,11 +845,13 @@ public class VideoCaptureActivity extends BaseActivity implements
 			cp.set("rotation", cameraOrientation+"");
 
 
-			bestSize = CameraUtility.getOptimalPreviewSize(640, 640, c);
-			Log.i(LOGTAG, "Best preview sizes: " + bestSize.width + ", "
-					+ bestSize.height);
+//			bestPreviewSize = CameraUtility.getOptimalPreviewSize(640, 640, c);
+			bestPreviewSize = CameraUtility.getOptimalRecordingSize(480, 480, c.getParameters().getSupportedPreviewSizes());
+					
+			Log.i(LOGTAG, "Best preview sizes: " + bestPreviewSize.width + ", "
+					+ bestPreviewSize.height);
 			
-			cp.setPreviewSize(bestSize.width, bestSize.height);
+			cp.setPreviewSize(bestPreviewSize.width, bestPreviewSize.height);
 
 			cp.setColorEffect(Camera.Parameters.EFFECT_MONO);
 			// TOOD:
@@ -887,7 +891,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 
 //		recorder.setVideoSize(bestSize.width, bestSize.height);
 //		recorder.setVideoSize(1280, 720);
-		recorder.setVideoSize(bestSize.width, bestSize.height);
+		recorder.setVideoSize(bestPreviewSize.width, bestPreviewSize.height);
 
 //		recorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
 		recorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);

@@ -89,6 +89,70 @@ public class CameraUtility {
 		return result;
 	}
 	
+	// get supported dimensions closest, but containing required dimensions
+	public static Camera.Size getOptimalRecordingSize(int w, int h, List<Size> sizes) {
+    	if (sizes==null) return null;
+
+    	Camera.Size result = null;
+		
+        final double ASPECT_TOLERANCE = 0.25;
+        double targetRatio = (double) w / h;
+
+        Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+        
+        Log.v(LOGTAG, "first pass");
+
+        // Try to find an size match aspect ratio and size
+        for (Size size : sizes) {
+            double ratio = (double) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (size.height<h || size.width<w) continue;
+            
+            if (Math.abs(size.height - h) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - h);
+            }
+        }
+        
+        if (result != null ) return result;
+        
+        Log.v(LOGTAG, "second pass");
+        
+		for (Camera.Size size : sizes) {
+			if (size.width >= w && size.height >= h) {
+				if (result == null) {
+					result = size;
+				} else {
+					int resultArea = result.width * result.height;
+					int newArea = size.width * size.height;
+
+					if (newArea < resultArea) {
+						result = size;
+					}
+				}
+			}
+		}
+		
+		if (result != null ) return result;
+        Log.v(LOGTAG, "second pass (biggest resolution)");
+
+		for (Camera.Size size : sizes) {
+				if (result == null) {
+					result = size;
+				} else {
+					int resultArea = result.width * result.height;
+					int newArea = size.width * size.height;
+
+					if (newArea > resultArea) {
+						result = size;
+					}
+				}
+		}
+
+		return result;
+	}
+	
 	// tget supported dimensions, containing required dimensions
 	public static Camera.Size getBestLargerPreviewSize(int width, int height, List<Size> sizes) {
 		Camera.Size result = null;
