@@ -62,17 +62,26 @@
             android:label="@string/app_name">
         </activity>
         <activity 
-            android:name=".activity.RollFlipPlayActivity" 
+            android:name=".activity.TabbedPlaylistActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/SRTheme">
-        </activity>
+            android:theme="@style/SRThemeStyledTabs"
+            android:screenOrientation="portrait">
+        </activity>  
+
         <activity 
             android:name=".activity.VideoCaptureActivity"
             android:label="@string/app_name"
             android:theme="@style/SRTheme"
             android:screenOrientation="portrait">
+        </activity>    
+        <activity 
+            android:name=".activity.VideoSendActivity" 
+            android:label="@string/app_name"
+            android:theme="@style/SRTheme"
+            android:screenOrientation="portrait">
         </activity>
+        
+        <!-- TEST ACTIVITIES -->
         <activity 
             android:name=".activity.CameraTestActivity"
             android:label="@string/app_name"
@@ -84,29 +93,36 @@
             android:label="@string/app_name"
             android:theme="@style/SRTheme"
             android:screenOrientation="portrait">
-        </activity>      
+        </activity>  
         <activity 
-            android:name=".activity.VideoSendActivity" 
+            android:name=".activity.TabbedPlaylistActivity1"
             android:label="@string/app_name"
-            android:theme="@style/SRTheme"
+            android:theme="@style/SRThemeStyledTabs"
             android:screenOrientation="portrait">
         </activity>
-
+        <activity 
+            android:name=".activity.RollFlipPlayActivity" 
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/SRTheme">
+        </activity>
+        
                 
         <!-- SERVICES --> 
         
-        <service android:name="ru.jecklandin.stickman.vp.ProcessingService" android:process=":remote">
-            <!-- intent-filter>
+<!--         <service android:name="ru.jecklandin.stickman.vp.ProcessingService" android:process=":remote">
+            intent-filter>
                 <action android:name="ru.jecklandin.stickman.STOP_ACTION" />
                 <action android:name="ru.jecklandin.stickman.START_ACTION" />
-            </intent-filter -->
+            </intent-filter
         </service>
 
         <service android:name="ru.jecklandin.stickman.vp.ProcessingService1" android:process=":remote1">
         </service>
 
         <service android:name="ru.jecklandin.stickman.vp.ProcessingService2" android:process=":remote2">
-        </service>
+        </service> -->
+        
     </application>
 
 </manifest>

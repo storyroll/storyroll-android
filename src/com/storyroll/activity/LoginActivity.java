@@ -17,6 +17,7 @@ import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
 import com.storyroll.model.Profile;
 import com.storyroll.util.AppUtility;
+import com.storyroll.util.DataUtility;
 
 public class LoginActivity extends BaseActivity {
 	private final static String LOGTAG = "LOGIN";
@@ -82,7 +83,7 @@ public class LoginActivity extends BaseActivity {
 	                    
 	                    // query API, user exists?
 	    				String apiUrl = AppUtility.API_URL + "hasUser?uuid="+profile.email;
-						aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "hasUserCb");
+						aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "hasFbUserInSrCb");
 						
 					} catch (JSONException e1) {
 						// TODO Auto-generated catch block
@@ -93,8 +94,8 @@ public class LoginActivity extends BaseActivity {
             }
     }
     
-	public void hasUserCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
-		Log.v(LOGTAG, "hasUserCb");
+	public void hasFbUserInSrCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
+		Log.v(LOGTAG, "hasFbUserInSrCb");
 		boolean userExists = false;
 		if(json!=null){
 			userExists = json.getBoolean("result");
@@ -105,7 +106,7 @@ public class LoginActivity extends BaseActivity {
 			// ...
 			profile.loggedIn = true;
 			persistProfile(profile);
-			startActivity(new Intent(getApplicationContext(), RollFlipPlayActivity.class));
+			startActivity(new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME));
 		}
 		else {
 			// user not in db, go to registration
@@ -115,26 +116,41 @@ public class LoginActivity extends BaseActivity {
 	
 	public void getSrProfileCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
 		Log.v(LOGTAG, "getSrProfileCb");
-		if(json != null){
+		if(json != null){ // user exists
 			
-			// user exists, check password
-			String srPassword = json.getString("password");
-			if (!srPassword.equals(aq.id(R.id.password).getText().toString().trim())) {
-	        	Toast.makeText(aq.getContext(), "Password incorrect, change it and try again.", Toast.LENGTH_LONG).show();
-	        	return;
-			}
+			// check login
+			String md5 = DataUtility.md5(aq.id(R.id.password).getText().toString().trim());
+			Log.d(LOGTAG, "md5: "+md5);
 			
-			// update profile and mark as signed in
+			// update profile
 			profile = populateProfileFromSrJson(json, true);
-			profile.loggedIn = true;
-			persistProfile(profile);
-
-			startActivity(new Intent(getApplicationContext(), RollFlipPlayActivity.class));
+			
+			String apiUrl = AppUtility.API_URL + "loginValid?uuid="+profile.email+"&password="+md5;
+			aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "loginValidCb");
 		
 		}else{
 			// user not in db, go to registration
 			nextActionRegister();
 	  }
+	}
+	
+	public void loginValidCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
+		Log.v(LOGTAG, "loginValidCb");
+		boolean loginValid = false;
+		if(json != null)
+		{ // user exists
+			loginValid = json.getBoolean("result");
+			if (!loginValid) {
+				Toast.makeText(aq.getContext(), "Password incorrect, review and try again.", Toast.LENGTH_SHORT).show();
+			} else {
+				Log.d(LOGTAG, "login successfull");
+			}
+		}else{
+			apiError(LOGTAG, "Error logging in");
+		}
+		profile.loggedIn = loginValid;
+		persistProfile(profile);
+		startActivity(new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME));
 	}
 	
 	private void nextActionRegister() {

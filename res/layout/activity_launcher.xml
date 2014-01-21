@@ -90,6 +90,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Test Camera" />
+           <Button
+                android:id="@+id/tabs_button"
+                style="?buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tabs" />
             <Button
                 android:id="@+id/proceed_button"
                 style="?buttonBarButtonStyle"

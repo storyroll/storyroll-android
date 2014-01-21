@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -42,6 +42,9 @@
     
     <style name="SRTheme" parent="SRBaseTheme">
         <item name="android:actionBarStyle">@style/SRActionBar</item>
+<!--         <item name="android:actionBarTabStyle">@style/ActionBarTabStyle</item>
+        <item name="android:actionBarTabBarStyle">@style/ActionBarTabBarStyle</item> 
+        <item name="android:actionBarTabTextStyle">@style/Widget.MyTabText</item> -->
     </style>
 
     <style name="SRActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
@@ -59,5 +62,36 @@
 	<style name="SRActionBar.TitleTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
 	    <item name="android:textColor">#FFF</item>
 	</style>
+
+	
+	<!-- ViewPagerIndicator -->
+	<style name="SRThemeStyledTabs" parent="SRTheme">
+	    <item name="android:actionBarTabStyle">@style/ActionBarTabStyle</item>
+        <item name="android:actionBarTabBarStyle">@style/ActionBarTabBarStyle</item> 
+        <item name="android:actionBarTabTextStyle">@style/ActionBarTabTextStyle</item>
+	</style>
+    	
+	<!-- Custom Action Bar tab style  -->
+	
+	<!-- Defines a style resource for tabs in the action bar. -->
+	<style name="ActionBarTabStyle" parent="@android:style/Widget.Holo.ActionBar.TabView">
+	    <item name="android:headerDividersEnabled">true</item>
+	    <item name="android:background">@drawable/sr_tab_indicator</item>
+	    <!--  item name="android:background">#464646</item -->
+	</style>
+	
+	<!-- Defines a style resource for the thin bar that appears below the navigation tabs. -->
+	<style name="ActionBarTabBarStyle" parent="@android:style/Widget.Holo.ActionBar.TabBar">
+	     <item name="android:background">#464646</item>
+	     <item name="android:dividerPadding">8dp</item>
+	</style>
+	
+	<!-- Defines a style resource for text in the navigation tabs. -->
+	<style name="ActionBarTabTextStyle" parent="android:Widget.Holo.Light.ActionBar.TabText.Inverse">
+    	<item name="android:textSize">14sp</item>
+    	<item name="android:textColor">#e9e8ca</item>
+	</style>
+	
+	<!--  Generated  -->
 	
 </resources>

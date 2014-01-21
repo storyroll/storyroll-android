@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <com.storyroll.ui.PlaylistItemView xmlns:android="http://schemas.android.com/apk/res/android"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical"
+      >
+   
+     <FrameLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_gravity="center_horizontal"
+         android:layout_marginTop="10dp">
+         
+	    <ImageView 
+	        android:id="@+id/storyThumb"
+	       	android:layout_gravity="center_horizontal"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+			android:visibility="visible"
+	        />		    
+	    <com.storyroll.ui.ControlledVideoView
+	        android:id="@+id/videoPlayerView"
+	        android:layout_gravity="center_horizontal"
+	        android:visibility="invisible"
+	        android:layout_width="match_parent"
+	        android:layout_height="300dp"
+	         />
+	    
+  	</FrameLayout>
+
+  	<LinearLayout
+  	    android:layout_width="wrap_content"
+  	    android:layout_height="wrap_content"
+	    android:background="@drawable/cast_layout"
+	    android:orientation="vertical"
+	    android:layout_gravity="center_horizontal"
+	    >
+    
+    <TextView 
+           android:layout_height="wrap_content"
+           android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/cast"
+        android:textColor="#808080"
+        android:textSize="12sp"
+          />
+   <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingLeft="8dp"
+        android:paddingRight="3dp"
+        android:paddingBottom="3dp"
+        >
+
+        <ImageView
+            android:id="@+id/cast1"
+            android:layout_height="60dp"
+            android:layout_width="60dp"
+            android:layout_alignParentTop="true"
+            android:paddingRight="10px"
+            android:visibility="invisible"/>
+        <ImageView
+            android:id="@+id/cast2"
+            android:layout_height="60dp"
+            android:layout_width="60dp"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/cast1"
+            android:paddingRight="10px"
+            android:visibility="invisible"/>
+        <ImageView
+            android:id="@+id/cast3"
+            android:layout_height="60dp"
+            android:layout_width="60dp"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/cast2"
+            android:paddingRight="10px"
+            android:visibility="invisible"/>
+        <ImageView
+            android:id="@+id/cast4"
+            android:layout_height="60dp"
+            android:layout_width="60dp"
+            android:layout_toRightOf="@id/cast3"
+            android:layout_alignParentTop="true"
+            android:paddingRight="10px"
+            android:visibility="invisible"/>
+        <ImageView
+            android:id="@+id/cast5"
+            android:layout_height="60dp"
+            android:layout_width="60dp"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@id/cast4"
+            android:paddingRight="10px"
+            android:visibility="invisible"/>
+       </RelativeLayout>
+      </LinearLayout>
+      
+  	<FrameLayout 
+  	    android:layout_height="wrap_content"
+   	android:layout_width="wrap_content"
+   	android:layout_gravity="center_horizontal">
+   	<ImageView 
+   	    android:id="@+id/likeImage"
+   	    android:layout_height="wrap_content"
+   	    android:layout_width="wrap_content"
+   	    android:src="@drawable/ic_star_off"
+   	    android:layout_gravity="center_horizontal"
+   	    />
+   	<TextView
+   	    android:id="@+id/numLikes"
+           android:layout_height="match_parent"
+           android:layout_width="match_parent"
+        android:layout_gravity="center"
+        android:textColor="#464646"
+        android:textStyle="bold"
+        android:textSize="20sp"
+          />
+  	</FrameLayout>
+  	
+	<ProgressBar 
+		android:id="@+id/progress"	
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_horizontal" 
+		android:visibility="gone"
+	/>
+
+</com.storyroll.ui.PlaylistItemView>

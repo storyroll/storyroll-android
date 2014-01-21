@@ -57,7 +57,8 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 	 */
 	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
-	protected static final long SPLASH_SCREEN_WAIT = 3000;
+//	protected static final long SPLASH_SCREEN_WAIT = 3000;
+	protected static final long SPLASH_SCREEN_WAIT = 500;
 
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
@@ -173,6 +174,7 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 		        
 			}
 		});
+		
 		Button bt3 = (Button) findViewById(R.id.camera_button);
 		bt3.setOnTouchListener(mDelayHideTouchListener);
 
@@ -180,9 +182,17 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 			@Override
 			public void onClick(View v) {
 				isGone = true;
-	        	startActivity(new Intent(getApplicationContext(), CameraPreview.class));
-				Log.v(LOGTAG, "check");
-		        
+	        	startActivity(new Intent(getApplicationContext(), CameraPreview.class));		        
+			}
+		});
+		
+		Button bt4 = (Button) findViewById(R.id.tabs_button);
+		bt4.setOnTouchListener(mDelayHideTouchListener);
+
+		bt4.setOnClickListener(new Button.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+	        	startActivity(new Intent(getApplicationContext(), TabbedPlaylistActivity.class));
 			}
 		});
 		
@@ -237,7 +247,9 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 		Log.d(LOGTAG, "proceed to next action");
 		isGone = true;
         if (isLoggedIn()) {
-        	startActivity(new Intent(getApplicationContext(), RollFlipPlayActivity.class));
+//        	startActivity(new Intent(getApplicationContext(), RollFlipPlayActivity.class));
+        	startActivity(new Intent(getApplicationContext(), TabbedPlaylistActivity.class));
+
         }
         else {
         	// TODO: in fact, will have to be a roll-flip but different

@@ -1,21 +1,6 @@
 /*******************************************************************************
- * Copyright 2012 AndroidQuery (tinyeeliu@gmail.com)
+ * Copyright 2014 StoryRoll
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * 
- * Additional Note:
- * 1. You cannot use AndroidQuery's Facebook app account in your own apps.
- * 2. You cannot republish the app as is with advertisements.
  ******************************************************************************/
 package com.storyroll.util;
 
@@ -32,6 +17,7 @@ import android.util.Log;
 import com.androidquery.auth.FacebookHandle;
 import com.storyroll.MainApplication;
 import com.storyroll.R;
+import com.storyroll.activity.TabbedPlaylistActivity;
 import com.storyroll.base.Constants;
 //import com.androidquery.simplefeed.data.Entity;
 //import com.androidquery.simplefeed.enums.FeedMode;
@@ -52,6 +38,8 @@ public class AppUtility {
 	
 //	public final static String API_URL="http://192.168.1.64:8080/storyroll/api/";
 	public final static String API_URL="http://storyroll.vibe.lt/storyroll/api/";
+	
+	public final static Class ACTIVITY_HOME = TabbedPlaylistActivity.class;
 	
 	
 	public static FacebookHandle makeHandle(Activity act){

@@ -143,13 +143,14 @@ public class IntentUtility {
 //    }
     
     
-    public static void sendEmail(Activity act, String title){
+    public static void sendEmail(Activity act, String title, String text){
     	
     	Intent i = new Intent(Intent.ACTION_SEND);
     	
     	i.setType("text/plain");
     	i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"martynas@ore.lt"});
     	i.putExtra(Intent.EXTRA_SUBJECT, title);
+    	i.putExtra(Intent.EXTRA_TEXT, text);
     	
     	String select = act.getString(R.string.send_email);
     	

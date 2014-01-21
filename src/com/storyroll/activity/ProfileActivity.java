@@ -290,7 +290,7 @@ public class ProfileActivity extends MenuActivity {
 	}
 	
 	private void nextActivity() {
-		startActivity(new Intent(getApplicationContext(), RollFlipPlayActivity.class));
+		startActivity(new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME));
 	}
 	
 	private static Uri outputFileUri;

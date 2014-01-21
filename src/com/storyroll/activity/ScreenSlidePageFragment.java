@@ -1,17 +1,5 @@
 /*
- * Copyright 2012 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2014 StoryRoll
  */
 
 package com.storyroll.activity;
@@ -25,6 +13,7 @@ import org.json.JSONObject;
 import com.androidquery.callback.AjaxStatus;
 import com.storyroll.PQuery;
 import com.storyroll.R;
+import com.storyroll.model.Story;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import com.storyroll.util.AppUtility;
@@ -71,7 +60,7 @@ public class ScreenSlidePageFragment extends Fragment implements OnVideoTaskComp
     private ImageView mVideoSnapshot;
     private ProgressBar progressBar;
     private ImageView mLikeImage;
-	private Integer mStoryId = null;
+	private Story mStory = null;
 	private String mUuid;
 	private boolean isLoading = false;
 
@@ -110,12 +99,12 @@ public class ScreenSlidePageFragment extends Fragment implements OnVideoTaskComp
 	/**
      * Factory method for this fragment class. Constructs a new fragment for the given page number.
      */
-    public static ScreenSlidePageFragment create(int pageNumber, int storyId, String uuid) {
+    public static ScreenSlidePageFragment create(int pageNumber, Story story, String uuid) {
     	Log.v(LOGTAG, "create fragment no "+pageNumber);
         ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PAGE, pageNumber);
-        args.putInt(ARG_STORY, storyId);
+        args.putSerializable(ARG_STORY, story);
         args.putString(ARG_UUID, uuid);
         fragment.setArguments(args);
         return fragment;
@@ -128,7 +117,7 @@ public class ScreenSlidePageFragment extends Fragment implements OnVideoTaskComp
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPageNumber = getArguments().getInt(ARG_PAGE);
-        mStoryId = getArguments().getInt(ARG_STORY);
+        mStory = (Story)getArguments().get(ARG_STORY);
         mUuid =getArguments().getString(ARG_UUID);
     }
 
@@ -147,7 +136,7 @@ public class ScreenSlidePageFragment extends Fragment implements OnVideoTaskComp
         // TODO: load video snapshot
 //        mVideoSnapshot.setImageResource(R.drawable.video_screen);
     	
-    	Uri imgUri = Uri.parse(AppUtility.API_URL+"storyThumb?story="+mStoryId);
+    	Uri imgUri = Uri.parse(AppUtility.API_URL+"storyThumb?story="+mStory.getId());
     	mVideoSnapshot.setImageURI(imgUri);
     	setViewSquare(mVideoSnapshot, screenWidth);
 
@@ -160,7 +149,7 @@ public class ScreenSlidePageFragment extends Fragment implements OnVideoTaskComp
 			        progressBar.setVisibility(View.VISIBLE);
 			        isLoading = true;
 //			        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
-			        String url = AppUtility.API_URL+"storyFile?story="+mStoryId;
+			        String url = AppUtility.API_URL+"storyFile?story="+mStory.getId();
 			        		        
 			   		VideoDownloadTask task = new VideoDownloadTask(getActivity().getApplicationContext(), ScreenSlidePageFragment.this);
 			        task.execute(url);
@@ -221,23 +210,37 @@ public class ScreenSlidePageFragment extends Fragment implements OnVideoTaskComp
 		mLikeImage.setOnClickListener(new ImageView.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String url = AppUtility.API_URL + "like?uuid="+ mUuid +"&story="+mStoryId;             
+				String url = AppUtility.API_URL + "like?uuid="+ mUuid +"&story="+mStory.getId();             
 		        aq.ajax(url, JSONObject.class, ScreenSlidePageFragment.this, "likeCallback");	
 			}
 		});
         
    		// load story cast from API
    		// TODO: real id
-        mStoryId = 10;
-        aq = ((RollFlipPlayActivity)getActivity()).getPQuery();
+//        mStoryId = 10;
+        aq = ((RollFlipPlayActivity1)getActivity()).getPQuery();
         
-   		aq.ajax(AppUtility.API_URL+"getStoryCast?story="+mStoryId, JSONArray.class, this, "getStoryCastCb");
+        ((TextView)rootView.findViewById(R.id.numLikes)).setText(printFriendlyLikes(mStory.getLikes()));
+        
+   		aq.ajax(AppUtility.API_URL+"getStoryCast?story="+mStory.getId(), JSONArray.class, this, "getStoryCastCb");
+   		
+//   		aq.ajax(AppUtility.API_URL+"storyLikes?story="+mStory.getId(), JSONArray.class, this, "getStoryLikesCb");
 
         // Set the title view to show the page number.
 //        ((TextView) rootView.findViewById(android.R.id.text1)).setText(
 //                getString(R.string.title_template_step, mPageNumber + 1));
 
         return rootView;
+    }
+    
+    private String printFriendlyLikes(int n) {
+    	if (n>1000000) {
+    		return (n/1000000)+"m";
+    	}
+    	else if (n>1000) {
+    		return (n/1000)+"k";
+    	}
+    	return n+"";
     }
     
     PQuery aq;
@@ -263,7 +266,7 @@ public class ScreenSlidePageFragment extends Fragment implements OnVideoTaskComp
     		
         }else{          
             //ajax error
-        	Log.e(LOGTAG, "getStoryCastCb: null Json, cast not received for storyId="+mStoryId);
+        	Log.e(LOGTAG, "getStoryCastCb: null Json, cast not received for storyId="+mStory.getId());
         }
        
 	}	

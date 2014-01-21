@@ -12,6 +12,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -134,8 +135,37 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     
     private void report(){
     	String title = getString(R.string.report_problem);
-    	IntentUtility.sendEmail(this, title);
+    	String text = "- - -\n\nPlease report your problem above. Your device details below will help investigating.\n\nDevice: "+
+    		getDeviceName() + 
+    		"\nFirmware: "+
+    		Build.VERSION.RELEASE+
+    		"\nKernel: "+
+    		System.getProperty("os.version");
+    	IntentUtility.sendEmail(this, title, text);
     }
+    
+    public String getDeviceName() {
+    	  String manufacturer = Build.MANUFACTURER;
+    	  String model = Build.MODEL;
+    	  if (model.startsWith(manufacturer)) {
+    	    return capitalize(model);
+    	  } else {
+    	    return capitalize(manufacturer) + " " + model;
+    	  }
+    	}
+
+
+	private String capitalize(String s) {
+	  if (s == null || s.length() == 0) {
+	    return "";
+	  }
+	  char first = s.charAt(0);
+	  if (Character.isUpperCase(first)) {
+	    return s;
+	  } else {
+	    return Character.toUpperCase(first) + s.substring(1);
+	  }
+	} 
     
     ///PROFILE_ID/links 	Publish a link on the given profile 	link, message, picture, name, caption, description
     

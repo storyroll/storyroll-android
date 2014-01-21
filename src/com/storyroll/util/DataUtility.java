@@ -28,6 +28,8 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import android.util.Base64;
 
@@ -98,5 +100,25 @@ public class DataUtility {
         String extension = url.getPath().replaceFirst("^.*/[^/]*(\\.[^\\./]*|)$", "$1");
         extension = ".mp4";
         return Base64.encodeToString(urlString.getBytes(), Base64.DEFAULT)+extension;
+    }
+    
+    public static String md5(String s) {
+    	if (s==null) return null;
+        try {
+            // Create MD5 Hash
+            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            digest.update(s.getBytes());
+            byte messageDigest[] = digest.digest();
+
+            // Create Hex String
+            StringBuffer hexString = new StringBuffer();
+            for (int i=0; i<messageDigest.length; i++)
+                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

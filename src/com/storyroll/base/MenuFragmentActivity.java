@@ -1,18 +1,19 @@
 package com.storyroll.base;
 
+import com.storyroll.R;
+import com.storyroll.activity.ProfileActivity;
+import com.storyroll.activity.SettingsActivity;
+import com.storyroll.activity.VideoCaptureActivity;
+
 import android.content.Intent;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.storyroll.R;
-import com.storyroll.activity.ProfileActivity;
-import com.storyroll.activity.SettingsActivity;
-
-public class MenuActivity extends BaseActivity {
-	private static final String TAG = "MenuActivity";
-	MenuItem settings, profile;
-
+public class MenuFragmentActivity extends FragmentActivity {
+    // ------- menus
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
@@ -25,8 +26,17 @@ public class MenuActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 	  // Handle item selection
 	  Intent intent;
+	  if (item.getItemId() == android.R.id.home) // this will be our left action item 
+	  {
+		// TODO: go to Login?
+			intent = new Intent(this, VideoCaptureActivity.class);
+			//					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+          return true;
+	  } 
+	  else
 //	    if (item.getItemId() == R.id.action_join) {
-//			// go to Login?
+//			// go to Login
 //			intent = new Intent(this, VideoCaptureActivity.class);
 //			//					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 //			startActivity(intent);
@@ -40,15 +50,8 @@ public class MenuActivity extends BaseActivity {
 			intent = new Intent (this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
-//		} else if (item.getItemId() == R.id.action_rolls_favs || item.getItemId() == R.id.action_rolls_my
-//				|| item.getItemId() == R.id.action_rolls_new || item.getItemId() == R.id.action_rolls_top) {
-//			intent = new Intent (this, RollFlipPlayActivity.class);
-//			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//			startActivity(intent);
-//			return true;
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
     }
-
 }

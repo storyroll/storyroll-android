@@ -704,7 +704,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 			case STATE_PREV_LAST:
 			case STATE_INITIAL:
 				// return to the last used playlist
-				intent = new Intent(VideoCaptureActivity.this, RollFlipPlayActivity.class);
+				intent = new Intent(VideoCaptureActivity.this, AppUtility.ACTIVITY_HOME);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				

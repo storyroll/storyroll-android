@@ -7,22 +7,9 @@
           android:showAsAction="ifRoom"/
           -->
     
-    <item android:id="@+id/action_rolls_top"
-          android:title="@string/action_rolls_top" />    
-    <item android:id="@+id/action_rolls_new"
-          android:title="@string/action_rolls_new" 
-          android:visible="false"
-          />    
-    <item android:id="@+id/action_rolls_my"
-          android:title="@string/action_rolls_my"
-          android:visible="false"
-           />    
-    <item android:id="@+id/action_rolls_favs"
-          android:title="@string/action_rolls_favs" 
-          android:visible="false"/>    
-        
-    
-    <item android:id="@+id/action_profile"
+<!--     <item android:id="@+id/action_rolls_top"
+          android:title="@string/action_rolls_top" />
+ -->    <item android:id="@+id/action_profile"
           android:title="@string/action_profile" />
     <item android:id="@+id/action_settings"
           android:title="@string/action_settings" />

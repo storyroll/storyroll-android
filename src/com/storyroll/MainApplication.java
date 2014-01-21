@@ -1,6 +1,5 @@
 package com.storyroll;
 
-
 import java.io.File;
 
 import android.app.Application;
@@ -16,8 +15,6 @@ import com.storyroll.base.Constants;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.ErrorReporter;
 import com.storyroll.util.PrefUtility;
-
-
 
 public class MainApplication extends Application implements Thread.UncaughtExceptionHandler{
 
