@@ -213,6 +213,7 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 			if (!userExists) {
 				AppUtility.purgeProfile(this);
 			}
+			nextAction();
 		} else {
 			// user not found, purge profile
 			Log.i(LOGTAG, "checkUserExistsBooleanCb bad response");

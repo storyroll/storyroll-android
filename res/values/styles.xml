@@ -77,6 +77,8 @@
 	<style name="ActionBarTabStyle" parent="@android:style/Widget.Holo.ActionBar.TabView">
 	    <item name="android:headerDividersEnabled">true</item>
 	    <item name="android:background">@drawable/sr_tab_indicator</item>
+	    <item name="android:paddingLeft">6dp</item>
+    	<item name="android:paddingRight">6dp</item>
 	    <!--  item name="android:background">#464646</item -->
 	</style>
 	
@@ -88,7 +90,7 @@
 	
 	<!-- Defines a style resource for text in the navigation tabs. -->
 	<style name="ActionBarTabTextStyle" parent="android:Widget.Holo.Light.ActionBar.TabText.Inverse">
-    	<item name="android:textSize">14sp</item>
+    	<item name="android:textSize">12sp</item>
     	<item name="android:textColor">#e9e8ca</item>
 	</style>
 	
