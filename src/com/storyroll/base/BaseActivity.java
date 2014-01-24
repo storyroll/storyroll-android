@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
+import com.androidquery.callback.AjaxStatus;
 import com.androidquery.util.AQUtility;
 import com.storyroll.PQuery;
 import com.storyroll.R;
@@ -130,5 +131,14 @@ public class BaseActivity extends Activity {
 			profile.avatar = avatarJson.getInt("id");
 		}
 		return profile;
+	}
+	
+	protected boolean isAjaxErrorThenReport(AjaxStatus status) {
+		if (status.getCode() != 200 && status.getCode()!=status.TRANSFORM_ERROR) {
+			apiError(LOGTAG, "Connection error, try again later");
+			Log.e(LOGTAG, "Error code "+status.getCode());
+			return true;
+		}
+		return false;
 	}
 }

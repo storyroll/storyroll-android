@@ -31,6 +31,7 @@ import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.base.Constants;
 import com.storyroll.model.Profile;
+import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.DialogUtility;
 import com.storyroll.util.IntentUtility;
@@ -53,7 +54,11 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         
-    	super.onCreate(savedInstanceState);        
+    	super.onCreate(savedInstanceState);
+    	
+    	ActionBarUtility.initCustomActionBar(this);
+		ActionBarUtility.adjustActionBarLogoCentering(this);
+
         addPreferencesFromResource(R.xml.settings);
         
         aq = new PQuery(this);

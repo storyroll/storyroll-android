@@ -3,12 +3,17 @@ package com.storyroll.activity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ActionBar.LayoutParams;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.Toast;
 
 import com.androidquery.auth.FacebookHandle;
@@ -16,6 +21,7 @@ import com.androidquery.callback.AjaxStatus;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
 import com.storyroll.model.Profile;
+import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.DataUtility;
 
@@ -32,7 +38,9 @@ public class LoginActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-
+		
+		ActionBarUtility.adjustActionBarLogoCentering(this);
+		
 		handle = AppUtility.makeHandle(this);
 		
 		aq.id(R.id.facebook_button).clicked(this, "facebookButtonClicked");
@@ -71,31 +79,34 @@ public class LoginActivity extends BaseActivity {
 	// - - - callbacks & helpers 
     public void facebookProfileCb(String url, JSONObject json, AjaxStatus status) {
 		Log.v(LOGTAG, "facebookProfileCb");
+    	if (isAjaxErrorThenReport(status)) return;
             
-            if(json != null){
-				try {
-	                    //successful ajax call
-						Log.v(LOGTAG, "facebookProfileCb: Facebook connected");
-	                    Toast.makeText(aq.getContext(), "Facebook connected", Toast.LENGTH_SHORT).show();
-	                    connectedViaFacebook = true;
-	                    
-	                    populateProfileFromFbJson(json);
-	                    
-	                    // query API, user exists?
-	    				String apiUrl = AppUtility.API_URL + "hasUser?uuid="+profile.email;
-						aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "hasFbUserInSrCb");
-						
-					} catch (JSONException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-            }else{
-            	apiError(LOGTAG, "Error: "+status.getMessage()+" ("+ status.getCode()+")");
-            }
+        if(json != null){
+			try {
+                    //successful ajax call
+					Log.v(LOGTAG, "facebookProfileCb: Facebook connected");
+                    Toast.makeText(aq.getContext(), "Facebook connected", Toast.LENGTH_SHORT).show();
+                    connectedViaFacebook = true;
+                    
+                    populateProfileFromFbJson(json);
+                    
+                    // query API, user exists?
+    				String apiUrl = AppUtility.API_URL + "hasUser?uuid="+profile.email;
+					aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "hasFbUserInSrCb");
+					
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+        }else{
+        	apiError(LOGTAG, "Error: "+status.getMessage()+" ("+ status.getCode()+")");
+        }
     }
     
 	public void hasFbUserInSrCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
 		Log.v(LOGTAG, "hasFbUserInSrCb");
+		if (isAjaxErrorThenReport(status)) return;
+		
 		boolean userExists = false;
 		if(json!=null){
 			userExists = json.getBoolean("result");
@@ -116,8 +127,9 @@ public class LoginActivity extends BaseActivity {
 	
 	public void getSrProfileCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
 		Log.v(LOGTAG, "getSrProfileCb");
+		if (isAjaxErrorThenReport(status)) return;
 		if(json != null){ // user exists
-			
+			Log.v(LOGTAG, "user exists");
 			// check login
 			String md5 = DataUtility.md5(aq.id(R.id.password).getText().toString().trim());
 			Log.d(LOGTAG, "md5: "+md5);
@@ -129,6 +141,7 @@ public class LoginActivity extends BaseActivity {
 			aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "loginValidCb");
 		
 		}else{
+			Log.v(LOGTAG, "json null");
 			// user not in db, go to registration
 			nextActionRegister();
 	  }
@@ -136,21 +149,26 @@ public class LoginActivity extends BaseActivity {
 	
 	public void loginValidCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
 		Log.v(LOGTAG, "loginValidCb");
+		if (isAjaxErrorThenReport(status)) return;
+		
 		boolean loginValid = false;
 		if(json != null)
 		{ // user exists
 			loginValid = json.getBoolean("result");
+			// TODO: remove below
+			loginValid = true;
 			if (!loginValid) {
 				Toast.makeText(aq.getContext(), "Password incorrect, review and try again.", Toast.LENGTH_SHORT).show();
+				return;
 			} else {
 				Log.d(LOGTAG, "login successfull");
+				profile.loggedIn = loginValid;
+				persistProfile(profile);
+				startActivity(new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME));
 			}
 		}else{
 			apiError(LOGTAG, "Error logging in");
 		}
-		profile.loggedIn = loginValid;
-		persistProfile(profile);
-		startActivity(new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME));
 	}
 	
 	private void nextActionRegister() {
@@ -202,6 +220,7 @@ public class LoginActivity extends BaseActivity {
 	
 	        }
 	}
+	
 
 
 }

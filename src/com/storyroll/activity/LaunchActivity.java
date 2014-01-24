@@ -82,10 +82,10 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 		// update loggedIn flag - in case user was deleted
 		if (isLoggedIn()) {
 			String apiUrl = AppUtility.API_URL + "hasUser?uuid="+getUuid();
-//			String apiUrl = AppUtility.API_URL + "getProfile?uuid="+getUuid();
-
-//			aq.ajax(apiUrl, JSONObject.class, this, "checkUserExistsCb");
 			aq.progress(R.id.progressMarker).ajax(apiUrl, JSONObject.class, this, "checkUserExistsBooleanCb");
+		}
+		else {
+			nextAction();
 		}
 
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
@@ -162,29 +162,18 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 				nextAction();        
 			}
 		});
-		
-		Button bt2 = (Button) findViewById(R.id.test_button);
-		bt2.setOnTouchListener(mDelayHideTouchListener);
 
-		bt2.setOnClickListener(new Button.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				
-				ffmpegTester();
-		        
-			}
-		});
 		
-		Button bt3 = (Button) findViewById(R.id.camera_button);
-		bt3.setOnTouchListener(mDelayHideTouchListener);
-
-		bt3.setOnClickListener(new Button.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				isGone = true;
-	        	startActivity(new Intent(getApplicationContext(), CameraPreview.class));		        
-			}
-		});
+//		Button bt3 = (Button) findViewById(R.id.camera_button);
+//		bt3.setOnTouchListener(mDelayHideTouchListener);
+//
+//		bt3.setOnClickListener(new Button.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				isGone = true;
+//	        	startActivity(new Intent(getApplicationContext(), CameraPreview.class));		        
+//			}
+//		});
 		
 		Button bt4 = (Button) findViewById(R.id.tabs_button);
 		bt4.setOnTouchListener(mDelayHideTouchListener);
@@ -196,20 +185,27 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 			}
 		});
 		
-		Handler handler = new Handler();
-		handler.postDelayed(new Runnable() {
-			
-			@Override
-			public void run() {
-				if (!isGone)
-	            	nextAction();   
-			}
-		}, SPLASH_SCREEN_WAIT);
+//		if (SPLASH_SCREEN_WAIT>0) {
+//			Handler handler = new Handler();
+//			handler.postDelayed(new Runnable() {
+//				
+//				@Override
+//				public void run() {
+//					if (!isGone)
+//		            	nextAction();   
+//				}
+//			}, SPLASH_SCREEN_WAIT);
+//		}
+//		else {
+//			nextAction();
+//		}
 		
 	}
 	
 	public void checkUserExistsBooleanCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
 		Log.v(LOGTAG, "checkUserExistsBooleanCb");
+		if (isAjaxErrorThenReport(status)) return;
+		
 		if(json!=null){
 			// TODO: got proper response
 			boolean userExists = json.getBoolean("result");
