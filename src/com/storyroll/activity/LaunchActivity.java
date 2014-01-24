@@ -22,6 +22,7 @@ import android.widget.Button;
 
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AjaxStatus;
+import com.bugsense.trace.BugSenseHandler;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
 import com.storyroll.util.AppUtility;

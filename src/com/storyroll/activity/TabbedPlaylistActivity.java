@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.base.Constants;
@@ -37,10 +38,12 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     }
 
     public void onCreate(Bundle savedInstanceState) {
-    	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tabbed_playlist);
         
+        // Setup search by username on Android
+		BugSenseHandler.setUserIdentifier(getUuid());
+		
         aq = new PQuery(this);
         uuid = getUuid();
         

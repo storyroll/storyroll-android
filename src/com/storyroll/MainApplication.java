@@ -60,13 +60,12 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         super.onCreate();
     }
 	
-//	private static final String API_KEY = "81009b75";
-	private static final String API_KEY = "marsav";
+	private static final String API_KEY = "907bbdf2";
 	private void bugTracking(){
 		
 		try{
 			AQUtility.debug("tracking!");
-			BugSenseHandler.setup(this, API_KEY);	
+			BugSenseHandler.initAndStartSession(this, API_KEY);
 		}catch(Exception e){
 			AQUtility.debug(e);
 		}
