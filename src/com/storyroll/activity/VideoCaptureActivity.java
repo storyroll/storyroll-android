@@ -504,7 +504,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 		Drawable d;
 		public Counter(int c) {
 			int dId = R.drawable.rec_2;
-			if (c==1) dId = R.drawable.rec_1;
+			if (c==2) dId = R.drawable.rec_1;
+			if (c==1) dId = R.drawable.rec_0;
 			this.c = c;
 			d = getResources().getDrawable(dId);
 		}
@@ -590,10 +591,10 @@ public class VideoCaptureActivity extends BaseActivity implements
 		
 		counterOverlay.setVisibility(View.VISIBLE);
 		Handler handler = new Handler();
-		for (int count = 0; count < 3; count++){
-	        handler.postDelayed(new Counter(2-count), 1000 * (count+1));
+		for (int count = 0; count <= 3; count++){
+	        handler.postDelayed(new Counter(3-count), 1000 * (count+1));
 	    }
-		handler.postDelayed(new RecordStarter(), 1000*3); 
+		handler.postDelayed(new RecordStarter(), 3500); 
 		
 	}
 	
