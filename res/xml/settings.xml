@@ -35,6 +35,7 @@
                 android:dialogTitle="Image Options" />  
         -->
            
+        <!-- 
         <Preference
 	        android:key="share"
 	        android:title="@string/share"
@@ -58,7 +59,7 @@
 	        android:title="@string/discuss"
 	        android:summary="" 
 		/>
-        
+         -->
         
         <Preference
 	        android:key="version"

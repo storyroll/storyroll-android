@@ -82,6 +82,7 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 		// an exit?
 		if (getIntent().getBooleanExtra("EXIT", false)) {
 			 finish();
+			 return;
 		}
 		
 		// update loggedIn flag - in case user was deleted

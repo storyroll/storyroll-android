@@ -240,10 +240,12 @@ public class ProfileActivity extends MenuActivity {
             //successful ajax call
         	Log.v(LOGTAG, "updateProfileCb success");
         	// persist profile
+        	profile.loggedIn = true;
         	persistProfile(profile);
         	
         	// if avatar wasn't changed before registering facebook user, download facebook avatar
-        	if (!avatarChangeCompleted && profile.isAuthFacebook() && registration ) {
+        	if (!avatarChangeCompleted && profile.isAuthFacebook() && registration ) 
+        	{
         		// store resized avatar
         		String tb = com.storyroll.util.ImageUtility.getFbProfileTb(handle);
         		File file = aq.makeSharedFile(tb, "avatar.jpg");
