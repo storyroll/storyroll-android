@@ -76,9 +76,13 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.v(LOGTAG, "onCreate");
 		super.onCreate(savedInstanceState);
-
-		setContentView(R.layout.activity_launcher);
+		
+		// an exit?
+		if (getIntent().getBooleanExtra("EXIT", false)) {
+			 finish();
+		}
 		
 		// update loggedIn flag - in case user was deleted
 		if (isLoggedIn()) {
@@ -89,6 +93,8 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 			nextAction();
 		}
 
+		setContentView(R.layout.activity_launcher);
+		
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
 

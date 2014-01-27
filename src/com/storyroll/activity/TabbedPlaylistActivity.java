@@ -3,6 +3,7 @@ package com.storyroll.activity;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -11,6 +12,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.widget.Toast;
 
 import com.bugsense.trace.BugSenseHandler;
 import com.storyroll.PQuery;
@@ -109,6 +112,74 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 
 
     }
+    
+    private static final long DOUBLE_PUSH_BACK_MILLIS = 1000;
+    private int backTries = 0;
+    private Long lastPressed = 0L;
+    
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.getRepeatCount() == 0) {
+            event.startTracking();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.isTracking()
+                && !event.isCanceled()) {
+            // Back button press complete, handle
+        	
+        	long currentTime = System.currentTimeMillis();
+        	long tDiff = currentTime - lastPressed;
+        	if (tDiff>DOUBLE_PUSH_BACK_MILLIS) {
+        		backTries = 0;
+        	}
+        	if (backTries++>0) {
+        		// on second press, exit
+        		Intent intent = new Intent(Intent.ACTION_MAIN);
+        		intent.addCategory(Intent.CATEGORY_HOME);
+        		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        		intent.putExtra("EXIT", true);
+        		startActivity(intent);
+        	}
+        	else {
+        		// on first press, show note
+        		Toast.makeText(this, "To exit, press back twice", Toast.LENGTH_SHORT).show();
+        	}
+        	lastPressed = currentTime;
+        	
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
+    
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_BACK) {
+//            // back button pressed
+//        	long currentTime = System.currentTimeMillis();
+//        	long tDiff = currentTime - lastPressed;
+//        	if (tDiff>DOUBLE_PUSH_BACK_MILLIS) {
+//        		backTries = 0;
+//        	}
+//        	if (backTries++>0) {
+//        		// on second press, exit
+//        		System.exit();
+//        	}
+//        	else {
+//        		// on first press, show note
+//        		Toast.makeText(this, "To exit, press back twice", Toast.LENGTH_SHORT);
+//        	}
+//            return true;
+//        }
+//
+//        return super.onKeyDown(keyCode, event);
+//    }
 
 
 //    /**

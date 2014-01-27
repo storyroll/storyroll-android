@@ -117,7 +117,7 @@ public class LoginActivity extends BaseActivity {
 			// ...
 			profile.loggedIn = true;
 			persistProfile(profile);
-			startActivity(new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME));
+			nextActionHome();
 		}
 		else {
 			// user not in db, go to registration
@@ -164,7 +164,7 @@ public class LoginActivity extends BaseActivity {
 				Log.d(LOGTAG, "login successfull");
 				profile.loggedIn = loginValid;
 				persistProfile(profile);
-				startActivity(new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME));
+				nextActionHome();
 			}
 		}else{
 			apiError(LOGTAG, "Error logging in");
@@ -181,6 +181,13 @@ public class LoginActivity extends BaseActivity {
 		Intent intent =  new Intent(this, ProfileActivity.class);
 		intent.putExtra("registration", true);
 		intent.putExtra("profile", profile);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+	}
+	
+	private void nextActionHome() {
+		Intent intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 	}
     

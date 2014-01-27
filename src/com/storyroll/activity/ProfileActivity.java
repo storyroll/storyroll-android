@@ -290,7 +290,9 @@ public class ProfileActivity extends MenuActivity {
 	}
 	
 	private void nextActivity() {
-		startActivity(new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME));
+		Intent intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
 	}
 	
 	private static Uri outputFileUri;
@@ -314,6 +316,7 @@ public class ProfileActivity extends MenuActivity {
 		        intent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
 		        intent.setPackage(packageName);
 		        intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+		        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 		        cameraIntents.add(intent);
 		    }
 
@@ -321,12 +324,16 @@ public class ProfileActivity extends MenuActivity {
 		    final Intent galleryIntent = new Intent();
 		    galleryIntent.setType("image/*");
 		    galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+		    // don't return to this activity if they relaunch your application from the Launcher
+		    galleryIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 
 		    // Chooser of filesystem options.
 		    final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
 
 		    // Add the camera options.
 		    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[]{}));
+		    // don't return to this activity if they relaunch your application from the Launcher
+		    chooserIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 
 		    startActivityForResult(chooserIntent, ACTIVITY_SELECT_AVATAR_REQUEST);
 		}
