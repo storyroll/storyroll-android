@@ -504,15 +504,15 @@ public class VideoCaptureActivity extends BaseActivity implements
 		Drawable d;
 		public Counter(int c) {
 			int dId = R.drawable.rec_2;
-			if (c==2) dId = R.drawable.rec_1;
-			if (c==1) dId = R.drawable.rec_0;
+			if (c==1) dId = R.drawable.rec_1;
+			if (c==0) dId = R.drawable.rec_0;
 			this.c = c;
 			d = getResources().getDrawable(dId);
 		}
         @Override
         public void run() {
-        	if (c>0) {
-	        	counterOverlay.setImageDrawable(d);
+        	if (c>=0) {
+        		counterOverlay.setImageDrawable(d);
 				// beep
 				try {
 			        tg.startTone(ToneGenerator.TONE_PROP_BEEP);
@@ -591,10 +591,10 @@ public class VideoCaptureActivity extends BaseActivity implements
 		
 		counterOverlay.setVisibility(View.VISIBLE);
 		Handler handler = new Handler();
-		for (int count = 0; count <= 3; count++){
-	        handler.postDelayed(new Counter(3-count), 1000 * (count+1));
+		for (int count = 2; count >= 0; count--){
+	        handler.postDelayed(new Counter(count), 1000 * (3-count));
 	    }
-		handler.postDelayed(new RecordStarter(), 3500); 
+		handler.postDelayed(new RecordStarter(), 3200); 
 		
 	}
 	
