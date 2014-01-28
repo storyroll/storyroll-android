@@ -74,16 +74,16 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         Preference p = findPreference("logout");
         p.setOnPreferenceClickListener(this);
         
-        p = findPreference("share");
-        p.setOnPreferenceClickListener(this);
-        p.setTitle(p.getTitle() + " @Facebook");
-        
-        p = findPreference("share_others");
-        p.setOnPreferenceClickListener(this);
-        
-        
-        p = findPreference("review");
-        p.setOnPreferenceClickListener(this);
+//        p = findPreference("share");
+//        p.setOnPreferenceClickListener(this);
+//        p.setTitle(p.getTitle() + " @Facebook");
+//        
+//        p = findPreference("share_others");
+//        p.setOnPreferenceClickListener(this);
+//        
+//        
+//        p = findPreference("review");
+//        p.setOnPreferenceClickListener(this);
         
         p = findPreference("report");
         p.setOnPreferenceClickListener(this);
@@ -93,8 +93,8 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         p.setSummary(version);
         
         
-        p = findPreference("feedback");
-        p.setOnPreferenceClickListener(this);
+//        p = findPreference("feedback");
+//        p.setOnPreferenceClickListener(this);
     }
     
     public boolean onPreferenceClick(Preference preference){
