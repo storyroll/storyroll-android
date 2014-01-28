@@ -12,9 +12,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.storyroll.R;
 import com.storyroll.base.MenuActivity;
@@ -81,4 +83,33 @@ public class VideoSendActivity extends MenuActivity implements ShellCallback {
 		// TODO Auto-generated method stub
 		Log.v(LOGTAG, "shellOut: "+arg0);
 	}
+	
+	   @Override
+	    public boolean onKeyDown(int keyCode, KeyEvent event) {
+	        if (keyCode == KeyEvent.KEYCODE_BACK
+	                && event.getRepeatCount() == 0) {
+	            event.startTracking();
+	            return true;
+	        }
+	        return super.onKeyDown(keyCode, event);
+	    }
+
+	    @Override
+	    public boolean onKeyUp(int keyCode, KeyEvent event) {
+	        if (keyCode == KeyEvent.KEYCODE_BACK && event.isTracking()
+	                && !event.isCanceled()) {
+	            // Back button press complete, handle
+	        	
+	        	
+        		Intent intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
+        		intent.addCategory(Intent.CATEGORY_HOME);
+//        		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        		startActivity(intent);
+	        	
+	        	
+	            return true;
+	        }
+	        return super.onKeyUp(keyCode, event);
+	    }
 }

@@ -44,6 +44,16 @@
             </intent-filter>
         </activity>
         <activity 
+            android:name=".activity.TabbedPlaylistActivity"
+            android:label="@string/app_name"
+            android:theme="@style/SRThemeStyledTabs"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </activity>  
+        <activity 
             android:name=".activity.SettingsActivity" 
             android:label="@string/app_name"
             android:theme="@style/SRTheme"
@@ -61,23 +71,18 @@
             android:theme="@style/SRTheme"
             android:label="@string/app_name">
         </activity>
-        <activity 
-            android:name=".activity.TabbedPlaylistActivity"
-            android:label="@string/app_name"
-            android:theme="@style/SRThemeStyledTabs"
-            android:screenOrientation="portrait">
-        </activity>  
+
 
         <activity 
             android:name=".activity.VideoCaptureActivity"
             android:label="@string/app_name"
             android:theme="@style/SRTheme"
             android:screenOrientation="portrait"
-            android:parentActivityName=".activity.TabbedPlaylistActivity">
+            android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
              <!-- The meta-data element is needed for versions lower than 4.1 -->
 	        <meta-data
 	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value=".activity.TabbedPlaylistActivity" />
+	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
         </activity>    
         <activity 
             android:name=".activity.VideoSendActivity" 
