@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -106,19 +107,29 @@ public class DataUtility {
     	if (s==null) return null;
         try {
             // Create MD5 Hash
-            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
-            digest.update(s.getBytes());
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] bytesOfMessage = s.getBytes("UTF-8");
+            digest.update(bytesOfMessage);
             byte messageDigest[] = digest.digest();
 
             // Create Hex String
             StringBuffer hexString = new StringBuffer();
-            for (int i=0; i<messageDigest.length; i++)
-                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+            for (int i=0; i<messageDigest.length; i++) {
+            	String hex = Integer.toHexString(0xFF & messageDigest[i]);
+            	// append leading zeros
+            	if (hex.length() == 1) {
+            	    // could use a for loop, but we're only dealing with a single byte
+            	    hexString.append('0');
+            	}
+            	hexString.append(hex);
+            }
             return hexString.toString();
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        }
+        } catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
         return "";
     }
 }

@@ -131,7 +131,7 @@ public class LoginActivity extends BaseActivity {
 		if(json != null){ // user exists
 			Log.v(LOGTAG, "user exists");
 			// check login
-			String md5 = DataUtility.md5(aq.id(R.id.password).getText().toString().trim());
+			String md5 = DataUtility.md5(profile.password);
 			Log.d(LOGTAG, "md5: "+md5);
 			
 			// update profile
@@ -155,8 +155,6 @@ public class LoginActivity extends BaseActivity {
 		if(json != null)
 		{ // user exists
 			loginValid = json.getBoolean("result");
-			// TODO: remove below
-			loginValid = true;
 			if (!loginValid) {
 				Toast.makeText(aq.getContext(), "Password incorrect, review and try again.", Toast.LENGTH_SHORT).show();
 				return;

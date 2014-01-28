@@ -206,10 +206,10 @@ public class ProfileActivity extends MenuActivity {
 				Toast.makeText(aq.getContext(), R.string.msg_password_email_required, Toast.LENGTH_SHORT).show();
 				return;
 			}
-			else {
-				// TODO: bypassing requirement for password for all registrants
-				profile.password = "null";
-			}
+//			else if (!profile.isAuthEmail()) {
+//				// TODO: bypassing requirement for password for all registrants
+//				profile.password = "null";
+//			}
 			Log.d(LOGTAG, "profile: "+profile.toString()+", params: "+profile.toParamString(false, true));
 			
 			aq.progress(R.id.progress).ajax(AppUtility.API_URL+"addProfile?"+profile.toParamString(false, true), JSONObject.class, ProfileActivity.this, "updateProfileCb");						
