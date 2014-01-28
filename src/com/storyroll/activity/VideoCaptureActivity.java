@@ -304,6 +304,7 @@ public class VideoCaptureActivity extends BaseActivity implements
         	f.renameTo(newFile);
 			// go to "video sent" activity
 			Intent sendActivity = new Intent(this, VideoSendActivity.class);
+			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(sendActivity);
         }else{          
             //ajax error
@@ -867,7 +868,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 			c.setParameters(cp);
 		} catch (Exception e) {
 			// Camera is not available (in use or does not exist)
-			Log.e(LOGTAG, "Camera is not available (in use or does not exist)");
+			Log.e(LOGTAG, "Camera is not available (in use or does not exist), camera id "+currentCameraId);
 		}
 		return c; // returns null if camera is unavailable
 	}
@@ -888,15 +889,20 @@ public class VideoCaptureActivity extends BaseActivity implements
 		// best is to setvideosize after setoutput format but before
 		// setvideoencoder
 		recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-		recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+		recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+		// AAC_ELD - not supported by Samsung? Was hanging the recorder
 
 //		recorder.setVideoSize(bestSize.width, bestSize.height);
 //		recorder.setVideoSize(1280, 720);
 		recorder.setVideoSize(bestPreviewSize.width, bestPreviewSize.height);
+		Log.d(LOGTAG, "recorder video size set to "+bestPreviewSize.width+" x "+bestPreviewSize.height);
 
 //		recorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
-		recorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+//		recorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP); // not working for samsung?
+		recorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264); 
 
+		// Sets the frame rate of the video to be captured. Must be called after 
+		// setVideoSource(). Call this after setOutFormat() but before prepare().
 		recorder.setVideoFrameRate(30);
 	
 		recorder.setOutputFile(CameraUtility.getNewFragmentFilePath());
