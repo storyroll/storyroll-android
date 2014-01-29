@@ -76,7 +76,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		pause();
 	}
 
-	
+	private float startY;
 	
 	public void init(ArrayListFragment parent, View controlView, int screenWidth, int itemPosition) {
 		this.controlView = controlView;
@@ -107,14 +107,17 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
         {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-                Log.i(LOGTAG, "OnTouchListener: Up");
-                if (isPlaying()) {
-					stopVideo();
+				if (MotionEvent.ACTION_UP == event.getAction() ) 
+				{
+	                if (isPlaying()) {
+						stopVideo();
+					}
+					else {
+						startVideo();
+					}
+	                return true;
 				}
-				else {
-					startVideo();
-				}
-			    return false;
+			    return true;
 			}
         });
 	}
