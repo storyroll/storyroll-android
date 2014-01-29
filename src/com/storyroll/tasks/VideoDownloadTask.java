@@ -28,6 +28,7 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 	private static final String TAG = "VIDEO_DOWNLOAD";
 	private static final int TIMEOUT_CONNECTION = 5000;//5sec
 	private static final int TIMEOUT_SOCKET = 30000;//30sec
+	private static final String LOGTAG = "VideoDownloadTask";
     
 	private Context mContext;
 	private String fileName;
@@ -35,6 +36,7 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 	private OnVideoTaskCompleted listener;
 	
     public VideoDownloadTask(Context context, OnVideoTaskCompleted listener) {
+    	Log.v(LOGTAG, "constructor");
         mContext = context;
         this.listener = listener;
     }

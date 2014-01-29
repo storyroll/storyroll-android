@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
@@ -84,7 +85,9 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
             public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
                 // When the tab is selected, switch to the
                 // corresponding page in the ViewPager.
+            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition());
                 mViewPager.setCurrentItem(tab.getPosition());
+
             }
 
 			@Override
@@ -108,6 +111,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
                     public void onPageSelected(int position) {
                         // When swiping between pages, select the
                         // corresponding tab.
+                    	Log.v(LOGTAG, "setOnPageChangeListener: "+position);
                         getActionBar().setSelectedNavigationItem(position);
                     }
                 });

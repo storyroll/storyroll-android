@@ -59,6 +59,7 @@ public class PlaylistItemView extends LinearLayout {
         	Log.i(LOGTAG, "getStoryCastCb success: "+jarr.toString());
         	// make cast avatars visible
     		try {
+    			// TODO: sloppy
     			String[] cast = new String[jarr.length()];
 	        	for (int i = 0; i < jarr.length(); i++) {
 					JSONObject userObj = jarr.getJSONObject(i);

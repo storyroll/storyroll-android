@@ -33,6 +33,7 @@ import com.storyroll.base.Constants;
 import com.storyroll.model.Profile;
 import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
+import com.storyroll.util.AutostartMode;
 import com.storyroll.util.DialogUtility;
 import com.storyroll.util.IntentUtility;
 import com.storyroll.util.PrefUtility;
@@ -48,7 +49,7 @@ import com.androidquery.util.AQUtility;
 public class SettingsActivity extends PreferenceActivity implements OnPreferenceClickListener, OnPreferenceChangeListener {
 
 	private static final String LOGTAG = "SETTINGS";
-	protected FacebookHandle handle;
+//	protected FacebookHandle handle;
 	protected PQuery aq;
 	
     @Override
@@ -62,7 +63,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         addPreferencesFromResource(R.xml.settings);
         
         aq = new PQuery(this);
-        handle = AppUtility.makeHandle(this);
+//        handle = AppUtility.makeHandle(this);
         
         initView();
     }
@@ -95,6 +96,9 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         
 //        p = findPreference("feedback");
 //        p.setOnPreferenceClickListener(this);
+        
+        p = findPreference("com.storyroll.util.AutostartMode");
+        p.setOnPreferenceChangeListener(this);
     }
     
     public boolean onPreferenceClick(Preference preference){
@@ -344,9 +348,9 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 
     
 	@Override
-	public boolean onPreferenceChange(Preference pref, Object value) {
+	public boolean onPreferenceChange(Preference pref, Object newValue) {
+		PrefUtility.putEnum(AutostartMode.valueOf(newValue.toString()));
 		return true;
-		
 	}
 	
 	

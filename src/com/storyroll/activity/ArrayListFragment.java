@@ -93,8 +93,7 @@ public class ArrayListFragment extends ListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.fragment_tab_playlist, container,
-				false);
+		View v = inflater.inflate(R.layout.fragment_tab_playlist, container, false);
 		// View tv = v.findViewById(R.id.text);
 		// ((TextView)tv).setText("Fragment #" + mNum);
 		return v;
@@ -154,17 +153,6 @@ public class ArrayListFragment extends ListFragment {
 	// Log.i("FragmentList", "Item clicked: " + id);
 	// }
 
-    @Override
-    public void onHiddenChanged(boolean hidden) {
-        Log.v(LOGTAG, "onHiddenChanged: "+hidden);
-        
-//    	if (videoView!=null && hidden) {
-//    		stopVideo();
-//    	}
-//    	if (videoView!=null && !hidden) {
-//    		startVideo();
-//    	}
-    };
     
 	// inner callbacks
     // get initial, centralized (static) user "liked" story ids
@@ -243,7 +231,7 @@ public class ArrayListFragment extends ListFragment {
 			// do something with the jsonarray
 			try {
 				stories.clear();
-				for (int test = 0; test<3; test++) {
+//				for (int test = 0; test<3; test++) {
 				for (int i = 0; i < jarr.length(); i++) {
 					JSONObject storyObj = jarr.getJSONObject(i);
 					Story story = new Story(storyObj);
@@ -252,7 +240,7 @@ public class ArrayListFragment extends ListFragment {
 					story.setUserLikes(userLikes.contains(story.getId()+""));
 					stories.add(story);
 				}
-				}
+//				}
 				Log.v(LOGTAG, "stories:" + stories.size());
 
 				// TODO: test, remove
@@ -288,6 +276,31 @@ public class ArrayListFragment extends ListFragment {
 		currentlyPlayed = v;
 	}
 
+	boolean visible;
+	@Override
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+	    super.setUserVisibleHint(isVisibleToUser);
+
+	    // Make sure that we are currently visible
+	    if (this.isVisible()) {
+	        // If we are becoming invisible, then...
+	        if (!isVisibleToUser) {
+	            visible = false;
+	            // TODO stop playback
+	            if (currentlyPlayed!=null) {
+	            	currentlyPlayed.queueStopVideo();
+	            	currentlyPlayed = null;
+	            }
+//	            lastTracked = -1;
+	            ((PlayListAdapter)getListAdapter()).resetTracking();
+	        }
+	        else {
+	        	visible = true;
+	        }
+	    }
+	    visible = isVisibleToUser;
+	    Log.d(LOGTAG, mNum +" set to visible "+visible);
+	}
 	
 	public class PlayListAdapter extends ArrayAdapter<Story> implements OnScrollListener {
 
@@ -358,11 +371,10 @@ public class ArrayListFragment extends ListFragment {
 			else {
 				likeControl.setImageResource(R.drawable.ic_star_off);
 			}
-//			likeControl.setImageResource(R.drawable.ic_star_on);
 			
 			likeControl.setOnClickListener(new LikeClickListener(likeControl,
 					likesNum, uuid, story));
-
+			
 			// 5. return rowView
 			return rowView;
 		}
@@ -378,18 +390,7 @@ public class ArrayListFragment extends ListFragment {
 
 			@Override
 			public void onClick(View v) {
-				pv.queueStartVideo();
-				pv.startVideoPreloading();
-//				if (!pv.isLoading) {
-//			   		// start a video preload task
-////				        progressBar.setVisibility(View.VISIBLE);
-//					pv.isLoading = true;
-////				        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
-//			        String url = AppUtility.API_URL+"storyFile?story="+storyId;
-//			        		        
-//			   		VideoDownloadTask task = new VideoDownloadTask(getActivity().getApplicationContext(), pv);
-//			        task.execute(url);
-//				}
+				pv.startVideoPreloading(true);
 			}
 			
 		}
@@ -480,15 +481,38 @@ public class ArrayListFragment extends ListFragment {
 		public void onScroll(AbsListView view, int firstVisibleItem,
 				int visibleItemCount, int totalItemCount) {
 			// stop previously played roll when it is scrolled away
-			if (currentlyPlayed!=null 
+			if (currentlyPlayed!=null
 					&& currentlyPlayed.getItemPosition() > firstVisibleItem 
-					&& currentlyPlayed.getItemPosition() < firstVisibleItem+visibleItemCount) {
+					&& currentlyPlayed.getItemPosition() < firstVisibleItem+visibleItemCount) 
+			{
 				currentlyPlayed.queueStopVideo();
+				currentlyPlayed = null;
 				// don't autostart next one here, as the list might be flinging
+			}
+			
+			// only autostart if freshly initialized
+			if (lastTracked==-1) {
+				// TODO: if it's currently selected fragment, autoplay, if not, schedule
+				
+				PlaylistItemView pv = (PlaylistItemView) ((ViewGroup)view).getChildAt(0);
+				Log.v(LOGTAG, "onScroll: pv!=null, visible " + (pv!=null) + visible);
+				if (pv!=null && visible) {
+					
+					lastTracked = 0;
+					if (currentlyPlayed!=null) {
+						currentlyPlayed.queueStopVideo();
+						currentlyPlayed = null;
+					}
+					ControlledVideoView videoView = (ControlledVideoView) pv.findViewById(R.id.videoPlayerView);
+					handleAutostart(view);
+				}
 			}
 		}
 
 		private int lastTracked=-1;
+		public void resetTracking() {
+			lastTracked=-1;
+		}
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
 			// autostart here - when the scoll event is over (state idle)
@@ -500,30 +524,34 @@ public class ArrayListFragment extends ListFragment {
 				if (lastTracked!=first) {
 					Log.d(LOGTAG, "onScrollStateChanged: new roll in view");
 					lastTracked = first;
-					PlaylistItemView pv = (PlaylistItemView) ((ViewGroup)view).getChildAt(0);
-					ControlledVideoView videoView = (ControlledVideoView) pv.findViewById(R.id.videoPlayerView);
-
-					Log.v(LOGTAG, "first visible item's position in list: "+videoView.getItemPosition());
-					AutostartMode am = PrefUtility.getAutostartMode();
-					Log.v(LOGTAG, "autostartMode = "+am.toString());
-					
-					boolean autoStart = false;
-					switch (PrefUtility.getAutostartMode()) {
-					case ALWAYS:
-						autoStart = true;
-						break;
-					case WIFI:
-						autoStart = NetworkUtility.isWifiConnected(getActivity().getApplicationContext());
-						break;
-					default:
-						break;
-					}
-					if (autoStart) {
-						videoView.queueStartVideo();
-					}
-
-
+					handleAutostart(view);
 				}
+			}
+		}
+		
+		// autostart first visible video, video/network settings permitting
+		private void handleAutostart(AbsListView view) {
+			PlaylistItemView pv = (PlaylistItemView) ((ViewGroup)view).getChildAt(0);
+			ControlledVideoView videoView = (ControlledVideoView) pv.findViewById(R.id.videoPlayerView);
+
+			Log.v(LOGTAG, "handleAutostart: first visible item's position in list: "+videoView.getItemPosition());
+			AutostartMode am = PrefUtility.getAutostartMode();
+			Log.v(LOGTAG, "autostartMode = "+am.toString());
+			
+			boolean autoStart = false;
+			switch (am) {
+			case ALWAYS:
+				autoStart = true;
+				break;
+			case WIFI:
+				autoStart = NetworkUtility.isWifiConnected(getActivity().getApplicationContext());
+				Log.v(LOGTAG, "wificonnected: "+autoStart);
+				break;
+			default:
+				break;
+			}
+			if (autoStart) {
+				videoView.startVideoPreloading(true);
 			}
 		}
 		

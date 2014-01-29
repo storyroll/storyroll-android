@@ -17,7 +17,7 @@ import android.view.View;
 import android.widget.VideoView;
 
 public class ControlledVideoView extends VideoView implements OnVideoTaskCompleted {
-	private static final String LOGTAG = "PlayableVideoView";
+	private static final String LOGTAG = "ControlledVideoView";
 
 	protected static final boolean LOOPING = false;
 	
@@ -43,20 +43,19 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	
 	public void queueStartVideo() {
 		Log.v(LOGTAG, "queued video start");
-		if (isPlaying()) {
-			if (isLoaded) {
-				startVideo();
-			}
-			else {
-				playQueued = true;
-			}
+		if (!isPlaying() && isLoaded) 
+		{
+			playQueued = false;
+			startVideo();
 		}
 		else {
 			playQueued = true;
-		}
+		}	
 	}
 	
-	public void startVideoPreloading() {
+	public void startVideoPreloading(boolean autoStart) {
+		Log.v(LOGTAG, "startVideoPreloading, autostart: "+autoStart);
+		if (autoStart) queueStartVideo();
 		if (!isLoading) {
 	   		// start a video preload task
 //		        progressBar.setVisibility(View.VISIBLE);
@@ -80,8 +79,8 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	}
 
 	public void startVideo() {
-		Log.v(LOGTAG, "starting video");
 		parent.switchCurrentlyPlayed(this);
+		Log.v(LOGTAG, "starting video playback");
 		start();
 		playQueued = false;
 	}
