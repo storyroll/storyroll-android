@@ -34,6 +34,15 @@
                 android:defaultValue="ALWAYS"
                 android:dialogTitle="Image Options" />  
         -->
+
+		<com.storyroll.ui.SummaryListPreference 
+		    android:key="com.storyroll.util.AutostartMode"
+		    android:title="Video Autostart"
+            android:summary="Automatically start videos: %s"
+		    android:entries="@array/autostart_pref_items"
+		    android:entryValues="@array/autostart_pref_values"
+		    android:defaultValue="WIFI"
+            android:dialogTitle="Autostart Options" />
            
         <!-- 
         <Preference

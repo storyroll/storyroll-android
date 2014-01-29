@@ -112,7 +112,7 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
     @Override
     protected void onPostExecute(Result result){
         //your stuff
-    	 Log.i(TAG, "onPostExecute");
+    	Log.i(TAG, "onPostExecute");
         listener.onVideoTaskCompleted(fileName);
     }
 }

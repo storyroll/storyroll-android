@@ -28,6 +28,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.storyroll.R;
 import com.androidquery.util.AQUtility;
@@ -193,5 +194,10 @@ public class PrefUtility {
 			AQUtility.report(e);
 		}
 		return null;
+	}
+	
+	public static AutostartMode getAutostartMode() {
+		AutostartMode am = PrefUtility.getEnum(AutostartMode.class, null);
+		return am;
 	}
 }

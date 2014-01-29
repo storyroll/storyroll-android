@@ -1,20 +1,9 @@
 package com.storyroll.activity;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,18 +21,18 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.VideoView;
 
-import com.androidquery.AQuery;
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.model.Story;
-import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.ui.ControlledVideoView;
 import com.storyroll.ui.PlaylistItemView;
 import com.storyroll.util.AppUtility;
+import com.storyroll.util.AutostartMode;
+import com.storyroll.util.NetworkUtility;
+import com.storyroll.util.PrefUtility;
 
 public class ArrayListFragment extends ListFragment {
 	private static final String LOGTAG = "ArrayListFragment";
@@ -151,8 +140,12 @@ public class ArrayListFragment extends ListFragment {
 		// using application context to avoid the leak
 		// see
 		// http://stackoverflow.com/questions/18896880/passing-context-to-arrayadapter-inside-fragment-with-setretaininstancetrue-wil
-		setListAdapter(new PlayListAdapter(getActivity()
-				.getApplicationContext(), stories, aq, mUuid));
+		PlayListAdapter pla = new PlayListAdapter(getActivity()
+				.getApplicationContext(), stories, aq, mUuid);
+		
+		setListAdapter(pla);
+		getListView().setOnScrollListener(pla);
+		
 
 	}
 
@@ -250,26 +243,22 @@ public class ArrayListFragment extends ListFragment {
 			// do something with the jsonarray
 			try {
 				stories.clear();
-//				for (int test = 0; test<3; test++) {
+				for (int test = 0; test<3; test++) {
 				for (int i = 0; i < jarr.length(); i++) {
 					JSONObject storyObj = jarr.getJSONObject(i);
-					// Re
-					// https://www.assembla.com/spaces/storyroll/tickets/14#/activity/ticket:
-					if (storyObj.getBoolean("published")) {
-						Story story = new Story(storyObj);
-						
-						// manually set userLikes flag
-						story.setUserLikes(userLikes.contains(story.getId()+""));
-						stories.add(story);
-					}
+					Story story = new Story(storyObj);
+					
+					// manually set userLikes flag
+					story.setUserLikes(userLikes.contains(story.getId()+""));
+					stories.add(story);
 				}
-//				}
+				}
 				Log.v(LOGTAG, "stories:" + stories.size());
 
 				// TODO: test, remove
-				// stories.add(new Story(1, 5));
-				// stories.add(new Story(2, 100));
-				// stories.add(new Story(3, 1756));
+//				 stories.add(new Story(1, 5));
+//				 stories.add(new Story(2, 100));
+//				 stories.add(new Story(3, 1756));
 
 				// refresh the adapter now
 				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
@@ -323,19 +312,18 @@ public class ArrayListFragment extends ListFragment {
 					.getWidth();
 			// set to chosen percentage
 			screenWidth = (screenWidth*PERCENT_SQUARE)/100;
-
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+//			Log.v(LOGTAG, "getView "+position);
 
 			// 1. Create inflater
 			LayoutInflater inflater = (LayoutInflater) context
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 			// 2. Get rowView from inflater
-			PlaylistItemView rowView = (PlaylistItemView)inflater.inflate(R.layout.tab_playlist_item, parent,
-					false);
+			PlaylistItemView rowView = (PlaylistItemView)inflater.inflate(R.layout.tab_playlist_item, parent, false);
 
 			// 3. Get the views from the rowView
 			ImageView storyThumb = (ImageView) rowView.findViewById(R.id.storyThumb);
@@ -352,7 +340,7 @@ public class ArrayListFragment extends ListFragment {
 			aq.id(storyThumb).image(AppUtility.API_URL + "storyThumb?story=" + story.getId());
 			setViewSquare(storyThumb, screenWidth);
 			
-			videoView.init(ArrayListFragment.this, storyThumb, screenWidth, position);
+			videoView.init(ArrayListFragment.this, storyThumb, screenWidth, position, story.getId());
 			storyThumb.setOnClickListener(new ThumbClickListener(videoView, story.getId()));
 			
 			if (story.getCast()!=null) {
@@ -390,16 +378,18 @@ public class ArrayListFragment extends ListFragment {
 
 			@Override
 			public void onClick(View v) {
-				if (!pv.isLoading) {
-			   		// start a video preload task
-//				        progressBar.setVisibility(View.VISIBLE);
-					pv.isLoading = true;
-//				        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
-			        String url = AppUtility.API_URL+"storyFile?story="+storyId;
-			        		        
-			   		VideoDownloadTask task = new VideoDownloadTask(getActivity().getApplicationContext(), pv);
-			        task.execute(url);
-				}
+				pv.queueStartVideo();
+				pv.startVideoPreloading();
+//				if (!pv.isLoading) {
+//			   		// start a video preload task
+////				        progressBar.setVisibility(View.VISIBLE);
+//					pv.isLoading = true;
+////				        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
+//			        String url = AppUtility.API_URL+"storyFile?story="+storyId;
+//			        		        
+//			   		VideoDownloadTask task = new VideoDownloadTask(getActivity().getApplicationContext(), pv);
+//			        task.execute(url);
+//				}
 			}
 			
 		}
@@ -489,16 +479,56 @@ public class ArrayListFragment extends ListFragment {
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem,
 				int visibleItemCount, int totalItemCount) {
-			if (currentlyPlayed!=null && currentlyPlayed.getItemPosition() > firstVisibleItem && currentlyPlayed.getItemPosition() < firstVisibleItem+visibleItemCount) {
+			// stop previously played roll when it is scrolled away
+			if (currentlyPlayed!=null 
+					&& currentlyPlayed.getItemPosition() > firstVisibleItem 
+					&& currentlyPlayed.getItemPosition() < firstVisibleItem+visibleItemCount) {
 				currentlyPlayed.queueStopVideo();
+				// don't autostart next one here, as the list might be flinging
 			}
 		}
 
+		private int lastTracked=-1;
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
-			// TODO Auto-generated method stub
-			
+			// autostart here - when the scoll event is over (state idle)
+			if (OnScrollListener.SCROLL_STATE_IDLE == scrollState)
+			{
+				int first = view.getFirstVisiblePosition();
+				int last = view.getLastVisiblePosition();
+				Log.v(LOGTAG, "onScrollStateChanged: first " +first+" last "+last + " lastTracked "+lastTracked);
+				if (lastTracked!=first) {
+					Log.d(LOGTAG, "onScrollStateChanged: new roll in view");
+					lastTracked = first;
+					PlaylistItemView pv = (PlaylistItemView) ((ViewGroup)view).getChildAt(0);
+					ControlledVideoView videoView = (ControlledVideoView) pv.findViewById(R.id.videoPlayerView);
+
+					Log.v(LOGTAG, "first visible item's position in list: "+videoView.getItemPosition());
+					AutostartMode am = PrefUtility.getAutostartMode();
+					Log.v(LOGTAG, "autostartMode = "+am.toString());
+					
+					boolean autoStart = false;
+					switch (PrefUtility.getAutostartMode()) {
+					case ALWAYS:
+						autoStart = true;
+						break;
+					case WIFI:
+						autoStart = NetworkUtility.isWifiConnected(getActivity().getApplicationContext());
+						break;
+					default:
+						break;
+					}
+					if (autoStart) {
+						videoView.queueStartVideo();
+					}
+
+
+				}
+			}
 		}
+		
+
+	
 	}
 
 }

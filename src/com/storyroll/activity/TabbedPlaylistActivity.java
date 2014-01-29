@@ -21,6 +21,8 @@ import com.storyroll.R;
 import com.storyroll.base.Constants;
 import com.storyroll.base.MenuFragmentActivity;
 import com.storyroll.util.ActionBarUtility;
+import com.storyroll.util.AutostartMode;
+import com.storyroll.util.PrefUtility;
 
 public class TabbedPlaylistActivity extends MenuFragmentActivity {
 
@@ -276,5 +278,6 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 		Log.i(LOGTAG, "uuid: " + uuid + ", username: " + username);
 		return uuid;
 	}
+
 }
 
