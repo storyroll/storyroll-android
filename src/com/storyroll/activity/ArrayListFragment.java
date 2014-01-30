@@ -8,9 +8,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +49,13 @@ public class ArrayListFragment extends ListFragment {
 	
 	// how many percents of width should a squared video take
 	private static final int PERCENT_SQUARE = 95;
+
+	// the range of display which acts as an "autostart" area for videos
+	// when the center of VideoView enters this range, it is autostarted
+	// TODO: must be calculated as a function of display w, h and PERCENT_SQUARE
+	private static final float AUTO_RANGE_TOP = 0.33f;
+	private static final float AUTO_RANGE_BOTTOM = 0.75f;
+
 
 	private int mNum;
 	private String mUuid;
@@ -293,7 +302,7 @@ public class ArrayListFragment extends ListFragment {
 	            	currentlyPlayed = null;
 	            }
 //	            lastTracked = -1;
-	            ((PlayListAdapter)getListAdapter()).resetItemPositionTracking();
+	            ((PlayListAdapter)getListAdapter()).resetAutoplayTracker();
 	        }
 	        else {
 	        	isTabVisible = true;
@@ -309,7 +318,11 @@ public class ArrayListFragment extends ListFragment {
 		private final ArrayList<Story> stories;
 		private final PQuery aq;
 		private final String uuid;
-		private int screenWidth;
+		private int screenWidth, screenHeight, calculcatedVideoWidth;
+
+		private int autoRangeTop;
+		private int autoRangeBottom;
+		
 		
 
 		public PlayListAdapter(Context context, ArrayList<Story> stories,
@@ -322,10 +335,19 @@ public class ArrayListFragment extends ListFragment {
 			this.aq = aq;
 			this.uuid = uuid;
 			
-			screenWidth = getActivity().getWindowManager().getDefaultDisplay()
-					.getWidth();
-			// set to chosen percentage
-			screenWidth = (screenWidth*PERCENT_SQUARE)/100;
+//			screenWidth = getActivity().getWindowManager().getDefaultDisplay()
+//					.getWidth();
+			DisplayMetrics metrics = getActivity().getResources().getDisplayMetrics();
+			screenWidth = metrics.widthPixels;
+			screenHeight = metrics.heightPixels;
+			calculcatedVideoWidth = (screenWidth*PERCENT_SQUARE)/100;
+			
+			// calculate active range
+			autoRangeTop = Math.round(AUTO_RANGE_TOP*screenHeight);
+			autoRangeBottom = Math.round(AUTO_RANGE_BOTTOM*screenHeight);
+			
+			Log.d(LOGTAG, "display metrix: "+screenWidth+" x "+screenHeight+", autoRange: "+autoRangeTop+" - "+autoRangeBottom);
+
 		}
 
 		@Override
@@ -352,9 +374,9 @@ public class ArrayListFragment extends ListFragment {
 			likesNum.setText(shortLikesString(story.getLikes()));
 
 			aq.id(storyThumb).image(AppUtility.API_URL + "storyThumb?story=" + story.getId());
-			setViewSquare(storyThumb, screenWidth);
+			setViewSquare(storyThumb, calculcatedVideoWidth);
 			
-			videoView.init(ArrayListFragment.this, storyThumb, screenWidth, position, story.getId());
+			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId());
 			storyThumb.setOnClickListener(new ThumbClickListener(videoView, story.getId()));
 			
 			if (story.getCast()!=null) {
@@ -459,11 +481,11 @@ public class ArrayListFragment extends ListFragment {
 		// --------- HELPERS & CALLBACKS
 		
 
-		private void setViewSquare(View v, int screenWidth) {
+		private void setViewSquare(View v, int calculatedWidth) {
 			// set preview window to square
 			android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
-			lp.width = screenWidth;
-			lp.height = screenWidth;
+			lp.width = calculatedWidth;
+			lp.height = calculatedWidth;
 			v.setLayoutParams(lp);
 		}
 		
@@ -477,44 +499,56 @@ public class ArrayListFragment extends ListFragment {
 				return num / 1000 + "k";
 			return num + "";
 		}
+		
+		private int lastTrackedPos=-1;
+		
+		public void resetAutoplayTracker() {
+			lastTrackedPos=-1;
+		}
 
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem,
 				int visibleItemCount, int totalItemCount) {
-			// stop previously played roll when it is scrolled away
-			if (currentlyPlayed!=null
-					&& currentlyPlayed.getItemPosition() > firstVisibleItem 
-					&& currentlyPlayed.getItemPosition() < firstVisibleItem+visibleItemCount) 
-			{
-				currentlyPlayed.queueStopVideo();
-				currentlyPlayed = null;
-				// don't autostart next one here, as the list might be flinging
+			
+			boolean stopCurrent = false;
+			if (currentlyPlayed!=null) {
+				// stop previously played roll when it is scrolled out of active range
+				int[] location = new int[2];
+				currentlyPlayed.getLocationOnScreen(location);
+				int viewCenterY = location[1] + calculcatedVideoWidth/2;
+				if (viewCenterY<=autoRangeTop || viewCenterY>=autoRangeBottom) 
+				{
+					Log.v(LOGTAG, "onScroll: current video exits active range");
+					// gotcha! stop it
+					currentlyPlayed.queueStopVideo();
+					currentlyPlayed = null;
+				}
+				
 			}
+					
+			// only autostart if the tab was freshly switched, or shown for the first time
 			
-			// only autostart if the tab was freshly switched, or viewn for the first time
-			
-			if (lastTrackedItemPos==-1 && visibleItemCount>0) {
+			if (lastTrackedPos==-1 && visibleItemCount>0) {
 				// TODO: if it's currently selected fragment, autoplay, if not, schedule
 				
 				PlaylistItemView pv = (PlaylistItemView) ((ViewGroup)view).getChildAt(0);
 				Log.v(LOGTAG, "onScroll: pv!=null, visible " + (pv!=null) + " " + isTabVisible);
-				if (pv!=null && isTabVisible) {
+				if (pv!=null && isTabVisible) 
+				{
+					Log.v(LOGTAG, "onScroll: starting freshly shown tab's first video");
 					
-					lastTrackedItemPos = firstVisibleItem;
+					lastTrackedPos = firstVisibleItem;
 					if (currentlyPlayed!=null) {
 						currentlyPlayed.queueStopVideo();
 						currentlyPlayed = null;
 					}
 					ControlledVideoView videoView = (ControlledVideoView) pv.findViewById(R.id.videoPlayerView);
-					handleAutostart(view);
+					handleAutostart(pv, videoView);
 				}
 			}
 		}
 
-		private int lastTrackedItemPos=-1;
-		public void resetItemPositionTracking() {
-			lastTrackedItemPos=-1;
-		}
+
 		
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -523,21 +557,37 @@ public class ArrayListFragment extends ListFragment {
 			{
 				int first = view.getFirstVisiblePosition();
 				int last = view.getLastVisiblePosition();
-				Log.v(LOGTAG, "onScrollStateChanged: first " +first+" last "+last + " lastTracked "+lastTrackedItemPos);
-				// TODO review
-				// only autostart when scrolling down, not up
-				if (lastTrackedItemPos<first) {
-					Log.d(LOGTAG, "onScrollStateChanged: new roll in view");
-					lastTrackedItemPos = first;
-					handleAutostart(view);
+				Log.v(LOGTAG, "onScrollStateChanged: first " +first+" last "+last + " lastTrackedPos "+lastTrackedPos);
+
+				// find the first VideoView that falls in the "active" range
+				boolean found = false;
+				for (int current=first, i=0; current<=last && !found; current++, i++) 
+				{
+					PlaylistItemView pv = (PlaylistItemView) ((ViewGroup)view).getChildAt(i);
+					ControlledVideoView videoView = (ControlledVideoView) pv.findViewById(R.id.videoPlayerView);
+					int[] location = new int[2];
+					videoView.getLocationOnScreen(location);
+					int viewCenterY = location[1] + calculcatedVideoWidth/2;
+					Log.d(LOGTAG, "onScrollStateChanged: "+current+" videoView's center y location: "+viewCenterY);
+					
+					if (viewCenterY>autoRangeTop && viewCenterY<autoRangeBottom) {
+						// that's the one
+						found = true;
+						if (lastTrackedPos!=current) {
+							Log.d(LOGTAG, "onScrollStateChanged: new roll in active range: "+current);
+							lastTrackedPos = current;
+							handleAutostart(pv, videoView);
+						}
+					}
+	
+					
 				}
 			}
 		}
 		
 		// autostart first visible video, video/network settings permitting
-		private void handleAutostart(AbsListView view) {
-			PlaylistItemView pv = (PlaylistItemView) ((ViewGroup)view).getChildAt(0);
-			ControlledVideoView videoView = (ControlledVideoView) pv.findViewById(R.id.videoPlayerView);
+		private void handleAutostart(PlaylistItemView pv, ControlledVideoView videoView) {
+
 
 			Log.v(LOGTAG, "handleAutostart: first visible item's position in list: "+videoView.getItemPosition());
 			AutostartMode am = PrefUtility.getAutostartMode();
