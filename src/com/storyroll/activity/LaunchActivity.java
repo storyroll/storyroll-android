@@ -6,7 +6,6 @@ import org.ffmpeg.android.ShellUtils.ShellCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ru.jecklandin.stickman.vp.ProcessingService;
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,7 +33,7 @@ import com.storyroll.util.SystemUiHider;
  * 
  * @see SystemUiHider
  */
-public class LaunchActivity extends BaseActivity implements ShellCallback {
+public class LaunchActivity extends BaseActivity {
 	/**
 	 * Whether or not the system UI should be auto-hidden after
 	 * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -302,91 +301,6 @@ public class LaunchActivity extends BaseActivity implements ShellCallback {
 	private void delayedHide(int delayMillis) {
 		mHideHandler.removeCallbacks(mHideRunnable);
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
-	}
-
-	// - - - Test
-	private BroadcastReceiver receiver = new BroadcastReceiver() {
-
-	    @Override
-	    public void onReceive(Context context, Intent intent) {
-	      Bundle bundle = intent.getExtras();
-	        Integer value = bundle.getInt("value", 0);
-
-	      if (bundle != null) {
-	    	  Log.v(LOGTAG, "BroadcastReceiver received: "+value);
-	      }
-	    }
-	  };
-	  @Override
-	  protected void onResume() {
-	    super.onResume();
-	    registerReceiver(receiver, new IntentFilter(ProcessingService.NOTIFICATION));
-	  }
-	  @Override
-	  protected void onPause() {
-	    super.onPause();
-	    unregisterReceiver(receiver);
-	  }
-
-	  // test video
-	  private void ffmpegTester() {
-	    // add infos for the service which file to download and where to store
-//	    intent.putExtra(ProcessingService.FILENAME, "index.html");
-//	    intent.putExtra(ProcessingService.URL,
-//	        "http://www.vogella.com/index.html");
-        Intent intent = new Intent(ProcessingService.START_ACTION);
-        intent.setClass(getApplicationContext(), ProcessingService.class);
-//		intent.putExtra("num", 0);
-		intent.putExtra("name", "wot.txt");
-		String[] commands = new String[1];
-//		commands[0]="-y -i /storage/emulated/0/com.storyroll/new_fragment.mp4 -cropleft 200 -croptop 200 /storage/emulated/0/com.storyroll/cropped_video.mpg";
-//		commands[0]="-y -i /storage/emulated/0/com.storyroll/new_fragment.mp4 -r 30000/1001 -b 200k -acodec copy -sameq /storage/emulated/0/com.storyroll/trans_video.mpg";
-//		commands[1]=("-y -i /storage/emulated/0/com.storyroll/cropped_video.mpg /storage/emulated/0/com.storyroll/cropped_video.mp4");
-		commands[0]="-version";
-		intent.putExtra("commands", commands);
-	    startService(intent);
-	    Log.v(LOGTAG, "Service started");
-	    
-//		ProcessingService ps = new ProcessingService();
-////		ps.go("-y -i /storage/emulated/0/com.storyroll/new_fragment.mp4 -s 320x320 /storage/emulated/0/com.storyroll/cropped_video.mp4");
-////		ps.go("-y -i /storage/emulated/0/com.storyroll/new_fragment.mp4 -filter:v \"crop=320,320,0,0\" /storage/emulated/0/com.storyroll/cropped_video.mp4");
-////		ps.go("-y -i /storage/emulated/0/com.storyroll/new_fragment.mp4 -filter:v \"crop=320:320:0:0\" /storage/emulated/0/com.storyroll/cropped_video.mp4");
-//		if (0==step++) {
-//			ps.go("-y -i /storage/emulated/0/com.storyroll/new_fragment.mp4 -cropleft 200 -croptop 200 /storage/emulated/0/com.storyroll/cropped_video.mpg");
-//		}
-//		else {
-//			ps.go("-y -i /storage/emulated/0/com.storyroll/cropped_video.mpg /storage/emulated/0/com.storyroll/cropped_video.mp4");
-//		}
-//		ps.go("-y -i /storage/emulated/0/com.storyroll/new_fragment.mp4 -vfilters \"rotate=90\" /storage/emulated/0/com.storyroll/cropped_video.mpg");
-		
-//		MediaDesc min = new MediaDesc();
-//		min.path = getNewFragmentFilePath();
-//		min.mimeType = "video/mp4";
-//		
-//		MediaDesc mout = new MediaDesc();
-//		mout.path = AppUtility.getAppWorkingDir()+"/cropped_video.mp4";
-//		mout.width = 320;
-//		mout.height = 320;
-//		mout.mimeType = "video/mp4";
-//		
-//		android.os.Handler handler = getWindow().getDecorView().getHandler(); 
-//		MediaCropper mr = new MediaCropper(this, handler, min, mout, new File(AppUtility.getAppWorkingDir()), this);
-//		mr.run();
-	}
-	
-	private String getNewFragmentFilePath() {
-		return AppUtility.getAppWorkingDir() + File.separator+"new_fragment.mp4";
-
-	}
-	@Override
-	public void processComplete(int arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void shellOut(String arg0) {
-		// TODO Auto-generated method stub
-		Log.v(LOGTAG, "shellOut: "+arg0);
 	}
 	
 }

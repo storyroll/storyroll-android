@@ -231,7 +231,7 @@ public class ArrayListFragment extends ListFragment {
 			// do something with the jsonarray
 			try {
 				stories.clear();
-//				for (int test = 0; test<3; test++) {
+				for (int test = 0; test<3; test++) {
 				for (int i = 0; i < jarr.length(); i++) {
 					JSONObject storyObj = jarr.getJSONObject(i);
 					Story story = new Story(storyObj);
@@ -240,7 +240,7 @@ public class ArrayListFragment extends ListFragment {
 					story.setUserLikes(userLikes.contains(story.getId()+""));
 					stories.add(story);
 				}
-//				}
+				}
 				Log.v(LOGTAG, "stories:" + stories.size());
 
 				// TODO: test, remove
@@ -276,7 +276,8 @@ public class ArrayListFragment extends ListFragment {
 		currentlyPlayed = v;
 	}
 
-	boolean visible;
+	boolean isTabVisible = false;
+	
 	@Override
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 	    super.setUserVisibleHint(isVisibleToUser);
@@ -285,21 +286,21 @@ public class ArrayListFragment extends ListFragment {
 	    if (this.isVisible()) {
 	        // If we are becoming invisible, then...
 	        if (!isVisibleToUser) {
-	            visible = false;
+	        	isTabVisible = false;
 	            // TODO stop playback
 	            if (currentlyPlayed!=null) {
 	            	currentlyPlayed.queueStopVideo();
 	            	currentlyPlayed = null;
 	            }
 //	            lastTracked = -1;
-	            ((PlayListAdapter)getListAdapter()).resetTracking();
+	            ((PlayListAdapter)getListAdapter()).resetItemPositionTracking();
 	        }
 	        else {
-	        	visible = true;
+	        	isTabVisible = true;
 	        }
 	    }
-	    visible = isVisibleToUser;
-	    Log.d(LOGTAG, mNum +" set to visible "+visible);
+	    isTabVisible = isVisibleToUser;
+	    Log.d(LOGTAG, mNum +" set to visible "+isTabVisible);
 	}
 	
 	public class PlayListAdapter extends ArrayAdapter<Story> implements OnScrollListener {
@@ -490,15 +491,16 @@ public class ArrayListFragment extends ListFragment {
 				// don't autostart next one here, as the list might be flinging
 			}
 			
-			// only autostart if freshly initialized
-			if (lastTracked==-1) {
+			// only autostart if the tab was freshly switched, or viewn for the first time
+			
+			if (lastTrackedItemPos==-1 && visibleItemCount>0) {
 				// TODO: if it's currently selected fragment, autoplay, if not, schedule
 				
 				PlaylistItemView pv = (PlaylistItemView) ((ViewGroup)view).getChildAt(0);
-				Log.v(LOGTAG, "onScroll: pv!=null, visible " + (pv!=null) + visible);
-				if (pv!=null && visible) {
+				Log.v(LOGTAG, "onScroll: pv!=null, visible " + (pv!=null) + " " + isTabVisible);
+				if (pv!=null && isTabVisible) {
 					
-					lastTracked = 0;
+					lastTrackedItemPos = firstVisibleItem;
 					if (currentlyPlayed!=null) {
 						currentlyPlayed.queueStopVideo();
 						currentlyPlayed = null;
@@ -509,10 +511,11 @@ public class ArrayListFragment extends ListFragment {
 			}
 		}
 
-		private int lastTracked=-1;
-		public void resetTracking() {
-			lastTracked=-1;
+		private int lastTrackedItemPos=-1;
+		public void resetItemPositionTracking() {
+			lastTrackedItemPos=-1;
 		}
+		
 		@Override
 		public void onScrollStateChanged(AbsListView view, int scrollState) {
 			// autostart here - when the scoll event is over (state idle)
@@ -520,10 +523,12 @@ public class ArrayListFragment extends ListFragment {
 			{
 				int first = view.getFirstVisiblePosition();
 				int last = view.getLastVisiblePosition();
-				Log.v(LOGTAG, "onScrollStateChanged: first " +first+" last "+last + " lastTracked "+lastTracked);
-				if (lastTracked!=first) {
+				Log.v(LOGTAG, "onScrollStateChanged: first " +first+" last "+last + " lastTracked "+lastTrackedItemPos);
+				// TODO review
+				// only autostart when scrolling down, not up
+				if (lastTrackedItemPos<first) {
 					Log.d(LOGTAG, "onScrollStateChanged: new roll in view");
-					lastTracked = first;
+					lastTrackedItemPos = first;
 					handleAutostart(view);
 				}
 			}

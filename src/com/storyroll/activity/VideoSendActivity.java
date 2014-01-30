@@ -4,23 +4,17 @@ import java.io.File;
 
 import org.ffmpeg.android.ShellUtils.ShellCallback;
 
-import ru.jecklandin.stickman.vp.ProcessingService;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.KeyEvent;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.storyroll.R;
 import com.storyroll.base.MenuActivity;
-import com.storyroll.tasks.FfmpegTask;
 import com.storyroll.util.AppUtility;
 
 public class VideoSendActivity extends MenuActivity implements ShellCallback {

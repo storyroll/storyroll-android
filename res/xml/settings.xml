@@ -41,7 +41,7 @@
             android:summary="Automatically start videos: %s"
 		    android:entries="@array/autostart_pref_items"
 		    android:entryValues="@array/autostart_pref_values"
-		    android:defaultValue="WIFI"
+		    android:defaultValue="NEVER"
             android:dialogTitle="Autostart Options" />
            
         <!-- 

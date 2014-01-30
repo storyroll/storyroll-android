@@ -5,34 +5,20 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ru.jecklandin.stickman.vp.ProcessingService;
-
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
-import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.media.AudioManager;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.MediaRecorder.OnInfoListener;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.media.ToneGenerator;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -41,7 +27,6 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -52,8 +37,6 @@ import android.widget.VideoView;
 import com.androidquery.callback.AjaxStatus;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
-import com.storyroll.tasks.FfmpegTask;
-import com.storyroll.tasks.FfmpegTask.OnFfmpegTaskCompleted;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import com.storyroll.util.AppUtility;
@@ -67,7 +50,6 @@ public class VideoCaptureActivity extends BaseActivity implements
 	//fires once a half/second
 	private static final int PROG_REFRESH = 500; // progress refresh rate
 //	private static final int SAVE_REQ = 1000;
-	private boolean ffmpegConvert = false; // ffmpeg convert?
 
 	private SurfaceView surfaceView;
 	
@@ -171,9 +153,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 	private String getNewFragmentTempFilePath() {
 		return AppUtility.getAppWorkingDir() + File.separator+"cropped_fragment.mpg";
 	}
-	private String getNewFragmentCroppedFilePath() {
-		return AppUtility.getAppWorkingDir() + File.separator+"cropped_fragment.mp4";
-	}
+
 	// - - - callbacks
 	
 	public void getStoryToJoinCb(String url, JSONObject json, AjaxStatus status){
@@ -288,9 +268,7 @@ public class VideoCaptureActivity extends BaseActivity implements
         isUploading = false;
     	progress.setVisibility(View.INVISIBLE);
     	
-    	String fileName = getNewFragmentCroppedFilePath();
-    	if (!ffmpegConvert)
-    		fileName = CameraUtility.getNewFragmentFilePath();
+    	String fileName = CameraUtility.getNewFragmentFilePath();
 
         if(json != null){               
             //successful ajax call
@@ -441,55 +419,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 			
 			break;
 		case STATE_UPLOAD:
-			// (convert and then) upload the video
-			if (!ffmpegConvert){
-				doUpload(CameraUtility.getNewFragmentFilePath());
-			}
-			else if (!isCroppingConverting && !isUploading) {
-				isCroppingConverting = true;
-				// first, convert
-				MediaMetadataRetriever retriever = new  MediaMetadataRetriever();
-				Bitmap bmp = null;      
-				int h, w;
-				try
-				{
-				    retriever.setDataSource(CameraUtility.getNewFragmentFilePath());
-				    bmp = retriever.getFrameAtTime();
-				    h=bmp.getHeight();
-				    w=bmp.getWidth();
-				    
-				    int m = w>h?h:w;
-				    int dw = (w-m)/2;
-				    int dh = (h-m)/    2;
-				    Log.i(LOGTAG, "video dimensions: "+w+" x "+h+", delta: "+dw+", "+dh);
-				    String s=null;// = "-y -i /storage/emulated/0/com.storyroll/new_fragment.mp4 -cropleft 260 /storage/emulated/0/com.storyroll/cropped_video.mpg";
-				    if (dh!=0) {
-				    	// crop top and bottom
-				    	s= "-y -i "+CameraUtility.getNewFragmentFilePath()+" -cropright "+ dh + " -cropleft "+dh+ " "+getNewFragmentTempFilePath();
-				    }
-				    if (dw!=0) {
-				    	s= "-y -i "+CameraUtility.getNewFragmentFilePath()+" -cropbottom "+ dw + " -croptop "+dw+ " "+getNewFragmentTempFilePath();
-				    }
-				    Log.i(LOGTAG, "comm: "+s);
-				    progress.setVisibility(View.VISIBLE);
-				    if (s!=null) {
-				        Intent intent = new Intent(ProcessingService.START_ACTION);
-				        intent.setClass(getApplicationContext(), ProcessingService.class);
-						String[] commands = new String[2];
-						commands[0]=s;
-						commands[1]=("-y -i "+getNewFragmentTempFilePath()+" "+getNewFragmentCroppedFilePath());
-						intent.putExtra("commands", commands);
-					    startService(intent);
-					    Log.v(LOGTAG, "Service started");
-				    }
-				    
-				}
-				catch (Exception e) {
-					// TODO: handle exception
-					e.printStackTrace();
-				}
-
-			}
+			// upload the video
+			doUpload(CameraUtility.getNewFragmentFilePath());
 			break;
 		default:
 			Log.w(LOGTAG, "change state not implemented: "+newState);
@@ -602,34 +533,12 @@ public class VideoCaptureActivity extends BaseActivity implements
 	  @Override
 	  protected void onResume() {
 	    super.onResume();
-	    registerReceiver(receiver, new IntentFilter(ProcessingService.NOTIFICATION));
 	  }
 	  @Override
 	  protected void onPause() {
 	    super.onPause();
-	    unregisterReceiver(receiver);
 	  }
 	
-	private BroadcastReceiver receiver = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			Bundle bundle = intent.getExtras();
-			if (bundle != null) {
-				Integer value = bundle.getInt("value", 0);
-				Log.v(LOGTAG, "BroadcastReceiver: " + value);
-
-				if (value == 0) {
-					Log.v(LOGTAG, "FFMPEG commands completed");
-					isCroppingConverting = false;
-
-					doUpload(getNewFragmentCroppedFilePath());
-
-				}
-			}
-		}
-
-	};
 	  
 	public void doUpload(String filePath){
 		isUploading = true;
