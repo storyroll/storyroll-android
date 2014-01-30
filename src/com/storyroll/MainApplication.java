@@ -60,7 +60,7 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         super.onCreate();
     }
 	
-	private static final String API_KEY = "907bbdf2";
+	private static final String API_KEY = "XXX";
 	private void bugTracking(){
 		
 		try{
