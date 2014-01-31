@@ -170,6 +170,7 @@ public class ArrayListFragment extends ListFragment {
 		if (jarr != null) {
 			// successful ajax call
 			try {
+				
 				userLikes.clear();
 				for (int i = 0; i < jarr.length(); i++) {
 					JSONObject likeObj = jarr.getJSONObject(i);
@@ -191,7 +192,7 @@ public class ArrayListFragment extends ListFragment {
 	}
 	
 	public void userLikesCb(String url, JSONArray jarr, AjaxStatus status) {
-		Log.v(LOGTAG, "userLikesCb " + mNum);
+		Log.v(LOGTAG, "userLikesCb ");
 		if (jarr != null) {
 			// successful ajax call
 			// Log.i(LOGTAG, "userLikesCb success: "+jarr.length());
@@ -240,16 +241,17 @@ public class ArrayListFragment extends ListFragment {
 			// do something with the jsonarray
 			try {
 				stories.clear();
-				for (int test = 0; test<3; test++) {
+//				for (int test = 0; test<3; test++) {
 				for (int i = 0; i < jarr.length(); i++) {
 					JSONObject storyObj = jarr.getJSONObject(i);
 					Story story = new Story(storyObj);
-					
-					// manually set userLikes flag
-					story.setUserLikes(userLikes.contains(story.getId()+""));
-					stories.add(story);
+					if (story.isPublished()) {
+						// manually set userLikes flag
+						story.setUserLikes(userLikes.contains(story.getId()+""));
+						stories.add(story);
+					}
 				}
-				}
+//				}
 				Log.v(LOGTAG, "stories:" + stories.size());
 
 				// TODO: test, remove

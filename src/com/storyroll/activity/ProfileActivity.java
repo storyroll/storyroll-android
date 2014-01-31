@@ -258,7 +258,8 @@ public class ProfileActivity extends MenuActivity {
         	}
         	
         	// upload avatar
-    		if (avatarChangeCompleted) {
+    		if (avatarChangeCompleted) 
+    		{
     			File file = new File(AppUtility.getAppWorkingDir()+File.separator+"avatar.jpg");
     			
     			Map params = new HashMap();

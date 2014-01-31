@@ -2,8 +2,6 @@ package com.storyroll.activity;
 
 import java.io.File;
 
-import org.ffmpeg.android.ShellUtils.ShellCallback;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -17,7 +15,7 @@ import com.storyroll.R;
 import com.storyroll.base.MenuActivity;
 import com.storyroll.util.AppUtility;
 
-public class VideoSendActivity extends MenuActivity implements ShellCallback {
+public class VideoSendActivity extends MenuActivity {
 
 	protected static final String LOGTAG = "VIDEOSENT";
 
@@ -66,16 +64,6 @@ public class VideoSendActivity extends MenuActivity implements ShellCallback {
 	private String getNewFragmentFilePath() {
 		return AppUtility.getAppWorkingDir() + File.separator+"new_fragment.mp4";
 
-	}
-	@Override
-	public void processComplete(int arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void shellOut(String arg0) {
-		// TODO Auto-generated method stub
-		Log.v(LOGTAG, "shellOut: "+arg0);
 	}
 	
 	   @Override

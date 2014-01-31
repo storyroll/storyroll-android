@@ -1,16 +1,10 @@
 package com.storyroll.activity;
 
-import java.io.File;
-
-import org.ffmpeg.android.ShellUtils.ShellCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.TargetApi;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,7 +15,6 @@ import android.widget.Button;
 
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AjaxStatus;
-import com.bugsense.trace.BugSenseHandler;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
 import com.storyroll.util.AppUtility;
@@ -77,6 +70,8 @@ public class LaunchActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.v(LOGTAG, "onCreate");
 		super.onCreate(savedInstanceState);
+		
+//		ErrorReporter.report("a test message");
 		
 		// an exit?
 		if (getIntent().getBooleanExtra("EXIT", false)) {
