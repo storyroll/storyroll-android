@@ -4,23 +4,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Toast;
 
 import com.androidquery.callback.AjaxStatus;
 import com.androidquery.util.AQUtility;
 import com.storyroll.PQuery;
-import com.storyroll.R;
 import com.storyroll.model.Profile;
 import com.storyroll.util.ActionBarUtility;
+import com.storyroll.util.ErrorUtility;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class BaseActivity extends Activity {
@@ -107,13 +103,9 @@ public class BaseActivity extends Activity {
 		editor.commit();	
 	}
 	
-	protected void apiError(String logtag, String s) {
-		Log.e(logtag, "API Error: " + s);
-    	Toast.makeText(aq.getContext(), s, Toast.LENGTH_SHORT).show();
-	}
-	
     // populate profile from StoryRoll API response
-	public Profile populateProfileFromSrJson(JSONObject json, boolean addAuthMethod) throws JSONException{
+	public Profile populateProfileFromSrJson(JSONObject json, boolean addAuthMethod) throws JSONException
+	{
 		Profile	profile = new Profile();
 		profile.email = json.getString("uuid");
 		profile.username = json.getString("username");
@@ -132,17 +124,13 @@ public class BaseActivity extends Activity {
 		}
 		return profile;
 	}
-	
+
+	// error reporter wrappers
 	protected boolean isAjaxErrorThenReport(AjaxStatus status) {
-		if (status.getCode() != 200 && status.getCode()!=AjaxStatus.TRANSFORM_ERROR) {
-			String s = "Connection error, try again later";
-			if (status.getCode()==AjaxStatus.NETWORK_ERROR) {
-				s = "Network error, check your connection";
-			}
-			apiError(LOGTAG, s);
-			Log.e(LOGTAG, "AjaxError, code "+status.getCode());
-			return true;
-		}
-		return false;
+		return ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this);
+	}
+	
+	protected void apiError(String logtag, String s, Integer errorCode, boolean toast) {
+		ErrorUtility.apiError(logtag, s, errorCode, this, toast);
 	}
 }

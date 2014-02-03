@@ -94,7 +94,8 @@ public class ErrorReporter implements Thread.UncaughtExceptionHandler{
 //		    PrintWriter localPrintWriter = new PrintWriter(localStringWriter);
 //		    ex.printStackTrace(localPrintWriter);	    	
 //		    BugSense.submitError(i, localDate, localStringWriter.toString());
-		    BugSenseHandler.sendExceptionMessage("date", localDate.toString(), (Exception)ex);
+//		    BugSenseHandler.sendExceptionMessage("date", localDate.toString(), (Exception)ex);
+	    	BugSenseHandler.sendException((Exception)ex);
 		    
 		    AQUtility.debug("submit error");
 	    }catch(Exception e){

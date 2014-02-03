@@ -94,12 +94,12 @@ public class LoginActivity extends BaseActivity {
     				String apiUrl = AppUtility.API_URL + "hasUser?uuid="+profile.email;
 					aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "hasFbUserInSrCb");
 					
-				} catch (JSONException e1) {
+				} catch (JSONException e) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					e.printStackTrace();
 				}
         }else{
-        	apiError(LOGTAG, "Error: "+status.getMessage()+" ("+ status.getCode()+")");
+        	apiError(LOGTAG, "Error: "+status.getMessage(), status.getCode(), true);
         }
     }
     
@@ -165,7 +165,7 @@ public class LoginActivity extends BaseActivity {
 				nextActionHome();
 			}
 		}else{
-			apiError(LOGTAG, "Error logging in");
+			apiError(LOGTAG, "Error logging in", status.getCode(), true);
 		}
 	}
 	

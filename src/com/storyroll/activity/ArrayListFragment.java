@@ -34,6 +34,7 @@ import com.storyroll.ui.ControlledVideoView;
 import com.storyroll.ui.PlaylistItemView;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.AutostartMode;
+import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.NetworkUtility;
 import com.storyroll.util.PrefUtility;
 
@@ -168,6 +169,8 @@ public class ArrayListFragment extends ListFragment {
     // get initial, centralized (static) user "liked" story ids
 	public void userLikesIdsCb(String url, JSONArray jarr, AjaxStatus status) {
 		Log.v(LOGTAG, "userLikesIdsCb");
+		if (isAjaxErrorThenReport(status)) return;
+		
 		if (jarr != null) {
 			// successful ajax call
 			try {
@@ -186,8 +189,8 @@ public class ArrayListFragment extends ListFragment {
 
 		} else {
 			// ajax error
-			Log.e(LOGTAG,
-					"userLikesCb: null Json, could not get likes for uuid " + mUuid);
+			apiError(LOGTAG,
+					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status.getCode(), false);
 		}
 
 	}
@@ -212,11 +215,6 @@ public class ArrayListFragment extends ListFragment {
 				}
 				Log.v(LOGTAG, "stories:" + stories.size());
 
-				// TODO: test, remove
-				// stories.add(new Story(1, 5));
-				// stories.add(new Story(2, 100));
-				// stories.add(new Story(3, 1756));
-
 				// refresh the adapter now
 				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
 
@@ -227,9 +225,8 @@ public class ArrayListFragment extends ListFragment {
 
 		} else {
 			// ajax error
-			Log.e(LOGTAG,
-					"userLikesCb: null Json, could not get stories for uuid "
-							+ mUuid);
+			apiError(LOGTAG,
+					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status.getCode(), false);
 		}
 
 	}
@@ -265,9 +262,8 @@ public class ArrayListFragment extends ListFragment {
 
 		} else {
 			// ajax error
-			Log.e(LOGTAG,
-					"getStoryListCb: null Json, could not get stories for uuid "
-							+ mUuid);
+			apiError(LOGTAG,
+					"userLikesCb: null Json, could not get story list for uuid " + mUuid, status.getCode(), false);
 		}
 
 	}
@@ -448,7 +444,7 @@ public class ArrayListFragment extends ListFragment {
 							AjaxStatus status) {
 						if (json != null) {
 							// successful ajax call
-							Log.i(LOGTAG, "likeCb success: " + json.toString());
+							Log.v(LOGTAG, "likeCb success: " + json.toString());
 							// update like icon, and increase the count.
 							// TODO: collateral?
 							story.setUserLikes(!story.isUserLikes());
@@ -470,7 +466,8 @@ public class ArrayListFragment extends ListFragment {
 							
 						} else {
 							// ajax error, o change
-							Log.w(LOGTAG, "likeCb: Json null");
+							apiError(LOGTAG,
+									"likeCb: Json null " + mUuid, status.getCode(), false);
 						}
 					}
 				});
@@ -518,7 +515,7 @@ public class ArrayListFragment extends ListFragment {
 				int viewCenterY = location[1] + calculcatedVideoWidth/2;
 				if (viewCenterY<=autoRangeTop || viewCenterY>=autoRangeBottom) 
 				{
-					Log.v(LOGTAG, "onScroll: current video exits active range");
+//					Log.v(LOGTAG, "onScroll: current video exits active range");
 					// gotcha! stop it
 					currentlyPlayed.queueStopVideo();
 					currentlyPlayed = null;
@@ -612,6 +609,15 @@ public class ArrayListFragment extends ListFragment {
 		
 
 	
+	}
+	
+	// error reporter wrappers
+	protected boolean isAjaxErrorThenReport(AjaxStatus status) {
+		return ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, getActivity());
+	}
+	
+	protected void apiError(String logtag, String s, Integer errorCode, boolean toast) {
+		ErrorUtility.apiError(logtag, s, errorCode, getActivity(), toast);
 	}
 
 }

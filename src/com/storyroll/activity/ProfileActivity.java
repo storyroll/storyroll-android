@@ -227,7 +227,7 @@ public class ProfileActivity extends MenuActivity {
 			profile = populateProfileFromSrJson(json, true);
 		}
 		else {
-			apiError(LOGTAG, "Could not get profile.");
+			apiError(LOGTAG, "Could not get profile.", status.getCode(), true);
 		}
 		initForm();
 		restoreState();
@@ -272,7 +272,7 @@ public class ProfileActivity extends MenuActivity {
     			nextActivity();
     		}
         }else{          
-        	apiError(LOGTAG, "Could not update profile");
+        	apiError(LOGTAG, "Could not update profile", status.getCode(), true);
         }
 	}
 	
@@ -287,7 +287,7 @@ public class ProfileActivity extends MenuActivity {
         	Log.v(LOGTAG, "set avatar id to "+profile.avatar);
 			persistProfile(profile);			
         }else{          
-        	apiError(LOGTAG, "Could not store avatar");
+        	apiError(LOGTAG, "Could not store avatar", status.getCode(), true);
         }
 		nextActivity();
 	}

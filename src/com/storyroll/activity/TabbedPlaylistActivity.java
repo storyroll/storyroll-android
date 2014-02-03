@@ -43,9 +43,6 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tabbed_playlist);
-        
-        // Setup search by username on Android
-		BugSenseHandler.setUserIdentifier(getUuid());
 		
         aq = new PQuery(this);
         uuid = getUuid();
@@ -268,17 +265,6 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     	super.onDestroy();
     	aq.dismiss();
     }
-    
-    /*-- callbacks & helpers --*/
-
-    
-	protected String getUuid() {
-		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
-		String uuid = settings.getString(Constants.PREF_EMAIL, null);
-		String username = settings.getString(Constants.PREF_USERNAME, null);
-		Log.i(LOGTAG, "uuid: " + uuid + ", username: " + username);
-		return uuid;
-	}
 
 }
 
