@@ -134,9 +134,13 @@ public class BaseActivity extends Activity {
 	}
 	
 	protected boolean isAjaxErrorThenReport(AjaxStatus status) {
-		if (status.getCode() != 200 && status.getCode()!=status.TRANSFORM_ERROR) {
-			apiError(LOGTAG, "Connection error, try again later");
-			Log.e(LOGTAG, "Error code "+status.getCode());
+		if (status.getCode() != 200 && status.getCode()!=AjaxStatus.TRANSFORM_ERROR) {
+			String s = "Connection error, try again later";
+			if (status.getCode()==AjaxStatus.NETWORK_ERROR) {
+				s = "Network error, check your connection";
+			}
+			apiError(LOGTAG, s);
+			Log.e(LOGTAG, "AjaxError, code "+status.getCode());
 			return true;
 		}
 		return false;

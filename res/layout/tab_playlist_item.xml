@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-  <com.storyroll.ui.PlaylistItemView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.storyroll.ui.PlaylistItemView xmlns:android="http://schemas.android.com/apk/res/android"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:orientation="vertical"
@@ -25,7 +25,13 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="300dp"
 	         />
-	    
+	    <ProgressBar 
+			android:id="@+id/progress"	
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:visibility="gone"
+			android:layout_gravity="center"
+		/>
   	</FrameLayout>
 
   	<LinearLayout
@@ -118,12 +124,6 @@
           />
   	</FrameLayout>
   	
-	<ProgressBar 
-		android:id="@+id/progress"	
-		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content"
-		android:layout_gravity="center_horizontal" 
-		android:visibility="gone"
-	/>
+
 
 </com.storyroll.ui.PlaylistItemView>

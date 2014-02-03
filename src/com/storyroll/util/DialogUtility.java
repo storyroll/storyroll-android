@@ -104,79 +104,80 @@ public class DialogUtility {
 //		
 //	}
 	
-    public static Dialog makeDialog(final Activity act, final List<ActionItem> items, final OnClickListener listener){
-    	
-    	final PQuery aq = new PQuery(act);
-    	
-    	ArrayAdapter<ActionItem> adapter = new ArrayAdapter<DialogUtility.ActionItem>(act, R.layout.item_dialog, items){
-    		@Override
-    		public View getView(int position, View convertView, ViewGroup parent) {
-    			
-    			convertView = aq.inflate(convertView, R.layout.item_dialog, parent);    			
-    			aq.recycle(convertView);
-    	
-    			ActionItem item = getItem(position);
-    			
-    			String name = item.name;
-    			String tb = item.tb;
-    			
-    			if(name == null && item.text > 0){
-    				aq.id(R.id.tb).image(item.icon).background(0).getImageView().setScaleType(ScaleType.FIT_CENTER);
-    				String text = convertView.getContext().getString(item.text);
-    				if(item.count > 0){
-    					text += " (" + item.count + ")";
-    				}
-    				aq.id(R.id.name).text(text);
-    			}else if(name != null){
-    				aq.id(R.id.tb).background(R.color.ph).image(tb, true, true, 0, 0, null, AQuery.FADE_IN_NETWORK, 1.0f);
-    				String text = item.name;// + " (" + act.getString(R.string.wall) + ")";
-    				aq.id(R.id.name).text(text);
-    			}
-    			
-    			
-    			/*
-    			String tb = item.tb;
-    			
-    			if(tb == null){
-    				aq.id(R.id.tb).image(item.icon).background(0).getImageView().setScaleType(ScaleType.FIT_CENTER);
-    				String text = convertView.getContext().getString(item.text);
-    				if(item.count >= 0){
-    					text += " (" + item.count + ")";
-    				}
-    				aq.id(R.id.name).text(text);
-    			}else{
-    				aq.id(R.id.tb).background(R.color.ph).image(tb, true, true, 0, 0, null, AQuery.FADE_IN_NETWORK, 1.0f);
-    				String text = item.name;// + " (" + act.getString(R.string.wall) + ")";
-    				aq.id(R.id.name).text(text);
-    			}
-    			*/
-    			return convertView;
-    		}
-    	};
-    	
-    	OnClickListener ocl = new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				
-				ActionItem item = items.get(which);				
-				listener.onClick(dialog, item.id);
-				
-			}
-			
-		};
-    	
-    	
-    	AlertDialog dia = new AlertDialog.Builder(act)    	
-        .setAdapter(adapter, ocl)
-        .create();
-    	
-    	dia.setCanceledOnTouchOutside(true);
-    	dia.setInverseBackgroundForced(false);
-    	
-    	
-    	return dia;
-    }    
+
+//    public static Dialog makeDialog(final Activity act, final List<ActionItem> items, final OnClickListener listener){
+//    	
+//    	final PQuery aq = new PQuery(act);
+//    	
+//    	ArrayAdapter<ActionItem> adapter = new ArrayAdapter<DialogUtility.ActionItem>(act, R.layout.item_dialog, items){
+//    		@Override
+//    		public View getView(int position, View convertView, ViewGroup parent) {
+//    			
+//    			convertView = aq.inflate(convertView, R.layout.item_dialog, parent);    			
+//    			aq.recycle(convertView);
+//    	
+//    			ActionItem item = getItem(position);
+//    			
+//    			String name = item.name;
+//    			String tb = item.tb;
+//    			
+//    			if(name == null && item.text > 0){
+//    				aq.id(R.id.tb).image(item.icon).background(0).getImageView().setScaleType(ScaleType.FIT_CENTER);
+//    				String text = convertView.getContext().getString(item.text);
+//    				if(item.count > 0){
+//    					text += " (" + item.count + ")";
+//    				}
+//    				aq.id(R.id.name).text(text);
+//    			}else if(name != null){
+//    				aq.id(R.id.tb).background(R.color.ph).image(tb, true, true, 0, 0, null, AQuery.FADE_IN_NETWORK, 1.0f);
+//    				String text = item.name;// + " (" + act.getString(R.string.wall) + ")";
+//    				aq.id(R.id.name).text(text);
+//    			}
+//    			
+//    			
+//    			/*
+//    			String tb = item.tb;
+//    			
+//    			if(tb == null){
+//    				aq.id(R.id.tb).image(item.icon).background(0).getImageView().setScaleType(ScaleType.FIT_CENTER);
+//    				String text = convertView.getContext().getString(item.text);
+//    				if(item.count >= 0){
+//    					text += " (" + item.count + ")";
+//    				}
+//    				aq.id(R.id.name).text(text);
+//    			}else{
+//    				aq.id(R.id.tb).background(R.color.ph).image(tb, true, true, 0, 0, null, AQuery.FADE_IN_NETWORK, 1.0f);
+//    				String text = item.name;// + " (" + act.getString(R.string.wall) + ")";
+//    				aq.id(R.id.name).text(text);
+//    			}
+//    			*/
+//    			return convertView;
+//    		}
+//    	};
+//    	
+//    	OnClickListener ocl = new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				
+//				ActionItem item = items.get(which);				
+//				listener.onClick(dialog, item.id);
+//				
+//			}
+//			
+//		};
+//    	
+//    	
+//    	AlertDialog dia = new AlertDialog.Builder(act)    	
+//        .setAdapter(adapter, ocl)
+//        .create();
+//    	
+//    	dia.setCanceledOnTouchOutside(true);
+//    	dia.setInverseBackgroundForced(false);
+//    	
+//    	
+//    	return dia;
+//    }    
 	
     
     public static class ActionItem{

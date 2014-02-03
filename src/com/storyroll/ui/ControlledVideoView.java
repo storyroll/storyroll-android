@@ -14,12 +14,13 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.VideoView;
 
 public class ControlledVideoView extends VideoView implements OnVideoTaskCompleted {
 	private static final String LOGTAG = "ControlledVideoView";
 
-	protected static final boolean LOOPING = false;
+	protected static final boolean LOOPING = true;
 	
 	public boolean isLoading = false;
 	public boolean isLoaded = false;
@@ -29,6 +30,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	int screenWidth;
 	private int itemPosition;
 	private long storyId;
+	private ProgressBar progressBar;
 	
 	public ControlledVideoView(Context context) {
 		super(context);
@@ -58,7 +60,9 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		if (autoStart) queueStartVideo();
 		if (!isLoading) {
 	   		// start a video preload task
-//		        progressBar.setVisibility(View.VISIBLE);
+//			if(progressBar!=null) {
+				progressBar.setVisibility(View.VISIBLE);
+//			}
 			isLoading = true;
 //		        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
 	        String url = AppUtility.API_URL+"storyFile?story="+storyId;
@@ -89,15 +93,14 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		Log.v(LOGTAG, "stopping video");
 		pause();
 	}
-
-	private float startY;
 	
-	public void init(ArrayListFragment parent, View controlView, int screenWidth, int itemPosition, long storyId) {
+	public void init(ArrayListFragment parent, View controlView, int screenWidth, int itemPosition, long storyId, ProgressBar progressBar) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
 		this.parent = parent;
 		this.storyId = storyId;
+		this.progressBar = progressBar;
 		
 		setOnPreparedListener(new MediaPlayer.OnPreparedListener()  {
             @Override
@@ -141,8 +144,9 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	
 	// once video download complete, play it
 	@Override
-	public void onVideoTaskCompleted(String fileName) {
-//		progressBar.setVisibility(View.GONE);
+	public void onVideoTaskCompleted(String fileName) 
+	{
+		progressBar.setVisibility(View.GONE);
 		controlView.setVisibility(View.GONE);
 		setVisibility(View.VISIBLE);
 		setViewSquare();

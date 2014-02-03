@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.storyroll"
-    android:versionCode="8"
-    android:versionName="0.17b" >
+    android:versionCode="9"
+    android:versionName="0.18b" >
 
     <!-- You can control the behaviors and visibility of the action bar with the ActionBar APIs, which were added in Android 3.0 (API level 11) -->
     <uses-sdk
@@ -13,14 +13,13 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    
 	<uses-feature android:name="android.hardware.camera"/>
 	<uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
 	
-    
     <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
 
     <application

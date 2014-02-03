@@ -22,6 +22,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.androidquery.callback.AjaxCallback;
@@ -284,6 +285,7 @@ public class ArrayListFragment extends ListFragment {
 
 	boolean isTabVisible = false;
 	
+	// this method is called when item is made visible
 	@Override
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 	    super.setUserVisibleHint(isVisibleToUser);
@@ -363,19 +365,20 @@ public class ArrayListFragment extends ListFragment {
 			TextView likesNum = (TextView) rowView.findViewById(R.id.numLikes);
 			ImageView likeControl = (ImageView) rowView.findViewById(R.id.likeImage);
 			ControlledVideoView videoView = (ControlledVideoView) rowView.findViewById(R.id.videoPlayerView);
+			ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progress);
 
 			// 4. set data & callbacks
 			Story story = stories.get(position);
 			rowView.initAndLoadCast(story, aq, ArrayListFragment.this);
-			
-			likesNum.setText(shortLikesString(story.getLikes()));
 
 			aq.id(storyThumb).image(AppUtility.API_URL + "storyThumb?story=" + story.getId());
 			setViewSquare(storyThumb, calculcatedVideoWidth);
 			
-			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId());
+			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId(), progressBar);
 			storyThumb.setOnClickListener(new ThumbClickListener(videoView, story.getId()));
-			
+
+			likesNum.setText(shortLikesString(story.getLikes()));
+
 			if (story.getCast()!=null) {
 				for (int i=0; i<story.getCast().length; i++) {
 					ImageView castImage = (ImageView) rowView.findViewById(PlaylistItemView.castIds[i]);
