@@ -526,7 +526,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		for (int count = 2; count >= 0; count--){
 	        handler.postDelayed(new Counter(count), 1000 * (3-count));
 	    }
-		handler.postDelayed(new RecordStarter(), 3200); 
+		handler.postDelayed(new RecordStarter(), 3100); 
 		
 	}
 	
@@ -765,8 +765,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 			cp.setPreviewSize(bestPreviewSize.width, bestPreviewSize.height);
 
 			cp.setColorEffect(Camera.Parameters.EFFECT_MONO);
-			// TOOD:
-//			cp.setRecordingHint(true);
+			// TODO)
+			cp.setRecordingHint(true);
 			
 			List<String> focusModes = cp.getSupportedFocusModes();
 			if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
@@ -813,6 +813,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		// Sets the frame rate of the video to be captured. Must be called after 
 		// setVideoSource(). Call this after setOutFormat() but before prepare().
 		recorder.setVideoFrameRate(30);
+		recorder.setVideoEncodingBitRate(1300000);
 	
 		recorder.setOutputFile(CameraUtility.getNewFragmentFilePath());
 		recorder.setMaxDuration(CameraUtility.VIDEO_LENGTH);
