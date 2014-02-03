@@ -43,7 +43,7 @@ public class ArrayListFragment extends ListFragment {
 	private static final int TAB_NEW = 1;
 	private static final int TAB_MY = 2;
 	private static final int TAB_FAVORITE = 3;
-	public static final String[] TAB_HEADINGS = new String[] { "Best", "New", "Mine", "Favorite" };
+	public static final String[] TAB_HEADINGS = new String[] { "Best", "New", "Mine", "Likes" };
 
 	private static final Integer LIMIT_ITEMS = 5;
 	
@@ -253,11 +253,6 @@ public class ArrayListFragment extends ListFragment {
 				}
 //				}
 				Log.v(LOGTAG, "stories:" + stories.size());
-
-				// TODO: test, remove
-//				 stories.add(new Story(1, 5));
-//				 stories.add(new Story(2, 100));
-//				 stories.add(new Story(3, 1756));
 
 				// refresh the adapter now
 				((BaseAdapter) getListAdapter()).notifyDataSetChanged();

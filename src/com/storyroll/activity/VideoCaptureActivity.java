@@ -152,10 +152,6 @@ public class VideoCaptureActivity extends BaseActivity implements
 		aq.ajax(AppUtility.API_URL+"getStoryToJoin?uuid="+getUuid(), JSONObject.class, this, "getStoryToJoinCb");
 		
 	}
-	
-	private String getNewFragmentTempFilePath() {
-		return AppUtility.getAppWorkingDir() + File.separator+"cropped_fragment.mpg";
-	}
 
 	// - - - callbacks
 	

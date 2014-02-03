@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
@@ -22,8 +21,6 @@ import com.storyroll.R;
 import com.storyroll.base.Constants;
 import com.storyroll.base.MenuFragmentActivity;
 import com.storyroll.util.ActionBarUtility;
-import com.storyroll.util.AutostartMode;
-import com.storyroll.util.PrefUtility;
 
 public class TabbedPlaylistActivity extends MenuFragmentActivity {
 
