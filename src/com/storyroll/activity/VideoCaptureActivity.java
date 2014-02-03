@@ -50,6 +50,9 @@ public class VideoCaptureActivity extends BaseActivity implements
 	//fires once a half/second
 	private static final int PROG_REFRESH = 500; // progress refresh rate
 //	private static final int SAVE_REQ = 1000;
+	
+	private static final int VIDEO_BITRATE = 1300000;
+	private static final int VIDEO_FRAMERATE = 30;
 
 	private SurfaceView surfaceView;
 	
@@ -812,8 +815,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 
 		// Sets the frame rate of the video to be captured. Must be called after 
 		// setVideoSource(). Call this after setOutFormat() but before prepare().
-		recorder.setVideoFrameRate(30);
-		recorder.setVideoEncodingBitRate(1300000);
+		recorder.setVideoFrameRate(VIDEO_FRAMERATE);
+		recorder.setVideoEncodingBitRate(VIDEO_BITRATE);
 	
 		recorder.setOutputFile(CameraUtility.getNewFragmentFilePath());
 		recorder.setMaxDuration(CameraUtility.VIDEO_LENGTH);
