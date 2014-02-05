@@ -196,6 +196,7 @@ public class ProfileActivity extends MenuActivity {
 		Log.v(LOGTAG, "doneButtonClicked");
 		String formUsername = aq.id(R.id.user_name).getText().toString().trim();
 		boolean unameChanged = !formUsername.equals(profile.username);
+		Log.v(LOGTAG, "unameChanged: "+unameChanged);
 		
 		// TODO: store/send to server new/updated profile
 		profile.email = aq.id(R.id.email).getText().toString().trim();

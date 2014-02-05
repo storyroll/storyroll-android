@@ -18,6 +18,9 @@ public class ErrorUtility {
 			if (status.getCode()==AjaxStatus.NETWORK_ERROR) {
 				s = "Network error, check your connection";
 			}
+			if (status.getCode()==500) {
+				s = "Internal server error, try again later";
+			}
 			apiError(logtag, s, status, c, true);
 			return true;
 		}
@@ -37,7 +40,7 @@ public class ErrorUtility {
 			errstr = "TRANSFORM_ERROR";
 			break;
 		default:
-			errstr = "";
+			errstr = status.getMessage();
 			break;
 		}
 		Log.e(logtag, "API Error: " + errstr + " ("+status.getCode()+")");

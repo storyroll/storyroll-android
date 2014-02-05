@@ -3,17 +3,11 @@ package com.storyroll.activity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ActionBar.LayoutParams;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.Menu;
 import android.view.View;
-import android.view.ViewParent;
 import android.widget.Toast;
 
 import com.androidquery.auth.FacebookHandle;
@@ -57,6 +51,7 @@ public class LoginActivity extends BaseActivity {
 	
 	public void authFacebookSSO(){
 		Log.v(LOGTAG, "authFacebookSSO");
+		
 		facebookHandle.sso(ACTIVITY_SSO);
 		Log.d(LOGTAG, "SSO available: " + facebookHandle.isSSOAvailable());
 		
