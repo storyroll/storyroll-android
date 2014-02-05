@@ -130,7 +130,7 @@ public class BaseActivity extends Activity {
 		return ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this);
 	}
 	
-	protected void apiError(String logtag, String s, Integer errorCode, boolean toast) {
-		ErrorUtility.apiError(logtag, s, errorCode, this, toast);
+	protected void apiError(String logtag, String s, AjaxStatus status, boolean toast) {
+		ErrorUtility.apiError(logtag, s, status, this, toast);
 	}
 }

@@ -99,11 +99,13 @@ public class ProfileActivity extends MenuActivity {
 
     	}
     	else if (state!=null){
+    		// restore state
     		profile = getPersistedProfile();
     		initForm();
     		restoreState();
     		initAvatar();
     	} else {
+    		// edit profile
     		aq.progress(R.id.progress).ajax(AppUtility.API_URL+"getProfile?uuid="+getUuid(), JSONObject.class, ProfileActivity.this, "getProfileCb");
     	}
 	}
@@ -118,7 +120,7 @@ public class ProfileActivity extends MenuActivity {
 		outState.putString(STATE_USERNAME, aq.id(R.id.user_name).getText().toString());
 		outState.putString(STATE_PASSWORD, aq.id(R.id.password).getText().toString());
 		outState.putString(STATE_LOCATION, aq.id(R.id.location).getText().toString());
-		outState.putInt(STATE_AUTH_METHOD, profile.authMethod);
+		outState.putInt(STATE_AUTH_METHOD, profile!=null?profile.authMethod:Profile.AUTH_UNKNOWN);
 
 	}
 
@@ -227,7 +229,7 @@ public class ProfileActivity extends MenuActivity {
 			profile = populateProfileFromSrJson(json, true);
 		}
 		else {
-			apiError(LOGTAG, "Could not get profile.", status.getCode(), true);
+			apiError(LOGTAG, "Error getting profile.", status, true);
 		}
 		initForm();
 		restoreState();
@@ -272,7 +274,7 @@ public class ProfileActivity extends MenuActivity {
     			nextActivity();
     		}
         }else{          
-        	apiError(LOGTAG, "Could not update profile", status.getCode(), true);
+        	apiError(LOGTAG, "Could not update profile", status, true);
         }
 	}
 	
@@ -287,7 +289,7 @@ public class ProfileActivity extends MenuActivity {
         	Log.v(LOGTAG, "set avatar id to "+profile.avatar);
 			persistProfile(profile);			
         }else{          
-        	apiError(LOGTAG, "Could not store avatar", status.getCode(), true);
+        	apiError(LOGTAG, "Could not store avatar", status, true);
         }
 		nextActivity();
 	}

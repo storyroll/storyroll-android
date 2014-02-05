@@ -190,7 +190,7 @@ public class ArrayListFragment extends ListFragment {
 		} else {
 			// ajax error
 			apiError(LOGTAG,
-					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status.getCode(), false);
+					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status, false);
 		}
 
 	}
@@ -226,7 +226,7 @@ public class ArrayListFragment extends ListFragment {
 		} else {
 			// ajax error
 			apiError(LOGTAG,
-					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status.getCode(), false);
+					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status, false);
 		}
 
 	}
@@ -263,7 +263,7 @@ public class ArrayListFragment extends ListFragment {
 		} else {
 			// ajax error
 			apiError(LOGTAG,
-					"userLikesCb: null Json, could not get story list for uuid " + mUuid, status.getCode(), false);
+					"userLikesCb: null Json, could not get story list for uuid " + mUuid, status, false);
 		}
 
 	}
@@ -467,7 +467,7 @@ public class ArrayListFragment extends ListFragment {
 						} else {
 							// ajax error, o change
 							apiError(LOGTAG,
-									"likeCb: Json null " + mUuid, status.getCode(), false);
+									"likeCb: Json null " + mUuid, status, false);
 						}
 					}
 				});
@@ -616,8 +616,8 @@ public class ArrayListFragment extends ListFragment {
 		return ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, getActivity());
 	}
 	
-	protected void apiError(String logtag, String s, Integer errorCode, boolean toast) {
-		ErrorUtility.apiError(logtag, s, errorCode, getActivity(), toast);
+	protected void apiError(String logtag, String s, AjaxStatus status, boolean toast) {
+		ErrorUtility.apiError(logtag, s, status, getActivity(), toast);
 	}
 
 }

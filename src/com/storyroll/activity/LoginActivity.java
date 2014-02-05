@@ -30,7 +30,7 @@ public class LoginActivity extends BaseActivity {
 	private final static String facebookGraphUrl = "https://graph.facebook.com/me?fields=first_name,last_name,name,email,location";
 	private final int ACTIVITY_SSO = 1000;
 
-	private FacebookHandle handle;
+	private FacebookHandle facebookHandle;
 	private Profile profile = null;
 	private boolean connectedViaFacebook = false;
 
@@ -41,7 +41,7 @@ public class LoginActivity extends BaseActivity {
 		
 		ActionBarUtility.adjustActionBarLogoCentering(this);
 		
-		handle = AppUtility.makeHandle(this);
+		facebookHandle = AppUtility.makeHandle(this);
 		
 		aq.id(R.id.facebook_button).clicked(this, "facebookButtonClicked");
 		aq.id(R.id.done_button).clicked(this, "doneButtonClicked");
@@ -57,8 +57,10 @@ public class LoginActivity extends BaseActivity {
 	
 	public void authFacebookSSO(){
 		Log.v(LOGTAG, "authFacebookSSO");
-		handle.sso(ACTIVITY_SSO);
-		aq.auth(handle).progress(R.id.progress).ajax(facebookGraphUrl, JSONObject.class, this, "facebookProfileCb");
+		facebookHandle.sso(ACTIVITY_SSO);
+		Log.d(LOGTAG, "SSO available: " + facebookHandle.isSSOAvailable());
+		
+		aq.auth(facebookHandle).progress(R.id.progress).ajax(facebookGraphUrl, JSONObject.class, this, "facebookProfileCb");
 	}
 	
 	public void doneButtonClicked(View button){
@@ -99,7 +101,7 @@ public class LoginActivity extends BaseActivity {
 					e.printStackTrace();
 				}
         }else{
-        	apiError(LOGTAG, "Error: "+status.getMessage(), status.getCode(), true);
+        	apiError(LOGTAG, "Error: "+status.getMessage(), status, true);
         }
     }
     
@@ -165,7 +167,7 @@ public class LoginActivity extends BaseActivity {
 				nextActionHome();
 			}
 		}else{
-			apiError(LOGTAG, "Error logging in", status.getCode(), true);
+			apiError(LOGTAG, "Error logging in", status, true);
 		}
 	}
 	
@@ -211,13 +213,13 @@ public class LoginActivity extends BaseActivity {
 	        case ACTIVITY_SSO: {
 	    		Log.v(LOGTAG, "ACTIVITY_SSO");
 
-	                if(handle != null){
-	                        handle.onActivityResult(requestCode, resultCode, data);   
+	                if(facebookHandle != null){
+	                	facebookHandle.onActivityResult(requestCode, resultCode, data);   
 	                }
 	        		
-	        		Log.v(LOGTAG, "facebook authenticated: "+handle.authenticated());
-	        		if (handle.authenticated()) {
-	        			aq.auth(handle).progress(R.id.progress).ajax(facebookGraphUrl, JSONObject.class, this, "facebookProfileCb");
+	        		Log.v(LOGTAG, "facebook authenticated: "+facebookHandle.authenticated());
+	        		if (facebookHandle.authenticated()) {
+	        			aq.auth(facebookHandle).progress(R.id.progress).ajax(facebookGraphUrl, JSONObject.class, this, "facebookProfileCb");
 	        		}
 
 	                break;

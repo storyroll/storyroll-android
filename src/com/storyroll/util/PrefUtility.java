@@ -134,7 +134,7 @@ public class PrefUtility {
 	}
 	
 	private static String[] deviceIds = {"00000000-64a3-993a-ffff-ffff87b812df", "ffffffff-aa8c-6136-a9de-4e41505adfd9"};
-	private static Boolean testDevice = false;
+	private static Boolean testDevice = true;
 	
 	public static boolean isTestDevice(){
 		

@@ -218,8 +218,7 @@ public class LaunchActivity extends BaseActivity {
 			nextAction();
 		} else {
 			// user not found, purge profile
-			Log.i(LOGTAG, "checkUserExistsBooleanCb bad response");
-			
+			apiError(LOGTAG, "checkUserExistsBooleanCb bad (json null) response", status, false);			
         }
 		aq.id(R.id.progressMarker).visibility(View.INVISIBLE);
 		bt.setEnabled(true);
