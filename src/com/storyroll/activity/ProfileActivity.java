@@ -238,7 +238,7 @@ public class ProfileActivity extends MenuActivity {
 	
 	public void getProfileForEditCb(String url, JSONObject json, AjaxStatus status) throws JSONException
 	{
-		Log.v(LOGTAG, "getProfileCb");
+		Log.v(LOGTAG, "getProfileForEditCb");
 		if (isAjaxErrorThenReport(status)) return;
 		
 		if(json != null){ 
