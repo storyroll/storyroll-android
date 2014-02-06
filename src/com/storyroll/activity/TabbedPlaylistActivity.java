@@ -16,6 +16,8 @@ import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.bugsense.trace.BugSenseHandler;
+import com.google.analytics.tracking.android.Fields;
+import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.base.Constants;
@@ -25,6 +27,7 @@ import com.storyroll.util.ActionBarUtility;
 public class TabbedPlaylistActivity extends MenuFragmentActivity {
 
 	private static final String LOGTAG = "TabbedPlaylist";
+	private static final String SCREEN_NAME = "TabbedPlaylist";
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the object collection.
@@ -43,6 +46,10 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tabbed_playlist);
+        
+		// Fields set on a tracker persist for all hits, until they are
+	    // overridden or cleared by assignment to null.
+	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
 		
         aq = new PQuery(this);
         uuid = getUuid();
@@ -79,7 +86,10 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
             public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
                 // When the tab is selected, switch to the
                 // corresponding page in the ViewPager.
-            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition());
+            	
+            	fireGAnalyticsEvent("ui_action", "onTabSelected", ArrayListFragment.TAB_HEADINGS[tab.getPosition()], null);
+            	
+            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition()+" - "+ArrayListFragment.TAB_HEADINGS[tab.getPosition()]);
                 mViewPager.setCurrentItem(tab.getPosition());
 
             }
@@ -107,6 +117,10 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
                         // corresponding tab.
                     	Log.v(LOGTAG, "setOnPageChangeListener: "+position);
                         getActionBar().setSelectedNavigationItem(position);
+                        
+                        // Also update tracker field to persist for all subsequent hits,
+                		// until they are overridden or cleared by assignment to null.
+                	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME+"_"+ArrayListFragment.TAB_HEADINGS[position]);
                     }
                 });
 
@@ -140,6 +154,9 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
         	}
         	if (backTries++>0) {
         		// on second press, exit
+        		
+        		fireGAnalyticsEvent("ui_action", "click", "Back", 1L);
+        			    
         		Intent intent = new Intent(Intent.ACTION_MAIN);
         		intent.addCategory(Intent.CATEGORY_HOME);
         		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -149,6 +166,8 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
         	else {
         		// on first press, show note
         		Toast.makeText(this, "To exit, press back twice", Toast.LENGTH_SHORT).show();
+        		
+        		fireGAnalyticsEvent("ui_action", "click", "Back", 2L);
         	}
         	lastPressed = currentTime;
         	

@@ -13,6 +13,9 @@ import android.util.Log;
 
 import com.androidquery.callback.AjaxStatus;
 import com.androidquery.util.AQUtility;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.MapBuilder;
+import com.google.analytics.tracking.android.Tracker;
 import com.storyroll.PQuery;
 import com.storyroll.model.Profile;
 import com.storyroll.util.ActionBarUtility;
@@ -45,6 +48,38 @@ public class BaseActivity extends Activity {
     		AQUtility.cleanCacheAsync(this);
     	}
     	
+    }
+    
+    @Override
+    public void onStart() {
+      super.onStart();
+      // The rest of your onStart() code.
+      getGTracker().activityStart(this);  // Add this method.
+      
+      // Send a screen view when the Activity is displayed to the user.
+      getGTracker().send(MapBuilder.createAppView().build());
+    }
+    
+    @Override
+    public void onStop() {
+      super.onStop();
+      // The rest of your onStop() code.
+      getGTracker().activityStop(this);  // Add this method.
+    }
+    
+    // ------- protected methods
+    
+    protected void fireGAnalyticsEvent(String category, String action, String label, Long value) {
+    	getGTracker().send(MapBuilder
+			    .createEvent(category, action, label, value)
+			    .build()
+			);
+    }
+    
+    // - - - helper methods
+    
+    protected EasyTracker getGTracker() {
+    	return EasyTracker.getInstance(this);
     }
     
     public boolean isRoot(){
@@ -130,7 +165,7 @@ public class BaseActivity extends Activity {
 		return ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this);
 	}
 	
-	protected void apiError(String logtag, String s, AjaxStatus status, boolean toast) {
-		ErrorUtility.apiError(logtag, s, status, this, toast);
+	protected void apiError(String logtag, String s, AjaxStatus status, boolean toast, int logLevel) {
+		ErrorUtility.apiError(logtag, s, status, this, toast, logLevel);
 	}
 }

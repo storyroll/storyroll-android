@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AjaxStatus;
+import com.google.analytics.tracking.android.Fields;
+import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
 import com.storyroll.model.Profile;
@@ -21,6 +23,8 @@ import com.storyroll.util.DataUtility;
 
 public class LoginActivity extends BaseActivity {
 	private final static String LOGTAG = "LOGIN";
+	private final static String SCREEN_NAME = "Login";
+
 	private final static String facebookGraphUrl = "https://graph.facebook.com/me?fields=first_name,last_name,name,email,location";
 	private final int ACTIVITY_SSO = 1000;
 
@@ -39,10 +43,14 @@ public class LoginActivity extends BaseActivity {
 		
 		aq.id(R.id.facebook_button).clicked(this, "facebookButtonClicked");
 		aq.id(R.id.done_button).clicked(this, "doneButtonClicked");
+		
+		// Fields set on a tracker persist for all hits, until they are
+	    // overridden or cleared by assignment to null.
+		getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
 
 	}
     
-	
+	  
 	// - - - callbacks
 	
 	public void facebookButtonClicked(View button){
@@ -76,6 +84,7 @@ public class LoginActivity extends BaseActivity {
 	// - - - callbacks & helpers 
     public void facebookProfileCb(String url, JSONObject json, AjaxStatus status) {
 		Log.v(LOGTAG, "facebookProfileCb");
+		fireGAnalyticsEvent("facebook", "login", json==null?"fail":"success", null);
     	if (isAjaxErrorThenReport(status)) return;
             
         if(json != null){
@@ -96,11 +105,13 @@ public class LoginActivity extends BaseActivity {
 					e.printStackTrace();
 				}
         }else{
-        	apiError(LOGTAG, "Error: "+status.getMessage(), status, true);
+        	apiError(LOGTAG, "Facebook Error: "+status.getMessage(), status, true, Log.ERROR);
         }
     }
     
-	public void hasFbUserInSrCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
+    // this callback checks if a FB user in registered with StoryRoll
+	public void hasFbUserInSrCb(String url, JSONObject json, AjaxStatus status) throws JSONException
+	{
 		Log.v(LOGTAG, "hasFbUserInSrCb");
 		if (isAjaxErrorThenReport(status)) return;
 		
@@ -122,9 +133,11 @@ public class LoginActivity extends BaseActivity {
 		}
     }
 	
+	// this callback checks if given user exists and then checks its login
 	public void getSrProfileCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
 		Log.v(LOGTAG, "getSrProfileCb");
 		if (isAjaxErrorThenReport(status)) return;
+		
 		if(json != null){ // user exists
 			Log.v(LOGTAG, "user exists");
 			// check login
@@ -144,14 +157,16 @@ public class LoginActivity extends BaseActivity {
 	  }
 	}
 	
-	public void loginValidCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
+	public void loginValidCb(String url, JSONObject json, AjaxStatus status) throws JSONException
+	{
 		Log.v(LOGTAG, "loginValidCb");
 		if (isAjaxErrorThenReport(status)) return;
-		
+
 		boolean loginValid = false;
 		if(json != null)
 		{ // user exists
 			loginValid = json.getBoolean("result");
+			fireGAnalyticsEvent("login", "valid", loginValid+"", null);
 			if (!loginValid) {
 				Toast.makeText(aq.getContext(), "Password incorrect, review and try again.", Toast.LENGTH_SHORT).show();
 				return;
@@ -162,7 +177,7 @@ public class LoginActivity extends BaseActivity {
 				nextActionHome();
 			}
 		}else{
-			apiError(LOGTAG, "Error logging in", status, true);
+			apiError(LOGTAG, "Error logging in", status, true, Log.ERROR);
 		}
 	}
 	
@@ -213,8 +228,13 @@ public class LoginActivity extends BaseActivity {
 	                }
 	        		
 	        		Log.v(LOGTAG, "facebook authenticated: "+facebookHandle.authenticated());
+        			fireGAnalyticsEvent("facebook", "authenticated", facebookHandle.authenticated()+"", null);
+
 	        		if (facebookHandle.authenticated()) {
 	        			aq.auth(facebookHandle).progress(R.id.progress).ajax(facebookGraphUrl, JSONObject.class, this, "facebookProfileCb");
+	        		}
+	        		else {
+	        			apiError(LOGTAG, "Facebook not authenticated", null, false, Log.ERROR);
 	        		}
 
 	                break;

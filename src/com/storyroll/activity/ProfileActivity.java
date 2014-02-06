@@ -30,6 +30,8 @@ import android.widget.Toast;
 
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AjaxStatus;
+import com.bugsense.trace.BugSenseHandler;
+import com.google.analytics.tracking.android.Fields;
 import com.storyroll.R;
 import com.storyroll.base.MenuActivity;
 import com.storyroll.model.Profile;
@@ -37,6 +39,8 @@ import com.storyroll.util.AppUtility;
 
 public class ProfileActivity extends MenuActivity {
 	private final String LOGTAG = "PROFILE";
+	private static final String SCREEN_NAME = "Profile";
+
 	
 //	private AQuery aq;
 	
@@ -70,6 +74,10 @@ public class ProfileActivity extends MenuActivity {
 		
 		Log.v(LOGTAG, "onCreate");
 		setContentView(R.layout.activity_profile);
+		
+		// Fields set on a tracker persist for all hits, until they are
+	    // overridden or cleared by assignment to null.
+	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
 
     	Intent intent = getIntent();
     	if(intent != null){
@@ -106,7 +114,7 @@ public class ProfileActivity extends MenuActivity {
     		initAvatar();
     	} else {
     		// edit profile
-    		aq.progress(R.id.progress).ajax(AppUtility.API_URL+"getProfile?uuid="+getUuid(), JSONObject.class, ProfileActivity.this, "getProfileCb");
+    		aq.progress(R.id.progress).ajax(AppUtility.API_URL+"getProfile?uuid="+getUuid(), JSONObject.class, ProfileActivity.this, "getProfileForEditCb");
     	}
 	}
 	
@@ -152,7 +160,8 @@ public class ProfileActivity extends MenuActivity {
 	}
 
 	public void restoreState(){
-		if (storedState!=null){
+		if (storedState!=null)
+		{
 			avatarChangeStarted = storedState.getBoolean(STATE_AVATAR_CHANGE_STARTED);
 			avatarChangeCompleted = storedState.getBoolean(STATE_AVATAR_CHANGE_COMPLETED);
 			Log.d(LOGTAG, "restoring state, avatarChanged: "+avatarChangeStarted+", "+avatarChangeCompleted);
@@ -194,6 +203,9 @@ public class ProfileActivity extends MenuActivity {
 	
 	public void doneButtonClicked(View button){
 		Log.v(LOGTAG, "doneButtonClicked");
+		
+		fireGAnalyticsEvent("ui_activity", "click", "doneButton", null);
+		
 		String formUsername = aq.id(R.id.user_name).getText().toString().trim();
 		boolean unameChanged = !formUsername.equals(profile.username);
 		Log.v(LOGTAG, "unameChanged: "+unameChanged);
@@ -215,7 +227,7 @@ public class ProfileActivity extends MenuActivity {
 //			}
 			Log.d(LOGTAG, "profile: "+profile.toString()+", params: "+profile.toParamString(false, true));
 			
-			aq.progress(R.id.progress).ajax(AppUtility.API_URL+"addProfile?"+profile.toParamString(false, true), JSONObject.class, ProfileActivity.this, "updateProfileCb");						
+			aq.progress(R.id.progress).ajax(AppUtility.API_URL+"addProfile?"+profile.toParamString(false, true), JSONObject.class, ProfileActivity.this, "createProfileCb");						
 		}
 		else {
 			persistProfile(profile);
@@ -224,22 +236,43 @@ public class ProfileActivity extends MenuActivity {
 		}		
 	}
 	
-	public void getProfileCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
+	public void getProfileForEditCb(String url, JSONObject json, AjaxStatus status) throws JSONException
+	{
 		Log.v(LOGTAG, "getProfileCb");
+		if (isAjaxErrorThenReport(status)) return;
+		
 		if(json != null){ 
 			profile = populateProfileFromSrJson(json, true);
 		}
 		else {
-			apiError(LOGTAG, "Error getting profile.", status, true);
+			apiError(LOGTAG, "Error getting profile.", status, true, Log.ERROR);
 		}
 		initForm();
 		restoreState();
 		initAvatar();
 	}
 
+	public void createProfileCb(String url, JSONObject json, AjaxStatus status)
+	{
+		Log.v(LOGTAG, "createProfileCb");
+		// profile register successfull or fail?
+		fireGAnalyticsEvent("profile", "create", json != null?"success":"fail", null);
+		
+		updateProfileGeneral(url, json, status);
+	}
 	
-	public void updateProfileCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
-        if(json != null){               
+	public void updateProfileCb(String url, JSONObject json, AjaxStatus status)
+	{
+		Log.v(LOGTAG, "updateProfileCb");
+		fireGAnalyticsEvent("profile", "update", json != null?"success":"fail", null);
+		updateProfileGeneral(url, json, status);
+	}
+	
+	public void updateProfileGeneral(String url, JSONObject json, AjaxStatus status)
+	{		
+		if (isAjaxErrorThenReport(status)) return;
+		
+        if(json != null){
             //successful ajax call
         	Log.v(LOGTAG, "updateProfileCb success");
         	// persist profile
@@ -275,11 +308,16 @@ public class ProfileActivity extends MenuActivity {
     			nextActivity();
     		}
         }else{          
-        	apiError(LOGTAG, "Could not update profile", status, true);
+        	apiError(LOGTAG, "Could not update profile", status, true, Log.ERROR);
         }
 	}
 	
-	public void setAvatarCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
+	public void setAvatarCb(String url, JSONObject json, AjaxStatus status) throws JSONException
+	{
+		fireGAnalyticsEvent("profile_avatar", "setAvatar", json != null?"success":"fail", null);
+
+		if (isAjaxErrorThenReport(status)) return;
+		
         if(json != null){               
             //successful ajax call
         	Log.v(LOGTAG, "setAvatarCb success: "+json.toString());
@@ -290,7 +328,7 @@ public class ProfileActivity extends MenuActivity {
         	Log.v(LOGTAG, "set avatar id to "+profile.avatar);
 			persistProfile(profile);			
         }else{          
-        	apiError(LOGTAG, "Could not store avatar", status, true);
+        	apiError(LOGTAG, "Could not store avatar", status, true, Log.ERROR);
         }
 		nextActivity();
 	}
@@ -303,7 +341,10 @@ public class ProfileActivity extends MenuActivity {
 	
 	private static Uri outputFileUri;
 	
-	public void avatarImageClicked(View ImageView){
+	public void avatarImageClicked(View ImageView)
+	{
+		fireGAnalyticsEvent("ui_action", "touch", "avatarImage", null);
+		
 		avatarChangeStarted = true;
 		// Determine Uri of camera image to save.
 		final File appRootDir = new File(AppUtility.getAppWorkingDir());
@@ -311,38 +352,38 @@ public class ProfileActivity extends MenuActivity {
 		final File sdImageMainDirectory = new File(appRootDir, "avatar.jpg");
 		outputFileUri = Uri.fromFile(sdImageMainDirectory);
 
-		    // Camera.
-		    final List<Intent> cameraIntents = new ArrayList<Intent>();
-		    final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-		    final PackageManager packageManager = getPackageManager();
-		    final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
-		    for(ResolveInfo res : listCam) {
-		        final String packageName = res.activityInfo.packageName;
-		        final Intent intent = new Intent(captureIntent);
-		        intent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
-		        intent.setPackage(packageName);
-		        intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-		        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-		        cameraIntents.add(intent);
-		    }
+	    // Camera.
+	    final List<Intent> cameraIntents = new ArrayList<Intent>();
+	    final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+	    final PackageManager packageManager = getPackageManager();
+	    final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
+	    for(ResolveInfo res : listCam) {
+	        final String packageName = res.activityInfo.packageName;
+	        final Intent intent = new Intent(captureIntent);
+	        intent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
+	        intent.setPackage(packageName);
+	        intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+	        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+	        cameraIntents.add(intent);
+	    }
 
-		    // Filesystem.
-		    final Intent galleryIntent = new Intent();
-		    galleryIntent.setType("image/*");
-		    galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-		    // don't return to this activity if they relaunch your application from the Launcher
-		    galleryIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+	    // Filesystem.
+	    final Intent galleryIntent = new Intent();
+	    galleryIntent.setType("image/*");
+	    galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+	    // don't return to this activity if they relaunch your application from the Launcher
+	    galleryIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 
-		    // Chooser of filesystem options.
-		    final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
+	    // Chooser of filesystem options.
+	    final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
 
-		    // Add the camera options.
-		    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[]{}));
-		    // don't return to this activity if they relaunch your application from the Launcher
-		    chooserIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+	    // Add the camera options.
+	    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[]{}));
+	    // don't return to this activity if they relaunch your application from the Launcher
+	    chooserIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 
-		    startActivityForResult(chooserIntent, ACTIVITY_SELECT_AVATAR_REQUEST);
-		}
+	    startActivityForResult(chooserIntent, ACTIVITY_SELECT_AVATAR_REQUEST);
+	}
 
 	// - - - callbacks & helpers 
 
@@ -356,6 +397,8 @@ public class ProfileActivity extends MenuActivity {
 	        case ACTIVITY_SELECT_AVATAR_REQUEST:
 	        {
 	        	Log.v(LOGTAG, "onActivityResult: ACTIVITY_SELECT_AVATAR_REQUEST");
+	    		fireGAnalyticsEvent("profile_avatar", "selectAvatar", resultCode == RESULT_OK?"RESULT_OK":"RESULT_"+resultCode, null);
+
 	        	if (resultCode == RESULT_OK){
 		            final boolean isCamera;
 		            if(data == null)
@@ -398,10 +441,12 @@ public class ProfileActivity extends MenuActivity {
 		                    avatarChangeCompleted = true;
 
 						} catch (FileNotFoundException e) {
-							// TODO Auto-generated catch block
+							BugSenseHandler.sendException(e);
+							Log.e(LOGTAG, "File not found saving avatar", e);
 							e.printStackTrace();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
+							BugSenseHandler.sendException(e);
+							Log.e(LOGTAG, "I/O error saving avatar", e);
 							e.printStackTrace();
 						}
 

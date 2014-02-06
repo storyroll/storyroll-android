@@ -43,12 +43,17 @@ import com.storyroll.util.PrefUtility;
 //import com.androidquery.simplefeed.util.ParseUtility;
 //import com.androidquery.simplefeed.util.PrefUtility;
 import com.androidquery.util.AQUtility;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.Fields;
+import com.google.analytics.tracking.android.MapBuilder;
 
 
 
 public class SettingsActivity extends PreferenceActivity implements OnPreferenceClickListener, OnPreferenceChangeListener {
 
 	private static final String LOGTAG = "SETTINGS";
+	private static final String SCREEN_NAME = "Settings";
+	
 //	protected FacebookHandle handle;
 	protected PQuery aq;
 	
@@ -57,6 +62,10 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         
     	super.onCreate(savedInstanceState);
     	
+		// Fields set on a tracker persist for all hits, until they are
+	    // overridden or cleared by assignment to null.
+	    EasyTracker.getInstance(this).set(Fields.SCREEN_NAME, SCREEN_NAME);
+	    
     	ActionBarUtility.initCustomActionBar(this);
 		ActionBarUtility.adjustActionBarLogoCentering(this);
 
@@ -108,6 +117,8 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     	AQUtility.debug("pred", name);
     	
     	try{
+    		fireGAnalyticsEvent("ui_activity", "pref", name, null);
+
 	    	if("logout".equals(name)){
 	    		logout();
 	    	}else if("share".equals(name)){
@@ -128,6 +139,13 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     	
     	return false;
     	
+    }
+    
+    protected void fireGAnalyticsEvent(String category, String action, String label, Long value) {
+    	EasyTracker.getInstance(this).send(MapBuilder
+			    .createEvent(category, action, label, value)
+			    .build()
+			);
     }
     
     private void share2(){

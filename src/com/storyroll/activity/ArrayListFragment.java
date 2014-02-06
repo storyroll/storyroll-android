@@ -27,6 +27,8 @@ import android.widget.TextView;
 
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.model.Story;
@@ -47,7 +49,7 @@ public class ArrayListFragment extends ListFragment {
 	private static final int TAB_FAVORITE = 3;
 	public static final String[] TAB_HEADINGS = new String[] { "Best", "New", "Mine", "Likes" };
 
-	private static final Integer LIMIT_ITEMS = 5;
+	private static final Integer LIMIT_ITEMS = 25;
 	
 	// how many percents of width should a squared video take
 	private static final int PERCENT_SQUARE = 95;
@@ -167,7 +169,8 @@ public class ArrayListFragment extends ListFragment {
     
 	// inner callbacks
     // get initial, centralized (static) user "liked" story ids
-	public void userLikesIdsCb(String url, JSONArray jarr, AjaxStatus status) {
+	public void userLikesIdsCb(String url, JSONArray jarr, AjaxStatus status) 
+	{
 		Log.v(LOGTAG, "userLikesIdsCb");
 		if (isAjaxErrorThenReport(status)) return;
 		
@@ -190,7 +193,7 @@ public class ArrayListFragment extends ListFragment {
 		} else {
 			// ajax error
 			apiError(LOGTAG,
-					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status, false);
+					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status, false, Log.ERROR);
 		}
 
 	}
@@ -226,12 +229,15 @@ public class ArrayListFragment extends ListFragment {
 		} else {
 			// ajax error
 			apiError(LOGTAG,
-					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status, false);
+					"Error getting rolls", status, true, Log.ERROR);
 		}
 
 	}
 
-	public void getStoryListCb(String url, JSONArray jarr, AjaxStatus status) {
+	public void getStoryListCb(String url, JSONArray jarr, AjaxStatus status) 
+	{
+		if (isAjaxErrorThenReport(status)) return;
+			
 		Log.v(LOGTAG, "getStoryListCb " + mNum);
 		if (jarr != null) {
 			// successful ajax call
@@ -263,7 +269,8 @@ public class ArrayListFragment extends ListFragment {
 		} else {
 			// ajax error
 			apiError(LOGTAG,
-					"userLikesCb: null Json, could not get story list for uuid " + mUuid, status, false);
+//					"userLikesCb: null Json, could not get story list for uuid " + mUuid, status, false, Log.ERROR);
+			"Error getting rolls", status, true, Log.ERROR);
 		}
 
 	}
@@ -272,7 +279,8 @@ public class ArrayListFragment extends ListFragment {
 	
 	// stop currently played video and start new one, setting it as currently played
 	// needed to avoid playing two or more videos at once
-	public static void switchCurrentlyPlayed(ControlledVideoView v){
+	public static void switchCurrentlyPlayed(ControlledVideoView v)
+	{
 		if (currentlyPlayed!=null && currentlyPlayed.isPlaying()) {
 			currentlyPlayed.stopPlayback();
 		}
@@ -283,7 +291,8 @@ public class ArrayListFragment extends ListFragment {
 	
 	// this method is called when item is made visible
 	@Override
-	public void setUserVisibleHint(boolean isVisibleToUser) {
+	public void setUserVisibleHint(boolean isVisibleToUser) 
+	{
 	    super.setUserVisibleHint(isVisibleToUser);
 
 	    // Make sure that we are currently visible
@@ -409,6 +418,7 @@ public class ArrayListFragment extends ListFragment {
 
 			@Override
 			public void onClick(View v) {
+				fireGAnalyticsEvent("ui_action", "touch", "storyThumb", null);
 				pv.startVideoPreloading(true);
 			}
 			
@@ -431,7 +441,8 @@ public class ArrayListFragment extends ListFragment {
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
+				fireGAnalyticsEvent("ui_action", "touch", "likeButton", null);
+
 				String url = AppUtility.API_URL + "like";
 				if (story.isUserLikes()) {
 					url = AppUtility.API_URL + "dislike";
@@ -467,7 +478,7 @@ public class ArrayListFragment extends ListFragment {
 						} else {
 							// ajax error, o change
 							apiError(LOGTAG,
-									"likeCb: Json null " + mUuid, status, false);
+									"likeCb: Json null " + mUuid, status, false, Log.ERROR);
 						}
 					}
 				});
@@ -605,6 +616,10 @@ public class ArrayListFragment extends ListFragment {
 			if (autoStart) {
 				videoView.startVideoPreloading(true);
 			}
+			
+			fireGAnalyticsEvent("handle_autostart", "mode", am.toString(), null);
+			fireGAnalyticsEvent("handle_autostart", "autoStart", autoStart+"", null);
+
 		}
 		
 
@@ -616,8 +631,15 @@ public class ArrayListFragment extends ListFragment {
 		return ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, getActivity());
 	}
 	
-	protected void apiError(String logtag, String s, AjaxStatus status, boolean toast) {
-		ErrorUtility.apiError(logtag, s, status, getActivity(), toast);
+	protected void apiError(String logtag, String s, AjaxStatus status, boolean toast, int logLevel) {
+		ErrorUtility.apiError(logtag, s, status, getActivity(), toast, logLevel);
 	}
+	
+    protected void fireGAnalyticsEvent(String category, String action, String label, Long value) {
+    	EasyTracker.getInstance(getActivity()).send(MapBuilder
+			    .createEvent(category, action, label, value)
+			    .build()
+			);
+    }
 
 }

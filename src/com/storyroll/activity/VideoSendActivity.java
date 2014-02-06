@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.Fields;
 import com.storyroll.R;
 import com.storyroll.base.MenuActivity;
 import com.storyroll.util.AppUtility;
@@ -18,11 +19,16 @@ import com.storyroll.util.AppUtility;
 public class VideoSendActivity extends MenuActivity {
 
 	protected static final String LOGTAG = "VIDEOSENT";
+	private static final String SCREEN_NAME = "VideoSent";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_videocapture);
+		
+		// Fields set on a tracker persist for all hits, until they are
+	    // overridden or cleared by assignment to null.
+	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
 
 //		requestWindowFeature(Window.FEATURE_NO_TITLE);		
 //		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -54,7 +60,9 @@ public class VideoSendActivity extends MenuActivity {
    	
 	}
 	
-	public void againClickedCb(View view){
+	public void againClickedCb(View view)
+	{
+		fireGAnalyticsEvent("ui_action", "touch", "againButton", null);
 		Intent intent = new Intent(getApplicationContext(), VideoCaptureActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
@@ -82,6 +90,8 @@ public class VideoSendActivity extends MenuActivity {
 	                && !event.isCanceled()) {
 	            // Back button press complete, handle
 	        	
+	    		fireGAnalyticsEvent("ui_action", "click", "SystemBack", null);
+	    		fireGAnalyticsEvent("fragment_workflow", "videoUpload", "SystemBack", null);
 	        	
         		Intent intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
         		intent.addCategory(Intent.CATEGORY_HOME);

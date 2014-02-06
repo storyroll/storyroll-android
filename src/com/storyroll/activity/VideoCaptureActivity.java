@@ -35,17 +35,24 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.androidquery.callback.AjaxStatus;
+import com.bugsense.trace.BugSense;
+import com.bugsense.trace.BugSenseHandler;
+import com.google.analytics.tracking.android.Fields;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
+import com.storyroll.exception.APIException;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.CameraUtility;
+import com.storyroll.util.DataUtility;
 
 public class VideoCaptureActivity extends BaseActivity implements
 		SurfaceHolder.Callback, Button.OnClickListener, OnVideoTaskCompleted,  OnInfoListener {
 
 	public static final String LOGTAG = "VIDEOCAPTURE";
+	private static final String SCREEN_NAME = "VideoCapture";
+
 	
 	//fires once a half/second
 	private static final int PROG_REFRESH = 500; // progress refresh rate
@@ -73,13 +80,13 @@ public class VideoCaptureActivity extends BaseActivity implements
 	private String lastFragmentPath = null;
 	private boolean playsEarlierFragment;
 	
-	private static final int STATE_NO_STORY = -1;
-	private static final int STATE_INITIAL = 0;
-	private static final int STATE_PREV_LAST = 1;
-	private static final int STATE_PREV_CAM = 2;
-	private static final int STATE_REC = 3;
-	private static final int STATE_PREV_NEW = 4;
-	private static final int STATE_UPLOAD = 5;
+	public static final int STATE_NO_STORY = -1;
+	public static final int STATE_INITIAL = 0;
+	public static final int STATE_PREV_LAST = 1;
+	public static final int STATE_PREV_CAM = 2;
+	public static final int STATE_REC = 3;
+	public static final int STATE_PREV_NEW = 4;
+	public static final int STATE_UPLOAD = 5;
 		
 	private static final boolean BUTTON_RED=false;
 	private static final boolean BUTTON_YELLOW=true;
@@ -98,6 +105,10 @@ public class VideoCaptureActivity extends BaseActivity implements
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_videocapture);
+		
+		// Fields set on a tracker persist for all hits, until they are
+	    // overridden or cleared by assignment to null.
+	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
 
 //		getWindow().setFormat(PixelFormat.TRANSLUCENT);
 //        getWindow().setFlags(
@@ -155,8 +166,12 @@ public class VideoCaptureActivity extends BaseActivity implements
 
 	// - - - callbacks
 	
-	public void getStoryToJoinCb(String url, JSONObject json, AjaxStatus status){
-        
+	public void getStoryToJoinCb(String url, JSONObject json, AjaxStatus status)
+	{
+    	fireGAnalyticsEvent("story_workflow", "joinStory", json==null?"got no story":"got story", null);
+
+    	if (isAjaxErrorThenReport(status)) return;
+    	
         if(json != null){               
             //successful ajax call
         	Log.i(LOGTAG, "getStoryToJoinCb success: "+json.toString());
@@ -192,6 +207,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 			// join (lock) the story
 			aq.ajax(AppUtility.API_URL+"joinStory?uuid="+getUuid()+"&story="+storyId, JSONObject.class, this, "joinStoryCb");
 		} catch (JSONException e) {
+			apiError(LOGTAG, "Error parsing story response. "+e.getMessage(), null, false, Log.ERROR);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -208,8 +224,11 @@ public class VideoCaptureActivity extends BaseActivity implements
 		
 	}
 	
-	public void joinStoryCb(String url, JSONObject json, AjaxStatus status){
-        
+	public void joinStoryCb(String url, JSONObject json, AjaxStatus status)
+	{
+		if (isAjaxErrorThenReport(status)) return;
+    	fireGAnalyticsEvent("story_workflow", "joinStory", json==null?"fail":"success", null);
+
         if(json != null){               
             //successful ajax call
         	Log.i(LOGTAG, "joinStoryCb success: "+json.toString());
@@ -238,14 +257,18 @@ public class VideoCaptureActivity extends BaseActivity implements
         	}
         }else{          
             //ajax error
-        	Log.e(LOGTAG, "joinStoryCb: null Json, story was not joined");
+        	apiError(LOGTAG, "Story not joined", status, true, Log.ERROR);
         	// TODO: invalidate story join
         	// needs decision: a) retry joining the same story b) auto choose next story 
         }
         
 	}
 	
-	public void startStoryCb(String url, JSONObject json, AjaxStatus status) {
+	public void startStoryCb(String url, JSONObject json, AjaxStatus status) 
+	{
+    	fireGAnalyticsEvent("fragment_workflow", "startStory", json==null?"fail":"success", null);
+        
+    	if (isAjaxErrorThenReport(status)) return;
         
         if(json != null){               
             //successful ajax call
@@ -254,24 +277,29 @@ public class VideoCaptureActivity extends BaseActivity implements
         	isStartNew = true;
 			getStoryDataAndJoin(json, null);
         }
-        else{          
+        else{
             //ajax error
-        	Log.e(LOGTAG, "startStoryCb: null Json, story was not started");
-			Toast.makeText(aq.getContext(), "Could not start story", Toast.LENGTH_SHORT).show();
-
+        	apiError(LOGTAG, "Could not start story", status, true, Log.ERROR);
         }
        
 	}
 	
 	public void videoUploadCb(String url, JSONObject json, AjaxStatus status){
-        isUploading = false;
+        
+    	fireGAnalyticsEvent("fragment_workflow", "videoUpload", json==null?"fail":"success", null);
+    	
+    	if (isAjaxErrorThenReport(status)) return;
+
+		isUploading = false;
     	progress.setVisibility(View.INVISIBLE);
     	
     	String fileName = CameraUtility.getNewFragmentFilePath();
 
-        if(json != null){               
+        if(json != null)
+        {               
             //successful ajax call
         	Log.i(LOGTAG, "videoUploadCb success: "+json.toString());
+        	
         	// rename file
         	File newFile = new File(fileName+".last");
         	if (newFile.exists()) {
@@ -283,11 +311,12 @@ public class VideoCaptureActivity extends BaseActivity implements
 			Intent sendActivity = new Intent(this, VideoSendActivity.class);
 			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(sendActivity);
-        }else{          
+        }else
+        {          
             //ajax error
-        	Log.w(LOGTAG, "Json null");
-			Toast.makeText(aq.getContext(), "Could not upload the fragment, try again.", Toast.LENGTH_SHORT).show();
-			// restore state
+        	apiError(LOGTAG, "Could not upload the fragment, try again.", status, true, Log.ERROR);
+
+        	// restore state
 			lastState = STATE_PREV_NEW;
         }
 	}
@@ -554,7 +583,6 @@ public class VideoCaptureActivity extends BaseActivity implements
 		aq.ajax(AppUtility.API_URL+"addFragment", params, JSONObject.class, VideoCaptureActivity.this, "videoUploadCb").progress(R.id.progress);
 	}
 	  
-	boolean isCroppingConverting = false;
 	boolean isUploading = false;
 
 	
@@ -562,6 +590,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 	
 	@Override
 	public void onClick(View v) {
+		fireGAnalyticsEvent("ui_action", "controll_button_from_state", DataUtility.stateStr(lastState), null);
+		
 		switch (lastState) {
 		case STATE_NO_STORY:
 			aq.ajax(AppUtility.API_URL+"startStory?uuid="+getUuid(), JSONObject.class, this, "startStoryCb").progress(progress);
@@ -593,15 +623,15 @@ public class VideoCaptureActivity extends BaseActivity implements
 		case STATE_PREV_NEW:
 			// Stop previewing NEW fragment
 			videoView.stopPlayback();
-			
 			lastState = processAndSetNewState(STATE_UPLOAD);
-			
 			break;
 
 		default:
+			BugSenseHandler.sendException(new RuntimeException("Undefined state for Controll "+lastState));
 			Log.e(LOGTAG, "control switch in undefined state "+lastState);
 			break;
 		}
+		
 	}
 
 	// "BACK" button control
@@ -609,6 +639,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 		
 		@Override
 		public void onClick(View v) {
+			fireGAnalyticsEvent("ui_action", "back_button_from_state", DataUtility.stateStr(lastState), null);
+
 			Intent intent;
 			switch (lastState) {
 			case STATE_PREV_LAST:
@@ -655,8 +687,10 @@ public class VideoCaptureActivity extends BaseActivity implements
 
 			default:
 				Log.e(LOGTAG, "back pressed while in undefined state "+lastState);
+				BugSenseHandler.sendException(new RuntimeException("Undefined state for Back "+lastState));
 				break;
 			}
+
 		}
 	}
 	
@@ -665,6 +699,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 		
 		@Override
 		public void onClick(View v) {
+			fireGAnalyticsEvent("ui_action", "touch", "switchCamera", null);
+
 			if (lastState==STATE_PREV_CAM) {
 				Log.d(LOGTAG, "change camera");
 				// todo: rotate
@@ -758,12 +794,21 @@ public class VideoCaptureActivity extends BaseActivity implements
 //			bestPreviewSize = CameraUtility.getOptimalPreviewSize(640, 640, c);
 			bestPreviewSize = CameraUtility.getOptimalRecordingSize(480, 480, c.getParameters().getSupportedPreviewSizes());
 					
-			Log.i(LOGTAG, "Best preview sizes: " + bestPreviewSize.width + ", "
+			Log.i(LOGTAG, "Best preview sizes: " + bestPreviewSize.width + " x "
 					+ bestPreviewSize.height);
+			fireGAnalyticsEvent("camera", "bestPreviewSize", bestPreviewSize.width + " x "+ bestPreviewSize.height, null);
+
 			
 			cp.setPreviewSize(bestPreviewSize.width, bestPreviewSize.height);
 
-			cp.setColorEffect(Camera.Parameters.EFFECT_MONO);
+			List<String> colorEffects = cp.getSupportedColorEffects();
+			if (colorEffects.contains(Camera.Parameters.EFFECT_MONO)) {
+				// Mono effect is supported
+				cp.setColorEffect(Camera.Parameters.EFFECT_MONO);
+			}
+			fireGAnalyticsEvent("camera", "monoEffect", colorEffects.contains(Camera.Parameters.EFFECT_MONO)?"supported":"not supported", null);
+
+			
 			// TODO)
 			cp.setRecordingHint(true);
 			
@@ -772,11 +817,14 @@ public class VideoCaptureActivity extends BaseActivity implements
 			  // Autofocus mode is supported
 				cp.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 			}
+			fireGAnalyticsEvent("camera", "autoFocusMode", focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)?"supported":"not supported", null);
+
 
 			c.setParameters(cp);
 		} catch (Exception e) {
 			// Camera is not available (in use or does not exist)
 			Log.e(LOGTAG, "Camera is not available (in use or does not exist), camera id "+currentCameraId);
+			BugSenseHandler.sendException(new Exception("Camera not available "+currentCameraId));
 		}
 		return c; // returns null if camera is unavailable
 	}
@@ -830,10 +878,12 @@ public class VideoCaptureActivity extends BaseActivity implements
 			Log.v(LOGTAG, "Recorder prepared");
 
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+			Log.e(LOGTAG, "State Error preparing MediaRecorder", e);
+			BugSenseHandler.sendException(e);
 			finish();
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e(LOGTAG, "I/O Error preparing MediaRecorder", e);
+			BugSenseHandler.sendException(e);
 			finish();
 		}
 	}

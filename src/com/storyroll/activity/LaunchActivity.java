@@ -15,6 +15,8 @@ import android.widget.Button;
 
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AjaxStatus;
+import com.google.analytics.tracking.android.Fields;
+import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
 import com.storyroll.util.AppUtility;
@@ -59,6 +61,8 @@ public class LaunchActivity extends BaseActivity {
 	private SystemUiHider mSystemUiHider;
 	
 	private final String LOGTAG = "LAUNCH";
+	private final static String SCREEN_NAME = "Launch";
+
 	
 	private FacebookHandle handle;
 	private Thread timerThread;
@@ -71,8 +75,10 @@ public class LaunchActivity extends BaseActivity {
 		Log.v(LOGTAG, "onCreate");
 		super.onCreate(savedInstanceState);
 		
-//		ErrorReporter.report("a test message");
-		
+		// Fields set on a tracker persist for all hits, until they are
+	    // overridden or cleared by assignment to null.
+	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
+	    
 		// an exit?
 		if (getIntent().getBooleanExtra("EXIT", false)) {
 			 finish();
@@ -82,7 +88,7 @@ public class LaunchActivity extends BaseActivity {
 		// update loggedIn flag - in case user was deleted
 		if (isLoggedIn()) {
 			String apiUrl = AppUtility.API_URL + "hasUser?uuid="+getUuid();
-			aq.progress(R.id.progressMarker).ajax(apiUrl, JSONObject.class, this, "checkUserExistsBooleanCb");
+			aq.progress(R.id.progressMarker).ajax(apiUrl, JSONObject.class, this, "hasUserCb");
 		}
 		else {
 			nextAction();
@@ -144,6 +150,7 @@ public class LaunchActivity extends BaseActivity {
 		contentView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
+				fireGAnalyticsEvent("ui_action", "touch", "launch_screen", null);
 				if (TOGGLE_ON_CLICK) {
 					mSystemUiHider.toggle();
 				} else {
@@ -161,6 +168,7 @@ public class LaunchActivity extends BaseActivity {
 		bt.setOnClickListener(new Button.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				fireGAnalyticsEvent("ui_action", "touch", "proceed_button", null);
 				nextAction();        
 			}
 		});
@@ -183,6 +191,7 @@ public class LaunchActivity extends BaseActivity {
 		bt4.setOnClickListener(new Button.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				fireGAnalyticsEvent("ui_action", "touch", "tabs_button", null);
 	        	startActivity(new Intent(getApplicationContext(), TabbedPlaylistActivity.class));
 			}
 		});
@@ -203,42 +212,46 @@ public class LaunchActivity extends BaseActivity {
 //		}
 		
 	}
+
+	  
+	// - - - callbacks
 	
-	public void checkUserExistsBooleanCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
-		Log.v(LOGTAG, "checkUserExistsBooleanCb");
+	public void hasUserCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
+		Log.v(LOGTAG, "hasUserCb");
 		if (isAjaxErrorThenReport(status)) return;
 		
 		if(json!=null){
 			// TODO: got proper response
 			boolean userExists = json.getBoolean("result");
-			Log.i(LOGTAG, "checkUserExistsBooleanCb user exists: "+ userExists);
+			Log.i(LOGTAG, "hasUserCb user exists: "+ userExists);
 			if (!userExists) {
+				fireGAnalyticsEvent("launch", "hasUserCb", userExists+"", null);
 				AppUtility.purgeProfile(this);
 			}
 			nextAction();
 		} else {
 			// user not found, purge profile
-			apiError(LOGTAG, "checkUserExistsBooleanCb bad (json null) response", status, false);			
+			apiError(LOGTAG, "hasUserCb bad (json null) response", status, false, Log.ERROR);			
         }
 		aq.id(R.id.progressMarker).visibility(View.INVISIBLE);
 		bt.setEnabled(true);
 		loginChecked = true;
 	}
 	
-	public void checkUserExistsCb(String url, JSONObject json, AjaxStatus status){
-		Log.v(LOGTAG, "checkUserExistsCb");
-		if(json != null){
-			// TODO: user exists, only update his username
-			// ...
-			Log.i(LOGTAG, "user exists");
-		} else {
-			// user not found, purge profile
-			Log.i(LOGTAG, "user doesn't exist");
-			AppUtility.purgeProfile(this);
-        }
-		bt.setEnabled(true);
-		loginChecked = true;
-	}
+//	public void checkUserExistsCb(String url, JSONObject json, AjaxStatus status){
+//		Log.v(LOGTAG, "checkUserExistsCb");
+//		if(json != null){
+//			// TODO: user exists, only update his username
+//			// ...
+//			Log.i(LOGTAG, "user exists");
+//		} else {
+//			// user not found, purge profile
+//			Log.i(LOGTAG, "user doesn't exist");
+//			AppUtility.purgeProfile(this);
+//        }
+//		bt.setEnabled(true);
+//		loginChecked = true;
+//	}
 	
 	private static boolean isGone = false;
 	private void nextAction() {

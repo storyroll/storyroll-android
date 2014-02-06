@@ -5,6 +5,8 @@ import java.util.Date;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSense;
 import com.bugsense.trace.BugSenseHandler;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
 import com.storyroll.activity.ProfileActivity;
 import com.storyroll.activity.SettingsActivity;
@@ -25,13 +27,40 @@ import android.view.MenuItem;
 public class MenuFragmentActivity extends FragmentActivity {
 	
 	private static final String LOGTAG = "MenuFragment";
-
+	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Setup search by username on Android
 		BugSenseHandler.setUserIdentifier(getUuid());
 	}
+	
+    @Override
+    public void onStart() {
+      super.onStart();
+      // The rest of your onStart() code.
+      getGTracker().activityStart(this);  // Add this method.
+      
+      // Send a screen view when the Activity is displayed to the user.
+      getGTracker().send(MapBuilder.createAppView().build());
+    }
+    
+    @Override
+    public void onStop() {
+      super.onStop();
+      // The rest of your onStop() code.
+      getGTracker().activityStop(this);  // Add this method.
+    }
+    
+    // ------- protected methods
+    
+    protected void fireGAnalyticsEvent(String category, String action, String label, Long value) {
+    	getGTracker().send(MapBuilder
+			    .createEvent(category, action, label, value)
+			    .build()
+			);
+    }
+    
     // ------- menus
     
     @Override
@@ -76,6 +105,10 @@ public class MenuFragmentActivity extends FragmentActivity {
     }
 	
     /*-- callbacks & helpers --*/
+    
+	protected EasyTracker getGTracker() {
+    	return EasyTracker.getInstance(this);
+    }
     
 	protected String getUuid() {
 		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);

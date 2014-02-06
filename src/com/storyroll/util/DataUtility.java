@@ -32,9 +32,14 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.json.JSONObject;
+
 import android.util.Base64;
+import android.util.Log;
 
 import com.androidquery.util.AQUtility;
+import com.bugsense.trace.BugSenseHandler;
+import com.storyroll.activity.VideoCaptureActivity;
 
 public class DataUtility {
 
@@ -131,5 +136,33 @@ public class DataUtility {
 			e.printStackTrace();
 		}
         return "";
+    }
+    
+    public static String stateStr(int state) {
+    	String stateStr = "_UNKNOWN_";
+		switch (state) {
+		case VideoCaptureActivity.STATE_NO_STORY:
+			stateStr = "STATE_NO_STORY";
+			break;
+		case VideoCaptureActivity.STATE_PREV_LAST:
+			stateStr = "STATE_PREV_LAST";
+			break;
+		case VideoCaptureActivity.STATE_INITIAL:
+			stateStr = "STATE_INITIAL";
+			break;
+		case VideoCaptureActivity.STATE_PREV_CAM:
+			stateStr = "STATE_PREV_CAM";
+			break;
+		case VideoCaptureActivity.STATE_REC:
+			stateStr = "STATE_REC";
+			break;
+		case VideoCaptureActivity.STATE_PREV_NEW:
+			stateStr = "STATE_PREV_NEW";
+			break;
+		default:
+			stateStr = "_UNKNOWN_";
+			break;
+		}
+		return stateStr;
     }
 }
