@@ -185,14 +185,13 @@ public class LaunchActivity extends BaseActivity {
 //			}
 //		});
 		
-		Button bt4 = (Button) findViewById(R.id.tabs_button);
+		Button bt4 = (Button) findViewById(R.id.gcm_button);
 		bt4.setOnTouchListener(mDelayHideTouchListener);
 
 		bt4.setOnClickListener(new Button.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				fireGAnalyticsEvent("ui_action", "touch", "tabs_button", null);
-	        	startActivity(new Intent(getApplicationContext(), TabbedPlaylistActivity.class));
+	        	startActivity(new Intent(LaunchActivity.this, GcmActivity.class));
 			}
 		});
 		
