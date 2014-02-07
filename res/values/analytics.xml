@@ -2,7 +2,7 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="TypographyDashes">
   <!--Tracking ID-->
-  <string name="ga_trackingId">UA-47836830-1</string>
+  <string name="ga_trackingId">xx</string>
 
   <!--Enable automatic activity tracking-->
   <bool name="ga_autoActivityTracking">true</bool>
