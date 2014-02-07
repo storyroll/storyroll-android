@@ -178,13 +178,15 @@ public class ProfileActivity extends MenuActivity {
 	
 	public void initAvatar() {
 		// see if we can get avatar from API
-		if (!avatarChangeStarted && !avatarChangeCompleted) {
+		if (!avatarChangeStarted && !avatarChangeCompleted) 
+		{
+			// do we have SR avatar?
 			if (profile.avatar!=null) {
 				Log.v(LOGTAG, "loading avatar");
 				aq.id(R.id.avatar).image(AppUtility.API_URL+"avatar?uuid="+profile.email, false, false, 0, R.drawable.ic_avatar_default);
 			}
+			// otherwise load avatar from FB
 			else if (profile.isAuthFacebook())
-			// avatar from FB
 			{
 				String tb = com.storyroll.util.ImageUtility.getFbProfileTb(handle);
 				aq.id(R.id.avatar).image(tb);

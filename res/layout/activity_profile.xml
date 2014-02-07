@@ -29,6 +29,8 @@
         android:layout_weight="1"
         android:src="@drawable/ic_avatar_default"
         android:contentDescription="Avatar"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
          />
         <TextView
             android:layout_weight="3"
