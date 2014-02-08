@@ -19,6 +19,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.storyroll.R;
+import com.storyroll.base.BaseActivity;
+import com.storyroll.base.Constants;
 
 import android.app.Activity;
 import android.content.Context;
@@ -37,18 +39,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Main UI for the demo app.
  */
-public class GcmActivity extends Activity {
+public class GcmActivity extends BaseActivity {
 
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-
-    /**
-     * Substitute you own sender ID here. This is the project number you got
-     * from the API Console, as described in "Getting Started."
-     */
-    String SENDER_ID = "Your-Sender-ID";
 
     /**
      * Tag used on log messages.
@@ -80,7 +76,7 @@ public class GcmActivity extends Activity {
                 registerInBackground();
             }
         } else {
-            Log.i(TAG, "No valid Google Play Services APK found.");
+            Log.w(TAG, "No valid Google Play Services APK found.");
         }
     }
 
@@ -103,7 +99,7 @@ public class GcmActivity extends Activity {
                 GooglePlayServicesUtil.getErrorDialog(resultCode, this,
                         PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else {
-                Log.i(TAG, "This device is not supported.");
+                Log.w(TAG, "This device is not supported.");
                 finish();
             }
             return false;
@@ -170,7 +166,7 @@ public class GcmActivity extends Activity {
                     if (gcm == null) {
                         gcm = GoogleCloudMessaging.getInstance(context);
                     }
-                    regid = gcm.register(SENDER_ID);
+                    regid = gcm.register(Constants.GCM_SENDER_ID);
                     msg = "Device registered, registration ID=" + regid;
 
                     // You should send the registration ID to your server over HTTP, so it
@@ -212,7 +208,7 @@ public class GcmActivity extends Activity {
                         data.putString("my_message", "Hello World");
                         data.putString("my_action", "com.google.android.gcm.demo.app.ECHO_NOW");
                         String id = Integer.toString(msgId.incrementAndGet());
-                        gcm.send(SENDER_ID + "@gcm.googleapis.com", id, data);
+                        gcm.send(Constants.GCM_SENDER_ID + "@gcm.googleapis.com", id, data);
                         msg = "Sent message";
                     } catch (IOException ex) {
                         msg = "Error :" + ex.getMessage();

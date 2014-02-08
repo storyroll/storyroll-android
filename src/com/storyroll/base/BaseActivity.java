@@ -39,7 +39,7 @@ public class BaseActivity extends Activity {
 	}
 	
     @Override
-    public void onDestroy(){
+	protected void onDestroy(){
     	
     	super.onDestroy();
     	aq.dismiss();

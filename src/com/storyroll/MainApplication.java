@@ -34,12 +34,11 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         	AQUtility.setDebug(true);
         }
         
-        // MSA: don't track just yet
-//        bugTracking();
+        bugSense();
         
-        ErrorReporter.installReporter(AQUtility.getContext());
-        
-        AQUtility.setExceptionHandler(this);
+//        ErrorReporter.installReporter(AQUtility.getContext());
+//        
+//        AQUtility.setExceptionHandler(this);
         
         AQUtility.setCacheDir(null);
         
@@ -60,12 +59,11 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         super.onCreate();
     }
 	
-	private static final String API_KEY = "XXX";
-	private void bugTracking(){
+	private void bugSense(){
 		
 		try{
 			AQUtility.debug("tracking!");
-			BugSenseHandler.initAndStartSession(this, API_KEY);
+			BugSenseHandler.initAndStartSession(this, Constants.BUGSENSE_API_KEY);
 		}catch(Exception e){
 			AQUtility.debug(e);
 		}
