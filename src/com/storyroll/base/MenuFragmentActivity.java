@@ -8,6 +8,7 @@ import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
+import com.storyroll.activity.LoginActivity;
 import com.storyroll.activity.ProfileActivity;
 import com.storyroll.activity.SettingsActivity;
 import com.storyroll.activity.VideoCaptureActivity;
@@ -27,10 +28,14 @@ import android.view.MenuItem;
 public class MenuFragmentActivity extends FragmentActivity {
 	
 	private static final String LOGTAG = "MenuFragment";
+    protected static boolean isTrial=false;
+
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
+        isTrial = getIntent().getBooleanExtra("TRIAL", false);
+        
         // Setup search by username on Android
 		BugSenseHandler.setUserIdentifier(getUuid());
 	}
@@ -67,44 +72,54 @@ public class MenuFragmentActivity extends FragmentActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_activity_menu, menu);
+        if (isTrial) {
+        	inflater.inflate(R.menu.trial_activity_menu, menu);
+        }
+        else {
+        	inflater.inflate(R.menu.main_activity_menu, menu);
+        }
         return super.onCreateOptionsMenu(menu);
     }
     
 	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-	  // Handle item selection
-	  Intent intent;
-	  if (item.getItemId() == android.R.id.home) // this will be our left action item 
-	  {
-		// TODO: go to Login?
-			intent = new Intent(this, VideoCaptureActivity.class);
-			//					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
-          return true;
-	  } 
-	  else
-//	    if (item.getItemId() == R.id.action_join) {
-//			// go to Login
-//			intent = new Intent(this, VideoCaptureActivity.class);
-//			//					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//			startActivity(intent);
-//			return true;
-//		} else 
-				if (item.getItemId() == R.id.action_profile) {
-			intent = new Intent (this, ProfileActivity.class);
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		Intent intent;
+		if (item.getItemId() == android.R.id.home) // this will be our left action item
+		{
+			onJoinPressed();
+			return true;
+		} else
+		// if (item.getItemId() == R.id.action_join) {
+		// onJoinPressed();
+		// } else
+		if (item.getItemId() == R.id.action_profile) {
+			intent = new Intent(this, ProfileActivity.class);
 			startActivity(intent);
 			return true;
 		} else if (item.getItemId() == R.id.action_settings) {
-			intent = new Intent (this, SettingsActivity.class);
+			intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
-    }
+	}
 	
     /*-- callbacks & helpers --*/
+	
+	private void onJoinPressed(){
+		Intent intent;
+		if (isTrial) {
+			intent = new Intent(this, LoginActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		}
+		else {
+			intent = new Intent(this, VideoCaptureActivity.class);
+		}
+		
+		startActivity(intent);
+	}
     
 	protected EasyTracker getGTracker() {
     	return EasyTracker.getInstance(this);

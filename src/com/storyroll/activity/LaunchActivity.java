@@ -283,15 +283,9 @@ public class LaunchActivity extends BaseActivity {
 	private void nextAction() {
 		Log.d(LOGTAG, "proceed to next action");
 		isGone = true;
-        if (isLoggedIn()) {
-//        	startActivity(new Intent(getApplicationContext(), RollFlipPlayActivity.class));
-        	startActivity(new Intent(getApplicationContext(), TabbedPlaylistActivity.class));
-
-        }
-        else {
-        	// TODO: in fact, will have to be a roll-flip but different
-        	startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-        }
+		Intent intent = new Intent(getApplicationContext(), TabbedPlaylistActivity.class);
+        intent.putExtra("TRIAL", !isLoggedIn());
+        startActivity(intent);
 	}
 
 	@Override

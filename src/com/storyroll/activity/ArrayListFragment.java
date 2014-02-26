@@ -48,7 +48,7 @@ public class ArrayListFragment extends ListFragment {
 	public static final int TAB_MINE = 2;
 	private static final int TAB_FAVORITE = 3;
 	public static final String[] TAB_HEADINGS = new String[] { "Best", "New", "Mine", "Likes" };
-
+	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Best", "New", null, null };
 	private static final Integer LIMIT_ITEMS = 25;
 	
 	// how many percents of width should a squared video take
@@ -63,6 +63,7 @@ public class ArrayListFragment extends ListFragment {
 
 	private int mNum;
 	private String mUuid;
+	private boolean isTrial;
 	private PQuery aq;
 	
 	private ArrayList<Story> stories = new ArrayList<Story>();
@@ -73,13 +74,14 @@ public class ArrayListFragment extends ListFragment {
 	 * Create a new instance of CountingFragment, providing "num" as an
 	 * argument.
 	 */
-	static ArrayListFragment newInstance(int num, String uuid) {
+	static ArrayListFragment newInstance(int num, String uuid, boolean isTrial) {
 		ArrayListFragment f = new ArrayListFragment();
 
 		// Supply num input as an argument.
 		Bundle args = new Bundle();
 		args.putInt("num", num);
 		args.putString("uuid", uuid);
+		args.putBoolean("trial", isTrial);
 		f.setArguments(args);
 
 		return f;
@@ -91,13 +93,17 @@ public class ArrayListFragment extends ListFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		mNum = getArguments() != null ? getArguments().getInt("num") : 1;
 		mUuid = getArguments() != null ? getArguments().getString("uuid") : "";
+		isTrial = getArguments() != null ? getArguments().getBoolean("trial") : false;
+		
 		aq = ((TabbedPlaylistActivity) getActivity()).getPQuery();
 		
 		// get user likes only once
-		if (userLikes==null || userLikes.isEmpty()) {
-			userLikes = new HashSet<String>();
+		userLikes = new HashSet<String>();
+		if (!isTrial && (userLikes==null || userLikes.isEmpty())) 
+		{
 			String apiUrl = AppUtility.API_URL+"userLikes?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "userLikesIdsCb");
 		}
@@ -153,7 +159,7 @@ public class ArrayListFragment extends ListFragment {
 		// see
 		// http://stackoverflow.com/questions/18896880/passing-context-to-arrayadapter-inside-fragment-with-setretaininstancetrue-wil
 		PlayListAdapter pla = new PlayListAdapter(getActivity()
-				.getApplicationContext(), stories, aq, mUuid);
+				.getApplicationContext(), stories, aq, mUuid, isTrial);
 		
 		setListAdapter(pla);
 		getListView().setOnScrollListener(pla);
@@ -326,11 +332,12 @@ public class ArrayListFragment extends ListFragment {
 
 		private int autoRangeTop;
 		private int autoRangeBottom;
+		private boolean isTrial;
 		
 		
 
 		public PlayListAdapter(Context context, ArrayList<Story> stories,
-				PQuery aq, String uuid) {
+				PQuery aq, String uuid, boolean trial) {
 
 			super(context, R.layout.tab_playlist_item, stories);
 
@@ -338,6 +345,7 @@ public class ArrayListFragment extends ListFragment {
 			this.stories = stories;
 			this.aq = aq;
 			this.uuid = uuid;
+			this.isTrial = trial;
 			
 //			screenWidth = getActivity().getWindowManager().getDefaultDisplay()
 //					.getWidth();
@@ -400,9 +408,12 @@ public class ArrayListFragment extends ListFragment {
 				likeControl.setImageResource(R.drawable.ic_star_off);
 			}
 			
-			likeControl.setOnClickListener(new LikeClickListener(likeControl,
-					likesNum, uuid, story));
-			
+			// disable liking in trial
+			if (!isTrial) {
+				likeControl.setOnClickListener(new LikeClickListener(likeControl,
+						likesNum, uuid, story));
+			}
+				
 			// 5. return rowView
 			return rowView;
 		}

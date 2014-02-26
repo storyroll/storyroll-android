@@ -37,8 +37,8 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     RollPlaylistTabAdapter mAdapter;
     FragmentPagerAdapter tAdapter;
     private static PQuery aq;
-    private static String uuid;
-    private static int[] newStories = null; 
+    private static int[] newStories = null;
+    private static String mUuid;
     
     public PQuery getPQuery(){
     	return aq;
@@ -53,7 +53,11 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
 		
         aq = new PQuery(this);
-        uuid = getUuid();
+        mUuid = getUuid();
+        // TODO this is temp hack
+        if (isTrial) {
+        	mUuid = "test@test.com";
+        }
         
         mAdapter = new RollPlaylistTabAdapter(getSupportFragmentManager());
         
@@ -102,12 +106,18 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 			}
         };
 
-        // Add 3 tabs, specifying the tab's text and TabListener
+        // Add tabs, specifying the tab's text and TabListener
+        String[] tabHeads = ArrayListFragment.TAB_HEADINGS;
+        if (isTrial) {
+        	tabHeads = ArrayListFragment.TAB_HEADINGS_TRIAL;
+        }
         for (int i = 0; i < 4; i++) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(ArrayListFragment.TAB_HEADINGS[i])
-                            .setTabListener(tabListener));
+        	if (tabHeads[i]!=null) {
+	            actionBar.addTab(
+	                    actionBar.newTab()
+	                            .setText(tabHeads[i])
+	                            .setTabListener(tabListener));
+        	}
         }
 
         mViewPager.setOnPageChangeListener(
@@ -275,7 +285,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return ArrayListFragment.newInstance(position, uuid);
+            return ArrayListFragment.newInstance(position, mUuid, isTrial);
         }
         
         @Override
