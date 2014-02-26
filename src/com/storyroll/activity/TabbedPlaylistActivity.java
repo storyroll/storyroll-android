@@ -136,11 +136,17 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
         mViewPager.setOnPageChangeListener(
                 new ViewPager.SimpleOnPageChangeListener() {
                     @Override
-                    public void onPageSelected(int position) {
+                    public void onPageSelected(int position) 
+                    {
                         // When swiping between pages, select the
                         // corresponding tab.
-                    	Log.v(LOGTAG, "setOnPageChangeListener: "+position);
+                    	Log.v(LOGTAG, "OnPageChangeListener: "+position);
                         getActionBar().setSelectedNavigationItem(position);
+                        
+                        // manually selected "Mine"? refresh badge
+                        if (position == ArrayListFragment.TAB_MINE) {
+                        	updateUnseenStoriesFromServer();
+                        }
                         
                         // Also update tracker field to persist for all subsequent hits,
                 		// until they are overridden or cleared by assignment to null.
@@ -149,12 +155,10 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
                 });
         
 	    // comes from notification? switch to MINE tab
-        // TODO: what if user is at that activity
-		if (getIntent().getBooleanExtra("NOTIFICATION", false)) {
+		if (getIntent().getBooleanExtra("NOTIFICATION", false)) 
+		{
 			newStories = getIntent().getIntArrayExtra("stories");
-			
 			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
-			
 			actionBar.setSelectedNavigationItem(ArrayListFragment.TAB_MINE);
 		}
 		else {
@@ -165,6 +169,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     }
     
     private void updateUnseenStoriesFromServer() {
+    	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
     	aq.ajax(AppUtility.API_URL+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
 	}
 
