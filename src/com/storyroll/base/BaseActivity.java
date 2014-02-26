@@ -104,11 +104,12 @@ public class BaseActivity extends Activity {
 	protected Profile getPersistedProfile() {
 		Profile p = new Profile();
 		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
-		p.email = settings.getString(Constants.PREF_EMAIL, null);
-		p.username = settings.getString(Constants.PREF_USERNAME, null);
+		p.email = settings.getString(Constants.PREF_EMAIL, "");
+		p.username = settings.getString(Constants.PREF_USERNAME, "");
 		p.authMethod = settings.getInt(Constants.PREF_AUTH_METHOD, Profile.AUTH_UNKNOWN);
 		p.loggedIn = settings.getBoolean(Constants.PREF_IS_LOGGED_IN, false);
-		p.location = settings.getString(Constants.PREF_LOCATION, null);
+		p.location = settings.getString(Constants.PREF_LOCATION, "");
+		p.gcmRegistrationId = settings.getString(Constants.PREF_GCM_REG_ID, "");
 		if (settings.contains(Constants.PREF_AVATAR)) {
 			p.avatar = settings.getInt(Constants.PREF_AVATAR, 0);
 		}
@@ -118,9 +119,9 @@ public class BaseActivity extends Activity {
 	}
 	
 	protected void persistProfile(Profile profile) {
-		persistProfile(profile.email, profile.username, profile.avatar, profile.authMethod, profile.location, profile.loggedIn);
+		persistProfile(profile.email, profile.username, profile.avatar, profile.authMethod, profile.location, profile.loggedIn, profile.gcmRegistrationId);
 	}
-	protected void persistProfile(String email, String username, Integer avatar, Integer authMethod, String location, Boolean isLoggedIn) {
+	protected void persistProfile(String email, String username, Integer avatar, Integer authMethod, String location, Boolean isLoggedIn, String GCMRegId) {
 		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString(Constants.PREF_EMAIL, email);
@@ -128,6 +129,7 @@ public class BaseActivity extends Activity {
 		editor.putInt(Constants.PREF_AUTH_METHOD, authMethod);
 		editor.putBoolean(Constants.PREF_IS_LOGGED_IN, isLoggedIn);
 		editor.putString(Constants.PREF_LOCATION, location);
+		editor.putString(Constants.PREF_GCM_REG_ID, GCMRegId);
 		if (avatar==null) {
 			editor.remove(Constants.PREF_AVATAR);
 		}
@@ -141,9 +143,14 @@ public class BaseActivity extends Activity {
     // populate profile from StoryRoll API response
 	public Profile populateProfileFromSrJson(JSONObject json, boolean addAuthMethod) throws JSONException
 	{
+		// TODO: more sensible, null-proof field reading
 		Profile	profile = new Profile();
 		profile.email = json.getString("uuid");
 		profile.username = json.getString("username");
+		// TODO
+//		profile.birthday = json.getString("birthday");
+//		profile.gender = json.getString("gender");
+
 		// in case no name set yet, make one from email
 		if (profile.username==null || "".equals(profile.username.trim())) {
 			profile.username = profile.email.trim().split("@")[0];
@@ -156,6 +163,12 @@ public class BaseActivity extends Activity {
 		if (json.has("avatar") && !json.isNull("avatar")) {
 			JSONObject avatarJson = json.getJSONObject("avatar");
 			profile.avatar = avatarJson.getInt("id");
+		}
+		// set gcm reg id
+		if (json.has("gcmRegistrationId") && !json.isNull("gcmRegistrationId")) {
+			profile.gcmRegistrationId = json.getString("gcmRegistrationId").trim();
+			if ("null".equals(profile.gcmRegistrationId) || "".equals(profile.gcmRegistrationId) )
+				profile.gcmRegistrationId = null;
 		}
 		return profile;
 	}

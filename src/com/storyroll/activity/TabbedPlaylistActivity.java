@@ -38,6 +38,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     FragmentPagerAdapter tAdapter;
     private static PQuery aq;
     private static String uuid;
+    private static int[] newStories = null; 
     
     public PQuery getPQuery(){
     	return aq;
@@ -123,7 +124,13 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
                 	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME+"_"+ArrayListFragment.TAB_HEADINGS[position]);
                     }
                 });
-
+        
+	    // comes from notification? switch to MINE tab
+        // TODO: what if user is at that activity
+		if (getIntent().getBooleanExtra("NOTIFICATION", false)) {
+			newStories = getIntent().getIntArrayExtra("stories");
+			actionBar.setSelectedNavigationItem(ArrayListFragment.TAB_MINE);
+		}
 
     }
     

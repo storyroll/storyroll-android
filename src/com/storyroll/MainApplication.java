@@ -50,7 +50,7 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         BitmapAjaxCallback.setPixelLimit(400 * 400);
         BitmapAjaxCallback.setMaxPixelLimit(2000000);
         
-        File workingDir = new File(AppUtility.getAppWorkingDir());
+        File workingDir = new File(AppUtility.getAppWorkingDir(this));
         workingDir.mkdirs();
         workingDir = new File(AppUtility.getVideoCacheDir(getApplicationContext()));
         workingDir.mkdirs();

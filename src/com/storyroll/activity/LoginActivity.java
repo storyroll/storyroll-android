@@ -14,18 +14,20 @@ import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
 import com.google.analytics.tracking.android.MapBuilder;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
+import com.storyroll.base.GcmActivity;
 import com.storyroll.model.Profile;
 import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.DataUtility;
 
-public class LoginActivity extends BaseActivity {
+public class LoginActivity extends GcmActivity {
 	private final static String LOGTAG = "LOGIN";
 	private final static String SCREEN_NAME = "Login";
 
-	private final static String facebookGraphUrl = "https://graph.facebook.com/me?fields=first_name,last_name,name,email,location";
+	private final static String facebookGraphUrl = "https://graph.facebook.com/me?fields=first_name,last_name,name,email,location,birthday,gender";
 	private final int ACTIVITY_SSO = 1000;
 
 	private FacebookHandle facebookHandle;
@@ -125,6 +127,10 @@ public class LoginActivity extends BaseActivity {
 			// ...
 			profile.loggedIn = true;
 			persistProfile(profile);
+			
+			// TODO: double check the gcm reg id, and update if necessary
+			checkAndUpdateGcmReg();
+			
 			nextActionHome();
 		}
 		else {
@@ -174,6 +180,10 @@ public class LoginActivity extends BaseActivity {
 				Log.d(LOGTAG, "login successfull");
 				profile.loggedIn = loginValid;
 				persistProfile(profile);
+				
+				// TODO: double check the gcm reg id, and update if necessary
+				checkAndUpdateGcmReg();
+				
 				nextActionHome();
 			}
 		}else{
@@ -188,7 +198,7 @@ public class LoginActivity extends BaseActivity {
 		else {
 			profile.authMethod = Profile.AUTH_EMAIL;
 		}
-		Intent intent =  new Intent(this, ProfileActivity.class);
+		Intent intent =  new Intent(this, RegistrationActivity.class);
 		intent.putExtra("registration", true);
 		intent.putExtra("profile", profile);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -202,7 +212,7 @@ public class LoginActivity extends BaseActivity {
 	}
     
     // populate profile from facebook response
-	public void populateProfileFromFbJson(JSONObject json) throws JSONException{
+	protected void populateProfileFromFbJson(JSONObject json) throws JSONException{
 //		String tb = com.storyroll.util.ImageUtility.getFbProfileTb(handle);
 		Log.i(LOGTAG, json.toString());
 		if (profile==null) {
@@ -212,6 +222,29 @@ public class LoginActivity extends BaseActivity {
 		profile.username = json.getString("first_name");
 		JSONObject location = json.getJSONObject("location");
 		profile.location = location.getString("name");
+		// TODO: age, gender
+	}
+	
+	private void checkAndUpdateGcmReg() {
+		if (profile.gcmRegistrationId==null) {
+			
+			// register with GCM and update required field
+			Log.v(LOGTAG, "register with GCM");
+			
+	        // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
+	        if (checkPlayServices()) {
+	            gcm = GoogleCloudMessaging.getInstance(this);
+//	            regid = getRegistrationId(context);
+	//
+//	            if (regid.isEmpty()) {
+	                gcmRegisterInBackground();
+//	            }
+	        } else {
+	            Log.w(LOGTAG, "No valid Google Play Services APK found.");
+	        }
+
+		}
+		// TODO: else, check if reg id changed, or update regardless
 	}
 	
 	@Override

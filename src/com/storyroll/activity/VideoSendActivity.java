@@ -70,7 +70,7 @@ public class VideoSendActivity extends MenuActivity {
 
 	
 	private String getNewFragmentFilePath() {
-		return AppUtility.getAppWorkingDir() + File.separator+"new_fragment.mp4";
+		return AppUtility.getAppWorkingDir(this) + File.separator+"new_fragment.mp4";
 
 	}
 	

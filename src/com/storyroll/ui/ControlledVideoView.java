@@ -30,6 +30,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	int screenWidth;
 	private int itemPosition;
 	private long storyId;
+	private String uuid;
 	private ProgressBar progressBar;
 	
 	public ControlledVideoView(Context context) {
@@ -65,7 +66,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 //			}
 			isLoading = true;
 //		        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
-	        String url = AppUtility.API_URL+"storyFile?story="+storyId;
+	        String url = AppUtility.API_URL+"storyFile?story="+storyId+"&uuid="+uuid;
 	        		        
 	   		VideoDownloadTask task = new VideoDownloadTask(getContext().getApplicationContext(), this);
 	        task.execute(url);
@@ -94,12 +95,13 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		pause();
 	}
 	
-	public void init(ArrayListFragment parent, View controlView, int screenWidth, int itemPosition, long storyId, ProgressBar progressBar) {
+	public void init(ArrayListFragment parent, View controlView, int screenWidth, int itemPosition, long storyId, String uuid, ProgressBar progressBar) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
 		this.parent = parent;
 		this.storyId = storyId;
+		this.uuid = uuid;
 		this.progressBar = progressBar;
 		
 		setOnPreparedListener(new MediaPlayer.OnPreparedListener()  {
@@ -144,7 +146,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	
 	// once video download complete, play it
 	@Override
-	public void onVideoTaskCompleted(String fileName) 
+	public void onVideoTaskCompleted(String fileName, boolean success, boolean wasCached) 
 	{
 		progressBar.setVisibility(View.GONE);
 		controlView.setVisibility(View.GONE);
@@ -153,13 +155,15 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		isLoading = false;
 		
 		String videoFilePath = AppUtility.getVideoCacheDir(getContext().getApplicationContext())+File.separator+fileName;
-		Log.d(LOGTAG, "onVideoTaskCompleted: "+videoFilePath);
+		Log.d(LOGTAG, "onVideoTaskCompleted: "+videoFilePath+", success: "+success);
 
-		setVideoPath(videoFilePath);
-		isLoaded = true;
-		
-		if (playQueued) {
-			startVideo();
+		if (success) {
+			setVideoPath(videoFilePath);
+			isLoaded = true;
+			
+			if (playQueued) {
+				startVideo();
+			}
 		}
 	}
 

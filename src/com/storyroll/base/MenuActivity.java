@@ -9,7 +9,7 @@ import com.storyroll.R;
 import com.storyroll.activity.ProfileActivity;
 import com.storyroll.activity.SettingsActivity;
 
-public class MenuActivity extends BaseActivity {
+public class MenuActivity extends GcmActivity {
 	private static final String TAG = "MenuActivity";
 	MenuItem settings, profile;
 

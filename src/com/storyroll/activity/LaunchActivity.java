@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +21,7 @@ import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
 import com.storyroll.util.AppUtility;
+import com.storyroll.util.PushTester;
 import com.storyroll.util.SystemUiHider;
 
 /**
@@ -191,10 +193,21 @@ public class LaunchActivity extends BaseActivity {
 		bt4.setOnClickListener(new Button.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-	        	startActivity(new Intent(LaunchActivity.this, GcmActivity.class));
+	        	startActivity(new Intent(LaunchActivity.this, GcmTestActivity.class));
 			}
 		});
 		
+		Button bt5 = (Button) findViewById(R.id.push_button);
+		bt5.setOnTouchListener(mDelayHideTouchListener);
+
+		bt5.setOnClickListener(new Button.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				new PusherTask().execute();
+			}
+		});
+		
+
 //		if (SPLASH_SCREEN_WAIT>0) {
 //			Handler handler = new Handler();
 //			handler.postDelayed(new Runnable() {
@@ -212,6 +225,20 @@ public class LaunchActivity extends BaseActivity {
 		
 	}
 
+	   class PusherTask extends AsyncTask<Void, Void, Void> {
+
+	        protected void onPostExecute() {
+	            // TODO: check this.exception 
+	            // TODO: do something with the feed
+	        }
+
+	    	@Override
+	    	protected Void doInBackground(Void... params) {
+	    		PushTester.testPush_();
+	    		// TODO Auto-generated method stub
+	    		return null;
+	    	}
+	    }
 	  
 	// - - - callbacks
 	

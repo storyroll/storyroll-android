@@ -64,6 +64,23 @@ public class DataUtility {
     	
     }
     
+    public static int[] stringToIntArray(String arr)
+    {
+    	if (arr==null || arr.isEmpty()) {
+    		return null;
+    	}
+	    String[] items = arr.replaceAll("\\[", "").replaceAll("\\]", "").split(",");
+	
+	    int[] results = new int[items.length];
+	
+	    for (int i = 0; i < items.length; i++) {
+	        try {
+	            results[i] = Integer.parseInt(items[i]);
+	        } catch (NumberFormatException nfe) {};
+	    }
+	    return results;
+    }
+    
     @SuppressWarnings("unchecked")
 	public static <T> T toObject(Class<T> cls, InputStream is){
     	
@@ -103,9 +120,9 @@ public class DataUtility {
     public static String getBase64Filename(String urlString) throws MalformedURLException 
     {
     	URL url = new URL(urlString);
-        String extension = url.getPath().replaceFirst("^.*/[^/]*(\\.[^\\./]*|)$", "$1");
+        String extension = url.getQuery().replaceFirst("^.*/[^/]*(\\.[^\\./]*|)$", "$1");
         extension = ".mp4";
-        return Base64.encodeToString(urlString.getBytes(), Base64.DEFAULT)+extension;
+        return Base64.encodeToString(urlString.getBytes(), Base64.URL_SAFE)+extension;
     }
     
     public static String md5(String s) {

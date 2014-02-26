@@ -33,6 +33,7 @@ import android.util.Log;
 import com.storyroll.R;
 import com.androidquery.util.AQUtility;
 import com.storyroll.MainApplication;
+import com.storyroll.base.Constants;
 
 
 public class PrefUtility {
@@ -199,5 +200,11 @@ public class PrefUtility {
 	public static AutostartMode getAutostartMode() {
 		AutostartMode am = PrefUtility.getEnum(AutostartMode.class, AutostartMode.WIFI);
 		return am;
+	}
+	
+	public static String getUuid() {
+		Context context = MainApplication.getContext();
+		SharedPreferences settings = context.getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+		return settings.getString(Constants.PREF_EMAIL, null);
 	}
 }

@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Main UI for the demo app.
  */
-public class GcmActivity extends BaseActivity {
+public class GcmTestActivity extends BaseActivity {
 
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
@@ -71,6 +71,8 @@ public class GcmActivity extends BaseActivity {
         if (checkPlayServices()) {
             gcm = GoogleCloudMessaging.getInstance(this);
             regid = getRegistrationId(context);
+            
+            Log.v("GCM", "GCM reg id: "+regid);
 
             if (regid.isEmpty()) {
                 registerInBackground();
@@ -251,7 +253,7 @@ public class GcmActivity extends BaseActivity {
     private SharedPreferences getGcmPreferences(Context context) {
         // This sample app persists the registration ID in shared preferences, but
         // how you store the regID in your app is up to you.
-        return getSharedPreferences(GcmActivity.class.getSimpleName(),
+        return getSharedPreferences(GcmTestActivity.class.getSimpleName(),
                 Context.MODE_PRIVATE);
     }
     /**

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.media.MediaRecorder;
@@ -293,7 +294,7 @@ public class CameraUtility {
 //		recorder.setMaxDuration((int) VIDEO_LENGTH);
 //		recorder.setOnInfoListener((OnInfoListener) activity);
 //
-//        // Tags the video with an appropriate (90¡) angle in order to tell the phone how to display it
+//        // Tags the video with an appropriate (90) angle in order to tell the phone how to display it
 //		// the compensation parameter here is off, in order to work with both front and back facing cameras
 //		int orientationHint = CameraUtility.getCameraDisplayOrientation(activity, currentCameraId, false);
 //        recorder.setOrientationHint(orientationHint);
@@ -306,8 +307,8 @@ public class CameraUtility {
 //		return recorder;
 //	}
 	
-	public static String getNewFragmentFilePath() {
-		return AppUtility.getAppWorkingDir() + File.separator+FRAGMENT_FILE_NAME;
+	public static String getNewFragmentFilePath(Context ctx) {
+		return AppUtility.getAppWorkingDir(ctx) + File.separator+FRAGMENT_FILE_NAME;
 	}
 
 }

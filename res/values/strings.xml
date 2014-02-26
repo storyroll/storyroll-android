@@ -26,8 +26,10 @@
     
     
     <string name="facebook_button">Connect with Facebook</string>
-    <string name="msg_registration">Registration - please review or fill fields</string>
+    <string name="msg_registration">Registration - review/fill</string>
     <string name="msg_password_email_required">Please enter both email and password</string>
+    <string name="msg_uname_required">Please provide valid username</string>
+    
     <string name="play_roll_info">To see next roll, swipe left</string>
 
     <string name="app_id">556141531146952</string>

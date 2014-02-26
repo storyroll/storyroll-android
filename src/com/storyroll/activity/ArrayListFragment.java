@@ -45,7 +45,7 @@ public class ArrayListFragment extends ListFragment {
 
 	private static final int TAB_BEST = 0;
 	private static final int TAB_NEW = 1;
-	private static final int TAB_MY = 2;
+	public static final int TAB_MINE = 2;
 	private static final int TAB_FAVORITE = 3;
 	public static final String[] TAB_HEADINGS = new String[] { "Best", "New", "Mine", "Likes" };
 
@@ -131,7 +131,7 @@ public class ArrayListFragment extends ListFragment {
 					"userLikesCb");
 
 			break;
-		case TAB_MY:
+		case TAB_MINE:
 			apiUrl += "getUserPublishedStories?uuid=" + mUuid + "&limit="
 					+ LIMIT_ITEMS;
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
@@ -379,7 +379,7 @@ public class ArrayListFragment extends ListFragment {
 			aq.id(storyThumb).image(AppUtility.API_URL + "storyThumb?story=" + story.getId());
 			setViewSquare(storyThumb, calculcatedVideoWidth);
 			
-			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId(), progressBar);
+			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId(), mUuid, progressBar);
 			storyThumb.setOnClickListener(new ThumbClickListener(videoView, story.getId()));
 
 			likesNum.setText(shortLikesString(story.getLikes()));

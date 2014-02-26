@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONObject;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -35,6 +37,7 @@ import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.AutostartMode;
 import com.storyroll.util.DialogUtility;
+import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.IntentUtility;
 import com.storyroll.util.PrefUtility;
 //import com.androidquery.simplefeed.util.AppUtility;
@@ -297,10 +300,15 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     
     	AppUtility.logout(this);
         	Log.w(LOGTAG, "logout");
+        	
+    		// first of all, remove associated GCM reg id from the db record
+    		String apiRegUrl = AppUtility.API_URL+"updateProfile?uuid="+ getUuid() +"&registrationId= ";
+    		aq.progress(R.id.progress).ajax(apiRegUrl, JSONObject.class, this, "removeProfileGcmRegCb");
+    		
         	AppUtility.purgeProfile(this);
     		
         	// delete avatar picture
-    		File file = new File(AppUtility.getAppWorkingDir()+File.separator+"avatar.jpg");
+    		File file = new File(AppUtility.getAppWorkingDir(this)+File.separator+"avatar.jpg");
     		if (file.exists()) {
     			file.delete();
     		}
@@ -314,6 +322,18 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 	    	
 	    	startActivity(intent);
     }
+    
+	public void removeProfileGcmRegCb(String url, JSONObject json, AjaxStatus status){
+		Log.v(LOGTAG, "removeProfileGcmRegCb");
+		fireGAnalyticsEvent("profile", "gcm_remove", json != null?"success":"fail", null);
+		
+        if(json != null){
+            //successful ajax call
+        	Log.v(LOGTAG, "GcmRegCb remove success");
+        }else{          
+        	ErrorUtility.apiError(LOGTAG, "Could not remove GCM registration id from profile", status, this, false, Log.ERROR);
+        }
+	}
     
 	private void progress2(boolean show, String message){
     	
@@ -377,5 +397,12 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     	super.onResume();
     }
 
+	protected String getUuid() {
+		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+		String uuid = settings.getString(Constants.PREF_EMAIL, null);
+		String username = settings.getString(Constants.PREF_USERNAME, null);
+		Log.i(LOGTAG, "uuid: " + uuid + ", username: " + username);
+		return uuid;
+	}
 
 }    

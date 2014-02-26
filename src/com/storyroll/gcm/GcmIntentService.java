@@ -16,9 +16,13 @@
 
 package com.storyroll.gcm;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.storyroll.R;
-import com.storyroll.activity.GcmActivity;
+import com.storyroll.activity.GcmTestActivity;
+import com.storyroll.util.AppUtility;
+import com.storyroll.util.DataUtility;
+import com.storyroll.util.PrefUtility;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
@@ -45,7 +49,7 @@ public class GcmIntentService extends IntentService {
     public GcmIntentService() {
         super("GcmIntentService");
     }
-    public static final String TAG = "GCM Demo";
+    public static final String LOGTAG = "GCM Intent Service";
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -62,24 +66,25 @@ public class GcmIntentService extends IntentService {
              * not interested in, or that you don't recognize.
              */
             if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-                sendNotification("Send error: " + extras.toString());
+            	Log.e(LOGTAG, "Send error: " + extras.toString());
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
-                sendNotification("Deleted messages on server: " + extras.toString());
+            	// TODO improve deleted messages event (full sync?)
+            	Log.e(LOGTAG, "Deleted messages on server: " + extras.toString());
             // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 // This loop represents the service doing some work.
-                for (int i = 0; i < 5; i++) {
-                    Log.i(TAG, "Working... " + (i + 1)
+                for (int i = 0; i < 1; i++) {
+                    Log.v(LOGTAG, "Working... " + (i + 1)
                             + "/5 @ " + SystemClock.elapsedRealtime());
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
                     }
                 }
-                Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
+                Log.v(LOGTAG, "Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
-                sendNotification("Received: " + extras.toString());
-                Log.i(TAG, "Received: " + extras.toString());
+                Log.d(LOGTAG, "MESSAGE_TYPE_MESSAGE Received");
+                processGcmMessage(extras);
             }
         }
         // Release the wake lock provided by the WakefulBroadcastReceiver.
@@ -89,20 +94,54 @@ public class GcmIntentService extends IntentService {
     // Put the message into a notification and post it.
     // This is just one simple example of what you might choose to do with
     // a GCM message.
-    private void sendNotification(String msg) {
+    private void processGcmMessage(Bundle extras) 
+    {
+    	Log.i(LOGTAG, "processGcmMessage: " + extras.toString());
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, GcmActivity.class), 0);
+        // is this a notification for current user?
+        String uuid = extras.getString("uuid");
+        String currentUuid = PrefUtility.getUuid();
+        if (uuid==null || !uuid.equals(currentUuid)) {
+        	Log.w(LOGTAG, "GCM message received for "+uuid+", not for current user: "+currentUuid);
+        	// TODO: fire analytics or bugSense event
+        	return;
+        }
 
+//        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+//                new Intent(this, GcmTestActivity.class), 0);
+        Intent notificationIntent = new Intent(this, AppUtility.ACTIVITY_HOME);
+        notificationIntent.putExtra("NOTIFICATION", true);
+        
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+        		notificationIntent, 0);
+        
+        String msg = "You have new story published!";
+        String countNewStoriesStr = extras.getString("count");
+        if (countNewStoriesStr!=null) 
+        {
+        	int countNewStories = Integer.valueOf(countNewStoriesStr);
+        	if (countNewStories>1) {
+            	msg=msg+" There's "+countNewStories+" of your new stories waiting.";
+            }
+        }
+        else {
+        	Log.e(LOGTAG, "No message count GCM message payload");
+        	BugSenseHandler.sendException(new Exception("No message count GCM message payload"));
+        }
+        
+        String newStoriesStr = extras.getString("stories");
+        notificationIntent.putExtra("stories", DataUtility.stringToIntArray(newStoriesStr));
+        
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-        .setSmallIcon(R.drawable.ic_stat_gcm)
-        .setContentTitle("GCM Notification")
+        .setSmallIcon(R.drawable.ic_notif_newstory)
+        .setContentTitle("StoryRoll")
         .setStyle(new NotificationCompat.BigTextStyle()
         .bigText(msg))
-        .setContentText(msg);
+        .setContentText(msg)
+        .setAutoCancel(true);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());

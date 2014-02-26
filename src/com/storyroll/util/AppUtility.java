@@ -123,12 +123,36 @@ public class AppUtility {
     	return PrefUtility.get(AppUtility.USER_NAME, fallback);    
     }
 	
-	public static String getAppWorkingDir() {
-		return Environment.getExternalStorageDirectory() + File.separator + AppUtility.APP_PACKAGE_NAME;
+	public static String getAppWorkingDir(Context ctx) {
+		String state = Environment.getExternalStorageState();
+		File cd = null;
+		if (Environment.MEDIA_MOUNTED.equals(state)) 
+		{
+			Log.v("AppUtility", "Media mounted");
+			cd = Environment.getExternalStorageDirectory();
+		}
+		else {
+			Log.w("AppUtility", "Media not mounted");
+			cd = ctx.getApplicationContext().getFilesDir();
+		}
+		return  cd + File.separator + AppUtility.APP_PACKAGE_NAME;
 	}
 	
 	public static String getVideoCacheDir(Context ctx) {
-		return ctx.getExternalCacheDir() + File.separator +"video_cache";
+		String state = Environment.getExternalStorageState();
+		File cd = null;
+		if (Environment.MEDIA_MOUNTED.equals(state)) 
+		{
+			Log.v("AppUtility", "Media mounted");
+		    // We can read and write the media
+			cd = ctx.getApplicationContext().getExternalCacheDir();
+		}
+		else {
+			Log.w("AppUtility", "Media not mounted");
+			cd = ctx.getApplicationContext().getFilesDir();
+		}
+		
+		return cd.getPath();
 	}
 
 	public static void purgeProfile(Context context) {

@@ -55,14 +55,12 @@ public class ProfileActivity extends MenuActivity {
 
 	private final static String STATE_AVATAR_CHANGE_STARTED = "profile.state.avatarChangeStarted";
 	private final static String STATE_AVATAR_CHANGE_COMPLETED = "profile.state.avatarChangeCompleted";
-	
 
 
 	private FacebookHandle handle;
 	
-	private Profile profile = null; 
-	
-	private boolean registration;
+	protected Profile profile = null;
+	protected boolean registration;
 
 	private boolean avatarChangeStarted = false;
 	private boolean avatarChangeCompleted = false;
@@ -114,7 +112,7 @@ public class ProfileActivity extends MenuActivity {
     		initAvatar();
     	} else {
     		// edit profile
-    		aq.progress(R.id.progress).ajax(AppUtility.API_URL+"getProfile?uuid="+getUuid(), JSONObject.class, ProfileActivity.this, "getProfileForEditCb");
+    		aq.progress(R.id.progress).ajax(AppUtility.API_URL+"getProfile?uuid="+getUuid(), JSONObject.class, this, "getProfileForEditCb");
     	}
 	}
 	
@@ -138,7 +136,7 @@ public class ProfileActivity extends MenuActivity {
 		aq.id(R.id.avatar).clicked(this, "avatarImageClicked");
 		
 		aq.id(R.id.user_name).text(profile.username);
-		if (profile.location!=null) {
+		if (profile.location!=null && !"null".equals(profile.location)) {
 			aq.id(R.id.location).text(profile.location);
 		}
 		
@@ -195,7 +193,7 @@ public class ProfileActivity extends MenuActivity {
 		
 		// but maybe avatar changed, yet not uploaded? show it from local dir
 		if (avatarChangeCompleted)  {
-			aq.id(R.id.avatar).getImageView().setImageURI(Uri.fromFile(new File(AppUtility.getAppWorkingDir()+File.separator+"avatar.jpg")));
+			aq.id(R.id.avatar).getImageView().setImageURI(Uri.fromFile(new File(AppUtility.getAppWorkingDir(this)+File.separator+"avatar.jpg")));
 		}
 	}
 	
@@ -209,6 +207,13 @@ public class ProfileActivity extends MenuActivity {
 		fireGAnalyticsEvent("ui_activity", "click", "doneButton", null);
 		
 		String formUsername = aq.id(R.id.user_name).getText().toString().trim();
+		
+		// TODO validate form
+		if (TextUtils.isEmpty(formUsername) ) {
+			Toast.makeText(aq.getContext(), R.string.msg_uname_required, Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
 		boolean unameChanged = !formUsername.equals(profile.username);
 		Log.v(LOGTAG, "unameChanged: "+unameChanged);
 		
@@ -218,25 +223,22 @@ public class ProfileActivity extends MenuActivity {
 		profile.location = aq.id(R.id.location).getText().toString().trim();
 		profile.password = aq.id(R.id.password).getText().toString().trim();
 		
-		if (registration) {
-			if (profile.isAuthEmail() && (TextUtils.isEmpty(profile.password) || TextUtils.isEmpty(profile.email)) ) {
-				Toast.makeText(aq.getContext(), R.string.msg_password_email_required, Toast.LENGTH_SHORT).show();
-				return;
-			}
-//			else if (!profile.isAuthEmail()) {
-//				// TODO: bypassing requirement for password for all registrants
-//				profile.password = "null";
+//		if (registration) {
+//			if (profile.isAuthEmail() && (TextUtils.isEmpty(profile.password) || TextUtils.isEmpty(profile.email)) ) {
+//				Toast.makeText(aq.getContext(), R.string.msg_password_email_required, Toast.LENGTH_SHORT).show();
+//				return;
 //			}
-			Log.d(LOGTAG, "profile: "+profile.toString()+", params: "+profile.toParamString(false, true));
-			
-			aq.progress(R.id.progress).ajax(AppUtility.API_URL+"addProfile?"+profile.toParamString(false, true), JSONObject.class, ProfileActivity.this, "createProfileCb");						
-		}
-		else {
+//			Log.d(LOGTAG, "profile: "+profile.toString()+", params: "+profile.toParamString(false, true));
+//			
+//			aq.progress(R.id.progress).ajax(AppUtility.API_URL+"addProfile?"+profile.toParamString(false, true), JSONObject.class, this, "createProfileCb");						
+//		}
+//		else {
 			persistProfile(profile);
 			profile = getPersistedProfile();
-			aq.progress(R.id.progress).ajax(AppUtility.API_URL+"updateProfile?"+profile.toParamString(unameChanged, false), JSONObject.class, ProfileActivity.this, "updateProfileCb");
-		}		
+			aq.progress(R.id.progress).ajax(AppUtility.API_URL+"updateProfile?"+profile.toParamString(unameChanged, false), JSONObject.class, this, "updateProfileCb");
+//		}		
 	}
+
 	
 	public void getProfileForEditCb(String url, JSONObject json, AjaxStatus status) throws JSONException
 	{
@@ -270,9 +272,9 @@ public class ProfileActivity extends MenuActivity {
 		updateProfileGeneral(url, json, status);
 	}
 	
-	public void updateProfileGeneral(String url, JSONObject json, AjaxStatus status)
+	protected boolean updateProfileGeneral(String url, JSONObject json, AjaxStatus status)
 	{		
-		if (isAjaxErrorThenReport(status)) return;
+		if (isAjaxErrorThenReport(status)) return false;
 		
         if(json != null){
             //successful ajax call
@@ -287,7 +289,7 @@ public class ProfileActivity extends MenuActivity {
         		// store resized avatar
         		String tb = com.storyroll.util.ImageUtility.getFbProfileTb(handle);
         		File file = aq.makeSharedFile(tb, "avatar.jpg");
-        		File localAvatarFile = new File(AppUtility.getAppWorkingDir()+File.separator+"avatar.jpg");
+        		File localAvatarFile = new File(AppUtility.getAppWorkingDir(this)+File.separator+"avatar.jpg");
         		if (localAvatarFile.exists()) {
         			localAvatarFile.delete();
         		}
@@ -298,12 +300,12 @@ public class ProfileActivity extends MenuActivity {
         	// upload avatar
     		if (avatarChangeCompleted) 
     		{
-    			File file = new File(AppUtility.getAppWorkingDir()+File.separator+"avatar.jpg");
+    			File file = new File(AppUtility.getAppWorkingDir(this)+File.separator+"avatar.jpg");
     			
     			Map params = new HashMap();
     	        params.put("file", file);
     	        params.put("uuid", profile.email);
-    	        aq.progress(R.id.progress).ajax(AppUtility.API_URL+"setAvatar", params, JSONObject.class, ProfileActivity.this, "setAvatarCb");
+    	        aq.progress(R.id.progress).ajax(AppUtility.API_URL+"setAvatar", params, JSONObject.class, this, "setAvatarCb");
     	        
     		}
     		else {
@@ -311,7 +313,9 @@ public class ProfileActivity extends MenuActivity {
     		}
         }else{          
         	apiError(LOGTAG, "Could not update profile", status, true, Log.ERROR);
+        	return false;
         }
+        return true;
 	}
 	
 	public void setAvatarCb(String url, JSONObject json, AjaxStatus status) throws JSONException
@@ -349,7 +353,7 @@ public class ProfileActivity extends MenuActivity {
 		
 		avatarChangeStarted = true;
 		// Determine Uri of camera image to save.
-		final File appRootDir = new File(AppUtility.getAppWorkingDir());
+		final File appRootDir = new File(AppUtility.getAppWorkingDir(this));
 		appRootDir.mkdirs();
 		final File sdImageMainDirectory = new File(appRootDir, "avatar.jpg");
 		outputFileUri = Uri.fromFile(sdImageMainDirectory);
@@ -430,12 +434,12 @@ public class ProfileActivity extends MenuActivity {
 							InputStream is = getContentResolver().openInputStream(selectedImageUri);
 		                	Bitmap bitmap = BitmapFactory.decodeStream(is);
 		                	is.close();
-		                	Bitmap bt=Bitmap.createScaledBitmap(bitmap, 200, 200, false);
+		                	Bitmap bt=Bitmap.createScaledBitmap(bitmap, Profile.AVATAR_WIDTH, Profile.AVATAR_HEIGHT, false);
 		                	Log.v(LOGTAG, "setting avatar");
 		                	aq.id(R.id.avatar).getImageView().setImageBitmap(bt);
 		                	
 		                	// store resized avatar
-		                	FileOutputStream out = new FileOutputStream(AppUtility.getAppWorkingDir()+File.separator+"avatar.jpg");
+		                	FileOutputStream out = new FileOutputStream(AppUtility.getAppWorkingDir(this)+File.separator+"avatar.jpg");
 		                    bt.compress(Bitmap.CompressFormat.JPEG, 85, out);
 		                    out.flush();
 		                    out.close();

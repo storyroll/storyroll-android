@@ -214,14 +214,15 @@ public class VideoCaptureActivity extends BaseActivity implements
 	}
 	
 	@Override
-	public void onVideoTaskCompleted(String cachedFileName) {
+	public void onVideoTaskCompleted(String cachedFileName, boolean success, boolean wasCached) {
 		// start playing last fragment and enable control button
 		lastFragmentPath = AppUtility.getVideoCacheDir(getApplicationContext())+"/"+cachedFileName;
 		Log.d(LOGTAG, "onVideoTaskCompleted: "+lastFragmentPath);
 		
-		// below will do all of the above
-		lastState = processAndSetNewState(STATE_PREV_LAST);
-		
+		if (success) {
+			// below will do all of the above
+			lastState = processAndSetNewState(STATE_PREV_LAST);
+		}
 	}
 	
 	public void joinStoryCb(String url, JSONObject json, AjaxStatus status)
@@ -293,7 +294,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		isUploading = false;
     	progress.setVisibility(View.INVISIBLE);
     	
-    	String fileName = CameraUtility.getNewFragmentFilePath();
+    	String fileName = CameraUtility.getNewFragmentFilePath(this);
 
         if(json != null)
         {               
@@ -397,7 +398,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		case STATE_PREV_NEW:
 			if (lastFragmentPath==null) {
 				// switch new fragment preview on
-				videoView.setVideoPath(CameraUtility.getNewFragmentFilePath());
+				videoView.setVideoPath(CameraUtility.getNewFragmentFilePath(this));
 			}
 			else {
 				Log.v(LOGTAG, "setting up for two sequential videos to be played");
@@ -429,7 +430,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 					@Override
 					public void onCompletion(MediaPlayer mp) {
 						if (playsEarlierFragment)
-							videoView.setVideoPath(CameraUtility.getNewFragmentFilePath());
+							videoView.setVideoPath(CameraUtility.getNewFragmentFilePath(VideoCaptureActivity.this));
 						else
 							videoView.setVideoPath(lastFragmentPath);
 						playsEarlierFragment = !playsEarlierFragment;
@@ -448,7 +449,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 			break;
 		case STATE_UPLOAD:
 			// upload the video
-			doUpload(CameraUtility.getNewFragmentFilePath());
+			doUpload(CameraUtility.getNewFragmentFilePath(this));
 			break;
 		default:
 			Log.w(LOGTAG, "change state not implemented: "+newState);
@@ -862,11 +863,11 @@ public class VideoCaptureActivity extends BaseActivity implements
 		recorder.setVideoFrameRate(VIDEO_FRAMERATE);
 		recorder.setVideoEncodingBitRate(VIDEO_BITRATE);
 	
-		recorder.setOutputFile(CameraUtility.getNewFragmentFilePath());
+		recorder.setOutputFile(CameraUtility.getNewFragmentFilePath(this));
 		recorder.setMaxDuration(CameraUtility.VIDEO_LENGTH);
 		recorder.setOnInfoListener(this);
 
-        // Tags the video with an appropriate (90¡) angle in order to tell the phone how to display it
+        // Tags the video with an appropriate (90) angle in order to tell the phone how to display it
 		// the compensation parameter here is off, in order to work with both front and back facing cameras
 		int orientationHint = CameraUtility.getCameraDisplayOrientation(this, currentCameraId, false);
         recorder.setOrientationHint(orientationHint);

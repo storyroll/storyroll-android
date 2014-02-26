@@ -16,13 +16,14 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.DataUtility;
 
 public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 	
 	public interface OnVideoTaskCompleted{
-	    void onVideoTaskCompleted(String cachedFileName);
+	    void onVideoTaskCompleted(String cachedFileName, boolean success, boolean wasCached);
 	}
 	
 	private static final String TAG = "VIDEO_DOWNLOAD";
@@ -34,6 +35,8 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 	private String fileName;
 	private File file;
 	private OnVideoTaskCompleted listener;
+	private boolean success = false;
+	private boolean wasCached = true;
 	
     public VideoDownloadTask(Context context, OnVideoTaskCompleted listener) {
     	Log.v(LOGTAG, "constructor");
@@ -54,8 +57,10 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 		try {
 	        URL url = new URL(paramUrl);
 
-	        fileName = DataUtility.getBase64Filename(paramUrl);
+//	        fileName = DataUtility.getBase64Filename(paramUrl); // filename too long for some handsets?
+	        fileName = Math.abs(paramUrl.hashCode())+"";
 
+	        Log.v(TAG, "filename: "+fileName);
 			file = new File(AppUtility.getVideoCacheDir(mContext.getApplicationContext()), fileName);
 			
 			if (!file.exists()) {
@@ -89,7 +94,10 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 		        outStream.flush();
 		        outStream.close();
 		        inStream.close();
-	
+		        
+		        success = true;
+		        wasCached = false;
+		        
 		        Log.i(TAG, "download completed in "
 		                + ((System.currentTimeMillis() - startTime) / 1000)
 		                + " sec");
@@ -98,13 +106,14 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 			// file found
 			else {
 				Log.i(TAG, "file found in cache: "+file.getAbsolutePath());
+				success = true;
 			}
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(LOGTAG, "Error opening file", e);
+			BugSenseHandler.sendException(e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(LOGTAG, "Error writing file "+file.getAbsolutePath(), e);
+			BugSenseHandler.sendException(e);
 		}
         
 
@@ -114,7 +123,7 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
     @Override
     protected void onPostExecute(Result result){
         //your stuff
-    	Log.i(TAG, "onPostExecute");
-        listener.onVideoTaskCompleted(fileName);
+    	Log.i(TAG, "onPostExecute, success "+success+", wasCached: "+wasCached);
+        listener.onVideoTaskCompleted(fileName, success, wasCached);
     }
 }
