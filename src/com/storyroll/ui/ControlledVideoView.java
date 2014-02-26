@@ -31,6 +31,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	private int itemPosition;
 	private long storyId;
 	private String uuid;
+
 	private ProgressBar progressBar;
 	
 	public ControlledVideoView(Context context) {
@@ -177,5 +178,13 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	
 	public long getItemPosition() {
 		return itemPosition;
+	}
+	
+	
+	public long getStoryId() {
+		return storyId;
+	}
+	public String getUuid() {
+		return uuid;
 	}
 }

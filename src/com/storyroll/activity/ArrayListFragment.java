@@ -285,12 +285,22 @@ public class ArrayListFragment extends ListFragment {
 	
 	// stop currently played video and start new one, setting it as currently played
 	// needed to avoid playing two or more videos at once
-	public static void switchCurrentlyPlayed(ControlledVideoView v)
+	// using this as a central point for play event counter
+	public void switchCurrentlyPlayed(ControlledVideoView v)
 	{
 		if (currentlyPlayed!=null && currentlyPlayed.isPlaying()) {
 			currentlyPlayed.stopPlayback();
 		}
 		currentlyPlayed = v;
+		
+		// fire an event about new video start
+		// TODO do we track in trial?
+		String apiUrl = AppUtility.API_URL+"addView?story="+ v.getStoryId() +"&uuid=" + v.getUuid();
+		aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
+	}
+	
+	public void addViewCb(String url, JSONObject json, AjaxStatus status){
+		// ignore
 	}
 
 	boolean isTabVisible = false;
