@@ -1,10 +1,12 @@
 package com.storyroll.activity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,16 +15,18 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bugsense.trace.BugSenseHandler;
+import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
-import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.PQuery;
 import com.storyroll.R;
-import com.storyroll.base.Constants;
 import com.storyroll.base.MenuFragmentActivity;
 import com.storyroll.util.ActionBarUtility;
+import com.storyroll.util.AppUtility;
+import com.storyroll.util.ErrorUtility;
 
 public class TabbedPlaylistActivity extends MenuFragmentActivity {
 
@@ -39,6 +43,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     private static PQuery aq;
     private static int[] newStories = null;
     private static String mUuid;
+    private int unseenStories = 0;
     
     public PQuery getPQuery(){
     	return aq;
@@ -77,15 +82,12 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
         // TODO: custom underline?
         actionBar.setStackedBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.sr_actionbar_tab_underline)));
 
-
         // Create a tab listener that is called when the user changes tabs.
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-
-
+        ActionBar.TabListener tabListener = new ActionBar.TabListener() 
+        {
 			@Override
 			public void onTabReselected(Tab tab, FragmentTransaction ft) {
 				// TODO Auto-generated method stub
-				
 			}
 
             public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
@@ -96,13 +98,11 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
             	
             	Log.v(LOGTAG, "onTabSelected "+tab.getPosition()+" - "+ArrayListFragment.TAB_HEADINGS[tab.getPosition()]);
                 mViewPager.setCurrentItem(tab.getPosition());
-
             }
 
 			@Override
 			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
 				// TODO Auto-generated method stub
-				
 			}
         };
 
@@ -113,10 +113,23 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
         }
         for (int i = 0; i < 4; i++) {
         	if (tabHeads[i]!=null) {
-	            actionBar.addTab(
-	                    actionBar.newTab()
-	                            .setText(tabHeads[i])
-	                            .setTabListener(tabListener));
+        		Tab tab = actionBar.newTab();
+        		if (i==ArrayListFragment.TAB_MINE) 
+        		{
+        			tab = tab.setText(tabHeads[i]);
+        			
+        			tab.setCustomView(R.layout.custom_actionbar_tab);
+        			View tabView = tab.getCustomView();
+        			TextView tabText  = (TextView) tabView.findViewById(R.id.tabText);
+        			tabText.setText(tabHeads[i]);
+        			
+        			tabUnseenBadgeText  = (TextView) tabView.findViewById(R.id.badgeTextt);
+
+        		}
+        		else {
+        			tab = tab.setText(tabHeads[i]);
+        		}
+	            actionBar.addTab(tab.setTabListener(tabListener));
         	}
         }
 
@@ -139,14 +152,60 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
         // TODO: what if user is at that activity
 		if (getIntent().getBooleanExtra("NOTIFICATION", false)) {
 			newStories = getIntent().getIntArrayExtra("stories");
+			
+			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
+			
 			actionBar.setSelectedNavigationItem(ArrayListFragment.TAB_MINE);
+		}
+		else {
+			// update unseenStories
+			updateUnseenStoriesFromServer();
 		}
 
     }
     
-    private static final long DOUBLE_PUSH_BACK_MILLIS = 1000;
+    private void updateUnseenStoriesFromServer() {
+    	aq.ajax(AppUtility.API_URL+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+	}
+
+	public void unseenStoriesCb(String url, JSONArray jarr, AjaxStatus status) 
+	{
+		Log.v(LOGTAG, "unseenStoriesCb");
+		if (jarr != null) {
+			// successful ajax call
+			try {
+				newStories = new int[jarr.length()];
+				unseenStories = jarr.length();
+				for (int i = 0; i < jarr.length(); i++) {
+					newStories [i] = jarr.getInt(i);
+				}
+				Log.v(LOGTAG, "unseen stories:" + unseenStories);
+				refreshUnseenBadge(unseenStories);
+			} catch (JSONException e) {
+				Log.e(LOGTAG, "jsonexception", e);
+			}
+
+		} else {
+			// ajax error
+			ErrorUtility.apiError(LOGTAG,
+					"userLikesCb: null Json, could not get unseenStories for uuid " + mUuid, status, this, false, Log.ERROR);
+		}
+	}
+    
+
+
+	private static final long DOUBLE_PUSH_BACK_MILLIS = 1000;
     private int backTries = 0;
     private Long lastPressed = 0L;
+	private TextView tabUnseenBadgeText = null;
+    
+    private void refreshUnseenBadge(int num) {
+    	unseenStories = num;
+    	if (tabUnseenBadgeText!=null) {
+	    	tabUnseenBadgeText.setText(num+"");
+			tabUnseenBadgeText.setVisibility(num==0?View.GONE:View.VISIBLE);
+    	}
+	}
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
