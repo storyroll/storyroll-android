@@ -11,6 +11,8 @@ public class Story implements Serializable {
 	boolean completed;
 	boolean published;
 	boolean userLikes = false;
+	boolean unseen = true;
+	
 	String[] cast = null;
 	
 	public Story(long id, int likes) {
@@ -47,6 +49,14 @@ public class Story implements Serializable {
 	}
 	public void setPublished(boolean published) {
 		this.published = published;
+	}
+
+	public boolean isUnseen() {
+		return unseen;
+	}
+
+	public void setUnseen(boolean unseen) {
+		this.unseen = unseen;
 	}
 
 	public boolean isUserLikes() {

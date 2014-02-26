@@ -25,6 +25,15 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="300dp"
 	         />
+	    <ImageView
+            android:id="@+id/unseenIndicator"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_new_roll"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:visibility="invisible" 
+            android:contentDescription="New"/>
 	    <ProgressBar 
 			android:id="@+id/progress"	
 			android:layout_width="wrap_content" 

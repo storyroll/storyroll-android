@@ -1,5 +1,8 @@
 package com.storyroll.activity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -41,9 +44,9 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     RollPlaylistTabAdapter mAdapter;
     FragmentPagerAdapter tAdapter;
     private static PQuery aq;
-    private static int[] newStories = null;
+//    private static Set<String> newStories = null;
     private static String mUuid;
-    private int unseenStories = 0;
+    private int unseenStoriesCount = 0;
     
     public PQuery getPQuery(){
     	return aq;
@@ -157,7 +160,8 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 	    // comes from notification? switch to MINE tab
 		if (getIntent().getBooleanExtra("NOTIFICATION", false)) 
 		{
-			newStories = getIntent().getIntArrayExtra("stories");
+			// TODO crappy hack
+			ArrayListFragment.resetUnseenStoriesSet( getIntent().getIntArrayExtra("stories") );
 			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
 			actionBar.setSelectedNavigationItem(ArrayListFragment.TAB_MINE);
 		}
@@ -168,6 +172,18 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 
     }
     
+//    private void resetNewStoriesSet(int[] stories) {
+//    	if (newStories == null) {
+//    		newStories = new HashSet<String>();
+//    	}
+//    	else {
+//    		newStories.clear();
+//    	}
+//    	if (stories!=null) {
+//    		for (int i : stories) newStories.add(i+"");
+//    	}
+//    }
+//    
     private void updateUnseenStoriesFromServer() {
     	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
     	aq.ajax(AppUtility.API_URL+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
@@ -179,13 +195,15 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 		if (jarr != null) {
 			// successful ajax call
 			try {
-				newStories = new int[jarr.length()];
-				unseenStories = jarr.length();
+				// TODO crappy hack
+				int[] stories = new int[jarr.length()];
 				for (int i = 0; i < jarr.length(); i++) {
-					newStories [i] = jarr.getInt(i);
+					stories[i] = jarr.getInt(i);
 				}
-				Log.v(LOGTAG, "unseen stories:" + unseenStories);
-				refreshUnseenBadge(unseenStories);
+				ArrayListFragment.resetUnseenStoriesSet(stories);
+				unseenStoriesCount = jarr.length();
+				Log.v(LOGTAG, "unseen stories:" + unseenStoriesCount);
+				refreshUnseenBadge(unseenStoriesCount);
 			} catch (JSONException e) {
 				Log.e(LOGTAG, "jsonexception", e);
 			}
@@ -205,7 +223,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 	private TextView tabUnseenBadgeText = null;
     
     private void refreshUnseenBadge(int num) {
-    	unseenStories = num;
+    	unseenStoriesCount = num;
     	if (tabUnseenBadgeText!=null) {
 	    	tabUnseenBadgeText.setText(num+"");
 			tabUnseenBadgeText.setVisibility(num==0?View.GONE:View.VISIBLE);

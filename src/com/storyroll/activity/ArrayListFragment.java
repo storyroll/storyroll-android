@@ -69,6 +69,8 @@ public class ArrayListFragment extends ListFragment {
 	private ArrayList<Story> stories = new ArrayList<Story>();
 //	private Map<Long, Story> idToStory = new HashMap<Long, Story>();
 	public static Set<String> userLikes = null;
+	public static Set<String> unseenStories = null;
+    
 
 	/**
 	 * Create a new instance of CountingFragment, providing "num" as an
@@ -101,12 +103,23 @@ public class ArrayListFragment extends ListFragment {
 		aq = ((TabbedPlaylistActivity) getActivity()).getPQuery();
 		
 		// get user likes only once
-		userLikes = new HashSet<String>();
 		if (!isTrial && (userLikes==null || userLikes.isEmpty())) 
 		{
+			if (userLikes == null) {
+				userLikes = new HashSet<String>();
+			}
 			String apiUrl = AppUtility.API_URL+"userLikes?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "userLikesIdsCb");
 		}
+		// get unseen only once
+		if (!isTrial && (unseenStories==null || unseenStories.isEmpty())) 
+		{
+			if (unseenStories == null) {
+				unseenStories = new HashSet<String>();
+			}
+			updateUnseenStoriesFromServer();
+		}
+
 	}
 
 	@Override
@@ -258,6 +271,7 @@ public class ArrayListFragment extends ListFragment {
 					if (story.isPublished()) {
 						// manually set userLikes flag
 						story.setUserLikes(userLikes.contains(story.getId()+""));
+						story.setUnseen(unseenStories.contains(story.getId()+""));
 						stories.add(story);
 					}
 				}
@@ -292,6 +306,10 @@ public class ArrayListFragment extends ListFragment {
 			currentlyPlayed.stopPlayback();
 		}
 		currentlyPlayed = v;
+		
+		// hide "newness" indicator
+		v.markSeen();
+		unseenStories.remove(v.getStoryId()+"");
 		
 		// fire an event about new video start
 		// TODO do we track in trial?
@@ -389,6 +407,7 @@ public class ArrayListFragment extends ListFragment {
 			ImageView likeControl = (ImageView) rowView.findViewById(R.id.likeImage);
 			ControlledVideoView videoView = (ControlledVideoView) rowView.findViewById(R.id.videoPlayerView);
 			ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progress);
+			View unseenIndicator = rowView.findViewById(R.id.unseenIndicator);
 
 			// 4. set data & callbacks
 			Story story = stories.get(position);
@@ -397,7 +416,7 @@ public class ArrayListFragment extends ListFragment {
 			aq.id(storyThumb).image(AppUtility.API_URL + "storyThumb?story=" + story.getId());
 			setViewSquare(storyThumb, calculcatedVideoWidth);
 			
-			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId(), mUuid, progressBar);
+			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId(), mUuid, progressBar, unseenIndicator);
 			storyThumb.setOnClickListener(new ThumbClickListener(videoView, story.getId()));
 
 			likesNum.setText(shortLikesString(story.getLikes()));
@@ -662,5 +681,47 @@ public class ArrayListFragment extends ListFragment {
 			    .build()
 			);
     }
+    
+    // unseen stories
+    public static void resetUnseenStoriesSet(int[] stories) {
+    	if (unseenStories == null) {
+    		unseenStories = new HashSet<String>();
+    	}
+    	else {
+    		unseenStories.clear();
+    	}
+    	if (stories!=null) {
+    		for (int i : stories) unseenStories.add(i+"");
+    	}
+    }
+    
+    // TODO deduplicate code (TabbedPlaylistActivity)
+    private void updateUnseenStoriesFromServer() {
+    	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
+    	aq.ajax(AppUtility.API_URL+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+	}
+
+	public void unseenStoriesCb(String url, JSONArray jarr, AjaxStatus status) 
+	{
+		Log.v(LOGTAG, "unseenStoriesCb");
+		if (jarr != null) {
+			// successful ajax call
+			try {
+				resetUnseenStoriesSet(null);
+				for (int i = 0; i < jarr.length(); i++) {
+					unseenStories.add( jarr.getInt(i)+"" );
+				}
+				Log.v(LOGTAG, "unseen stories:" + jarr.length()+", set: "+unseenStories.size());
+//				refreshUnseenBadge(unseenStories);
+			} catch (JSONException e) {
+				Log.e(LOGTAG, "jsonexception", e);
+			}
+
+		} else {
+			// ajax error
+			apiError(LOGTAG,
+					"userLikesCb: null Json, could not get unseenStories for uuid " + mUuid, status, false, Log.ERROR);
+		}
+	}
 
 }

@@ -25,7 +25,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	public boolean isLoading = false;
 	public boolean isLoaded = false;
 	boolean playQueued = true;
-	private View controlView;
+	private View controlView, unseenIndicator;
 	private ArrayListFragment parent;
 	int screenWidth;
 	private int itemPosition;
@@ -96,7 +96,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		pause();
 	}
 	
-	public void init(ArrayListFragment parent, View controlView, int screenWidth, int itemPosition, long storyId, String uuid, ProgressBar progressBar) {
+	public void init(ArrayListFragment parent, View controlView, int screenWidth, int itemPosition, long storyId, String uuid, ProgressBar progressBar, View unseenIndicator) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
@@ -104,6 +104,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		this.storyId = storyId;
 		this.uuid = uuid;
 		this.progressBar = progressBar;
+		this.unseenIndicator = unseenIndicator;
 		
 		setOnPreparedListener(new MediaPlayer.OnPreparedListener()  {
             @Override
@@ -186,5 +187,8 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	}
 	public String getUuid() {
 		return uuid;
+	}
+	public void markSeen() {
+		unseenIndicator.setVisibility(View.INVISIBLE);
 	}
 }

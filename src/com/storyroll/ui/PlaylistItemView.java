@@ -85,11 +85,20 @@ public class PlaylistItemView extends LinearLayout {
     @Override
     protected void onDraw(Canvas canvas) {
 //        Log.v(LOGTAG, "onDraw()");
+    	// update likes indicator
         ImageView likesControl = (ImageView) findViewById(R.id.likeImage);
         if (parent.userLikes.contains(story.getId()+"")) {
         	likesControl.setImageResource(R.drawable.ic_star_on);
         } else {
         	likesControl.setImageResource(R.drawable.ic_star_off);
+        }
+        // update unseen indicator
+        ImageView unseenIndicator = (ImageView) findViewById(R.id.unseenIndicator);
+        if (parent.unseenStories.contains(story.getId()+"")) {
+        	unseenIndicator.setVisibility(View.VISIBLE);
+        }
+        else {
+        	unseenIndicator.setVisibility(View.INVISIBLE);
         }
         super.onDraw(canvas);
     }
