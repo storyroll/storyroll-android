@@ -58,7 +58,8 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 	        URL url = new URL(paramUrl);
 
 //	        fileName = DataUtility.getBase64Filename(paramUrl); // filename too long for some handsets?
-	        fileName = Math.abs(paramUrl.hashCode())+"";
+//	        fileName = Math.abs(paramUrl.hashCode())+"";
+	        fileName = DataUtility.getCacheFileName(paramUrl)+".mp4";
 
 	        Log.v(TAG, "filename: "+fileName);
 			file = new File(AppUtility.getVideoCacheDir(mContext.getApplicationContext()), fileName);

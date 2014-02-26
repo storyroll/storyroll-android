@@ -27,6 +27,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -182,4 +183,33 @@ public class DataUtility {
 		}
 		return stateStr;
     }
+    
+	public static String getCacheFileName(String url){
+		
+		String hash = getMD5Hex(url);
+		return hash;
+	}
+	private static String getMD5Hex(String str){
+		byte[] data = getMD5(str.getBytes());
+		
+		BigInteger bi = new BigInteger(data).abs();
+	
+		String result = bi.toString(36);
+		return result;
+	}
+	private static byte[] getMD5(byte[] data){
+
+		MessageDigest digest;
+		try {
+			digest = java.security.MessageDigest.getInstance("MD5");
+			digest.update(data);
+		    byte[] hash = digest.digest();
+		    return hash;
+		} catch (NoSuchAlgorithmException e) {
+			AQUtility.report(e);
+		}
+	    
+		return null;
+
+	}
 }

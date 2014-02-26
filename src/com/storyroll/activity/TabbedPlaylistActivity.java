@@ -186,7 +186,12 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 //    
     private void updateUnseenStoriesFromServer() {
     	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
-    	aq.ajax(AppUtility.API_URL+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+    	if (isTrial) {
+    		Log.v(LOGTAG, "updateUnseenStoriesFromServer -- skip in trial");
+    	}
+    	else {
+    		aq.ajax(AppUtility.API_URL+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+    	}
 	}
 
 	public void unseenStoriesCb(String url, JSONArray jarr, AjaxStatus status) 

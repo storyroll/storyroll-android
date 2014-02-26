@@ -103,7 +103,10 @@ public class ArrayListFragment extends ListFragment {
 		aq = ((TabbedPlaylistActivity) getActivity()).getPQuery();
 		
 		// get user likes only once
-		if (!isTrial && (userLikes==null || userLikes.isEmpty())) 
+		if (isTrial) {
+			userLikes = new HashSet<String>();
+		}
+		else if (userLikes==null || userLikes.isEmpty()) 
 		{
 			if (userLikes == null) {
 				userLikes = new HashSet<String>();
@@ -112,7 +115,10 @@ public class ArrayListFragment extends ListFragment {
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "userLikesIdsCb");
 		}
 		// get unseen only once
-		if (!isTrial && (unseenStories==null || unseenStories.isEmpty())) 
+		if (isTrial) {
+			unseenStories = new HashSet<String>();
+		}
+		else if (unseenStories==null || unseenStories.isEmpty()) 
 		{
 			if (unseenStories == null) {
 				unseenStories = new HashSet<String>();
