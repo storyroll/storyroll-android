@@ -274,13 +274,24 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     /* 0-*/
     
     public static class RollPlaylistTabAdapter extends FragmentPagerAdapter {
+    	private int count;
+    	
         public RollPlaylistTabAdapter(FragmentManager fm) {
             super(fm);
+            if (isTrial) {
+            	count = 0;
+        		for(int i=0;i<ArrayListFragment.TAB_HEADINGS_TRIAL.length;i++) {
+        			if (ArrayListFragment.TAB_HEADINGS_TRIAL[i]!=null) count++;
+        		}
+            }
+            else {
+            	count = ArrayListFragment.TAB_HEADINGS.length;
+            }
         }
 
         @Override
         public int getCount() {
-            return ArrayListFragment.TAB_HEADINGS.length;
+        	return count;
         }
 
         @Override
