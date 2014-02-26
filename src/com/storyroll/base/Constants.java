@@ -3,7 +3,7 @@ package com.storyroll.base;
 public interface Constants {
 
 	public final static String APP_ID = "556141531146952";
-	public static final String BUGSENSE_API_KEY = "907bbdf2";
+	public static final String BUGSENSE_API_KEY = "b3f4e407";
 	public static final String FLURRY_API_KEY = "D54R7MJVB3KQ2MWN3YJ5";
 
 	/**
@@ -26,6 +26,7 @@ public interface Constants {
 	public static final String PREF_AUTH_METHOD = "sr.pref.auth.method";
 	public static final String PREF_AVATAR = "sr.pref.avatar";
 	public static final String PREF_LOCATION = "sr.pref.location";
+	public static final String PREF_GCM_REG_ID = "sr.pref.gcm";
 	
 	public static String PREF_SSO = "sf.pref.sso";
 	public static String PREF_NID = "aq.fb.nid";
