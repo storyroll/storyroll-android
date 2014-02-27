@@ -5,9 +5,10 @@ import java.io.Serializable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Story implements Serializable {
+public class Story implements Serializable, Comparable<Story> {
 	long id;
 	int likes;
+	long publishedOn = 0;
 	boolean completed;
 	boolean published;
 	boolean userLikes = false;
@@ -24,6 +25,7 @@ public class Story implements Serializable {
 		id = storyObj.getLong("id");
 		likes = storyObj.getInt("likes");
 		published = storyObj.getBoolean("published");
+		publishedOn = storyObj.getLong("publishedOn");
 	}
 	
 	public long getId() {
@@ -73,6 +75,11 @@ public class Story implements Serializable {
 
 	public void setCast(String[] cast) {
 		this.cast = cast;
+	}
+
+	@Override
+	public int compareTo(Story another) {
+		 return new Long(another.getId()).compareTo(new Long(getId()));
 	}
 	
 	

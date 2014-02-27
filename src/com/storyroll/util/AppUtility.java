@@ -166,6 +166,13 @@ public class AppUtility {
 		editor.commit();
 	}
 	
+    public static boolean isLoggedIn(){
+		SharedPreferences settings = MainApplication.getContext().getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+		String uuid = settings.getString(Constants.PREF_EMAIL, null);
+		Boolean loggedIn = settings.getBoolean(Constants.PREF_IS_LOGGED_IN, false);
+		return (uuid!=null) && loggedIn;
+    }
+    
 //	public static FeedMode getDefaultMode(){
 //    	return PrefUtility.getEnum(FeedMode.class, FeedMode.NEWS);
 //    }

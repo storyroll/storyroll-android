@@ -1,6 +1,7 @@
 package com.storyroll.activity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -241,6 +242,7 @@ public class ArrayListFragment extends ListFragment {
 					story.setUserLikes(true);
 					stories.add(story);
 				}
+				Collections.sort(stories);
 				Log.v(LOGTAG, "stories:" + stories.size());
 
 				// refresh the adapter now
@@ -282,6 +284,7 @@ public class ArrayListFragment extends ListFragment {
 					}
 				}
 //				}
+				Collections.sort(stories);
 				Log.v(LOGTAG, "stories:" + stories.size());
 
 				// refresh the adapter now

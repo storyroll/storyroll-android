@@ -19,6 +19,7 @@ import com.google.analytics.tracking.android.Tracker;
 import com.storyroll.PQuery;
 import com.storyroll.model.Profile;
 import com.storyroll.util.ActionBarUtility;
+import com.storyroll.util.AppUtility;
 import com.storyroll.util.ErrorUtility;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -87,10 +88,11 @@ public class BaseActivity extends Activity {
     }
     
     public boolean isLoggedIn(){
-		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
-		String uuid = settings.getString(Constants.PREF_EMAIL, null);
-		Boolean loggedIn = settings.getBoolean(Constants.PREF_IS_LOGGED_IN, false);
-		return (uuid!=null) && loggedIn;
+//		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+//		String uuid = settings.getString(Constants.PREF_EMAIL, null);
+//		Boolean loggedIn = settings.getBoolean(Constants.PREF_IS_LOGGED_IN, false);
+//		return (uuid!=null) && loggedIn;
+    	return AppUtility.isLoggedIn();
     }
     
 	protected String getUuid() {
