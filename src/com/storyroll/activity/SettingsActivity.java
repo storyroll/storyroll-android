@@ -62,6 +62,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 //	protected FacebookHandle handle;
 	protected PQuery aq;
 	
+//	http://stackoverflow.com/questions/2240326/remove-hide-a-preference-from-the-screen
 //	@Override
 //    protected void onCreate(final Bundle savedInstanceState)
 //    {
@@ -169,8 +170,10 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     	try{
     		fireGAnalyticsEvent("ui_activity", "pref", name, null);
 
-	    	if("logout".equals(name) || "login".equals(name)){
-	    		loginLogout();
+	    	if("logout".equals(name)){
+	    		loginLogout(true);
+	    	}else if("login".equals(name)){
+	    		loginLogout(false);
 	    	}else if("share".equals(name)){
 	    		share();
 	    	}else if("share_others".equals(name)){
@@ -343,9 +346,10 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 		return getApplicationInfo().packageName;
 	}
 	
-    private void loginLogout(){
-    
-    	AppUtility.logout(this);
+    private void loginLogout(boolean isLogout)
+    {
+    	if (isLogout){
+    		AppUtility.logout(this);
         	Log.w(LOGTAG, "logout");
         	
     		// first of all, remove associated GCM reg id from the db record
@@ -361,13 +365,14 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     		}
         	
     		// TODO: empty cache
-			
-			// go to Login
-	    	Intent intent = new Intent(this, LoginActivity.class);
-	    	intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	    	intent.putExtra("logout", true);
-	    	
-	    	startActivity(intent);
+    	}
+    	
+		// go to Login
+    	Intent intent = new Intent(this, LoginActivity.class);
+    	intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    	intent.putExtra("logout", true);
+    	
+    	startActivity(intent);
     }
     
 	public void removeProfileGcmRegCb(String url, JSONObject json, AjaxStatus status){
