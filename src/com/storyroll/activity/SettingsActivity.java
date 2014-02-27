@@ -20,6 +20,8 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceFragment;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.EditText;
@@ -60,9 +62,36 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 //	protected FacebookHandle handle;
 	protected PQuery aq;
 	
+//	@Override
+//    protected void onCreate(final Bundle savedInstanceState)
+//    {
+//        super.onCreate(savedInstanceState);
+//        EasyTracker.getInstance(this).set(Fields.SCREEN_NAME, SCREEN_NAME);
+//        
+//        ActionBarUtility.initCustomActionBar(this);
+//		ActionBarUtility.adjustActionBarLogoCentering(this);
+//        
+//		aq = new PQuery(this);
+//		
+//        getFragmentManager().beginTransaction().replace(android.R.id.content, new MyPreferenceFragment()).commit();
+//        
+//        initView();
+//    }
+//
+//    public static class MyPreferenceFragment extends PreferenceFragment
+//    {
+//        @Override
+//        public void onCreate(final Bundle savedInstanceState)
+//        {
+//            super.onCreate(savedInstanceState);
+//            addPreferencesFromResource(R.xml.settings);
+//        }
+//    }
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         
+    	
     	super.onCreate(savedInstanceState);
     	
 		// Fields set on a tracker persist for all hits, until they are
@@ -74,6 +103,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 
         addPreferencesFromResource(R.xml.settings);
         
+        
         aq = new PQuery(this);
 //        handle = AppUtility.makeHandle(this);
         
@@ -83,9 +113,26 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
  
     
     private void initView(){
+    	Preference p;
+        PreferenceCategory prefCategory = (PreferenceCategory) findPreference("category_settings");
+
+    	if (AppUtility.isLoggedIn()) {
+    		p = findPreference("logout");
+            p.setOnPreferenceClickListener(this);
+            
+            // remove login
+            p = findPreference("login");
+            prefCategory.removePreference(p);
+    	}
+    	else {
+    		p = findPreference("login");
+            p.setOnPreferenceClickListener(this);
+            // remove logout
+            p = findPreference("logout");
+            prefCategory.removePreference(p);
+    	}
     	
-        Preference p = findPreference("logout");
-        p.setOnPreferenceClickListener(this);
+        
         
 //        p = findPreference("share");
 //        p.setOnPreferenceClickListener(this);
@@ -122,8 +169,8 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     	try{
     		fireGAnalyticsEvent("ui_activity", "pref", name, null);
 
-	    	if("logout".equals(name)){
-	    		logout();
+	    	if("logout".equals(name) || "login".equals(name)){
+	    		loginLogout();
 	    	}else if("share".equals(name)){
 	    		share();
 	    	}else if("share_others".equals(name)){
@@ -296,7 +343,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 		return getApplicationInfo().packageName;
 	}
 	
-    private void logout(){
+    private void loginLogout(){
     
     	AppUtility.logout(this);
         	Log.w(LOGTAG, "logout");

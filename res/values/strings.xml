@@ -77,7 +77,9 @@
 	<string name="review_app_sum">Review this app</string> 
 	<string name="logout">Logout</string> 
 	<string name="logout_sum">Logout StoryRoll</string>    
-    <string name="version">Version</string>   
+	<string name="login">Sign-up</string> 
+	<string name="login_sum">Sign-up or Login StoryRoll</string>    
+	<string name="version">Version</string>   
     
     <string name="feedback">Feedback</string>
     <string name="comments">comments</string> 
