@@ -99,8 +99,8 @@
 	   	<TextView 
 	        android:id="@+id/videocapReadyMessage"
 	        android:layout_width="match_parent"
-	        android:layout_height="50dp"
-	        android:textSize="16sp"
+	        android:layout_height="70dp"
+	        android:textSize="36sp"
 	        android:text="@string/videocap_ready_message"
 	        android:textColor="@color/sr_vidcap_capture_text"
 	        android:layout_gravity="bottom"
