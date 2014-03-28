@@ -59,11 +59,11 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	
 	public void startVideoPreloading(boolean autoStart) {
 		Log.v(LOGTAG, "startVideoPreloading, autostart: "+autoStart);
+		markPlayable(false);
 		if (autoStart) queueStartVideo();
 		if (!isLoading) {
 	   		// start a video preload task
 //			if(progressBar!=null) {
-				markPlayable(false);
 				progressBar.setVisibility(View.VISIBLE);
 //			}
 			isLoading = true;
@@ -127,9 +127,6 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
             	mp.setLooping(LOOPING);
         		if (playQueued) {
         			startVideo();
-        		}
-        		else {
-        			markPlayable(true);
         		}
             }
         });
@@ -201,6 +198,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		unseenIndicator.setVisibility(View.INVISIBLE);
 	}
 	public void markPlayable(boolean playable) {
+		Log.v(LOGTAG, "markPlayable: "+playable);
 		playControl.setVisibility(playable?View.VISIBLE:View.INVISIBLE);
 	}
 }
