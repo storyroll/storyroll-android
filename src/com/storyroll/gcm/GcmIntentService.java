@@ -117,10 +117,12 @@ public class GcmIntentService extends IntentService {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
         		notificationIntent, 0);
         
-        String msg = "You have new story published!";
+        String msg = extras.getString("message");
         String countNewStoriesStr = extras.getString("count");
         if (countNewStoriesStr!=null) 
         {
+        	// override sent message
+        	msg = "You have new story published!";
         	int countNewStories = Integer.valueOf(countNewStoriesStr);
         	if (countNewStories>1) {
             	msg=msg+" There's "+countNewStories+" of your new stories waiting.";
