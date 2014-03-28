@@ -13,27 +13,40 @@
          
 	    <ImageView 
 	        android:id="@+id/storyThumb"
-	       	android:layout_gravity="center_horizontal"
-	        android:layout_width="match_parent"
+	        android:layout_gravity="center"
+	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 			android:visibility="visible"
-	        />		    
+	        />
+	    <ImageView
+            android:id="@+id/unseenIndicator"
+            
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_new_roll"
+            android:visibility="invisible" 
+            android:contentDescription="New"
+            android:alpha="0.5"
+        />
+    
 	    <com.storyroll.ui.ControlledVideoView
 	        android:id="@+id/videoPlayerView"
-	        android:layout_gravity="center_horizontal"
+	        android:layout_gravity="center"
 	        android:visibility="invisible"
 	        android:layout_width="match_parent"
 	        android:layout_height="300dp"
 	         />
-	    <ImageView
-            android:id="@+id/unseenIndicator"
+	    <!-- The playable indicator shall stay above all visible elements -->
+	    <ImageView 
+	        android:id="@+id/playControl"
+	       	android:layout_gravity="center"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:src="@drawable/ic_new_roll"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="20dp"
-            android:visibility="invisible" 
-            android:contentDescription="New"/>
+			android:visibility="visible"
+			android:src="@drawable/ic_play_roll"
+			android:alpha="0.5"
+	    />
+
 	    <ProgressBar 
 			android:id="@+id/progress"	
 			android:layout_width="wrap_content" 

@@ -25,7 +25,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	public boolean isLoading = false;
 	public boolean isLoaded = false;
 	boolean playQueued = true;
-	private View controlView, unseenIndicator;
+	private View controlView, unseenIndicator, playControl;
 	private ArrayListFragment parent;
 	int screenWidth;
 	private int itemPosition;
@@ -33,7 +33,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	private String uuid;
 
 	private ProgressBar progressBar;
-	
+
 	public ControlledVideoView(Context context) {
 		super(context);
 	}
@@ -63,6 +63,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		if (!isLoading) {
 	   		// start a video preload task
 //			if(progressBar!=null) {
+				markPlayable(false);
 				progressBar.setVisibility(View.VISIBLE);
 //			}
 			isLoading = true;
@@ -81,22 +82,26 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		}
 		else if (isPlaying()) {
 			stopPlayback();
+			markPlayable(true);
 		}
 	}
 
 	public void startVideo() {
 		parent.switchCurrentlyPlayed(this);
+		markPlayable(false);
 		Log.v(LOGTAG, "starting video playback");
 		start();
 		playQueued = false;
 	}
 	
-	public void stopVideo() {
+	public void pauseVideo() {
 		Log.v(LOGTAG, "stopping video");
+		markPlayable(true);
 		pause();
 	}
 	
-	public void init(ArrayListFragment parent, View controlView, int screenWidth, int itemPosition, long storyId, String uuid, ProgressBar progressBar, View unseenIndicator) {
+	public void init(ArrayListFragment parent, View controlView, int screenWidth, int itemPosition, long storyId, String uuid, 
+			ProgressBar progressBar, View unseenIndicator, View playControl) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
@@ -105,6 +110,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 		this.uuid = uuid;
 		this.progressBar = progressBar;
 		this.unseenIndicator = unseenIndicator;
+		this.playControl = playControl;
 		
 		setOnPreparedListener(new MediaPlayer.OnPreparedListener()  {
             @Override
@@ -122,6 +128,9 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
         		if (playQueued) {
         			startVideo();
         		}
+        		else {
+        			markPlayable(true);
+        		}
             }
         });
 		
@@ -132,7 +141,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 				if (MotionEvent.ACTION_UP == event.getAction() ) 
 				{
 	                if (isPlaying()) {
-						stopVideo();
+						pauseVideo();
 					}
 					else {
 						startVideo();
@@ -190,5 +199,8 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	}
 	public void markSeen() {
 		unseenIndicator.setVisibility(View.INVISIBLE);
+	}
+	public void markPlayable(boolean playable) {
+		playControl.setVisibility(playable?View.VISIBLE:View.INVISIBLE);
 	}
 }

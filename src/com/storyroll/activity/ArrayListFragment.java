@@ -313,6 +313,7 @@ public class ArrayListFragment extends ListFragment {
 	{
 		if (currentlyPlayed!=null && currentlyPlayed.isPlaying()) {
 			currentlyPlayed.stopPlayback();
+			currentlyPlayed.markPlayable(true);
 		}
 		currentlyPlayed = v;
 		
@@ -412,6 +413,7 @@ public class ArrayListFragment extends ListFragment {
 
 			// 3. Get the views from the rowView
 			ImageView storyThumb = (ImageView) rowView.findViewById(R.id.storyThumb);
+			ImageView playControl = (ImageView) rowView.findViewById(R.id.playControl);
 			TextView likesNum = (TextView) rowView.findViewById(R.id.numLikes);
 			ImageView likeControl = (ImageView) rowView.findViewById(R.id.likeImage);
 			ControlledVideoView videoView = (ControlledVideoView) rowView.findViewById(R.id.videoPlayerView);
@@ -423,9 +425,11 @@ public class ArrayListFragment extends ListFragment {
 			rowView.initAndLoadCast(story, aq, ArrayListFragment.this);
 
 			aq.id(storyThumb).image(AppUtility.API_URL + "storyThumb?story=" + story.getId());
-			setViewSquare(storyThumb, calculcatedVideoWidth);
 			
-			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId(), mUuid, progressBar, unseenIndicator);
+			setViewSquare(storyThumb, calculcatedVideoWidth);
+			setViewSquare(playControl, calculcatedVideoWidth);
+			
+			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId(), mUuid, progressBar, unseenIndicator, playControl);
 			storyThumb.setOnClickListener(new ThumbClickListener(videoView, story.getId()));
 
 			likesNum.setText(shortLikesString(story.getLikes()));
