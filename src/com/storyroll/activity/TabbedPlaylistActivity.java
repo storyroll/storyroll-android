@@ -74,10 +74,10 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
         mViewPager.setAdapter(mAdapter);
 
         // Set up action bar.
-    	ActionBarUtility.initCustomActionBar(this);
+    	ActionBarUtility.initCustomActionBar(this, false);
     	final ActionBar actionBar = getActionBar();
-    	actionBar.setIcon(R.drawable.ic_action_join);
-    	actionBar.setHomeButtonEnabled(true);
+    	
+//    	actionBar.setHomeButtonEnabled(true);
         
         // Specify that tabs should be displayed in the action bar.
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);

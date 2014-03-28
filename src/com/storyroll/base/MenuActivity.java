@@ -6,8 +6,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.storyroll.R;
+import com.storyroll.activity.LoginActivity;
 import com.storyroll.activity.ProfileActivity;
 import com.storyroll.activity.SettingsActivity;
+import com.storyroll.activity.VideoCaptureActivity;
 
 public class MenuActivity extends GcmActivity {
 	private static final String TAG = "MenuActivity";
@@ -25,14 +27,10 @@ public class MenuActivity extends GcmActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 	  // Handle item selection
 	  Intent intent;
-//	    if (item.getItemId() == R.id.action_join) {
-//			// go to Login?
-//			intent = new Intent(this, VideoCaptureActivity.class);
-//			//					intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//			startActivity(intent);
-//			return true;
-//		} else 
-				if (item.getItemId() == R.id.action_profile) {
+	    if (item.getItemId() == R.id.action_join) {
+	    	onJoinPressed();
+			return true;
+		} else if (item.getItemId() == R.id.action_profile) {
 			intent = new Intent (this, ProfileActivity.class);
 			startActivity(intent);
 			return true;
@@ -50,5 +48,19 @@ public class MenuActivity extends GcmActivity {
 			return super.onOptionsItemSelected(item);
 		}
     }
+	
+    /*-- callbacks & helpers --*/
 
+	private void onJoinPressed(){
+		Intent intent;
+		if (isTrial) {
+			intent = new Intent(this, LoginActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		}
+		else {
+			intent = new Intent(this, VideoCaptureActivity.class);
+		}
+		
+		startActivity(intent);
+	}
 }

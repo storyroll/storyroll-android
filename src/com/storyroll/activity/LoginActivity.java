@@ -40,7 +40,7 @@ public class LoginActivity extends GcmActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 		
-		ActionBarUtility.adjustActionBarLogoCentering(this);
+//		ActionBarUtility.adjustActionBarLogoCentering(this);
 		
 		facebookHandle = AppUtility.makeHandle(this);
 		

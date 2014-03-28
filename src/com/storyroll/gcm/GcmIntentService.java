@@ -108,6 +108,7 @@ public class GcmIntentService extends IntentService {
         	// TODO: fire analytics or bugSense event
         	return;
         }
+        
 
 //        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 //                new Intent(this, GcmTestActivity.class), 0);
@@ -117,9 +118,13 @@ public class GcmIntentService extends IntentService {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
         		notificationIntent, 0);
         
-        String msg = extras.getString("message");
+        String collapseKey = extras.getString("collapse_key");
+        Log.v(LOGTAG, "collapseKey="+collapseKey);
+        boolean isNewStory = "story_published".equals(collapseKey);
+        
+        String msg = "";
         String countNewStoriesStr = extras.getString("count");
-        if (countNewStoriesStr!=null) 
+        if (isNewStory) 
         {
         	// override sent message
         	msg = "You have new story published!";
@@ -129,8 +134,9 @@ public class GcmIntentService extends IntentService {
             }
         }
         else {
-        	Log.e(LOGTAG, "No message count GCM message payload");
-        	BugSenseHandler.sendException(new Exception("No message count GCM message payload"));
+        	Log.w(LOGTAG, "No message count GCM message payload");
+//        	BugSenseHandler.sendException(new Exception("No message count GCM message payload"));
+        	msg = extras.getString("message");
         }
         
         String newStoriesStr = extras.getString("stories");

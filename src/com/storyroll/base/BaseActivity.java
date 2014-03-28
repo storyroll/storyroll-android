@@ -26,6 +26,7 @@ import com.storyroll.util.ErrorUtility;
 public class BaseActivity extends Activity {
 	
 	private static final String LOGTAG = "BaseActivity";
+    protected static boolean isTrial=false;
 	
 	public com.storyroll.PQuery aq;
 	
@@ -34,9 +35,9 @@ public class BaseActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		aq = new PQuery(this);
 //		if(isActionBar()){
-	    	ActionBarUtility.initCustomActionBar(this);
+	    	ActionBarUtility.initCustomActionBar(this, true);
 //	    }
-		
+	    isTrial = getIntent().getBooleanExtra("TRIAL", false);
 	}
 	
     @Override

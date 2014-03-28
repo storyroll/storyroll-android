@@ -99,8 +99,8 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 	    // overridden or cleared by assignment to null.
 	    EasyTracker.getInstance(this).set(Fields.SCREEN_NAME, SCREEN_NAME);
 	    
-    	ActionBarUtility.initCustomActionBar(this);
-		ActionBarUtility.adjustActionBarLogoCentering(this);
+    	ActionBarUtility.initCustomActionBar(this, true);
+//		ActionBarUtility.adjustActionBarLogoCentering(this);
 
         addPreferencesFromResource(R.xml.settings);
         

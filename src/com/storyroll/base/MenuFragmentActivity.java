@@ -85,14 +85,15 @@ public class MenuFragmentActivity extends FragmentActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		Intent intent;
-		if (item.getItemId() == android.R.id.home) // this will be our left action item
-		{
-			onJoinPressed();
-			return true;
+//		if (item.getItemId() == android.R.id.home) // this will be our left action item
+//		{
+//			onJoinPressed();
+//			return true;
+//		} else
+		if (item.getItemId() == R.id.action_join) {
+		 onJoinPressed();
+		 return true;
 		} else
-		// if (item.getItemId() == R.id.action_join) {
-		// onJoinPressed();
-		// } else
 		if (item.getItemId() == R.id.action_profile) {
 			intent = new Intent(this, ProfileActivity.class);
 			startActivity(intent);

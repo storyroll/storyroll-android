@@ -63,7 +63,12 @@
             android:name=".activity.SettingsActivity" 
             android:label="@string/app_name"
             android:theme="@style/SRTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+             <!-- The meta-data element is needed for versions lower than 4.1 -->
+	        <meta-data
+	            android:name="android.support.PARENT_ACTIVITY"
+	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
         </activity>
         <activity 
             android:name=".activity.LoginActivity" 
@@ -80,7 +85,12 @@
             android:name=".activity.ProfileActivity" 
             android:screenOrientation="portrait"
             android:theme="@style/SRTheme"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+	        android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+             <!-- The meta-data element is needed for versions lower than 4.1 -->
+	        <meta-data
+	            android:name="android.support.PARENT_ACTIVITY"
+	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
         </activity>
         <activity 
             android:name=".activity.RegistrationActivity" 
