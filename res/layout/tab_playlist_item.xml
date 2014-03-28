@@ -74,7 +74,7 @@
             android:layout_width="60dp"
             android:layout_alignParentTop="true"
             android:paddingRight="10px"
-            android:visibility="invisible"/>
+            android:visibility="gone"/>
         <ImageView
             android:id="@+id/cast2"
             android:layout_height="60dp"
@@ -82,7 +82,7 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/cast1"
             android:paddingRight="10px"
-            android:visibility="invisible"/>
+            android:visibility="gone"/>
         <ImageView
             android:id="@+id/cast3"
             android:layout_height="60dp"
@@ -90,7 +90,7 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/cast2"
             android:paddingRight="10px"
-            android:visibility="invisible"/>
+            android:visibility="gone"/>
         <ImageView
             android:id="@+id/cast4"
             android:layout_height="60dp"
@@ -98,7 +98,7 @@
             android:layout_toRightOf="@id/cast3"
             android:layout_alignParentTop="true"
             android:paddingRight="10px"
-            android:visibility="invisible"/>
+            android:visibility="gone"/>
         <ImageView
             android:id="@+id/cast5"
             android:layout_height="60dp"
@@ -106,7 +106,7 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/cast4"
             android:paddingRight="10px"
-            android:visibility="invisible"/>
+            android:visibility="gone"/>
        </RelativeLayout>
       </LinearLayout>
       
