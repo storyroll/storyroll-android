@@ -71,7 +71,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 	View redButton, redButtonCircle;
 	TextView redButtonText, videocapReadyMessage, startStoryMessage;
 	ImageView counterOverlay;
-	ProgressBar progress, customProgress;
+	ProgressBar progress, customRecProgress;
 
 	MediaRecorder recorder;
 	private Camera camera;
@@ -129,7 +129,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		});
 		counterOverlay = (ImageView)findViewById(R.id.counterOverlay);
 		progress = (ProgressBar) findViewById(R.id.progress);
-		customProgress = (ProgressBar) findViewById(R.id.customProgressBar);
+		customRecProgress = (ProgressBar) findViewById(R.id.customProgressBar);
 		
 
 //		CameraUtility.viewToSquare(videoView, VideoCaptureActivity.this);
@@ -160,6 +160,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		}
 
 		// get story to join
+		progress.setVisibility(View.VISIBLE);
 		aq.ajax(AppUtility.API_URL+"getStoryToJoin?uuid="+getUuid(), JSONObject.class, this, "getStoryToJoinCb");
 		
 	}
@@ -230,7 +231,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		if (isAjaxErrorThenReport(status)) return;
     	fireGAnalyticsEvent("story_workflow", "joinStory", json==null?"fail":"success", null);
 
-        if(json != null){               
+        if(json != null){
             //successful ajax call
         	Log.i(LOGTAG, "joinStoryCb success: "+json.toString());
         	// load last fragment
@@ -328,17 +329,20 @@ public class VideoCaptureActivity extends BaseActivity implements
 		switch (newState) {
 		case STATE_NO_STORY:
 			// this will allow user to start new story
+			progress.setVisibility(View.INVISIBLE);
 			startStoryMessage.setVisibility(View.VISIBLE);
 			videoView.setVisibility(View.INVISIBLE);
 			break;
 			
 		case STATE_INITIAL:
 			// we suppose a user already has a story to join, even if it's a new one and there is no preview
+			progress.setVisibility(View.INVISIBLE);
 			startStoryMessage.setVisibility(View.VISIBLE);
 			videoView.setVisibility(View.INVISIBLE);
     		redButton.setEnabled(true);
 			break;
 		case STATE_PREV_LAST:
+			progress.setVisibility(View.INVISIBLE);
 			redButton.setEnabled(true);
 //			surfaceView.setVisibility(View.VISIBLE);
 			videocapReadyMessage.setVisibility(View.VISIBLE);
@@ -383,8 +387,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 			backButton.setVisibility(View.INVISIBLE);
 			redButton.setVisibility(View.INVISIBLE);
 			rotateButton.setVisibility(View.INVISIBLE);
-			customProgress.setProgress(0);
-			customProgress.setVisibility(View.VISIBLE);
+			customRecProgress.setProgress(0);
+			customRecProgress.setVisibility(View.VISIBLE);
 			
 //			// countdown
 //			countdown();
@@ -525,8 +529,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 //	}
 
 	private void startRecProgressTimer() {
-		customProgress.setMax(CameraUtility.VIDEO_LENGTH + PROG_REFRESH);
-		customProgress.setProgress(0);
+		customRecProgress.setMax(CameraUtility.VIDEO_LENGTH + PROG_REFRESH);
+		customRecProgress.setProgress(0);
 
 		CountDownTimer mCountDownTimer = new CountDownTimer(CameraUtility.VIDEO_LENGTH
 				+ PROG_REFRESH, PROG_REFRESH) {
@@ -534,13 +538,13 @@ public class VideoCaptureActivity extends BaseActivity implements
 			@Override
 			public void onTick(long millisUntilFinished) {
 				Log.v("Log_tag", "Tick " + millisUntilFinished);
-				customProgress.setProgress(customProgress.getProgress()
+				customRecProgress.setProgress(customRecProgress.getProgress()
 						+ PROG_REFRESH);
 			}
 
 			@Override
 			public void onFinish() {
-				customProgress.setProgress(customProgress.getProgress()
+				customRecProgress.setProgress(customRecProgress.getProgress()
 						+ PROG_REFRESH);
 			}
 		};
@@ -910,7 +914,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 	public void onInfo(MediaRecorder mr, int what, int extra) {
 
 		if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-			customProgress.setVisibility(View.INVISIBLE);
+			customRecProgress.setVisibility(View.INVISIBLE);
 			
 			Log.v(LOGTAG, "OnInfoListener: Maximum Duration Reached");
 			mr.stop();
