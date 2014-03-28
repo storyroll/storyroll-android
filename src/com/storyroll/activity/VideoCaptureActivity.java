@@ -386,8 +386,9 @@ public class VideoCaptureActivity extends BaseActivity implements
 			customProgress.setProgress(0);
 			customProgress.setVisibility(View.VISIBLE);
 			
-			// countdown
-			countdown();
+//			// countdown
+//			countdown();
+			startImmediately();
 			
 //			prepareRecorder();
 //			recorder.start();
@@ -556,7 +557,15 @@ public class VideoCaptureActivity extends BaseActivity implements
 	        handler.postDelayed(new Counter(count), 1000 * (3-count));
 	    }
 		handler.postDelayed(new RecordStarter(), 3100); 
+	}
+	
+	public void startImmediately() {
+//		counterOverlay.setImageDrawable( getResources().getDrawable(R.drawable.rec_0) );
+		tg.startTone(ToneGenerator.TONE_PROP_BEEP);
 		
+		counterOverlay.setVisibility(View.VISIBLE);
+		Handler handler = new Handler();
+		handler.postDelayed(new RecordStarter(), 0); 
 	}
 	
 	  @Override
