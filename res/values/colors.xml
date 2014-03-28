@@ -25,7 +25,8 @@
 	
 	<color name="sr_stroke_rec_button">#464646</color>
 	<color name="sr_actionbar_tab_underline">#ebe7ca</color>
-	
+	<color name="sr_actionbar_tab_bg">#464646</color>
+	<color name="sr_actionbar_tab_text">#ebe7ca</color>
 	
 		
 	
