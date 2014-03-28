@@ -46,6 +46,7 @@ import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.CameraUtility;
 import com.storyroll.util.DataUtility;
+import com.storyroll.util.ErrorUtility;
 
 public class VideoCaptureActivity extends BaseActivity implements
 		SurfaceHolder.Callback, Button.OnClickListener, OnVideoTaskCompleted,  OnInfoListener {
@@ -171,7 +172,11 @@ public class VideoCaptureActivity extends BaseActivity implements
 	{
     	fireGAnalyticsEvent("story_workflow", "joinStory", json==null?"got no story":"got story", null);
 
-    	if (isAjaxErrorThenReport(status)) return;
+    	if (status.getCode()==AjaxStatus.NETWORK_ERROR) {
+    		ErrorUtility.apiError(LOGTAG, "Network error, check your connection", status, this, true, Log.ERROR);
+		}
+    	// TODO: is 500 resp ok when there is simply no story to join
+//    	if (isAjaxErrorThenReport(status)) return;
     	
         if(json != null){               
             //successful ajax call
@@ -816,12 +821,11 @@ public class VideoCaptureActivity extends BaseActivity implements
 			cp.setPreviewSize(bestPreviewSize.width, bestPreviewSize.height);
 
 			List<String> colorEffects = cp.getSupportedColorEffects();
-			if (colorEffects.contains(Camera.Parameters.EFFECT_MONO)) {
-				// Mono effect is supported
-				cp.setColorEffect(Camera.Parameters.EFFECT_MONO);
-			}
-			fireGAnalyticsEvent("camera", "monoEffect", colorEffects.contains(Camera.Parameters.EFFECT_MONO)?"supported":"not supported", null);
-
+//			if (colorEffects.contains(Camera.Parameters.EFFECT_MONO)) {
+//				// Mono effect is supported
+//				cp.setColorEffect(Camera.Parameters.EFFECT_MONO);
+//			}
+			// TODO: get stats about mono effect support?
 			
 			// TODO)
 			cp.setRecordingHint(true);
