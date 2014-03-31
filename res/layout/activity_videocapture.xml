@@ -32,7 +32,7 @@
 	    </VideoView>
 	    
 	    <SurfaceView
-	        android:id="@+id/CameraView"
+	        android:id="@+id/cameraView"
 	        android:layout_alignParentTop="true"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
@@ -153,6 +153,7 @@
 	        android:textColor="#92917d"
 	        android:text="@string/sym_left"
 	        android:paddingLeft="50dp"
+	        android:visibility="invisible"
         />
 	    
     </com.storyroll.ui.BottomPane>

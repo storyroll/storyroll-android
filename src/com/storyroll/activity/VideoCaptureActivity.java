@@ -70,8 +70,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private VideoView videoView;
 
 	SurfaceHolder previewHolder = null;
-	Button rotateButton;
-	Button backButton;
+	Button rotateButton, backButton;
 	View redButton, redButtonCircle;
 	TextView redButtonText, videocapReadyMessage, startStoryMessage;
 	ImageView counterOverlay;
@@ -121,12 +120,13 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         getActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
-		surfaceView = (SurfaceView) findViewById(R.id.CameraView);
+		surfaceView = (SurfaceView) findViewById(R.id.cameraView);
 
 		videoView = (VideoView) findViewById(R.id.videoPlayerView);
 		videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
 			@Override
-			public void onPrepared(MediaPlayer mp) {
+			public void onPrepared(MediaPlayer mp) 
+			{
 				Log.i(LOGTAG, "Duration = " + videoView.getDuration());
 				mp.setLooping(true);
 			}
@@ -343,6 +343,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			progress.setVisibility(View.INVISIBLE);
 			startStoryMessage.setVisibility(View.VISIBLE);
 			videoView.setVisibility(View.INVISIBLE);
+			backButton.setVisibility(View.GONE);
 			break;
 			
 		case STATE_INITIAL:
@@ -350,11 +351,14 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			progress.setVisibility(View.INVISIBLE);
 			startStoryMessage.setVisibility(View.VISIBLE);
 			videoView.setVisibility(View.INVISIBLE);
+			backButton.setVisibility(View.GONE);
     		redButton.setEnabled(true);
 			break;
 		case STATE_PREV_LAST:
 			progress.setVisibility(View.INVISIBLE);
 			redButton.setEnabled(true);
+			backButton.setVisibility(View.GONE);
+
 //			surfaceView.setVisibility(View.VISIBLE);
 			videocapReadyMessage.setVisibility(View.VISIBLE);
 			redButtonText.setText(R.string.ready);
