@@ -40,6 +40,7 @@ import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
+import com.storyroll.base.SwipeVideoActivity;
 import com.storyroll.exception.APIException;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
@@ -48,7 +49,7 @@ import com.storyroll.util.CameraUtility;
 import com.storyroll.util.DataUtility;
 import com.storyroll.util.ErrorUtility;
 
-public class VideoCaptureActivity extends BaseActivity implements
+public class VideoCaptureActivity extends SwipeVideoActivity implements
 		SurfaceHolder.Callback, Button.OnClickListener, OnVideoTaskCompleted,  OnInfoListener {
 
 	public static final String LOGTAG = "VIDEOCAPTURE";
@@ -130,6 +131,9 @@ public class VideoCaptureActivity extends BaseActivity implements
 				mp.setLooping(true);
 			}
 		});
+//		videoView.setOnClickListener(SwipeVideoActivity.this); 
+		videoView.setOnTouchListener(gestureListener);
+		
 		counterOverlay = (ImageView)findViewById(R.id.counterOverlay);
 		progress = (ProgressBar) findViewById(R.id.progress);
 		customRecProgress = (ProgressBar) findViewById(R.id.customProgressBar);
@@ -936,6 +940,20 @@ public class VideoCaptureActivity extends BaseActivity implements
 			surfaceView.setVisibility(View.INVISIBLE);
 			lastState = processAndSetNewState(STATE_PREV_NEW);
 		}
+	}
+
+	@Override
+	protected void leftSwipe() {
+		if (lastState!=STATE_PREV_LAST) return;
+		// get new story to join
+		progress.setVisibility(View.VISIBLE);
+		aq.ajax(AppUtility.API_URL+"getStoryToJoin?uuid="+getUuid(), JSONObject.class, this, "getStoryToJoinCb");
+	}
+
+	@Override
+	protected void rightSwipe() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
