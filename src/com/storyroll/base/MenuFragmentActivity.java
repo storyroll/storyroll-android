@@ -76,7 +76,7 @@ public class MenuFragmentActivity extends FragmentActivity {
         	inflater.inflate(R.menu.trial_activity_menu, menu);
         }
         else {
-        	inflater.inflate(R.menu.main_activity_menu, menu);
+        	inflater.inflate(R.menu.home_activity_menu, menu);
         }
         return super.onCreateOptionsMenu(menu);
     }

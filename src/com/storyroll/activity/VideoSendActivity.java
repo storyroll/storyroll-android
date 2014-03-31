@@ -34,7 +34,7 @@ public class VideoSendActivity extends MenuActivity {
 //		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 //				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		getActionBar().hide();
+//		getActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		

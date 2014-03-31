@@ -90,6 +90,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	public static final int STATE_REC = 3;
 	public static final int STATE_PREV_NEW = 4;
 	public static final int STATE_UPLOAD = 5;
+	public static final int STATE_UPLOAD_FAIL = 6;
 		
 	private static final boolean BUTTON_RED=false;
 	private static final boolean BUTTON_YELLOW=true;
@@ -117,7 +118,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //        getWindow().setFlags(
 //				WindowManager.LayoutParams.FLAG_FULLSCREEN,
 //				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        getActionBar().hide();
+//        getActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		surfaceView = (SurfaceView) findViewById(R.id.cameraView);
@@ -177,8 +178,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	public void getStoryToJoinCb(String url, JSONObject json, AjaxStatus status)
 	{
     	fireGAnalyticsEvent("story_workflow", "joinStory", json==null?"got no story":"got story", null);
-
+    	
     	if (status.getCode()==AjaxStatus.NETWORK_ERROR) {
+    		progress.setVisibility(View.INVISIBLE);
     		ErrorUtility.apiError(LOGTAG, "Network error, check your connection", status, this, true, Log.ERROR);
 		}
     	// TODO: is 500 resp ok when there is simply no story to join?
@@ -218,7 +220,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			
 			// join (lock) the story
 			aq.ajax(AppUtility.API_URL+"joinStory?uuid="+getUuid()+"&story="+storyId, JSONObject.class, this, "joinStoryCb");
-		} catch (JSONException e) {
+		} 
+		catch (JSONException e) 
+		{
 			apiError(LOGTAG, "Error parsing story response. "+e.getMessage(), null, false, Log.ERROR);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -301,7 +305,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         
     	fireGAnalyticsEvent("fragment_workflow", "videoUpload", json==null?"fail":"success", null);
     	
-    	if (isAjaxErrorThenReport(status)) return;
+    	if (isAjaxErrorThenReport(status)) {
+    		Toast.makeText(this, "Error uploading fragment, please try again", Toast.LENGTH_SHORT).show();
+    		processAndSetNewState(STATE_UPLOAD_FAIL);
+    		return;
+    	}
 
 		isUploading = false;
     	progress.setVisibility(View.INVISIBLE);
@@ -470,6 +478,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		case STATE_UPLOAD:
 			// upload the video
 			doUpload(CameraUtility.getNewFragmentFilePath(this));
+			break;
+		case STATE_UPLOAD_FAIL:
+			progress.setVisibility(View.INVISIBLE);
+			isUploading = false;
+			backButton.setVisibility(View.VISIBLE);			
 			break;
 		default:
 			Log.w(LOGTAG, "change state not implemented: "+newState);
