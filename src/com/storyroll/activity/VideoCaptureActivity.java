@@ -61,6 +61,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 	
 	private static final int VIDEO_BITRATE = 1300000;
 	private static final int VIDEO_FRAMERATE = 30;
+	
+	private static int DEFAULT_CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
 	private SurfaceView surfaceView;
 	
@@ -175,7 +177,7 @@ public class VideoCaptureActivity extends BaseActivity implements
     	if (status.getCode()==AjaxStatus.NETWORK_ERROR) {
     		ErrorUtility.apiError(LOGTAG, "Network error, check your connection", status, this, true, Log.ERROR);
 		}
-    	// TODO: is 500 resp ok when there is simply no story to join
+    	// TODO: is 500 resp ok when there is simply no story to join?
 //    	if (isAjaxErrorThenReport(status)) return;
     	
         if(json != null){               
@@ -740,7 +742,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 //			    }
 			    camera = getCameraInstance();
 			    try {
-			        //this step is critical or preview on new camera will no know where to render to
+			        //this step is critical or preview on new camera will not know where to render to
 			        camera.setPreviewDisplay(previewHolder);
 			    } catch (IOException e) {
 			        e.printStackTrace();
@@ -788,10 +790,15 @@ public class VideoCaptureActivity extends BaseActivity implements
 		Camera c = null;
 		try {
 			if (currentCameraId==null) {
-				// get default camera id
+				// get default camera, if it exists, otherwise use first available
 				int cameras = Camera.getNumberOfCameras();
 				Log.v(LOGTAG, "Cameras: " + cameras);
 				currentCameraId = 0;
+				for (int i=0;i<cameras;i++) {
+					if (i==DEFAULT_CAMERA_ID) {
+						currentCameraId = i;
+					}
+				}
 			}
 			
 			c = Camera.open(currentCameraId); // attempt to get a Camera instance
