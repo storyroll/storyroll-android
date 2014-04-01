@@ -111,7 +111,7 @@
 	    <!-- No backgrounds, titles or window float -->
 	    <item name="android:windowBackground">@null</item>
 	    <item name="android:windowNoTitle">true</item>
-	    <item name="android:windowIsFloating">false</item>
+	    <item name="android:windowIsFloating">true</item>
 	</style>
 	<!--  Generated  -->
 	
