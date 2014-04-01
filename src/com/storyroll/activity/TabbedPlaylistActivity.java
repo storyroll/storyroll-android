@@ -1,8 +1,5 @@
 package com.storyroll.activity;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -26,6 +23,7 @@ import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
 import com.storyroll.PQuery;
 import com.storyroll.R;
+import com.storyroll.base.HelpFragmentActivity;
 import com.storyroll.base.MenuFragmentActivity;
 import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;

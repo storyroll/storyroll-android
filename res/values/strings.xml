@@ -133,5 +133,7 @@
     <string name="p_sso_sum">Use device account to sign on</string>
     <string name="p_location_update">Location update</string>   
         
-    <string name="other_data">Other Info</string>  
+    <string name="other_data">Other Info</string>
+    <string name="help_text">Continue random\n stories by <font color='red'>recording</font>\n short video sequels\n and <font color='blue'>enjoy</font> unexpected\n outcome</string>
+    
 </resources>

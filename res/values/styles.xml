@@ -40,6 +40,8 @@
 
     <style name="ButtonBarButton" />
     
+
+    
     <style name="SRTheme" parent="SRBaseTheme">
         <item name="android:actionBarStyle">@style/SRActionBar</item>
 <!--         <item name="android:actionBarTabStyle">@style/ActionBarTabStyle</item>
