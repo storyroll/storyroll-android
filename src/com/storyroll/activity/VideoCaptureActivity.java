@@ -27,6 +27,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -73,7 +75,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	Button rotateButton, backButton;
 	View redButton, redButtonCircle;
 	TextView redButtonText, videocapReadyMessage, startStoryMessage;
-	ImageView counterOverlay;
+	ImageView counterOverlay, sliderOverlay;
 	ProgressBar progress, customRecProgress;
 
 	MediaRecorder recorder;
@@ -136,6 +138,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		videoView.setOnTouchListener(gestureListener);
 		
 		counterOverlay = (ImageView)findViewById(R.id.counterOverlay);
+		sliderOverlay = (ImageView)findViewById(R.id.sliderOverlay);
+
 		progress = (ProgressBar) findViewById(R.id.progress);
 		customRecProgress = (ProgressBar) findViewById(R.id.customProgressBar);
 		
@@ -371,6 +375,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			videocapReadyMessage.setVisibility(View.VISIBLE);
 			redButtonText.setText(R.string.ready);
 
+			Log.v(LOGTAG, "animation start");
+			sliderAnimateRightToLeft(sliderOverlay);
+			
 			// start previewing last fragment
 			if (lastFragmentPath!=null) {
 				videoView.setVisibility(View.VISIBLE);
@@ -491,6 +498,17 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		return newState;
 	}
 	
+	private void sliderAnimateRightToLeft(ImageView v) {
+		v.setVisibility(View.VISIBLE);
+		TranslateAnimation animation = new TranslateAnimation(0.0f, -v.getWidth(), 0.0f, 0.0f);
+		animation.setDuration(1400);
+		animation.setRepeatCount(1);
+		animation.setRepeatMode(Animation.RESTART);
+		animation.setFillAfter(false);
+		v.startAnimation(animation);
+		v.setVisibility(View.GONE);
+	}
+
 	final ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100);
 	
 	private class Counter implements Runnable{
@@ -964,6 +982,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		if (lastState!=STATE_PREV_LAST) return;
 		// get new story to join
 		progress.setVisibility(View.VISIBLE);
+		// drop previous and join new story
 		aq.ajax(AppUtility.API_URL+"getStoryToJoin?uuid="+getUuid(), JSONObject.class, this, "getStoryToJoinCb");
 	}
 

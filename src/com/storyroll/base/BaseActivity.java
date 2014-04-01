@@ -184,4 +184,9 @@ public class BaseActivity extends Activity {
 	protected void apiError(String logtag, String s, AjaxStatus status, boolean toast, int logLevel) {
 		ErrorUtility.apiError(logtag, s, status, this, toast, logLevel);
 	}
+	
+	public void swallowCb(String url, JSONObject json, AjaxStatus status) {
+		// just swallow it
+	}
+
 }

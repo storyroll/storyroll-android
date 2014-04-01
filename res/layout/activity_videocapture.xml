@@ -38,7 +38,7 @@
 	        android:layout_height="wrap_content"
 	        android:visibility="invisible" >
 	    </SurfaceView>
-	    
+
 	    <Button
 	        android:id="@+id/rotateButton"
 	        android:background="@drawable/ctrl_camera_rotate" 
@@ -89,6 +89,16 @@
 	        android:background="@color/sr_bg_vidcap"
 	        android:visibility="invisible"
 	        />
+	   	<ImageView
+	        android:id="@+id/sliderOverlay"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:visibility="invisible"
+	        android:src="@drawable/ic_swipe"
+	        android:layout_alignParentRight="true"
+	        android:layout_centerVertical="true"
+	        android:alpha="0.5"
+	        />
 	</RelativeLayout>
 	
     <com.storyroll.ui.SquarePane 
@@ -99,8 +109,9 @@
 	   	<TextView 
 	        android:id="@+id/videocapReadyMessage"
 	        android:layout_width="match_parent"
-	        android:layout_height="70dp"
-	        android:textSize="36sp"
+	        android:layout_height="wrap_content"
+	        android:padding="3dp"
+	        android:textSize="28sp"
 	        android:text="@string/videocap_ready_message"
 	        android:textColor="@color/sr_vidcap_capture_text"
 	        android:layout_gravity="bottom"
