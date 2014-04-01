@@ -25,10 +25,18 @@ import java.util.List;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.WindowManager.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
@@ -292,6 +300,51 @@ public class DialogUtility {
 		
 		dialog.show();
 		
+	}
+	
+	public static class HelpDialog extends Dialog {
+
+		public HelpDialog(Context context) {
+			super(context, R.style.FullScreenDialog);
+//			super(context);
+		}
+		
+		// make dismissable on touch
+		@Override
+		public boolean onTouchEvent(MotionEvent event) {
+			// Tap anywhere to close dialog.
+			this.dismiss();
+			return true;
+		}
+	}
+	
+	public static void showHelpOverlay(Activity act){
+		Dialog helpOverlay = new DialogUtility.HelpDialog(act);
+		
+
+        // Making sure there's no title and it's fullscreen
+        helpOverlay.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		helpOverlay.getWindow().setFlags(LayoutParams.FLAG_FULLSCREEN, LayoutParams.FLAG_FULLSCREEN);
+		helpOverlay.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT);
+
+        // Making dialog content transparent.
+        helpOverlay.getWindow().setBackgroundDrawable(
+                new ColorDrawable(Color.TRANSPARENT));
+        // Removing window dim normally visible when dialog are shown.
+        helpOverlay.getWindow().clearFlags(
+                WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        // Setting position of content, relative to window.
+        WindowManager.LayoutParams params = helpOverlay.getWindow().getAttributes();
+        params.gravity = Gravity.TOP | Gravity.LEFT;
+        params.x = 0;
+        params.y = 0;
+        // If user taps anywhere on the screen, dialog will be cancelled.
+        helpOverlay.setCancelable(true);
+        helpOverlay.setCanceledOnTouchOutside(true);
+        // Setting the content using prepared XML layout file.
+        helpOverlay.setContentView(R.layout.help_overlay);
+        helpOverlay.show();
 	}
     
 }

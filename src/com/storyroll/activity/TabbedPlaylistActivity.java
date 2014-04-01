@@ -23,10 +23,10 @@ import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
 import com.storyroll.PQuery;
 import com.storyroll.R;
-import com.storyroll.base.HelpFragmentActivity;
 import com.storyroll.base.MenuFragmentActivity;
 import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
+import com.storyroll.util.DialogUtility;
 import com.storyroll.util.ErrorUtility;
 
 public class TabbedPlaylistActivity extends MenuFragmentActivity {
@@ -50,6 +50,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     	return aq;
     }
 
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tabbed_playlist);
@@ -168,6 +169,13 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 			updateUnseenStoriesFromServer();
 		}
 
+    }
+    
+    @Override
+    public void onStart(){
+    	super.onStart();
+		// show help
+		DialogUtility.showHelpOverlay(this);
     }
     
 //    private void resetNewStoriesSet(int[] stories) {
