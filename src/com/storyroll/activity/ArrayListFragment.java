@@ -44,12 +44,20 @@ import com.storyroll.util.PrefUtility;
 public class ArrayListFragment extends ListFragment {
 	private static final String LOGTAG = "ArrayListFragment";
 
+//	private static final int TAB_BEST = 0;
+//	private static final int TAB_NEW = 1;
+//	public static final int TAB_MINE = 2;
+//	private static final int TAB_FAVORITE = 3;
+//	public static final String[] TAB_HEADINGS = new String[] { "Best", "New", "Mine", "Likes" };
+//	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Best", "New", null, null };
+
 	private static final int TAB_BEST = 0;
-	private static final int TAB_NEW = 1;
-	public static final int TAB_MINE = 2;
+	public static final int TAB_MINE = 1;
+	private static final int TAB_NEW = 2;
 	private static final int TAB_FAVORITE = 3;
-	public static final String[] TAB_HEADINGS = new String[] { "Best", "New", "Mine", "Likes" };
-	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Best", "New", null, null };
+	public static final String[] TAB_HEADINGS = new String[] { "Best", "Mine", null, null };
+	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Best", null, null, null };
+	
 	private static final Integer LIMIT_ITEMS = 25;
 	
 	// how many percents of width should a squared video take

@@ -372,15 +372,14 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     	
         public RollPlaylistTabAdapter(FragmentManager fm) {
             super(fm);
+            String[] th = ArrayListFragment.TAB_HEADINGS;
             if (isTrial) {
-            	count = 0;
-        		for(int i=0;i<ArrayListFragment.TAB_HEADINGS_TRIAL.length;i++) {
-        			if (ArrayListFragment.TAB_HEADINGS_TRIAL[i]!=null) count++;
-        		}
+            	th = ArrayListFragment.TAB_HEADINGS_TRIAL;
             }
-            else {
-            	count = ArrayListFragment.TAB_HEADINGS.length;
-            }
+        	count = 0;
+    		for(int i=0;i<th.length;i++) {
+    			if (th[i]!=null) count++;
+    		}
         }
 
         @Override
