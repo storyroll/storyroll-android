@@ -28,6 +28,7 @@ import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.DialogUtility;
 import com.storyroll.util.ErrorUtility;
+import com.storyroll.util.PrefUtility;
 
 public class TabbedPlaylistActivity extends MenuFragmentActivity {
 
@@ -196,7 +197,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     		Log.v(LOGTAG, "updateUnseenStoriesFromServer -- skip in trial");
     	}
     	else {
-    		aq.ajax(AppUtility.API_URL+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+    		aq.ajax(PrefUtility.getApiUrl()+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
     	}
 	}
 

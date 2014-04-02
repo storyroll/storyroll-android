@@ -36,6 +36,7 @@ import com.storyroll.R;
 import com.storyroll.base.MenuActivity;
 import com.storyroll.model.Profile;
 import com.storyroll.util.AppUtility;
+import com.storyroll.util.PrefUtility;
 
 public class ProfileActivity extends MenuActivity {
 	private final String LOGTAG = "PROFILE";
@@ -112,7 +113,7 @@ public class ProfileActivity extends MenuActivity {
     		initAvatar();
     	} else {
     		// edit profile
-    		aq.progress(R.id.progress).ajax(AppUtility.API_URL+"getProfile?uuid="+getUuid(), JSONObject.class, this, "getProfileForEditCb");
+    		aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl()+"getProfile?uuid="+getUuid(), JSONObject.class, this, "getProfileForEditCb");
     	}
 	}
 	
@@ -181,7 +182,7 @@ public class ProfileActivity extends MenuActivity {
 			// do we have SR avatar?
 			if (profile.avatar!=null) {
 				Log.v(LOGTAG, "loading avatar");
-				aq.id(R.id.avatar).image(AppUtility.API_URL+"avatar?uuid="+profile.email, false, false, 0, R.drawable.ic_avatar_default);
+				aq.id(R.id.avatar).image(PrefUtility.getApiUrl()+"avatar?uuid="+profile.email, false, false, 0, R.drawable.ic_avatar_default);
 			}
 			// otherwise load avatar from FB
 			else if (profile.isAuthFacebook())
@@ -235,7 +236,7 @@ public class ProfileActivity extends MenuActivity {
 //		else {
 			persistProfile(profile);
 			profile = getPersistedProfile();
-			aq.progress(R.id.progress).ajax(AppUtility.API_URL+"updateProfile?"+profile.toParamString(unameChanged, false), JSONObject.class, this, "updateProfileCb");
+			aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl()+"updateProfile?"+profile.toParamString(unameChanged, false), JSONObject.class, this, "updateProfileCb");
 //		}		
 	}
 
@@ -305,7 +306,7 @@ public class ProfileActivity extends MenuActivity {
     			Map params = new HashMap();
     	        params.put("file", file);
     	        params.put("uuid", profile.email);
-    	        aq.progress(R.id.progress).ajax(AppUtility.API_URL+"setAvatar", params, JSONObject.class, this, "setAvatarCb");
+    	        aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl()+"setAvatar", params, JSONObject.class, this, "setAvatarCb");
     	        
     		}
     		else {

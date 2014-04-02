@@ -32,11 +32,11 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.PQuery;
 import com.storyroll.R;
+import com.storyroll.enums.AutostartMode;
 import com.storyroll.model.Story;
 import com.storyroll.ui.ControlledVideoView;
 import com.storyroll.ui.PlaylistItemView;
 import com.storyroll.util.AppUtility;
-import com.storyroll.util.AutostartMode;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.NetworkUtility;
 import com.storyroll.util.PrefUtility;
@@ -112,7 +112,7 @@ public class ArrayListFragment extends ListFragment {
 			if (userLikes == null) {
 				userLikes = new HashSet<String>();
 			}
-			String apiUrl = AppUtility.API_URL+"userLikes?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
+			String apiUrl = PrefUtility.getApiUrl()+"userLikes?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "userLikesIdsCb");
 		}
 		// get unseen only once
@@ -143,7 +143,7 @@ public class ArrayListFragment extends ListFragment {
 		Log.v(LOGTAG, "onActivityCreated");
 		super.onActivityCreated(savedInstanceState);
 
-		String apiUrl = AppUtility.API_URL;
+		String apiUrl = PrefUtility.getApiUrl();
 		switch (mNum) {
 		case TAB_BEST:
 			apiUrl += "getTopLikedStories?limit=" + LIMIT_ITEMS;
@@ -323,7 +323,7 @@ public class ArrayListFragment extends ListFragment {
 		
 		// fire an event about new video start
 		// TODO do we track in trial?
-		String apiUrl = AppUtility.API_URL+"addView?story="+ v.getStoryId() +"&uuid=" + v.getUuid();
+		String apiUrl = PrefUtility.getApiUrl()+"addView?story="+ v.getStoryId() +"&uuid=" + v.getUuid();
 		aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
 	}
 	
@@ -424,7 +424,7 @@ public class ArrayListFragment extends ListFragment {
 			Story story = stories.get(position);
 			rowView.initAndLoadCast(story, aq, ArrayListFragment.this);
 
-			aq.id(storyThumb).image(AppUtility.API_URL + "storyThumb?story=" + story.getId());
+			aq.id(storyThumb).image(PrefUtility.getApiUrl() + "storyThumb?story=" + story.getId());
 			
 			setViewSquare(storyThumb, calculcatedVideoWidth);
 			setViewSquare(playControl, calculcatedVideoWidth);
@@ -437,7 +437,7 @@ public class ArrayListFragment extends ListFragment {
 			if (story.getCast()!=null) {
 				for (int i=0; i<story.getCast().length; i++) {
 					ImageView castImage = (ImageView) rowView.findViewById(PlaylistItemView.castIds[i]);
-					aq.id(castImage).image(AppUtility.API_URL+"avatar?uuid="+story.getCast()[i], true, false, 0, R.drawable.ic_avatar_default);
+					aq.id(castImage).image(PrefUtility.getApiUrl()+"avatar?uuid="+story.getCast()[i], true, false, 0, R.drawable.ic_avatar_default);
 				}
 			}
 			
@@ -496,9 +496,9 @@ public class ArrayListFragment extends ListFragment {
 			public void onClick(View v) {
 				fireGAnalyticsEvent("ui_action", "touch", "likeButton", null);
 
-				String url = AppUtility.API_URL + "like";
+				String url = PrefUtility.getApiUrl() + "like";
 				if (story.isUserLikes()) {
-					url = AppUtility.API_URL + "dislike";
+					url = PrefUtility.getApiUrl() + "dislike";
 				}
 				url += "?uuid=" + this.uuid + "&story=" + story.getId();
 
@@ -711,7 +711,7 @@ public class ArrayListFragment extends ListFragment {
     // TODO deduplicate code (TabbedPlaylistActivity)
     private void updateUnseenStoriesFromServer() {
     	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
-    	aq.ajax(AppUtility.API_URL+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+    	aq.ajax(PrefUtility.getApiUrl()+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
 	}
 
 	public void unseenStoriesCb(String url, JSONArray jarr, AjaxStatus status) 

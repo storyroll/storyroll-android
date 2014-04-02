@@ -18,7 +18,7 @@ public class ImageUtility {
 		
 		if(!handle.authenticated()) return null;
 		
-		String pic = AppUtility.API_URL+"avatar?uuid="+uuid;
+		String pic = PrefUtility.getApiUrl()+"avatar?uuid="+uuid;
 		pic = handle.getNetworkUrl(pic);
 		return pic;
 	}

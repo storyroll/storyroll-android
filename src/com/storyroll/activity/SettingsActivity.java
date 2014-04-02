@@ -34,10 +34,11 @@ import com.androidquery.callback.AjaxStatus;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.base.Constants;
+import com.storyroll.enums.AutostartMode;
+import com.storyroll.enums.ServerPreference;
 import com.storyroll.model.Profile;
 import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
-import com.storyroll.util.AutostartMode;
 import com.storyroll.util.DialogUtility;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.IntentUtility;
@@ -157,7 +158,10 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 //        p = findPreference("feedback");
 //        p.setOnPreferenceClickListener(this);
         
-        p = findPreference("com.storyroll.util.AutostartMode");
+        p = findPreference("com.storyroll.enums.AutostartMode");
+        p.setOnPreferenceChangeListener(this);
+        
+        p = findPreference("com.storyroll.enums.ServerPreference");
         p.setOnPreferenceChangeListener(this);
     }
     
@@ -353,7 +357,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         	Log.w(LOGTAG, "logout");
         	
     		// first of all, remove associated GCM reg id from the db record
-    		String apiRegUrl = AppUtility.API_URL+"updateProfile?uuid="+ getUuid() +"&registrationId= ";
+    		String apiRegUrl = PrefUtility.getApiUrl()+"updateProfile?uuid="+ getUuid() +"&registrationId= ";
     		aq.progress(R.id.progress).ajax(apiRegUrl, JSONObject.class, this, "removeProfileGcmRegCb");
     		
         	AppUtility.purgeProfile(this);
@@ -438,8 +442,23 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 
     
 	@Override
-	public boolean onPreferenceChange(Preference pref, Object newValue) {
-		PrefUtility.putEnum(AutostartMode.valueOf(newValue.toString()));
+	public boolean onPreferenceChange(Preference pref, Object newValue) 
+	{
+		Log.v(LOGTAG, "onPreferenceChange: "+newValue);
+		
+		if (pref.getKey().equals("com.storyroll.enums.ServerPreference")) {
+			PrefUtility.putEnum(ServerPreference.valueOf(newValue.toString()));
+			// restart
+	    	Intent intent = new Intent(this, LaunchActivity.class);
+	    	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	    	intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+	    	startActivity(intent);
+		}
+		else if (pref.getKey().equals(AutostartMode.class.toString())) 
+		{
+			PrefUtility.putEnum(AutostartMode.valueOf(newValue.toString()));
+		}
+		
 		return true;
 	}
 	

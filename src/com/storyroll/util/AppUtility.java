@@ -37,8 +37,6 @@ public class AppUtility {
 	
 //	public final static String API_URL="http://192.168.1.64:8080/storyroll/api/";
 	
-	public final static String API_URL="http://storyroll.vibe.lt/storyroll/api/";
-	
 	public final static Class ACTIVITY_HOME = TabbedPlaylistActivity.class;
 
 	public static FacebookHandle makeHandle(Activity act){

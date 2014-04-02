@@ -1,4 +1,4 @@
-package com.storyroll.util;
+package com.storyroll.enums;
 
 public enum AutostartMode {
     

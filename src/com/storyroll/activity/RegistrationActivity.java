@@ -41,6 +41,7 @@ import com.storyroll.base.Constants;
 import com.storyroll.base.MenuActivity;
 import com.storyroll.model.Profile;
 import com.storyroll.util.AppUtility;
+import com.storyroll.util.PrefUtility;
 
 public class RegistrationActivity extends ProfileActivity {
 	private final String LOGTAG = "REGISTER";
@@ -82,13 +83,13 @@ public class RegistrationActivity extends ProfileActivity {
 				return;
 			}
 			Log.d(LOGTAG, "profile: "+profile.toString()+", params: "+profile.toParamString(false, true));	
-			aq.progress(R.id.progress).ajax(AppUtility.API_URL+"addProfile?"+profile.toParamString(false, true), JSONObject.class, this, "createProfileCb");						
+			aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl()+"addProfile?"+profile.toParamString(false, true), JSONObject.class, this, "createProfileCb");						
 		}
 		else 
 		{
 			persistProfile(profile);
 			profile = getPersistedProfile();
-			aq.progress(R.id.progress).ajax(AppUtility.API_URL+"updateProfile?"+profile.toParamString(unameChanged, false), JSONObject.class, this, "updateProfileCb");
+			aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl()+"updateProfile?"+profile.toParamString(unameChanged, false), JSONObject.class, this, "updateProfileCb");
 		}		
 	}
 	

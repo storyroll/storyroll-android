@@ -10,6 +10,7 @@ import com.storyroll.R;
 import com.storyroll.activity.ArrayListFragment;
 import com.storyroll.model.Story;
 import com.storyroll.util.AppUtility;
+import com.storyroll.util.PrefUtility;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -48,7 +49,7 @@ public class PlaylistItemView extends LinearLayout {
 		this.parent = parent;
 		if (story.getCast() == null) {
 			// try to load cast
-			this.aq.ajax(AppUtility.API_URL+"getStoryCast?story="+story.getId(), JSONArray.class, this, "getStoryCastCb");
+			this.aq.ajax(PrefUtility.getApiUrl()+"getStoryCast?story="+story.getId(), JSONArray.class, this, "getStoryCastCb");
 		}
 	}
 
@@ -66,7 +67,7 @@ public class PlaylistItemView extends LinearLayout {
 					ImageView castImage = (ImageView) findViewById(castIds[i]);
 					String uuid = userObj.getString("uuid");
 					cast[i] = uuid;
-					aq.id(castImage).image(AppUtility.API_URL+"avatar?uuid="+uuid, true, false, 0, R.drawable.ic_avatar_default);
+					aq.id(castImage).image(PrefUtility.getApiUrl()+"avatar?uuid="+uuid, true, false, 0, R.drawable.ic_avatar_default);
 	        	}
 	        	story.setCast(cast);
 	        	

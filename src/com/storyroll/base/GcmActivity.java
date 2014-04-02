@@ -1,5 +1,6 @@
 package com.storyroll.base;
 
+// TODO: move to activities
 import java.io.IOException;
 
 import org.json.JSONObject;
@@ -14,6 +15,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.storyroll.R;
 import com.storyroll.util.AppUtility;
+import com.storyroll.util.PrefUtility;
 
 public class GcmActivity extends BaseActivity {
     protected static final String LOGTAG = "GcmActivity";
@@ -83,7 +85,7 @@ public class GcmActivity extends BaseActivity {
 
 	protected void sendGcmRegistrationIdToBackend(String regid, String email) {
 		// update profile with new reg id
-		String apiRegUrl = AppUtility.API_URL+"updateProfile?uuid="+email+"&registrationId="+regid;
+		String apiRegUrl = PrefUtility.getApiUrl()+"updateProfile?uuid="+email+"&registrationId="+regid;
 		aq.progress(R.id.progress).ajax(apiRegUrl, JSONObject.class, this, "updateProfileGcmRegCb");
 	}
 	

@@ -6,6 +6,8 @@ public interface Constants {
 	public static final String BUGSENSE_API_KEY = "b3f4e407";
 	public static final String FLURRY_API_KEY = "D54R7MJVB3KQ2MWN3YJ5";
 
+	public final static String API_URL_STAGING="http://storyroll.vibe.lt/storyroll/api/";
+	public final static String API_URL_AWS="http://api.storyroll.co/storyroll/api/";
 	/**
      * StoryRoll sender ID here. This is the project number 
      * from the API Console.

@@ -1,21 +1,7 @@
 /*******************************************************************************
- * Copyright 2012 AndroidQuery (tinyeeliu@gmail.com)
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * martynas@storyroll.co
  * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * 
- * Additional Note:
- * 1. You cannot use AndroidQuery's Facebook app account in your own apps.
- * 2. You cannot republish the app as is with advertisements.
  ******************************************************************************/
 package com.storyroll.util;
 
@@ -28,16 +14,20 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
+import android.util.Config;
 import android.util.Log;
 
 import com.storyroll.R;
 import com.androidquery.util.AQUtility;
 import com.storyroll.MainApplication;
 import com.storyroll.base.Constants;
+import com.storyroll.enums.AutostartMode;
+import com.storyroll.enums.ServerPreference;
 
 
 public class PrefUtility {
 
+	private static final String LOGTAG = "PrefUtility";
 	private static SharedPreferences pref;
 	
 	public static SharedPreferences getPref(){
@@ -104,8 +94,10 @@ public class PrefUtility {
 		String key = cls.getName();
 		
 		T result = (T) enums.get(key);
+		Log.v(LOGTAG, "enums[key]=="+result);
 		if(result == null){
 			result = PrefUtility.getPrefEnum(cls, defaultValue);
+			Log.v(LOGTAG, "getPrefEnum[key]=="+result);
 			enums.put(key, result);
 		}
 		
@@ -200,6 +192,16 @@ public class PrefUtility {
 	public static AutostartMode getAutostartMode() {
 		AutostartMode am = PrefUtility.getEnum(AutostartMode.class, AutostartMode.WIFI);
 		return am;
+	}
+	
+	public static String getApiUrl() {
+		ServerPreference sp = PrefUtility.getEnum(ServerPreference.class, ServerPreference.AWS);
+		Log.v(LOGTAG, "sp=="+sp.toString());
+		String s = Constants.API_URL_AWS;
+		if (sp.equals(ServerPreference.STAGING)) {
+			s = Constants.API_URL_STAGING;
+		}
+		return s;
 	}
 	
 	public static String getUuid() {

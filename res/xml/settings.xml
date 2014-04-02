@@ -43,7 +43,7 @@
         -->
 
 		<com.storyroll.ui.SummaryListPreference 
-		    android:key="com.storyroll.util.AutostartMode"
+		    android:key="com.storyroll.enums.AutostartMode"
 		    android:title="Video Autostart"
             android:summary="Automatically start videos: %s"
 		    android:entries="@array/autostart_pref_items"
@@ -90,7 +90,14 @@
 	        android:summary="@string/report_problem_sum" 
 		/>
         
-        
+        <com.storyroll.ui.SummaryListPreference 
+		    android:key="com.storyroll.enums.ServerPreference"
+		    android:title="Server Selection"
+            android:summary="Server: %s"
+		    android:entries="@array/server_pref_items"
+		    android:entryValues="@array/server_pref_values"
+		    android:defaultValue="AWS"
+            android:dialogTitle="Server Selection" />
         
         
         

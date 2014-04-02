@@ -21,6 +21,7 @@ import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
 import com.storyroll.util.AppUtility;
+import com.storyroll.util.PrefUtility;
 import com.storyroll.util.PushTester;
 import com.storyroll.util.SystemUiHider;
 
@@ -89,7 +90,7 @@ public class LaunchActivity extends BaseActivity {
 		
 		// update loggedIn flag - in case user was deleted
 		if (isLoggedIn()) {
-			String apiUrl = AppUtility.API_URL + "hasUser?uuid="+getUuid();
+			String apiUrl = PrefUtility.getApiUrl() + "hasUser?uuid="+getUuid();
 			aq.progress(R.id.progressMarker).ajax(apiUrl, JSONObject.class, this, "hasUserCb");
 		}
 		else {

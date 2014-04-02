@@ -50,6 +50,7 @@ import com.storyroll.util.AppUtility;
 import com.storyroll.util.CameraUtility;
 import com.storyroll.util.DataUtility;
 import com.storyroll.util.ErrorUtility;
+import com.storyroll.util.PrefUtility;
 
 public class VideoCaptureActivity extends SwipeVideoActivity implements
 		SurfaceHolder.Callback, Button.OnClickListener, OnVideoTaskCompleted,  OnInfoListener {
@@ -173,7 +174,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 		// get story to join
 		progress.setVisibility(View.VISIBLE);
-		aq.ajax(AppUtility.API_URL+"getStoryToJoin?uuid="+getUuid(), JSONObject.class, this, "getStoryToJoinCb");
+		aq.ajax(PrefUtility.getApiUrl()+"getStoryToJoin?uuid="+getUuid(), JSONObject.class, this, "getStoryToJoinCb");
 		
 	}
 
@@ -223,7 +224,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			}
 			
 			// join (lock) the story
-			aq.ajax(AppUtility.API_URL+"joinStory?uuid="+getUuid()+"&story="+storyId, JSONObject.class, this, "joinStoryCb");
+			aq.ajax(PrefUtility.getApiUrl()+"joinStory?uuid="+getUuid()+"&story="+storyId, JSONObject.class, this, "joinStoryCb");
 		} 
 		catch (JSONException e) 
 		{
@@ -257,7 +258,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         	if (lastFragment!=null) {
 		   		try {
 		   			// start a story fragment preload task
-					String fragmentApiUrl = AppUtility.API_URL+"fragmentFile?fragment="+lastFragment.getInt("id");
+					String fragmentApiUrl = PrefUtility.getApiUrl()+"fragmentFile?fragment="+lastFragment.getInt("id");
 			   		VideoDownloadTask task = new VideoDownloadTask(getApplicationContext(), this);
 			   		task.execute(fragmentApiUrl);
 				} catch (JSONException e) {
@@ -640,7 +641,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		params.put("uuid", getUuid());
 		params.put("story", storyId);
 		
-		aq.ajax(AppUtility.API_URL+"addFragment", params, JSONObject.class, VideoCaptureActivity.this, "videoUploadCb").progress(R.id.progress);
+		aq.ajax(PrefUtility.getApiUrl()+"addFragment", params, JSONObject.class, VideoCaptureActivity.this, "videoUploadCb").progress(R.id.progress);
 	}
 	  
 	boolean isUploading = false;
@@ -654,7 +655,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		
 		switch (lastState) {
 		case STATE_NO_STORY:
-			aq.ajax(AppUtility.API_URL+"startStory?uuid="+getUuid(), JSONObject.class, this, "startStoryCb").progress(progress);
+			aq.ajax(PrefUtility.getApiUrl()+"startStory?uuid="+getUuid(), JSONObject.class, this, "startStoryCb").progress(progress);
 			break;
 		case STATE_PREV_LAST:
 			// stop previewing last fragment
@@ -983,7 +984,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		// get new story to join
 		progress.setVisibility(View.VISIBLE);
 		// drop previous and join new story
-		aq.ajax(AppUtility.API_URL+"getStoryToJoin?uuid="+getUuid(), JSONObject.class, this, "getStoryToJoinCb");
+		aq.ajax(PrefUtility.getApiUrl()+"getStoryToJoin?uuid="+getUuid(), JSONObject.class, this, "getStoryToJoinCb");
 	}
 
 	@Override
