@@ -244,6 +244,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			// below will do all of the above
 			lastState = processAndSetNewState(STATE_PREV_LAST);
 		}
+		else {
+			// clean up after itself, and take next action. maybe retry?
+			progress.setVisibility(View.INVISIBLE);
+			Toast.makeText(this, "Error downloading fragment, please try later", Toast.LENGTH_SHORT).show();
+		}
 	}
 	
 	public void joinStoryCb(String url, JSONObject json, AjaxStatus status)
