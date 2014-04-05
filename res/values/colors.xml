@@ -4,14 +4,16 @@
 	<color name="ph">#FFEEEEEE</color>
    	<color name="fb">#3B5998</color>
    	
-   	<color name="sr_text_ab">#f5f3e6</color>
+   	<color name="sr_text_ab">#f5f3e4</color>
    	
-	<color name="sr_bg">#f5f3e6</color>
+	<color name="sr_bg">#f5f3e4</color>
 	<color name="sr_bg_splash">#78b0c6</color>
 <!-- 	<color name="sr_bg_actionbar">#569bb8</color>
  -->	
  	<color name="sr_bg_actionbar">#569bb8</color>
- 	<color name="sr_bg_cast">#ffffff</color>
+ 	<color name="sr_bg_cast">#f5f3e4</color>
+ 	<color name="sr_cast_text">#464646</color>
+ 	<color name="sr_bg_separator">#C6C6C6</color>
 	
 	<color name="sr_bg_vidcap">#303030</color>
 	<color name="sr_vidcap_ctrl_text">#ebe8c9</color>

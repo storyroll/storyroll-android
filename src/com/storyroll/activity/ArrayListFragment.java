@@ -36,6 +36,7 @@ import com.storyroll.enums.AutostartMode;
 import com.storyroll.model.Story;
 import com.storyroll.ui.ControlledVideoView;
 import com.storyroll.ui.PlaylistItemView;
+import com.storyroll.ui.RoundedImageView;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.NetworkUtility;
@@ -444,7 +445,7 @@ public class ArrayListFragment extends ListFragment {
 
 			if (story.getCast()!=null) {
 				for (int i=0; i<story.getCast().length; i++) {
-					ImageView castImage = (ImageView) rowView.findViewById(PlaylistItemView.castIds[i]);
+					RoundedImageView castImage = (RoundedImageView) rowView.findViewById(PlaylistItemView.castIds[i]);
 					aq.id(castImage).image(PrefUtility.getApiUrl()+"avatar?uuid="+story.getCast()[i], true, false, 0, R.drawable.ic_avatar_default);
 				}
 			}
