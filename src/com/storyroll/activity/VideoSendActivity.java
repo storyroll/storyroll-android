@@ -53,8 +53,8 @@ public class VideoSendActivity extends MenuActivity {
     	lp.height = screenWidth;
     	upMsg.setLayoutParams(lp);
 
-		aq.id(R.id.redButtonText).text(R.string.again);
-		aq.id(R.id.redButton).clicked(this, "againClickedCb");
+    	aq.id(R.id.btnOK).visibility(View.VISIBLE);
+		aq.id(R.id.btnOK).clicked(this, "againClickedCb");
 		aq.id(R.id.btnClose).clicked(this, "closeClickedCb");
 	}
 	

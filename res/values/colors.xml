@@ -17,7 +17,8 @@
 	
 	<color name="sr_bg_vidcap">#303030</color>
 	<color name="sr_vidcap_ctrl_text">#ebe8c9</color>
-	<color name="sr_vidcap_capture_text">#a1a2a6</color>
+	<color name="sr_vidcap_capture_text">#ffffff</color>
+	<color name="sr_bg_vidcap_capture_text">#569bb8</color>
 	<color name="sr_video_uploaded_text">#ebe8c7</color>
 	
 	<color name="sr_bg_rec_button">#ce3c3d</color>

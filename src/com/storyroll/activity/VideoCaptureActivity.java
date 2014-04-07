@@ -54,7 +54,7 @@ import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.PrefUtility;
 
 public class VideoCaptureActivity extends SwipeVideoActivity implements
-		SurfaceHolder.Callback, Button.OnClickListener, OnVideoTaskCompleted,  OnInfoListener {
+		SurfaceHolder.Callback, OnVideoTaskCompleted,  OnInfoListener {
 
 	public static final String LOGTAG = "VIDEOCAPTURE";
 	private static final String SCREEN_NAME = "VideoCapture";
@@ -75,9 +75,10 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 	SurfaceHolder previewHolder = null;
 	Button rotateButton;
-	ImageButton btnClose, btnBack;
-	View redButton, redButtonCircle;
-	TextView redButtonText, videocapReadyMessage, startStoryMessage;
+	ImageButton btnClose, btnBack, btnOK, btnCamera;
+//	View redButton, redButtonCircle;
+	
+	TextView videocapReadyMessage, startStoryMessage;
 	ImageView counterOverlay, sliderOverlay, controlClose, controlBack;
 	ProgressBar progress, customRecProgress;
 
@@ -96,9 +97,6 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	public static final int STATE_PREV_NEW = 4;
 	public static final int STATE_UPLOAD = 5;
 	public static final int STATE_UPLOAD_FAIL = 6;
-		
-	private static final boolean BUTTON_RED=false;
-	private static final boolean BUTTON_YELLOW=true;
 
 	private int lastState = STATE_NO_STORY;
 	private Integer storyId;
@@ -158,27 +156,26 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 		previewHolder.addCallback(this);
 
-		redButton = findViewById(R.id.redButton);
-		redButton.setOnClickListener(this);
-		redButtonText = (TextView)findViewById(R.id.redButtonText);
-		redButtonCircle = findViewById(R.id.redButtonCircle);
+//		redButton = findViewById(R.id.redButton);
+//		redButton.setOnClickListener(this);
+//		redButtonText = (TextView)findViewById(R.id.redButtonText);
+//		redButtonCircle = findViewById(R.id.redButtonCircle);
+		
+		btnOK = (ImageButton)findViewById(R.id.btnOK);
+		btnCamera = (ImageButton)findViewById(R.id.btnCamera);
+		aq.id(R.id.btnOK).clicked(this, "workflowClickedCb");
+		aq.id(R.id.btnCamera).clicked(this, "workflowClickedCb");
+		
 		videocapReadyMessage = (TextView)findViewById(R.id.videocapReadyMessage);
 		startStoryMessage = (TextView)findViewById(R.id.startStoryMessage);
 		
-//		btnBack = aq.id(R.id.btnBack).getImageButton();
 		btnBack = (ImageButton)findViewById(R.id.btnBack);
-		btnBack.setOnClickListener(new BackAndCloseClickListener());
-		
-//		btnClose = aq.id(R.id.btnClose).getButton();
 		btnClose = (ImageButton)findViewById(R.id.btnClose);
-
-		btnClose.setOnClickListener(new BackAndCloseClickListener());
+		aq.id(R.id.btnBack).clicked(this, "backAndCloseClickedCb");
+		aq.id(R.id.btnClose).clicked(this, "backAndCloseClickedCb");
 		
-		rotateButton = (Button)findViewById(R.id.rotateButton);
-
-		if(Camera.getNumberOfCameras() > 1){
-			rotateButton.setOnClickListener(new SwitchCameraClickListener());
-		}
+		rotateButton = aq.id(R.id.rotateButton).getButton();
+		aq.id(R.id.rotateButton).clicked(this, "switchCameraClickedCb");
 
 		// get story to join
 		progress.setVisibility(View.VISIBLE);
@@ -387,19 +384,17 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			videoView.setVisibility(View.INVISIBLE);
 			btnBack.setVisibility(View.GONE);
 			btnClose.setVisibility(View.VISIBLE);
-    		redButton.setEnabled(true);
+    		btnOK.setVisibility(View.VISIBLE);
 			break;
 		case STATE_PREV_LAST:
 			progress.setVisibility(View.INVISIBLE);
-			redButton.setEnabled(true);
+			btnOK.setVisibility(View.VISIBLE);
 			btnBack.setVisibility(View.GONE);
 			btnClose.setVisibility(View.VISIBLE);
 
 //			surfaceView.setVisibility(View.VISIBLE);
 			videocapReadyMessage.setVisibility(View.VISIBLE);
-			redButtonText.setText(R.string.ready);
-
-			Log.v(LOGTAG, "animation start");
+			
 			sliderAnimateRightToLeft(sliderOverlay);
 			
 			// start previewing last fragment
@@ -426,8 +421,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 				rotateButton.setVisibility(View.VISIBLE);
 			}
 			
-			setRedButtonState(BUTTON_RED);
-			redButtonText.setText(R.string.record);
+			btnOK.setVisibility(View.GONE);
+			btnCamera.setVisibility(View.VISIBLE);
 			
 			// only show back button if not starting a new story
 			if (lastFragmentPath!=null){
@@ -442,7 +437,10 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		case STATE_REC:
 			btnBack.setVisibility(View.INVISIBLE);
 			btnClose.setVisibility(View.GONE);
-			redButton.setVisibility(View.INVISIBLE);
+			
+			btnOK.setVisibility(View.GONE);
+			btnCamera.setVisibility(View.GONE);
+			
 			rotateButton.setVisibility(View.INVISIBLE);
 			customRecProgress.setProgress(0);
 			customRecProgress.setVisibility(View.VISIBLE);
@@ -507,8 +505,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			videoView.start();
 			btnClose.setVisibility(View.GONE);
 			btnBack.setVisibility(View.VISIBLE);
-			redButton.setVisibility(View.VISIBLE);
-			redButtonText.setText("UPLOAD");
+			
+			btnCamera.setVisibility(View.INVISIBLE);
+			btnOK.setVisibility(View.VISIBLE);
 			
 			break;
 		case STATE_UPLOAD:
@@ -530,8 +529,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	
 	private void sliderAnimateRightToLeft(ImageView v) {
 		v.setVisibility(View.VISIBLE);
-		TranslateAnimation animation = new TranslateAnimation(0.0f, -v.getWidth(), 0.0f, 0.0f);
-		animation.setDuration(1400);
+		TranslateAnimation animation = new TranslateAnimation(0.0f, -v.getWidth()*4, 0.0f, 0.0f);
+		animation.setDuration(1000);
 		animation.setRepeatCount(1);
 		animation.setRepeatMode(Animation.RESTART);
 		animation.setFillAfter(false);
@@ -564,18 +563,6 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         		counterOverlay.setVisibility(View.INVISIBLE);
         	}
         ;}
-	}
-	
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-	private void setRedButtonState(boolean isDefault) {
-		if (isDefault) {
-			redButtonCircle.setBackground(getResources().getDrawable(R.drawable.circle_flash));
-    		redButtonText.setTextColor(getResources().getColor(R.color.sr_text_rec_button_flash));
-		}
-		else {
-			redButtonCircle.setBackground(getResources().getDrawable(R.drawable.circle));
-    		redButtonText.setTextColor(getResources().getColor(R.color.sr_vidcap_ctrl_text));
-		}
 	}
 	
 	private class RecordStarter implements Runnable{
@@ -679,10 +666,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private boolean cancelUpload = false;
 
 	
-	// RED-YELLOW CONTROL button click handler
-	
-	@Override
-	public void onClick(View v) 
+	// WORKFLOW CONTROL button click handler
+	public void workflowClickedCb() 
 	{
 		fireGAnalyticsEvent("ui_action", "controll_button_from_state", DataUtility.stateStr(lastState), null);
 		
@@ -704,8 +689,6 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			break;
 			
 		case STATE_PREV_CAM:
-			// restore button to initial
-			setRedButtonState(BUTTON_YELLOW);
 			// START RECORDING
 			lastState = processAndSetNewState(STATE_REC);
 			break;
@@ -724,112 +707,103 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			BugSenseHandler.sendException(new RuntimeException("Undefined state for Controll "+lastState));
 			Log.e(LOGTAG, "control switch in undefined state "+lastState);
 			break;
-		}
-		
+			}
 	}
 
 	// "BACK" button control
-	class BackAndCloseClickListener implements Button.OnClickListener {
-		
-		@Override
-		public void onClick(View v) {
-			fireGAnalyticsEvent("ui_action", "back_button_from_state", DataUtility.stateStr(lastState), null);
+	public void backAndCloseClickedCb() 
+	{
+		fireGAnalyticsEvent("ui_action", "back_button_from_state", DataUtility.stateStr(lastState), null);
 
-			Intent intent;
-			switch (lastState) {
-			case STATE_PREV_LAST:
-			case STATE_INITIAL:
-				// return to the last used playlist
-				intent = new Intent(VideoCaptureActivity.this, AppUtility.ACTIVITY_HOME);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-				
-				break;
-			case STATE_PREV_CAM:
-				// restore button color
-				setRedButtonState(BUTTON_YELLOW);
-				if (lastFragmentPath!=null)
-				{
-					// stop camera preview and return to last fragment review
-					surfaceView.setVisibility(View.INVISIBLE);
-					videoView.setVisibility(View.VISIBLE);
-				}
-				rotateButton.setVisibility(View.INVISIBLE);
-				lastState = processAndSetNewState(STATE_PREV_LAST);
-				
-				break;
-			case STATE_REC:
-				// stop recording
-				recorder.stop();
-				Log.v(LOGTAG, "Recording Stopped");
-
-				releaseMediaRecorder();
+		Intent intent;
+		switch (lastState) {
+		case STATE_PREV_LAST:
+		case STATE_INITIAL:
+			// return to the last used playlist
+			intent = new Intent(VideoCaptureActivity.this, AppUtility.ACTIVITY_HOME);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			
+			break;
+		case STATE_PREV_CAM:
+			// restore button color
+			if (lastFragmentPath!=null)
+			{
+				// stop camera preview and return to last fragment review
 				surfaceView.setVisibility(View.INVISIBLE);
-				
-				lastState = processAndSetNewState(STATE_PREV_CAM);
-
-				break;
-			case STATE_PREV_NEW:
-				// Stop previewing NEW fragment
-				videoView.stopPlayback();
-				videoView.setVisibility(View.INVISIBLE);
-
-				// return to camera preview
-				lastState = processAndSetNewState(STATE_PREV_CAM);
-
-				break;
-			case STATE_UPLOAD:
-				cancelUpload  = true;
-				
-				lastState = processAndSetNewState(STATE_PREV_NEW);
-				break;
-			default:
-				Log.e(LOGTAG, "back pressed while in undefined state "+lastState);
-				BugSenseHandler.sendException(new RuntimeException("Undefined state for Back "+lastState));
-				break;
+				videoView.setVisibility(View.VISIBLE);
 			}
+			rotateButton.setVisibility(View.INVISIBLE);
+			lastState = processAndSetNewState(STATE_PREV_LAST);
+			
+			break;
+		case STATE_REC:
+			// stop recording
+			recorder.stop();
+			Log.v(LOGTAG, "Recording Stopped");
 
+			releaseMediaRecorder();
+			surfaceView.setVisibility(View.INVISIBLE);
+			
+			lastState = processAndSetNewState(STATE_PREV_CAM);
+
+			break;
+		case STATE_PREV_NEW:
+			// Stop previewing NEW fragment
+			videoView.stopPlayback();
+			videoView.setVisibility(View.INVISIBLE);
+
+			// return to camera preview
+			lastState = processAndSetNewState(STATE_PREV_CAM);
+
+			break;
+		case STATE_UPLOAD:
+			cancelUpload  = true;
+			
+			lastState = processAndSetNewState(STATE_PREV_NEW);
+			break;
+		default:
+			Log.e(LOGTAG, "back pressed while in undefined state "+lastState);
+			BugSenseHandler.sendException(new RuntimeException("Undefined state for Back "+lastState));
+			break;
 		}
 	}
 	
 	// "SWITCH CAMERA" button control
-	class SwitchCameraClickListener implements Button.OnClickListener {
-		
-		@Override
-		public void onClick(View v) {
-			fireGAnalyticsEvent("ui_action", "touch", "switchCamera", null);
+	public void switchCameraClickedCb() {
 
-			if (lastState==STATE_PREV_CAM) {
-				Log.d(LOGTAG, "change camera");
-				// todo: rotate
-				if (lastState == STATE_PREV_CAM) {
-			        camera.stopPreview();
-			    }
-				//NB: if you don't release the current camera before switching, you app will crash
-			    camera.release();
-			    //swap the id of the camera to be used
-			    currentCameraId++;
-			    if (currentCameraId >= Camera.getNumberOfCameras())
-			    	currentCameraId = 0;
+		fireGAnalyticsEvent("ui_action", "touch", "switchCamera", null);
+
+		if (lastState==STATE_PREV_CAM) {
+			Log.d(LOGTAG, "change camera");
+			// todo: rotate
+			if (lastState == STATE_PREV_CAM) {
+		        camera.stopPreview();
+		    }
+			//NB: if you don't release the current camera before switching, you app will crash
+		    camera.release();
+		    //swap the id of the camera to be used
+		    currentCameraId++;
+		    if (currentCameraId >= Camera.getNumberOfCameras())
+		    	currentCameraId = 0;
 //			    if(currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
 //			        currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
 //			    }
 //			    else {
 //			        currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
 //			    }
-			    camera = getCameraInstance();
-			    try {
-			        //this step is critical or preview on new camera will not know where to render to
-			        camera.setPreviewDisplay(previewHolder);
-			    } catch (IOException e) {
-			        e.printStackTrace();
-			        camera.release();
-					camera = null;
-			    }
-			    camera.startPreview();
-			}
-				
-		}	
+		    camera = getCameraInstance();
+		    try {
+		        //this step is critical or preview on new camera will not know where to render to
+		        camera.setPreviewDisplay(previewHolder);
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		        camera.release();
+				camera = null;
+		    }
+		    camera.startPreview();
+		}
+			
 	}
 	
 	// SurfaceHolder.Callback

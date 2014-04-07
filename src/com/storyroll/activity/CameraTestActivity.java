@@ -79,12 +79,6 @@ public class CameraTestActivity extends Activity {
         camera.startPreview();
 
 		
-		redButton = findViewById(R.id.redButton);
-		redButtonText = (TextView)findViewById(R.id.redButtonText);
-		redButtonCircle = findViewById(R.id.redButtonCircle);
-		
-		
-		
 //		if (previewHolder == null) {
 //			previewHolder = surfaceView.getHolder();
 //		}

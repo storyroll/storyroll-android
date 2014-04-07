@@ -114,8 +114,10 @@
 	        android:visibility="invisible"
 	        android:src="@drawable/ic_swipe"
 	        android:layout_alignParentRight="true"
+	        android:layout_alignParentTop="true"
 	        android:layout_centerVertical="true"
 	        android:alpha="0.5"
+	        android:layout_marginTop="100dp"
 	        />
 	</RelativeLayout>
 	
@@ -134,8 +136,9 @@
 	        android:textColor="@color/sr_vidcap_capture_text"
 	        android:layout_gravity="bottom"
 	        android:gravity="center"
-	        android:background="#BFce3c3d"
+	        android:background="@color/sr_bg_vidcap_capture_text"
 	        android:visibility="invisible"
+	        android:layout_marginBottom="24dp"
 	        />
 	</com.storyroll.ui.SquarePane>    
     
@@ -146,30 +149,28 @@
         android:background="@color/sr_bg_vidcap"
         custom:substractHeight="@dimen/custom_progressbar_height">
 	    
-	    <FrameLayout
-	        android:id="@+id/redButton"
-	        android:layout_gravity="center"
-	        android:layout_width="100dp"
-	    	android:layout_height="100dp"
-	    	android:padding="10dp">
-	       <View
-	        android:id="@+id/redButtonCircle"
-	    	android:scaleType="fitCenter"
-	    	android:background="@drawable/circle_flash"
-	    	android:layout_height="fill_parent"
-	        android:layout_width="fill_parent"
-	    	/>
-	        <TextView
-	            android:id="@+id/redButtonText"
-		        android:textSize="18sp"
-		        android:textColor="@color/sr_text_rec_button_flash"
-		        android:textStyle="bold"
-		        android:layout_height="fill_parent"
-		        android:layout_width="fill_parent"
-		        android:gravity="center"
-		        android:text="@string/ready"
-	        />
-	    </FrameLayout>
+		<ImageButton
+	        android:id="@+id/btnCamera"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:visibility="invisible"
+	        android:layout_marginLeft="10dp"
+	        android:src="@drawable/btn_round_camera"
+	        android:background="@null"
+	        android:layout_marginTop="10dp"
+	        android:layout_gravity="center_horizontal"
+	    />
+		<ImageButton
+	        android:id="@+id/btnOK"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:visibility="invisible"
+	        android:layout_marginLeft="10dp"
+	        android:src="@drawable/btn_round_ok"
+	        android:background="@null"
+	        android:layout_marginTop="10dp"
+	        android:layout_gravity="center_horizontal"
+        />
   
     </com.storyroll.ui.BottomPane>
 
