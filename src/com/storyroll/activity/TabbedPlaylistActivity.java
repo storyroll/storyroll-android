@@ -176,7 +176,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
     public void onStart(){
     	super.onStart();
 		// show help
-		DialogUtility.showHelpOverlay(this);
+//		DialogUtility.showHelpOverlay(this);
     }
     
 //    private void resetNewStoriesSet(int[] stories) {

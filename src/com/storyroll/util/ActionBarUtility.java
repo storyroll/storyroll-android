@@ -6,6 +6,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActionBar.LayoutParams;
 import android.content.res.Resources;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -13,6 +14,8 @@ import android.view.ViewConfiguration;
 import com.storyroll.R;
 
 public class ActionBarUtility {
+
+	private static final String LOGTAG = "ActionBarUtility";
 
 	public static void initCustomActionBar(Activity activity, boolean homeButtonEnabled) {
 
@@ -31,16 +34,19 @@ public class ActionBarUtility {
         actionBar.setDisplayUseLogoEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
         
+        // force overflow menu key?
         try {
         	  ViewConfiguration config = ViewConfiguration.get(activity);
         	  Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-
-        	  if (menuKeyField != null) {
+        	  Log.v(LOGTAG, "sHasPermanentMenuKey: "+menuKeyField);
+        	  if (menuKeyField != null) 
+        	  {
         	    menuKeyField.setAccessible(true);
         	    menuKeyField.setBoolean(config, false);
         	  }
         	}
-        	catch (Exception e) {
+        	catch (Exception e) 
+        	{
         	  // presumably, not relevant
         	}
         }
