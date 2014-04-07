@@ -40,16 +40,33 @@ public class BaseActivity extends Activity {
 	    isTrial = getIntent().getBooleanExtra("TRIAL", false);
 	}
 	
+//    @Override
+//	protected void onDestroy(){
+//    	
+//    	super.onDestroy();
+//    	aq.dismiss();
+//    	
+//    	if(isTaskRoot()){
+//    		AQUtility.cleanCacheAsync(this);
+//    	}
+//    	
+//    }
+    
     @Override
 	protected void onDestroy(){
-    	
-    	super.onDestroy();
-    	aq.dismiss();
-    	
-    	if(isTaskRoot()){
-    		AQUtility.cleanCacheAsync(this);
-    	}
-    	
+        
+        super.onDestroy();
+        aq.dismiss();
+        
+        if(isTaskRoot())
+        {
+        	Log.i(LOGTAG, "cache cleanup");
+            //clean the file cache with advance option
+            long triggerSize = 3000000; //starts cleaning when cache size is larger than 3M
+            long targetSize = 2000000;      //remove the least recently used files until cache size is less than 2M
+            AQUtility.cleanCacheAsync(this, triggerSize, targetSize);
+        }
+        
     }
     
     @Override

@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -73,10 +74,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private VideoView videoView;
 
 	SurfaceHolder previewHolder = null;
-	Button rotateButton, backButton;
+	Button rotateButton;
+	ImageButton btnClose, btnBack;
 	View redButton, redButtonCircle;
 	TextView redButtonText, videocapReadyMessage, startStoryMessage;
-	ImageView counterOverlay, sliderOverlay;
+	ImageView counterOverlay, sliderOverlay, controlClose, controlBack;
 	ProgressBar progress, customRecProgress;
 
 	MediaRecorder recorder;
@@ -121,7 +123,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //        getWindow().setFlags(
 //				WindowManager.LayoutParams.FLAG_FULLSCREEN,
 //				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//        getActionBar().hide();
+        getActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		surfaceView = (SurfaceView) findViewById(R.id.cameraView);
@@ -163,8 +165,14 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		videocapReadyMessage = (TextView)findViewById(R.id.videocapReadyMessage);
 		startStoryMessage = (TextView)findViewById(R.id.startStoryMessage);
 		
-		backButton = aq.id(R.id.backButton).getButton();
-		backButton.setOnClickListener(new BackClickListener());
+//		btnBack = aq.id(R.id.btnBack).getImageButton();
+		btnBack = (ImageButton)findViewById(R.id.btnBack);
+		btnBack.setOnClickListener(new BackAndCloseClickListener());
+		
+//		btnClose = aq.id(R.id.btnClose).getButton();
+		btnClose = (ImageButton)findViewById(R.id.btnClose);
+
+		btnClose.setOnClickListener(new BackAndCloseClickListener());
 		
 		rotateButton = (Button)findViewById(R.id.rotateButton);
 
@@ -315,7 +323,13 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         
     	fireGAnalyticsEvent("fragment_workflow", "videoUpload", json==null?"fail":"success", null);
     	
-    	if (isAjaxErrorThenReport(status)) {
+    	if (cancelUpload) {
+    		// do nothing
+    		cancelUpload = false;
+    		Log.v(LOGTAG, "cancelUpload is true, upload response ignored (cleanup needed?)"); // TODO
+    		return;
+    	}
+    	else if (isAjaxErrorThenReport(status)) {
     		Toast.makeText(this, "Error uploading fragment, please try again", Toast.LENGTH_SHORT).show();
     		processAndSetNewState(STATE_UPLOAD_FAIL);
     		return;
@@ -348,7 +362,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         	apiError(LOGTAG, "Could not upload the fragment, try again.", status, true, Log.ERROR);
 
         	// restore state
-			lastState = STATE_PREV_NEW;
+        	processAndSetNewState(STATE_PREV_NEW);
+//			lastState = STATE_PREV_NEW;
         }
 	}
 
@@ -361,7 +376,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			progress.setVisibility(View.INVISIBLE);
 			startStoryMessage.setVisibility(View.VISIBLE);
 			videoView.setVisibility(View.INVISIBLE);
-			backButton.setVisibility(View.GONE);
+			btnBack.setVisibility(View.GONE);
+			btnClose.setVisibility(View.VISIBLE);
 			break;
 			
 		case STATE_INITIAL:
@@ -369,13 +385,15 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			progress.setVisibility(View.INVISIBLE);
 			startStoryMessage.setVisibility(View.VISIBLE);
 			videoView.setVisibility(View.INVISIBLE);
-			backButton.setVisibility(View.GONE);
+			btnBack.setVisibility(View.GONE);
+			btnClose.setVisibility(View.VISIBLE);
     		redButton.setEnabled(true);
 			break;
 		case STATE_PREV_LAST:
 			progress.setVisibility(View.INVISIBLE);
 			redButton.setEnabled(true);
-			backButton.setVisibility(View.GONE);
+			btnBack.setVisibility(View.GONE);
+			btnClose.setVisibility(View.VISIBLE);
 
 //			surfaceView.setVisibility(View.VISIBLE);
 			videocapReadyMessage.setVisibility(View.VISIBLE);
@@ -413,14 +431,17 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			
 			// only show back button if not starting a new story
 			if (lastFragmentPath!=null){
-				backButton.setVisibility(View.VISIBLE);
+				btnClose.setVisibility(View.GONE);
+				btnBack.setVisibility(View.VISIBLE);
 			}
 			else {
-				backButton.setVisibility(View.INVISIBLE);
+				btnClose.setVisibility(View.VISIBLE);
+				btnBack.setVisibility(View.INVISIBLE);
 			}
 			break;
 		case STATE_REC:
-			backButton.setVisibility(View.INVISIBLE);
+			btnBack.setVisibility(View.INVISIBLE);
+			btnClose.setVisibility(View.GONE);
 			redButton.setVisibility(View.INVISIBLE);
 			rotateButton.setVisibility(View.INVISIBLE);
 			customRecProgress.setProgress(0);
@@ -437,6 +458,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //			backButton.setVisibility(View.INVISIBLE);
 			break;
 		case STATE_PREV_NEW:
+			progress.setVisibility(View.GONE);
 			if (lastFragmentPath==null) {
 				// switch new fragment preview on
 				videoView.setVideoPath(CameraUtility.getNewFragmentFilePath(this));
@@ -483,7 +505,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			
 			videoView.setVisibility(View.VISIBLE);
 			videoView.start();
-			backButton.setVisibility(View.VISIBLE);
+			btnClose.setVisibility(View.GONE);
+			btnBack.setVisibility(View.VISIBLE);
 			redButton.setVisibility(View.VISIBLE);
 			redButtonText.setText("UPLOAD");
 			
@@ -495,7 +518,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		case STATE_UPLOAD_FAIL:
 			progress.setVisibility(View.INVISIBLE);
 			isUploading = false;
-			backButton.setVisibility(View.VISIBLE);			
+			btnBack.setVisibility(View.VISIBLE);
+			btnClose.setVisibility(View.GONE);
 			break;
 		default:
 			Log.w(LOGTAG, "change state not implemented: "+newState);
@@ -636,7 +660,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	  
 	public void doUpload(String filePath){
 		isUploading = true;
-		backButton.setVisibility(View.INVISIBLE);
+		cancelUpload = false;
+		btnBack.setVisibility(View.INVISIBLE);
+		btnClose.setVisibility(View.VISIBLE);
 		progress.setVisibility(View.VISIBLE);
 		
 		File file = new File(filePath);
@@ -649,13 +675,15 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		aq.ajax(PrefUtility.getApiUrl()+"addFragment", params, JSONObject.class, VideoCaptureActivity.this, "videoUploadCb").progress(R.id.progress);
 	}
 	  
-	boolean isUploading = false;
+	private boolean isUploading = false;
+	private boolean cancelUpload = false;
 
 	
 	// RED-YELLOW CONTROL button click handler
 	
 	@Override
-	public void onClick(View v) {
+	public void onClick(View v) 
+	{
 		fireGAnalyticsEvent("ui_action", "controll_button_from_state", DataUtility.stateStr(lastState), null);
 		
 		switch (lastState) {
@@ -701,7 +729,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	}
 
 	// "BACK" button control
-	class BackClickListener implements Button.OnClickListener {
+	class BackAndCloseClickListener implements Button.OnClickListener {
 		
 		@Override
 		public void onClick(View v) {
@@ -750,7 +778,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 				lastState = processAndSetNewState(STATE_PREV_CAM);
 
 				break;
-
+			case STATE_UPLOAD:
+				cancelUpload  = true;
+				
+				lastState = processAndSetNewState(STATE_PREV_NEW);
+				break;
 			default:
 				Log.e(LOGTAG, "back pressed while in undefined state "+lastState);
 				BugSenseHandler.sendException(new RuntimeException("Undefined state for Back "+lastState));

@@ -34,13 +34,15 @@ public class VideoSendActivity extends MenuActivity {
 //		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 //				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-//		getActionBar().hide();
+		getActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		
 		aq.id(R.id.videoPlayerView).visibility(View.INVISIBLE);
 		aq.id(R.id.videocapReadyMessage).visibility(View.INVISIBLE);
-		aq.id(R.id.backButton).visibility(View.INVISIBLE);
+		aq.id(R.id.btnBack).visibility(View.INVISIBLE);
+		aq.id(R.id.btnClose).visibility(View.VISIBLE);
+		
 		
 		TextView upMsg = aq.id(R.id.videoUploadedMessage).getTextView();
 		upMsg.setVisibility(View.VISIBLE);
@@ -53,11 +55,7 @@ public class VideoSendActivity extends MenuActivity {
 
 		aq.id(R.id.redButtonText).text(R.string.again);
 		aq.id(R.id.redButton).clicked(this, "againClickedCb");
-		
-		// extract frame? using ffmpeg
-//		Bitmap bm = MediaUtils.getVideoFrame(getNewFragmentFilePath(), 1000);
-//		aq.id(R.id.preview).image(bm);
-   	
+		aq.id(R.id.btnClose).clicked(this, "closeClickedCb");
 	}
 	
 	public void againClickedCb(View view)
@@ -65,6 +63,15 @@ public class VideoSendActivity extends MenuActivity {
 		fireGAnalyticsEvent("ui_action", "touch", "againButton", null);
 		Intent intent = new Intent(getApplicationContext(), VideoCaptureActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+	}
+	
+	public void closeClickedCb(View view)
+	{
+		fireGAnalyticsEvent("ui_action", "touch", "closeButton", null);
+		// return to the last used playlist
+		Intent intent = new Intent(VideoSendActivity.this, AppUtility.ACTIVITY_HOME);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 	}
 

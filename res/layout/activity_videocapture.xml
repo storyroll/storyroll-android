@@ -16,7 +16,25 @@
 	    android:visibility="visible"
 	    android:layout_gravity="top"
 	    />
-	
+	<ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/ic_back"
+        android:background="@null"
+       />
+	<ImageButton
+        android:id="@+id/btnClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/ic_close"
+        android:background="@null"
+       />
+
     <RelativeLayout
         android:id="@+id/videoHolder"
         android:layout_width="fill_parent"
@@ -152,21 +170,7 @@
 		        android:text="@string/ready"
 	        />
 	    </FrameLayout>
-	    
-	    <Button
-	        android:id="@+id/backButton"
-	        android:background="@android:color/transparent" 
-	        android:layout_width="wrap_content"
-	        android:layout_height="match_parent"
-	        android:layout_gravity="left|center_vertical"
-	        android:textSize="100sp"
-	        android:textStyle="bold"
-	        android:textColor="#92917d"
-	        android:text="@string/sym_left"
-	        android:paddingLeft="50dp"
-	        android:visibility="invisible"
-        />
-	    
+  
     </com.storyroll.ui.BottomPane>
 
 </FrameLayout>
