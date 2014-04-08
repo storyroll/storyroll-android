@@ -6,6 +6,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.storyroll.R;
+import com.storyroll.activity.HelpActivity;
 import com.storyroll.activity.LoginActivity;
 import com.storyroll.activity.ProfileActivity;
 import com.storyroll.activity.SettingsActivity;
@@ -29,6 +30,10 @@ public class MenuActivity extends GcmActivity {
 	  Intent intent;
 	    if (item.getItemId() == R.id.action_join) {
 	    	onJoinPressed();
+			return true;
+		} else if (item.getItemId() == R.id.action_help) {
+			intent = new Intent (this, HelpActivity.class);
+			startActivity(intent);
 			return true;
 		} else if (item.getItemId() == R.id.action_profile) {
 			intent = new Intent (this, ProfileActivity.class);

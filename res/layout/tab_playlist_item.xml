@@ -87,35 +87,35 @@
 	
 	        <com.storyroll.ui.RoundedImageView
 	            android:id="@+id/cast1"
-	            android:layout_height="50dp"
-	            android:layout_width="50dp"
+	            android:layout_height="40dp"
+	            android:layout_width="40dp"
 	            android:visibility="gone"
-	            app:corner_radius="25dp"
+	            app:corner_radius="20dp"
 	            app:round_background="false"
 	            app:is_oval="true"
-	            android:layout_marginRight="5dp"
-	            android:layout_marginLeft="5dp"
+	            android:layout_marginRight="3dp"
+	            android:layout_marginLeft="3dp"
 	            />
 	        <com.storyroll.ui.RoundedImageView
 	            
 	            android:id="@+id/cast2"
-	            android:layout_height="50dp"
-	            android:layout_width="50dp"
+	            android:layout_height="40dp"
+	            android:layout_width="40dp"
 	            android:visibility="gone"
-	            app:corner_radius="25dp"
+	            app:corner_radius="20dp"
 	            app:round_background="false"
 	            app:is_oval="true"
-	          	android:layout_marginRight="5dp"
+	          	android:layout_marginRight="3dp"
 	            />
 	        <com.storyroll.ui.RoundedImageView
 	            android:id="@+id/cast3"
-	            android:layout_height="50dp"
-	            android:layout_width="50dp"
+	            android:layout_height="40dp"
+	            android:layout_width="40dp"
 	            android:visibility="gone"
-	            app:corner_radius="25dp"
+	            app:corner_radius="20dp"
 	            app:round_background="false"
 	            app:is_oval="true"
-	            android:layout_marginRight="5dp"
+	            android:layout_marginRight="3dp"
 
 	            />
 	        <!-- <ImageView

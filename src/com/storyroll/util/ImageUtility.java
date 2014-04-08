@@ -1,9 +1,17 @@
 package com.storyroll.util;
 
+import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
+import android.widget.ImageView;
+
 import com.androidquery.auth.FacebookHandle;
 import com.storyroll.model.Profile;
 
 public class ImageUtility {
+
+	private static final String LOGTAG = "ImageUtility";
 
 	public static String getFbProfileTb(FacebookHandle handle){
 		
@@ -23,4 +31,16 @@ public class ImageUtility {
 		return pic;
 	}
 
+	public static void sliderAnimateRightToLeft(ImageView v) 
+	{
+		Log.v(LOGTAG, "slider animation starts");
+		v.setVisibility(View.VISIBLE);
+		TranslateAnimation animation = new TranslateAnimation(0.0f, -v.getWidth()*4, 0.0f, 0.0f);
+		animation.setDuration(1000);
+		animation.setRepeatCount(1);
+		animation.setRepeatMode(Animation.RESTART);
+		animation.setFillAfter(false);
+		v.startAnimation(animation);
+		v.setVisibility(View.GONE);
+	}
 }

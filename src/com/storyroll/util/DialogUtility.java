@@ -340,8 +340,8 @@ public class DialogUtility {
         params.x = 0;
         params.y = 0;
         // If user taps anywhere on the screen, dialog will be cancelled.
-        helpOverlay.setCancelable(true);
-        helpOverlay.setCanceledOnTouchOutside(true);
+        helpOverlay.setCancelable(false);
+        helpOverlay.setCanceledOnTouchOutside(false);
         // Setting the content using prepared XML layout file.
         helpOverlay.setContentView(R.layout.help_overlay);
         helpOverlay.show();

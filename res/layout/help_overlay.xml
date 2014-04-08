@@ -2,38 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/helpOverlay" 
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical" 
     android:screenOrientation="portrait"
     android:visibility="visible"
     android:background="#eae8ca"
     android:alpha="0.9"
-    android:layout_marginTop="?android:attr/actionBarSize"
-    android:layout_marginBottom="?android:attr/actionBarSize"
     >
     <ImageView 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/help_arrow_up"
-        android:layout_weight="1"
-        android:layout_gravity="right"
+        android:scaleType="matrix"
+        android:src="@drawable/help_overlay_1"
         />
-    <TextView
-        android:id="@+id/helpText" 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/help_text"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@color/sr_text_messages"
-        android:layout_weight="1"
-        android:gravity="center"
-        />
-    <ImageView 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/help_arrow_down"
-        android:layout_weight="1"
-        android:layout_gravity="top"
-        />
+
 </LinearLayout>

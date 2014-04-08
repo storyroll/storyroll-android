@@ -51,6 +51,7 @@ import com.storyroll.util.AppUtility;
 import com.storyroll.util.CameraUtility;
 import com.storyroll.util.DataUtility;
 import com.storyroll.util.ErrorUtility;
+import com.storyroll.util.ImageUtility;
 import com.storyroll.util.PrefUtility;
 
 public class VideoCaptureActivity extends SwipeVideoActivity implements
@@ -375,6 +376,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			videoView.setVisibility(View.INVISIBLE);
 			btnBack.setVisibility(View.GONE);
 			btnClose.setVisibility(View.VISIBLE);
+			btnOK.setVisibility(View.VISIBLE);
 			break;
 			
 		case STATE_INITIAL:
@@ -395,7 +397,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //			surfaceView.setVisibility(View.VISIBLE);
 			videocapReadyMessage.setVisibility(View.VISIBLE);
 			
-			sliderAnimateRightToLeft(sliderOverlay);
+			ImageUtility.sliderAnimateRightToLeft(sliderOverlay);
 			
 			// start previewing last fragment
 			if (lastFragmentPath!=null) {
@@ -527,16 +529,6 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		return newState;
 	}
 	
-	private void sliderAnimateRightToLeft(ImageView v) {
-		v.setVisibility(View.VISIBLE);
-		TranslateAnimation animation = new TranslateAnimation(0.0f, -v.getWidth()*4, 0.0f, 0.0f);
-		animation.setDuration(1000);
-		animation.setRepeatCount(1);
-		animation.setRepeatMode(Animation.RESTART);
-		animation.setFillAfter(false);
-		v.startAnimation(animation);
-		v.setVisibility(View.GONE);
-	}
 
 	final ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100);
 	
@@ -717,6 +709,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 		Intent intent;
 		switch (lastState) {
+		case STATE_NO_STORY:
 		case STATE_PREV_LAST:
 		case STATE_INITIAL:
 			// return to the last used playlist

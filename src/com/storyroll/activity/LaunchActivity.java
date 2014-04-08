@@ -284,8 +284,10 @@ public class LaunchActivity extends BaseActivity {
 	private void nextAction() {
 		Log.d(LOGTAG, "proceed to next action");
 		isGone = true;
-		Intent intent = new Intent(getApplicationContext(), TabbedPlaylistActivity.class);
-        intent.putExtra("TRIAL", !isLoggedIn());
+//		Intent intent = new Intent(getApplicationContext(), TabbedPlaylistActivity.class);
+		Intent intent = new Intent(getApplicationContext(), HelpActivity.class);
+
+		intent.putExtra("TRIAL", !isLoggedIn());
         startActivity(intent);
 	}
 
