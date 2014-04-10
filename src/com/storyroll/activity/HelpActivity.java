@@ -9,9 +9,11 @@ import android.support.v4.view.ViewPager;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
 
 import com.storyroll.R;
+import com.storyroll.ui.AspectRatioImageView;
 import com.storyroll.util.ImageUtility;
 import com.viewpagerindicator.CirclePageIndicator;
 
@@ -68,11 +70,15 @@ public class HelpActivity extends FragmentActivity
 
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
-			ImageView imageView = new ImageView(context);
+			AspectRatioImageView imageView = new AspectRatioImageView(context);
 			int padding = 0;
 			imageView.setPadding(padding, padding, padding, padding);
-			imageView.setScaleType(ImageView.ScaleType.MATRIX);
+			imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 			imageView.setImageResource(HepSlideImages[position]);
+			
+			ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+			imageView.setLayoutParams(params);
+			imageView.setAdjustViewBounds(true);
 			if (position==HepSlideImages.length-1) {
 				imageView.setOnTouchListener(new View.OnTouchListener() {
 					
