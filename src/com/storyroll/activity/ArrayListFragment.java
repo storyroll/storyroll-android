@@ -56,8 +56,8 @@ public class ArrayListFragment extends ListFragment {
 	public static final int TAB_MINE = 1;
 	private static final int TAB_NEW = 2;
 	private static final int TAB_FAVORITE = 3;
-	public static final String[] TAB_HEADINGS = new String[] { "Best", "Mine", null, null };
-	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Best", null, null, null };
+	public static final String[] TAB_HEADINGS = new String[] { "Best Rolls", "My Rolls", null, null };
+	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Best Rolls", null, null, null };
 	
 	private static final Integer LIMIT_ITEMS = 25;
 	

@@ -119,8 +119,8 @@ public class GcmIntentService extends IntentService {
         		notificationIntent, 0);
         
         String collapseKey = extras.getString("collapse_key");
-        Log.v(LOGTAG, "collapseKey="+collapseKey);
-        boolean isNewStory = "story_published".equals(collapseKey);
+        Log.v(LOGTAG, "collapse_key="+collapseKey);
+        boolean isNewStory = "story_published".equalsIgnoreCase(collapseKey);
         
         String msg = "";
         String countNewStoriesStr = extras.getString("count");
