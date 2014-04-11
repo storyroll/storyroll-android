@@ -2,7 +2,8 @@ package com.storyroll.enums;
 
 public enum ServerPreference {
     
-    STAGING,
+    DEV,
+	STAGING,
     AWS
     ;
 }

@@ -8,6 +8,8 @@ public interface Constants {
 
 	public final static String API_URL_STAGING="http://storyroll.vibe.lt/storyroll/api/";
 	public final static String API_URL_AWS="http://api.storyroll.co/storyroll/api/";
+	public final static String API_URL_DEV="http://dev.storyroll.co/storyroll/api/";
+
 	/**
      * StoryRoll sender ID here. This is the project number 
      * from the API Console.

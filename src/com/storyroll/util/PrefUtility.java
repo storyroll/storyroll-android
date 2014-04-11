@@ -200,7 +200,9 @@ public class PrefUtility {
 		String s = Constants.API_URL_AWS;
 		if (sp.equals(ServerPreference.STAGING)) {
 			s = Constants.API_URL_STAGING;
-		}
+		} else if (sp.equals(ServerPreference.DEV)) {
+			s = Constants.API_URL_DEV;
+		} 
 		return s;
 	}
 	
