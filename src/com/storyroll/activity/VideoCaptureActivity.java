@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
@@ -19,7 +19,6 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.MediaRecorder.OnInfoListener;
 import android.media.ToneGenerator;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -30,7 +29,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -38,13 +36,10 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.androidquery.callback.AjaxStatus;
-import com.bugsense.trace.BugSense;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
 import com.storyroll.R;
-import com.storyroll.base.BaseActivity;
 import com.storyroll.base.SwipeVideoActivity;
-import com.storyroll.exception.APIException;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import com.storyroll.util.AppUtility;
@@ -76,7 +71,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 	SurfaceHolder previewHolder = null;
 	Button rotateButton;
-	ImageButton btnClose, btnBack, btnOK, btnCamera;
+//	ImageButton btnClose, btnBack, btnOK, btnCamera;
 //	View redButton, redButtonCircle;
 	
 	TextView videocapReadyMessage, startStoryMessage;
@@ -100,11 +95,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	public static final int STATE_UPLOAD_FAIL = 6;
 
 	private int lastState = STATE_NO_STORY;
-	private Integer storyId;
-	private boolean isStartNew = false;
 	private int cameraOrientation;
 	private Camera.Size bestPreviewSize;
-	private Camera.Size bestRecordSize;
+//	private Camera.Size bestRecordSize;
 
 	private Integer currentCameraId = null;
 
@@ -118,10 +111,6 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	    // overridden or cleared by assignment to null.
 	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
 
-//		getWindow().setFormat(PixelFormat.TRANSLUCENT);
-//        getWindow().setFlags(
-//				WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//				WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getActionBar().hide();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
@@ -156,90 +145,82 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		}
 
 		previewHolder.addCallback(this);
-
-//		redButton = findViewById(R.id.redButton);
-//		redButton.setOnClickListener(this);
-//		redButtonText = (TextView)findViewById(R.id.redButtonText);
-//		redButtonCircle = findViewById(R.id.redButtonCircle);
 		
-		btnOK = (ImageButton)findViewById(R.id.btnOK);
-		btnCamera = (ImageButton)findViewById(R.id.btnCamera);
 		aq.id(R.id.btnOK).clicked(this, "workflowClickedCb");
 		aq.id(R.id.btnCamera).clicked(this, "workflowClickedCb");
 		
 		videocapReadyMessage = (TextView)findViewById(R.id.videocapReadyMessage);
 		startStoryMessage = (TextView)findViewById(R.id.startStoryMessage);
-		
-		btnBack = (ImageButton)findViewById(R.id.btnBack);
-		btnClose = (ImageButton)findViewById(R.id.btnClose);
-		aq.id(R.id.btnBack).clicked(this, "backAndCloseClickedCb");
+
 		aq.id(R.id.btnClose).clicked(this, "backAndCloseClickedCb");
 		
 		rotateButton = aq.id(R.id.rotateButton).getButton();
 		aq.id(R.id.rotateButton).clicked(this, "switchCameraClickedCb");
 
-		// get story to join
-		progress.setVisibility(View.VISIBLE);
-		aq.ajax(PrefUtility.getApiUrl()+"getStoryToJoin?uuid="+getUuid(), JSONObject.class, this, "getStoryToJoinCb");
+		// get list of available fragments
+		show(progress);
+		aq.ajax(PrefUtility.getApiUrl()+"available?uuid="+getUuid()+"&c="+10, JSONArray.class, this, "availableCb");
 		
 	}
 
 	// - - - callbacks
 	
-	public void getStoryToJoinCb(String url, JSONObject json, AjaxStatus status)
+	private int currentLastCarouselItemId = 0;
+	private long currentLastFragmentId = 0;
+	private long[] fragmentIds = null;
+	
+	public void availableCb(String url, JSONArray jarr, AjaxStatus status)
 	{
-    	fireGAnalyticsEvent("story_workflow", "joinStory", json==null?"got no story":"got story", null);
+//    	fireGAnalyticsEvent("story_workflow", "available", json==null?"got no story":"got stories", null);
     	
     	if (status.getCode()==AjaxStatus.NETWORK_ERROR) {
-    		progress.setVisibility(View.INVISIBLE);
+    		hide(progress);
     		ErrorUtility.apiError(LOGTAG, "Network error, check your connection", status, this, true, Log.ERROR);
 		}
     	// TODO: is 500 resp ok when there is simply no story to join?
-//    	if (isAjaxErrorThenReport(status)) return;
+    	if (isAjaxErrorThenReport(status)) return;
     	
-        if(json != null){               
+        if(jarr != null){               
             //successful ajax call
-        	Log.i(LOGTAG, "getStoryToJoinCb success: "+json.toString());
-        	try {
-				JSONObject story = (JSONObject)json.get("story");
-				getStoryDataAndJoin(story, json);
-								
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+        	Log.i(LOGTAG, "availableCb success: got "+jarr.length()+" items");
+        	fragmentIds = new long[jarr.length()];
+        	for (int i = 0; i < jarr.length(); i++) {
+				JSONObject fragObj;
+				try {
+					fragObj = jarr.getJSONObject(i);
+					fragmentIds[i] = fragObj.getLong("id");
+				} 
+				catch (JSONException e) 
+				{
+					fragmentIds[i] = 0;
+					e.printStackTrace();
+				}
 			}
-        }else{          
+			fragmentCarousel(0);
+        }
+        else{          
             //ajax error - means no story to join, offer to start new one
-        	Log.w(LOGTAG, "getStoryToJoinCb: null Json");
-        	lastState = processAndSetNewState(STATE_NO_STORY);
+        	Log.w(LOGTAG, "availableCb: null Json");
+        	lastState = processAndSetState(STATE_NO_STORY);
         }
         
 	}
-	
-	private void getStoryDataAndJoin(JSONObject story, JSONObject parentJson){
-		try {
-			storyId = story.getInt("id");
-			if ( parentJson!=null && parentJson.has("lastFragment") && !parentJson.isNull("lastFragment") ) 
-			{
-				lastFragment = parentJson.getJSONObject("lastFragment");
-				Log.i(LOGTAG, "getStoryToJoinCb: storyId="+storyId+", lastFragment="+lastFragment.toString());
-			}
-			else {
-				lastFragment = null;
-				Log.v(LOGTAG, "getStoryToJoinCb: lastFragment is null");
-			}
-			
-			// join (lock) the story
-			aq.ajax(PrefUtility.getApiUrl()+"joinStory?uuid="+getUuid()+"&story="+storyId, JSONObject.class, this, "joinStoryCb");
-		} 
-		catch (JSONException e) 
+
+	private void fragmentCarousel(int i) 
+	{
+		currentLastFragmentId = fragmentIds[i];
+		currentLastCarouselItemId = i;
+		
+		// load fragment
+		if (currentLastFragmentId!=0) 
 		{
-			apiError(LOGTAG, "Error parsing story response. "+e.getMessage(), null, false, Log.ERROR);
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+   			// start a story fragment preload task
+			String fragmentApiUrl = PrefUtility.getApiUrl()+"fragmentFile?fragment="+fragmentIds[i]+"&uuid="+getUuid();
+	   		VideoDownloadTask task = new VideoDownloadTask(getApplicationContext(), this);
+	   		task.execute(fragmentApiUrl);
+    	}		
 	}
-	
+
 	@Override
 	public void onVideoTaskCompleted(String cachedFileName, boolean success, boolean wasCached) {
 		// start playing last fragment and enable control button
@@ -248,93 +229,34 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		
 		if (success) {
 			// below will do all of the above
-			lastState = processAndSetNewState(STATE_PREV_LAST);
+			lastState = processAndSetState(STATE_PREV_LAST);
 		}
 		else {
 			// clean up after itself, and take next action. maybe retry?
-			progress.setVisibility(View.INVISIBLE);
+			hide(progress);
 			Toast.makeText(this, "Error downloading fragment, please try later", Toast.LENGTH_SHORT).show();
 		}
 	}
 	
-	public void joinStoryCb(String url, JSONObject json, AjaxStatus status)
+	public void addFragmentCb(String url, JSONObject json, AjaxStatus status)
 	{
-		if (isAjaxErrorThenReport(status)) return;
-    	fireGAnalyticsEvent("story_workflow", "joinStory", json==null?"fail":"success", null);
-
-        if(json != null){
-            //successful ajax call
-        	Log.i(LOGTAG, "joinStoryCb success: "+json.toString());
-        	// load last fragment
-        	if (lastFragment!=null) {
-		   		try {
-		   			// start a story fragment preload task
-					String fragmentApiUrl = PrefUtility.getApiUrl()+"fragmentFile?fragment="+lastFragment.getInt("id");
-			   		VideoDownloadTask task = new VideoDownloadTask(getApplicationContext(), this);
-			   		task.execute(fragmentApiUrl);
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-        	}
-        	else {
-        		// no last fragment preview
-        		if (isStartNew) {
-        			// this is after start new? start camera preview immediately
-        			lastState = processAndSetNewState(STATE_PREV_CAM);
-        		}
-        		else {
-        			// this is regular join, show start message first
-	        		lastState = processAndSetNewState(STATE_INITIAL);
-        		}
-        	}
-        }else{          
-            //ajax error
-        	apiError(LOGTAG, "Story not joined", status, true, Log.ERROR);
-        	// TODO: invalidate story join
-        	// needs decision: a) retry joining the same story b) auto choose next story 
-        }
         
-	}
-	
-	public void startStoryCb(String url, JSONObject json, AjaxStatus status) 
-	{
-    	fireGAnalyticsEvent("fragment_workflow", "startStory", json==null?"fail":"success", null);
-        
-    	if (isAjaxErrorThenReport(status)) return;
-        
-        if(json != null){               
-            //successful ajax call
-        	Log.i(LOGTAG, "startStoryCb success: "+json.toString());
-			// now join that story that was just created (possible race condition)
-        	isStartNew = true;
-			getStoryDataAndJoin(json, null);
-        }
-        else{
-            //ajax error
-        	apiError(LOGTAG, "Could not start story", status, true, Log.ERROR);
-        }
-       
-	}
-	
-	public void videoUploadCb(String url, JSONObject json, AjaxStatus status){
-        
-    	fireGAnalyticsEvent("fragment_workflow", "videoUpload", json==null?"fail":"success", null);
+    	fireGAnalyticsEvent("fragment_workflow", "addFragment", json==null?"fail":"success", null);
     	
     	if (cancelUpload) {
     		// do nothing
     		cancelUpload = false;
-    		Log.v(LOGTAG, "cancelUpload is true, upload response ignored (cleanup needed?)"); // TODO
+    		Log.v(LOGTAG, "cancelUpload is true, upload response ignored (cleanup needed?)"); // TODO cleanup
     		return;
     	}
     	else if (isAjaxErrorThenReport(status)) {
     		Toast.makeText(this, "Error uploading fragment, please try again", Toast.LENGTH_SHORT).show();
-    		processAndSetNewState(STATE_UPLOAD_FAIL);
+    		processAndSetState(STATE_UPLOAD_FAIL);
     		return;
     	}
 
 		isUploading = false;
-    	progress.setVisibility(View.INVISIBLE);
+    	hide(progress);
     	
     	String fileName = CameraUtility.getNewFragmentFilePath(this);
 
@@ -360,92 +282,82 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         	apiError(LOGTAG, "Could not upload the fragment, try again.", status, true, Log.ERROR);
 
         	// restore state
-        	processAndSetNewState(STATE_PREV_NEW);
+        	processAndSetState(STATE_PREV_NEW);
 //			lastState = STATE_PREV_NEW;
         }
 	}
 
 	// this only activates necessary elements for new state, without taking into account the last state
-	public int processAndSetNewState(int newState) {
+	public int processAndSetState(int newState) {
 		Log.i(LOGTAG, "processAndSetNewState: "+newState);
 		switch (newState) {
 		case STATE_NO_STORY:
 			// this will allow user to start new story
-			progress.setVisibility(View.INVISIBLE);
-			startStoryMessage.setVisibility(View.VISIBLE);
-			videoView.setVisibility(View.INVISIBLE);
-			btnBack.setVisibility(View.GONE);
-			btnClose.setVisibility(View.VISIBLE);
-			btnOK.setVisibility(View.VISIBLE);
+			hide(progress);
+			show(startStoryMessage);
+			hide(videoView);
+			showClose();
+			showOk();
 			break;
 			
 		case STATE_INITIAL:
 			// we suppose a user already has a story to join, even if it's a new one and there is no preview
-			progress.setVisibility(View.INVISIBLE);
-			startStoryMessage.setVisibility(View.VISIBLE);
-			videoView.setVisibility(View.INVISIBLE);
-			btnBack.setVisibility(View.GONE);
-			btnClose.setVisibility(View.VISIBLE);
-    		btnOK.setVisibility(View.VISIBLE);
+			hide(progress);
+			show(startStoryMessage);
+			hide(videoView);
+			showClose();
+			showOk();
 			break;
 		case STATE_PREV_LAST:
-			progress.setVisibility(View.INVISIBLE);
-			btnOK.setVisibility(View.VISIBLE);
-			btnBack.setVisibility(View.GONE);
-			btnClose.setVisibility(View.VISIBLE);
-
+			hide(progress);
+			showOk();
+			showClose();
 //			surfaceView.setVisibility(View.VISIBLE);
-			videocapReadyMessage.setVisibility(View.VISIBLE);
+			show(videocapReadyMessage);
 			
 			ImageUtility.sliderAnimateRightToLeft(sliderOverlay);
 			
 			// start previewing last fragment
 			if (lastFragmentPath!=null) {
-				videoView.setVisibility(View.VISIBLE);
+				show(videoView);
 				videoView.setVideoPath(lastFragmentPath);
 				videoView.start();
 				return STATE_PREV_LAST;
 			}
 			else {
-				startStoryMessage.setVisibility(View.VISIBLE);
+				show(startStoryMessage);
 				return STATE_INITIAL;
 			}			
 		case STATE_PREV_CAM:
 			// hide possibly previously shown elements
-			startStoryMessage.setVisibility(View.INVISIBLE);
-			videocapReadyMessage.setVisibility(View.INVISIBLE);
-			videoView.setVisibility(View.INVISIBLE);
-			
-			surfaceView.setVisibility(View.VISIBLE);
+			hide(startStoryMessage);
+			hide(videocapReadyMessage);
+			hide(videoView);
+			show(surfaceView);
 			
 			//if phone has only one camera, don't show "switch camera" button
 			if(Camera.getNumberOfCameras() > 1){
-				rotateButton.setVisibility(View.VISIBLE);
+				show(rotateButton);
 			}
 			
-			btnOK.setVisibility(View.GONE);
-			btnCamera.setVisibility(View.VISIBLE);
+			showCamera();
 			
 			// only show back button if not starting a new story
 			if (lastFragmentPath!=null){
-				btnClose.setVisibility(View.GONE);
-				btnBack.setVisibility(View.VISIBLE);
+				showBack();
 			}
 			else {
-				btnClose.setVisibility(View.VISIBLE);
-				btnBack.setVisibility(View.INVISIBLE);
+				showClose();
 			}
 			break;
 		case STATE_REC:
-			btnBack.setVisibility(View.INVISIBLE);
-			btnClose.setVisibility(View.GONE);
+			showBack();
+			aq.id(R.id.btnOK).gone();
+			aq.id(R.id.btnCamera).gone();
 			
-			btnOK.setVisibility(View.GONE);
-			btnCamera.setVisibility(View.GONE);
-			
-			rotateButton.setVisibility(View.INVISIBLE);
+			hide(rotateButton);
 			customRecProgress.setProgress(0);
-			customRecProgress.setVisibility(View.VISIBLE);
+			show(customRecProgress);
 			
 //			// countdown
 //			countdown();
@@ -453,12 +365,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			
 //			prepareRecorder();
 //			recorder.start();
-//			Log.v(LOGTAG, "Recording Started");
-//			redButtonText.setText(R.string.go);
-//			backButton.setVisibility(View.INVISIBLE);
 			break;
 		case STATE_PREV_NEW:
-			progress.setVisibility(View.GONE);
+			gone(progress);
 			if (lastFragmentPath==null) {
 				// switch new fragment preview on
 				videoView.setVideoPath(CameraUtility.getNewFragmentFilePath(this));
@@ -503,13 +412,10 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 			}
 			
-			videoView.setVisibility(View.VISIBLE);
+			show(videoView);
 			videoView.start();
-			btnClose.setVisibility(View.GONE);
-			btnBack.setVisibility(View.VISIBLE);
-			
-			btnCamera.setVisibility(View.INVISIBLE);
-			btnOK.setVisibility(View.VISIBLE);
+			showBack();
+			showOk();
 			
 			break;
 		case STATE_UPLOAD:
@@ -517,10 +423,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			doUpload(CameraUtility.getNewFragmentFilePath(this));
 			break;
 		case STATE_UPLOAD_FAIL:
-			progress.setVisibility(View.INVISIBLE);
+			hide(progress);
 			isUploading = false;
-			btnBack.setVisibility(View.VISIBLE);
-			btnClose.setVisibility(View.GONE);
+			showBack();
 			break;
 		default:
 			Log.w(LOGTAG, "change state not implemented: "+newState);
@@ -552,7 +457,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			    } catch (Exception e) {}
         	}
         	else {
-        		counterOverlay.setVisibility(View.INVISIBLE);
+        		hide(counterOverlay);
         	}
         ;}
 	}
@@ -560,7 +465,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private class RecordStarter implements Runnable{
         @Override
         public void run() {
-        	counterOverlay.setVisibility(View.INVISIBLE);
+        	hide(counterOverlay);
         	
 //			try {
 				prepareRecorder();
@@ -583,7 +488,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //		recorder = CameraUtility.prepareRecorder(camera, currentCameraId, previewHolder, this);
 //	}
 
-	private void startRecProgressTimer() {
+	private void startRecProgressTimer() 
+	{
 		customRecProgress.setMax(CameraUtility.VIDEO_LENGTH + PROG_REFRESH);
 		customRecProgress.setProgress(0);
 
@@ -606,11 +512,12 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		mCountDownTimer.start();
 	}
 	
-	public void countdown() {
+	public void countdown() 
+	{
 		counterOverlay.setImageDrawable( getResources().getDrawable(R.drawable.rec_3) );
 		tg.startTone(ToneGenerator.TONE_PROP_BEEP);
 		
-		counterOverlay.setVisibility(View.VISIBLE);
+		show(counterOverlay);
 		Handler handler = new Handler();
 		for (int count = 2; count >= 0; count--){
 	        handler.postDelayed(new Counter(count), 1000 * (3-count));
@@ -622,7 +529,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //		counterOverlay.setImageDrawable( getResources().getDrawable(R.drawable.rec_0) );
 		tg.startTone(ToneGenerator.TONE_PROP_BEEP);
 		
-		counterOverlay.setVisibility(View.VISIBLE);
+		show(counterOverlay);
 		Handler handler = new Handler();
 		handler.postDelayed(new RecordStarter(), 0); 
 	}
@@ -640,18 +547,17 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	public void doUpload(String filePath){
 		isUploading = true;
 		cancelUpload = false;
-		btnBack.setVisibility(View.INVISIBLE);
-		btnClose.setVisibility(View.VISIBLE);
-		progress.setVisibility(View.VISIBLE);
+		showClose();
+		show(progress);
 		
 		File file = new File(filePath);
 		
 		Map params = new HashMap();
 		params.put("file", file);
 		params.put("uuid", getUuid());
-		params.put("story", storyId);
+		params.put("l", currentLastFragmentId);
 		
-		aq.ajax(PrefUtility.getApiUrl()+"addFragment", params, JSONObject.class, VideoCaptureActivity.this, "videoUploadCb").progress(R.id.progress);
+		aq.ajax(PrefUtility.getApiUrl()+"addFragment", params, JSONObject.class, VideoCaptureActivity.this, "addFragmentCb").progress(R.id.progress);
 	}
 	  
 	private boolean isUploading = false;
@@ -665,7 +571,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		
 		switch (lastState) {
 		case STATE_NO_STORY:
-			aq.ajax(PrefUtility.getApiUrl()+"startStory?uuid="+getUuid(), JSONObject.class, this, "startStoryCb").progress(progress);
+			// not creating new stories any more
+//			aq.ajax(PrefUtility.getApiUrl()+"startStory?uuid="+getUuid(), JSONObject.class, this, "startStoryCb").progress(progress);
+			Log.e(LOGTAG, "workflowClickedCb "+STATE_NO_STORY);
 			break;
 		case STATE_PREV_LAST:
 			// stop previewing last fragment
@@ -673,16 +581,12 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			
 		case STATE_INITIAL:
 			// switch camera preview on
-//			startStoryMessage.setVisibility(View.INVISIBLE);
-//			videocapReadyMessage.setVisibility(View.INVISIBLE);
-//			videoView.setVisibility(View.INVISIBLE);
-			
-			lastState = processAndSetNewState(STATE_PREV_CAM);
+			lastState = processAndSetState(STATE_PREV_CAM);
 			break;
 			
 		case STATE_PREV_CAM:
 			// START RECORDING
-			lastState = processAndSetNewState(STATE_REC);
+			lastState = processAndSetState(STATE_REC);
 			break;
 			
 		case STATE_REC:
@@ -692,7 +596,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		case STATE_PREV_NEW:
 			// Stop previewing NEW fragment
 			videoView.stopPlayback();
-			lastState = processAndSetNewState(STATE_UPLOAD);
+			lastState = processAndSetState(STATE_UPLOAD);
 			break;
 
 		default:
@@ -723,11 +627,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			if (lastFragmentPath!=null)
 			{
 				// stop camera preview and return to last fragment review
-				surfaceView.setVisibility(View.INVISIBLE);
-				videoView.setVisibility(View.VISIBLE);
+				hide(surfaceView);
+				show(videoView);
 			}
-			rotateButton.setVisibility(View.INVISIBLE);
-			lastState = processAndSetNewState(STATE_PREV_LAST);
+			hide(rotateButton);
+			lastState = processAndSetState(STATE_PREV_LAST);
 			
 			break;
 		case STATE_REC:
@@ -736,24 +640,24 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			Log.v(LOGTAG, "Recording Stopped");
 
 			releaseMediaRecorder();
-			surfaceView.setVisibility(View.INVISIBLE);
+			hide(surfaceView);
 			
-			lastState = processAndSetNewState(STATE_PREV_CAM);
+			lastState = processAndSetState(STATE_PREV_CAM);
 
 			break;
 		case STATE_PREV_NEW:
 			// Stop previewing NEW fragment
 			videoView.stopPlayback();
-			videoView.setVisibility(View.INVISIBLE);
-
+			hide(videoView);
+			
 			// return to camera preview
-			lastState = processAndSetNewState(STATE_PREV_CAM);
+			lastState = processAndSetState(STATE_PREV_CAM);
 
 			break;
 		case STATE_UPLOAD:
 			cancelUpload  = true;
 			
-			lastState = processAndSetNewState(STATE_PREV_NEW);
+			lastState = processAndSetState(STATE_PREV_NEW);
 			break;
 		default:
 			Log.e(LOGTAG, "back pressed while in undefined state "+lastState);
@@ -966,10 +870,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	}
 	
 	@Override
-	public void onInfo(MediaRecorder mr, int what, int extra) {
-
-		if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-			customRecProgress.setVisibility(View.INVISIBLE);
+	public void onInfo(MediaRecorder mr, int what, int extra) 
+	{
+		if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) 
+		{
+			hide(customRecProgress);
 			
 			Log.v(LOGTAG, "OnInfoListener: Maximum Duration Reached");
 			mr.stop();
@@ -977,24 +882,45 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 			// here comes "hidden" stop state processing step
 			releaseMediaRecorder();
-			surfaceView.setVisibility(View.INVISIBLE);
-			lastState = processAndSetNewState(STATE_PREV_NEW);
+			hide(surfaceView);
+			lastState = processAndSetState(STATE_PREV_NEW);
 		}
 	}
 
 	@Override
 	protected void leftSwipe() {
 		if (lastState!=STATE_PREV_LAST) return;
-		// get new story to join
-		progress.setVisibility(View.VISIBLE);
-		// drop previous and join new story
-		aq.ajax(PrefUtility.getApiUrl()+"getStoryToJoin?uuid="+getUuid(), JSONObject.class, this, "getStoryToJoinCb");
+		// next fragment
+		fragmentCarousel(++currentLastCarouselItemId<fragmentIds.length?currentLastCarouselItemId:0);
 	}
 
 	@Override
 	protected void rightSwipe() {
-		// TODO Auto-generated method stub
-		
+		if (lastState!=STATE_PREV_LAST) return;
+		show(progress);
+		// previous fragment
+		fragmentCarousel(--currentLastCarouselItemId>0?currentLastCarouselItemId:fragmentIds.length-1);
 	}
 	
+	private void hide(View v) {
+		v.setVisibility(View.GONE);
+	}
+	private void show(View v) {
+		v.setVisibility(View.VISIBLE);
+	}
+	private void gone(View v){
+		v.setVisibility(View.GONE);
+	}
+	private void showBack() {
+		aq.id(R.id.btnBack).visible(); aq.id(R.id.btnClose).gone();
+	}
+	private void showClose() {
+		aq.id(R.id.btnClose).visible(); aq.id(R.id.btnBack).gone();
+	}
+	private void showOk() {
+		aq.id(R.id.btnOK).visible(); aq.id(R.id.btnCamera).gone();		
+	}
+	private void showCamera() {
+		aq.id(R.id.btnCamera).visible(); aq.id(R.id.btnOK).gone();	
+	}
 }
