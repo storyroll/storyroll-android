@@ -41,6 +41,7 @@ import com.storyroll.util.AppUtility;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.NetworkUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ViewUtility;
 
 public class ArrayListFragment extends ListFragment {
 	private static final String LOGTAG = "ArrayListFragment";
@@ -435,8 +436,8 @@ public class ArrayListFragment extends ListFragment {
 
 			aq.id(storyThumb).image(PrefUtility.getApiUrl() + "storyThumb?story=" + story.getId());
 			
-			setViewSquare(storyThumb, calculcatedVideoWidth);
-			setViewSquare(playControl, calculcatedVideoWidth);
+			ViewUtility.setViewSquare(storyThumb, calculcatedVideoWidth);
+			ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
 			
 			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId(), mUuid, progressBar, unseenIndicator, playControl);
 			storyThumb.setOnClickListener(new ThumbClickListener(videoView, story.getId()));
@@ -447,6 +448,7 @@ public class ArrayListFragment extends ListFragment {
 				for (int i=0; i<story.getCast().length; i++) {
 					RoundedImageView castImage = (RoundedImageView) rowView.findViewById(PlaylistItemView.castIds[i]);
 					aq.id(castImage).image(PrefUtility.getApiUrl()+"avatar?uuid="+story.getCast()[i], true, false, 0, R.drawable.ic_avatar_default);
+					aq.id(castImage).clicked(this, "onCastClickedCb");
 				}
 			}
 			
@@ -550,14 +552,12 @@ public class ArrayListFragment extends ListFragment {
 		
 		// --------- HELPERS & CALLBACKS
 		
-
-		private void setViewSquare(View v, int calculatedWidth) {
-			// set preview window to square
-			android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
-			lp.width = calculatedWidth;
-			lp.height = calculatedWidth;
-			v.setLayoutParams(lp);
+		public void onCastClickedCb()
+		{
+			fireGAnalyticsEvent("ui_action", "touch", "cast", null);
 		}
+
+
 		
 		// TODO: improve to show like 1.5m
 		private String shortLikesString(Integer num) {

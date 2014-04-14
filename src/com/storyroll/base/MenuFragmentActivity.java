@@ -86,14 +86,14 @@ public class MenuFragmentActivity extends FragmentActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		Intent intent;
-//		if (item.getItemId() == android.R.id.home) // this will be our left action item
-//		{
-//			onJoinPressed();
-//			return true;
-//		} else
-		if (item.getItemId() == R.id.action_join) {
-		 onJoinPressed();
-		 return true;
+		if (item.getItemId() == android.R.id.home) // this will be our left action item
+		{
+			fireGAnalyticsEvent("ui_action", "touch", "home", null);
+			return super.onOptionsItemSelected(item);
+		} else if (item.getItemId() == R.id.action_join) 
+		{
+			 onJoinPressed();
+			 return true;
 		}else if (item.getItemId() == R.id.action_help) {
 			intent = new Intent (this, HelpActivity.class);
 			startActivity(intent);
@@ -113,13 +113,16 @@ public class MenuFragmentActivity extends FragmentActivity {
 	
     /*-- callbacks & helpers --*/
 	
-	private void onJoinPressed(){
+	private void onJoinPressed()
+	{
 		Intent intent;
 		if (isTrial) {
+			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_trial", null);
 			intent = new Intent(this, LoginActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		}
 		else {
+			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_regged", null);
 			intent = new Intent(this, VideoCaptureActivity.class);
 		}
 		

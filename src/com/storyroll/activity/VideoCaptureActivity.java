@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -38,6 +39,7 @@ import android.widget.VideoView;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
+import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
 import com.storyroll.base.SwipeVideoActivity;
 import com.storyroll.tasks.VideoDownloadTask;
@@ -134,11 +136,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		progress = (ProgressBar) findViewById(R.id.progress);
 		customRecProgress = (ProgressBar) findViewById(R.id.customProgressBar);
 		
-
-//		CameraUtility.viewToSquare(videoView, VideoCaptureActivity.this);
-//		CameraUtility.viewToSquare(surfaceView, VideoCaptureActivity.this);
 		CameraUtility.viewToSquare(counterOverlay, VideoCaptureActivity.this);
-
     	
 		if (previewHolder == null) {
 			previewHolder = surfaceView.getHolder();
@@ -146,13 +144,15 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 		previewHolder.addCallback(this);
 		
-		aq.id(R.id.btnOK).clicked(this, "workflowClickedCb");
-		aq.id(R.id.btnCamera).clicked(this, "workflowClickedCb");
+		aq.id(R.id.btnOK).clicked(this, "workflowClickedButtonCb");
+		aq.id(R.id.btnCamera).clicked(this, "workflowClickedButtonCb");
+		aq.id(R.id.videocapReadyMessage).clicked(this, "workflowClickedMessageCb");
 		
 		videocapReadyMessage = (TextView)findViewById(R.id.videocapReadyMessage);
 		startStoryMessage = (TextView)findViewById(R.id.startStoryMessage);
 
 		aq.id(R.id.btnClose).clicked(this, "backAndCloseClickedCb");
+		aq.id(R.id.btnBack).clicked(this, "backAndCloseClickedCb");
 		
 		rotateButton = aq.id(R.id.rotateButton).getButton();
 		aq.id(R.id.rotateButton).clicked(this, "switchCameraClickedCb");
@@ -162,7 +162,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		aq.ajax(PrefUtility.getApiUrl()+"available?uuid="+getUuid()+"&c="+10, JSONArray.class, this, "availableCb");
 		
 	}
-
+	
 	// - - - callbacks
 	
 	private int currentLastCarouselItemId = 0;
@@ -241,7 +241,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	public void addFragmentCb(String url, JSONObject json, AjaxStatus status)
 	{
         
-    	fireGAnalyticsEvent("fragment_workflow", "addFragment", json==null?"fail":"success", null);
+    	fireGAnalyticsEvent("fragment_workflow", "addFragmentEnd", json==null?"fail":"success", null);
     	
     	if (cancelUpload) {
     		// do nothing
@@ -358,7 +358,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			hide(rotateButton);
 			customRecProgress.setProgress(0);
 			show(customRecProgress);
-			
+						
 //			// countdown
 //			countdown();
 			startImmediately();
@@ -467,6 +467,17 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         public void run() {
         	hide(counterOverlay);
         	
+        	String cs = "CAMERA_"+currentCameraId;
+        	if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+        		cs = "CAMERA_FACING_FRONT";
+        	}
+        	else if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+        		cs = "CAMERA_FACING_BACK";
+        	}
+        	
+        	fireGAnalyticsEvent("fragment_workflow", "recordingStart", cs, null);
+
+        	
 //			try {
 				prepareRecorder();
 				recorder.start();
@@ -557,17 +568,31 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		params.put("uuid", getUuid());
 		params.put("l", currentLastFragmentId);
 		
+		fireGAnalyticsEvent("fragment_workflow", "addFragmentStart", "", null);
+		
 		aq.ajax(PrefUtility.getApiUrl()+"addFragment", params, JSONObject.class, VideoCaptureActivity.this, "addFragmentCb").progress(R.id.progress);
 	}
 	  
 	private boolean isUploading = false;
 	private boolean cancelUpload = false;
-
 	
-	// WORKFLOW CONTROL button click handler
-	public void workflowClickedCb() 
+	// WORKFLOW CONTROL click handlers
+	
+	public void workflowClickedButtonCb()
 	{
 		fireGAnalyticsEvent("ui_action", "controll_button_from_state", DataUtility.stateStr(lastState), null);
+		workflowClicked() ;
+	}
+
+	public void workflowClickedMessageCb()
+	{
+		Log.v(LOGTAG, "workflowClickedMessageCb");
+		fireGAnalyticsEvent("ui_action", "controll_message_from_state", DataUtility.stateStr(lastState), null);
+		workflowClicked() ;
+	}
+	
+	public void workflowClicked() 
+	{
 		
 		switch (lastState) {
 		case STATE_NO_STORY:
@@ -606,10 +631,15 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			}
 	}
 
-	// "BACK" button control
-	public void backAndCloseClickedCb() 
+	// "BACK" and "CLOSE" control
+	public void backAndCloseClickedCb()
 	{
-		fireGAnalyticsEvent("ui_action", "back_button_from_state", DataUtility.stateStr(lastState), null);
+		fireGAnalyticsEvent("ui_action", "back&close_control_from_state", DataUtility.stateStr(lastState), null);
+		backAndCloseClicked();
+	}
+	
+	public void backAndCloseClicked() 
+	{
 
 		Intent intent;
 		switch (lastState) {
@@ -890,6 +920,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	@Override
 	protected void leftSwipe() {
 		if (lastState!=STATE_PREV_LAST) return;
+		fireGAnalyticsEvent("fragment_workflow", "swipe", "left", 0L);
 		// next fragment
 		fragmentCarousel(++currentLastCarouselItemId<fragmentIds.length?currentLastCarouselItemId:0);
 	}
@@ -897,10 +928,33 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	@Override
 	protected void rightSwipe() {
 		if (lastState!=STATE_PREV_LAST) return;
+		fireGAnalyticsEvent("fragment_workflow", "swipe", "right", 0L);
 		show(progress);
 		// previous fragment
-		fragmentCarousel(--currentLastCarouselItemId>0?currentLastCarouselItemId:fragmentIds.length-1);
+		fragmentCarousel(--currentLastCarouselItemId>=0?currentLastCarouselItemId:fragmentIds.length-1);
 	}
+	
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            event.startTracking();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.isTracking()
+                && !event.isCanceled()) {
+            
+        	// Back button press complete, handle
+    		fireGAnalyticsEvent("ui_action", "system_back_from_state", DataUtility.stateStr(lastState), null);
+    		backAndCloseClicked();
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
 	
 	private void hide(View v) {
 		v.setVisibility(View.GONE);

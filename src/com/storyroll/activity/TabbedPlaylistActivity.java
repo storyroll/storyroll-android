@@ -179,18 +179,6 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 //		DialogUtility.showHelpOverlay(this);
     }
     
-//    private void resetNewStoriesSet(int[] stories) {
-//    	if (newStories == null) {
-//    		newStories = new HashSet<String>();
-//    	}
-//    	else {
-//    		newStories.clear();
-//    	}
-//    	if (stories!=null) {
-//    		for (int i : stories) newStories.add(i+"");
-//    	}
-//    }
-//    
     private void updateUnseenStoriesFromServer() {
     	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
     	if (isTrial) {
@@ -266,7 +254,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
         	if (backTries++>0) {
         		// on second press, exit
         		
-        		fireGAnalyticsEvent("ui_action", "click", "Back", 1L);
+        		fireGAnalyticsEvent("ui_action", "click", "SystemBack-1st", 0L);
         			    
         		Intent intent = new Intent(Intent.ACTION_MAIN);
         		intent.addCategory(Intent.CATEGORY_HOME);
@@ -278,7 +266,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
         		// on first press, show note
         		Toast.makeText(this, "To exit, press back twice", Toast.LENGTH_SHORT).show();
         		
-        		fireGAnalyticsEvent("ui_action", "click", "Back", 2L);
+        		fireGAnalyticsEvent("ui_action", "click", "SystemBack-2nd", 0L);
         	}
         	lastPressed = currentTime;
         	
