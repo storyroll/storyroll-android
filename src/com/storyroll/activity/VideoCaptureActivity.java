@@ -41,6 +41,7 @@ import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
 import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
+import com.storyroll.base.Constants;
 import com.storyroll.base.SwipeVideoActivity;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
@@ -50,6 +51,7 @@ import com.storyroll.util.DataUtility;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.ImageUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 
 public class VideoCaptureActivity extends SwipeVideoActivity implements
 		SurfaceHolder.Callback, OnVideoTaskCompleted,  OnInfoListener {
@@ -161,6 +163,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		show(progress);
 		aq.ajax(PrefUtility.getApiUrl()+"available?uuid="+getUuid()+"&c="+10, JSONArray.class, this, "availableCb");
 		
+		// it's time to refresh video length from server
+		refreshVideoLengthSetting();
 	}
 	
 	// - - - callbacks
@@ -633,6 +637,18 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			}
 	}
 
+	private void refreshVideoLengthSetting() {
+		// query API for server config
+		String apiUrl = PrefUtility.getApiUrl() + "getServerProperties";
+		aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, this, "getServerPropertiesCb");
+	}
+
+	
+	public void getServerPropertiesCb(String url, JSONObject json, AjaxStatus status)
+	{
+		ServerUtility.getServerPropertiesCb(url, json, status, this);
+	}
+	
 	// "BACK" and "CLOSE" control
 	public void backAndCloseClickedCb()
 	{

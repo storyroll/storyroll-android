@@ -19,7 +19,8 @@ public class CameraUtility {
 	
 	private static final String LOGTAG = "CAMERA";
 	private static final String FRAGMENT_FILE_NAME = "new_fragment.mp4";
-	public static final int VIDEO_LENGTH = 3000;
+	
+	public static int VIDEO_LENGTH = 3000;
 
 	public static int getCameraDisplayOrientation(Activity activity,
 			int cameraId, boolean compensate) {

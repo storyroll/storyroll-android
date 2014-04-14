@@ -16,7 +16,7 @@ public interface Constants {
      */
 	public static final String GCM_SENDER_ID = "737051971497";
 
-	public int ACTIVITY_SSO = 10000;
+	public int  ACTIVITY_SSO = 10000;
 	public int ACTIVITY_GALLERY = 10001;
 	public int ACTIVITY_CAMERA = 10002;
 	public int ACTIVITY_CHECKIN = 10003;
@@ -32,10 +32,13 @@ public interface Constants {
 	public static final String PREF_LOCATION = "sr.pref.location";
 	public static final String PREF_GCM_REG_ID = "sr.pref.gcm";
 	
-	public static String PREF_SSO = "sf.pref.sso";
-	public static String PREF_NID = "aq.fb.nid";
-	public static String PREF_ACTION_ITEM = "aq.fb.item";
-	public static String PREF_LAST_NOTI = "aq.fb.noti";
-
+	public static final String PREF_SSO = "sf.pref.sso";
+	public static final String PREF_NID = "aq.fb.nid";
+	public static final String PREF_ACTION_ITEM = "aq.fb.item";
+	public static final String PREF_LAST_NOTI = "aq.fb.noti";
 	
+
+	public static final boolean IS_NEW_STORY_INDICATED = false;
+
+	public static final String SERV_PREF_VIDEO_DURATION = "storyroll.app.video.duration";
 }

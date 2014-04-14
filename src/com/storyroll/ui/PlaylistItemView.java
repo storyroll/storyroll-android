@@ -8,6 +8,7 @@ import com.androidquery.callback.AjaxStatus;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.activity.ArrayListFragment;
+import com.storyroll.base.Constants;
 import com.storyroll.model.Story;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.PrefUtility;
@@ -95,7 +96,8 @@ public class PlaylistItemView extends LinearLayout {
         }
         // update unseen indicator
         ImageView unseenIndicator = (ImageView) findViewById(R.id.unseenIndicator);
-        if (parent.unseenStories.contains(story.getId()+"")) {
+        if (parent.unseenStories.contains(story.getId()+"") && Constants.IS_NEW_STORY_INDICATED) 
+        {
         	unseenIndicator.setVisibility(View.VISIBLE);
         }
         else {
