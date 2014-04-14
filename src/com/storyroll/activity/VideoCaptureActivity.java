@@ -401,7 +401,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 				videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 					@Override
 					public void onCompletion(MediaPlayer mp) {
-						if (playsEarlierFragment)
+						if (playsEarlierFragment && lastState==STATE_PREV_NEW)
 							videoView.setVideoPath(CameraUtility.getNewFragmentFilePath(VideoCaptureActivity.this));
 						else
 							videoView.setVideoPath(lastFragmentPath);
@@ -621,6 +621,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		case STATE_PREV_NEW:
 			// Stop previewing NEW fragment
 			videoView.stopPlayback();
+			playsEarlierFragment = false;
+			videoView.setOnCompletionListener(null);
 			lastState = processAndSetState(STATE_UPLOAD);
 			break;
 
