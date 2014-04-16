@@ -43,6 +43,7 @@ import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
 import com.storyroll.base.Constants;
 import com.storyroll.base.SwipeVideoActivity;
+import com.storyroll.exception.APIException;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import com.storyroll.util.AppUtility;
@@ -97,6 +98,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	public static final int STATE_PREV_NEW = 4;
 	public static final int STATE_UPLOAD = 5;
 	public static final int STATE_UPLOAD_FAIL = 6;
+	private static final int MAX_NEXT_FRAGMENT_ATTEMPTS =5;
 
 	private int lastState = STATE_NO_STORY;
 	private int cameraOrientation;
@@ -225,8 +227,10 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
     	}		
 	}
 
+	private int failedAttempts = 0;
+	
 	@Override
-	public void onVideoTaskCompleted(String cachedFileName, boolean success, boolean wasCached) {
+	public void onVideoTaskCompleted(String cachedFileName, boolean success, boolean wasCached, Exception e) {
 		// start playing last fragment and enable control button
 		lastFragmentPath = AppUtility.getVideoCacheDir(getApplicationContext())+"/"+cachedFileName;
 		Log.d(LOGTAG, "onVideoTaskCompleted: "+lastFragmentPath);
@@ -234,11 +238,24 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		if (success) {
 			// below will do all of the above
 			lastState = processAndSetState(STATE_PREV_LAST);
+			failedAttempts = 0;
 		}
 		else {
-			// clean up after itself, and take next action. maybe retry?
+			// swallow, clean up after itself, and try next;
+			failedAttempts++;
 			hide(progress);
-			Toast.makeText(this, "Error downloading fragment, please try later", Toast.LENGTH_SHORT).show();
+			if (e!=null) {
+				BugSenseHandler.sendException(e);
+			}
+			if (failedAttempts < MAX_NEXT_FRAGMENT_ATTEMPTS) 
+			{
+				playNextCarouselItem(); // try loading next
+			}
+			else {
+				Toast.makeText(this, "Error loading fragment, please try again.", Toast.LENGTH_SHORT).show();;
+				Log.e(LOGTAG, "Fragment load fail/retry exhausted.");
+				failedAttempts = 0;
+			}
 		}
 	}
 	
@@ -940,6 +957,10 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		if (lastState!=STATE_PREV_LAST) return;
 		fireGAnalyticsEvent("fragment_workflow", "swipe", "left", 0L);
 		// next fragment
+		playNextCarouselItem();
+	}
+	
+	private void playNextCarouselItem(){
 		fragmentCarousel(++currentLastCarouselItemId<fragmentIds.length?currentLastCarouselItemId:0);
 	}
 

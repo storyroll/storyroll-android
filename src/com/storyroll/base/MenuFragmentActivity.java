@@ -36,6 +36,9 @@ public class MenuFragmentActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         
         isTrial = getIntent().getBooleanExtra("TRIAL", false);
+        if (!isTrial) {
+        	isTrial = getUuid()==null;
+        }
         
         // Setup search by username on Android
 		BugSenseHandler.setUserIdentifier(getUuid());

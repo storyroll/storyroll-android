@@ -155,7 +155,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	
 	// once video download complete, play it
 	@Override
-	public void onVideoTaskCompleted(String fileName, boolean success, boolean wasCached) 
+	public void onVideoTaskCompleted(String fileName, boolean success, boolean wasCached, Exception e) 
 	{
 		progressBar.setVisibility(View.GONE);
 		controlView.setVisibility(View.GONE);
@@ -173,6 +173,9 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 			if (playQueued) {
 				startVideo();
 			}
+		}
+		else {
+			Log.e(LOGTAG, "Eror loading video", e);
 		}
 	}
 

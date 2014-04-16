@@ -6,7 +6,7 @@
     
     <string name="dummy_button">Proceed</string>
     <string name="dummy_content">STORYROLL\nCollaborative storytelling</string>
-    <string name="login_text">Please choose your login method</string>
+    <string name="login_text">Want to join the story? Please signup/login</string>
     <string name="user_name">User name</string>
     <string name="email">E-mail</string>
     <string name="password">Password</string>

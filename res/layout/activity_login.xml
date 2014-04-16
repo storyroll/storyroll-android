@@ -39,25 +39,29 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="20pt"
-        android:text="or use an email/password" />
+        android:text="or use an email/password"
+        android:visibility="gone" />
 
     <EditText
         android:id="@+id/email"
         android:inputType="textEmailAddress"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/email" />
+        android:hint="@string/email"
+        android:visibility="gone" />
     <EditText
         android:id="@+id/password"
         android:inputType="textPassword"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/password" />
+        android:hint="@string/password"
+        android:visibility="gone" />
      <Button
         android:id="@+id/done_button"
         android:layout_width="96dp"
         android:layout_height="wrap_content"
-        android:text="@string/done" />
+        android:text="@string/done"
+        android:visibility="gone" />
 
 
 </LinearLayout>

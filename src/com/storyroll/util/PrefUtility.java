@@ -94,10 +94,8 @@ public class PrefUtility {
 		String key = cls.getName();
 		
 		T result = (T) enums.get(key);
-		Log.v(LOGTAG, "enums[key]=="+result);
 		if(result == null){
 			result = PrefUtility.getPrefEnum(cls, defaultValue);
-			Log.v(LOGTAG, "getPrefEnum[key]=="+result);
 			enums.put(key, result);
 		}
 		
@@ -196,7 +194,6 @@ public class PrefUtility {
 	
 	public static String getApiUrl() {
 		ServerPreference sp = PrefUtility.getEnum(ServerPreference.class, ServerPreference.AWS);
-		Log.v(LOGTAG, "sp=="+sp.toString());
 		String s = Constants.API_URL_AWS;
 		if (sp.equals(ServerPreference.STAGING)) {
 			s = Constants.API_URL_STAGING;

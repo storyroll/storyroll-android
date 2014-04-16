@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.net.Uri;
 
 import com.storyroll.R;
+import com.storyroll.base.Constants;
 //import com.storyroll.ImageActivity;
 import com.androidquery.util.AQUtility;
 
@@ -148,7 +149,7 @@ public class IntentUtility {
     	Intent i = new Intent(Intent.ACTION_SEND);
     	
     	i.setType("text/plain");
-    	i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"martynas@ore.lt"});
+    	i.putExtra(Intent.EXTRA_EMAIL  , new String[]{Constants.EMAIL_FEEDBACK});
     	i.putExtra(Intent.EXTRA_SUBJECT, title);
     	i.putExtra(Intent.EXTRA_TEXT, text);
     	

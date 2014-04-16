@@ -23,7 +23,7 @@ import com.storyroll.util.DataUtility;
 public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 	
 	public interface OnVideoTaskCompleted{
-	    void onVideoTaskCompleted(String cachedFileName, boolean success, boolean wasCached);
+	    void onVideoTaskCompleted(String cachedFileName, boolean success, boolean wasCached, Exception e);
 	}
 	
 	private static final String TAG = "VIDEO_DOWNLOAD";
@@ -37,6 +37,7 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 	private OnVideoTaskCompleted listener;
 	private boolean success = false;
 	private boolean wasCached = true;
+	private Exception e = null;
 	
     public VideoDownloadTask(Context context, OnVideoTaskCompleted listener) {
     	Log.v(LOGTAG, "constructor");
@@ -125,6 +126,6 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
     protected void onPostExecute(Result result){
         //your stuff
     	Log.i(TAG, "onPostExecute, success "+success+", wasCached: "+wasCached);
-        listener.onVideoTaskCompleted(fileName, success, wasCached);
+        listener.onVideoTaskCompleted(fileName, success, wasCached, e);
     }
 }
