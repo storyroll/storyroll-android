@@ -79,7 +79,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //	ImageButton btnClose, btnBack, btnOK, btnCamera;
 //	View redButton, redButtonCircle;
 	
-	TextView videocapReadyMessage, startStoryMessage;
+	TextView startStoryMessage;
+//	videocapReadyMessage;
 	ImageView counterOverlay, sliderOverlay, controlClose, controlBack;
 	ProgressBar progress, customRecProgress;
 
@@ -148,11 +149,12 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 		previewHolder.addCallback(this);
 		
-		aq.id(R.id.btnOK).clicked(this, "workflowClickedButtonCb");
+		aq.id(R.id.btnReply).clicked(this, "workflowClickedButtonCb");
+		aq.id(R.id.btnSend).clicked(this, "workflowClickedButtonCb");
 		aq.id(R.id.btnCamera).clicked(this, "workflowClickedButtonCb");
 		aq.id(R.id.videocapReadyMessage).clicked(this, "workflowClickedMessageCb");
 		
-		videocapReadyMessage = (TextView)findViewById(R.id.videocapReadyMessage);
+//		videocapReadyMessage = (TextView)findViewById(R.id.videocapReadyMessage);
 		startStoryMessage = (TextView)findViewById(R.id.startStoryMessage);
 
 		aq.id(R.id.btnClose).clicked(this, "backAndCloseClickedCb");
@@ -334,7 +336,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			showOk();
 			showClose();
 //			surfaceView.setVisibility(View.VISIBLE);
-			show(videocapReadyMessage);
+//			show(videocapReadyMessage);
 			
 			ImageUtility.sliderAnimateRightToLeft(sliderOverlay);
 			
@@ -352,7 +354,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		case STATE_PREV_CAM:
 			// hide possibly previously shown elements
 			hide(startStoryMessage);
-			hide(videocapReadyMessage);
+//			hide(videocapReadyMessage);
 			hide(videoView);
 			show(surfaceView);
 			
@@ -373,7 +375,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			break;
 		case STATE_REC:
 			showBack();
-			aq.id(R.id.btnOK).gone();
+			aq.id(R.id.btnReply).gone();
+			aq.id(R.id.btnSend).gone();
 			aq.id(R.id.btnCamera).gone();
 			
 			hide(rotateButton);
@@ -436,7 +439,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			show(videoView);
 			videoView.start();
 			showBack();
-			showOk();
+			showSend();
 			
 			break;
 		case STATE_UPLOAD:
@@ -1011,9 +1014,18 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		aq.id(R.id.btnClose).visible(); aq.id(R.id.btnBack).gone();
 	}
 	private void showOk() {
-		aq.id(R.id.btnOK).visible(); aq.id(R.id.btnCamera).gone();		
+		aq.id(R.id.btnCamera).gone();
+		aq.id(R.id.btnSend).gone();
+		aq.id(R.id.btnReply).visible();		
+	}
+	private void showSend() {
+		aq.id(R.id.btnCamera).gone();
+		aq.id(R.id.btnSend).visible();
+		aq.id(R.id.btnReply).gone();		
 	}
 	private void showCamera() {
-		aq.id(R.id.btnCamera).visible(); aq.id(R.id.btnOK).gone();	
+		aq.id(R.id.btnCamera).visible(); 
+		aq.id(R.id.btnReply).gone();
+		aq.id(R.id.btnSend).gone();
 	}
 }

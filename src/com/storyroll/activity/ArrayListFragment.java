@@ -158,7 +158,7 @@ public class ArrayListFragment extends ListFragment {
 		case TAB_BEST:
 			apiUrl += "getTopLikedStories?limit=" + LIMIT_ITEMS;
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
-					"getStoryListCb");
+					"getStoryListTopCb");
 
 			break;
 		case TAB_FAVORITE:
@@ -273,6 +273,16 @@ public class ArrayListFragment extends ListFragment {
 
 	public void getStoryListCb(String url, JSONArray jarr, AjaxStatus status) 
 	{
+		getStoryListSorted(url, jarr, status, true);
+	}
+	
+	public void getStoryListTopCb(String url, JSONArray jarr, AjaxStatus status) 
+	{
+		getStoryListSorted(url, jarr, status, false);
+	}
+	
+	public void getStoryListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted) 
+	{
 		if (isAjaxErrorThenReport(status)) return;
 			
 		Log.v(LOGTAG, "getStoryListCb " + mNum);
@@ -294,7 +304,9 @@ public class ArrayListFragment extends ListFragment {
 					}
 				}
 //				}
-				Collections.sort(stories);
+				if (sorted) {
+					Collections.sort(stories);
+				}
 				Log.v(LOGTAG, "stories:" + stories.size());
 
 				// refresh the adapter now
@@ -311,7 +323,6 @@ public class ArrayListFragment extends ListFragment {
 //					"userLikesCb: null Json, could not get story list for uuid " + mUuid, status, false, Log.ERROR);
 			"Error getting rolls", status, true, Log.ERROR);
 		}
-
 	}
 
 	private static ControlledVideoView currentlyPlayed = null;

@@ -161,6 +161,28 @@
 	        android:layout_gravity="center_horizontal"
 	    />
 		<ImageButton
+	        android:id="@+id/btnReply"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:visibility="invisible"
+	        android:layout_marginLeft="10dp"
+	        android:src="@drawable/btn_round_reply"
+	        android:background="@null"
+	        android:layout_marginTop="10dp"
+	        android:layout_gravity="center_horizontal"
+        />
+  		<ImageButton
+	        android:id="@+id/btnSend"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:visibility="invisible"
+	        android:layout_marginLeft="10dp"
+	        android:src="@drawable/btn_round_send"
+	        android:background="@null"
+	        android:layout_marginTop="10dp"
+	        android:layout_gravity="center_horizontal"
+        />
+  		<ImageButton
 	        android:id="@+id/btnOK"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
@@ -171,7 +193,6 @@
 	        android:layout_marginTop="10dp"
 	        android:layout_gravity="center_horizontal"
         />
-  
     </com.storyroll.ui.BottomPane>
 
 </FrameLayout>

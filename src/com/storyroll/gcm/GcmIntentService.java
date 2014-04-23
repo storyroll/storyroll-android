@@ -134,7 +134,7 @@ public class GcmIntentService extends IntentService {
             }
         }
         else {
-        	Log.w(LOGTAG, "No message count GCM message payload");
+        	Log.w(LOGTAG, "No message count in GCM message payload");
 //        	BugSenseHandler.sendException(new Exception("No message count GCM message payload"));
         	msg = extras.getString("message");
         }
