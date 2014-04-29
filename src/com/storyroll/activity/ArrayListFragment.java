@@ -60,7 +60,7 @@ public class ArrayListFragment extends ListFragment {
 	public static final String[] TAB_HEADINGS = new String[] { "Best Rolls", "My Rolls", null, null };
 	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Best Rolls", null, null, null };
 	
-	private static final Integer LIMIT_ITEMS = 25;
+	private static final Integer LIMIT_ITEMS = 40;
 	
 	// how many percents of width should a squared video take
 	private static final int PERCENT_SQUARE = 95;
