@@ -479,10 +479,10 @@ public class ArrayListFragment extends ListFragment {
 			}
 			
 			// disable liking in trial
-			if (!isTrial) {
+//			if (!isTrial) {
 				likeControl.setOnClickListener(new LikeClickListener(likeControl,
-						likesNum, uuid, story));
-			}
+						likesNum, uuid, story, isTrial));
+//			}
 				
 			// 5. return rowView
 			return rowView;
@@ -511,58 +511,64 @@ public class ArrayListFragment extends ListFragment {
 			Story story;
 			ImageView view;
 			TextView likesNum;
+			boolean trial;
 
 			public LikeClickListener(ImageView view, TextView likesNum,
-					String uuid, Story story) {
+					String uuid, Story story, boolean trial) 
+			{
 				this.uuid = uuid;
 				this.story = story;
 				this.view = view;
 				this.likesNum = likesNum;
+				this.trial = trial;
 			}
 
 			@Override
 			public void onClick(View v) {
 				fireGAnalyticsEvent("ui_action", "touch", "likeButton", null);
+				
+				// first, invert the likes
+				story.setUserLikes(!story.isUserLikes());
 
-				String url = PrefUtility.getApiUrl() + "like";
 				if (story.isUserLikes()) {
-					url = PrefUtility.getApiUrl() + "dislike";
+					story.setLikes(story.getLikes() + 1);
+					view.setImageResource(R.drawable.ic_star_on);
+					likesNum.setText(shortLikesString(story
+							.getLikes()));
+					userLikes.add(story.getId()+"");
+				} else {
+					story.setLikes(story.getLikes() - 1);
+					view.setImageResource(R.drawable.ic_star_off);
+					likesNum.setText(shortLikesString(story
+							.getLikes()));
+					userLikes.remove(story.getId()+"");
 				}
-				url += "?uuid=" + this.uuid + "&story=" + story.getId();
 
-				aq.ajax(url, JSONObject.class, new AjaxCallback<JSONObject>() {
-					@Override
-					public void callback(String url, JSONObject json,
-							AjaxStatus status) {
-						if (json != null) {
-							// successful ajax call
-							Log.v(LOGTAG, "likeCb success: " + json.toString());
-							// update like icon, and increase the count.
-							// TODO: collateral?
-							story.setUserLikes(!story.isUserLikes());
-							
-							if (story.isUserLikes()) {
-								story.setLikes(story.getLikes() + 1);
-								view.setImageResource(R.drawable.ic_star_on);
-								likesNum.setText(shortLikesString(story
-										.getLikes()));
-								userLikes.add(story.getId()+"");
-							} else {
-								story.setLikes(story.getLikes() - 1);
-								view.setImageResource(R.drawable.ic_star_off);
-								likesNum.setText(shortLikesString(story
-										.getLikes()));
-								userLikes.remove(story.getId()+"");
-
-							}
-							
-						} else {
-							// ajax error, o change
-							apiError(LOGTAG,
-									"likeCb: Json null " + mUuid, status, false, Log.ERROR);
-						}
+				if (!trial) 
+				{
+					String url = PrefUtility.getApiUrl() + "like";
+					if (story.isUserLikes()) {
+						url = PrefUtility.getApiUrl() + "dislike";
 					}
-				});
+					url += "?uuid=" + this.uuid + "&story=" + story.getId();
+	
+					aq.ajax(url, JSONObject.class, new AjaxCallback<JSONObject>() {
+						@Override
+						public void callback(String url, JSONObject json,
+								AjaxStatus status) {
+							if (json != null) {
+								// successful ajax call
+								Log.v(LOGTAG, "likeCb success: " + json.toString());
+								// TODO: update like icon, and increase the count.
+								// TODO: collateral?
+							} else {
+								// ajax error, o change
+								apiError(LOGTAG,
+										"likeCb: Json null " + mUuid, status, false, Log.ERROR);
+							}
+						}
+					});
+				}
 			}
 
 		}
