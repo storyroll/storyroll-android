@@ -23,12 +23,29 @@
             android:drawSelectorOnTop="false"/>
 
         <!-- Here is the view to show if the list is emtpy -->
-        <TextView android:id="@android:id/empty"
+        <FrameLayout
+            android:id="@android:id/empty"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:gravity="center"
-            android:text="No Rolls to display"/>
+	        android:layout_height="match_parent">
+            
+	       	<ProgressBar 
+				android:id="@+id/progress"	
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:visibility="gone"
+			/>
+	       
+	       <TextView
+	           android:id="@+id/emptyMessage"
+	           android:layout_width="match_parent"
+	           android:layout_height="match_parent"
+	           android:textAppearance="?android:attr/textAppearanceMedium"
+	           android:gravity="center"
+	           android:visibility="gone"
+	           android:text="No Rolls to display"
+	       />
+		</FrameLayout>       	
 
     </FrameLayout>
 

@@ -204,7 +204,10 @@ public class ArrayListFragment extends ListFragment {
 	public void userLikesIdsCb(String url, JSONArray jarr, AjaxStatus status) 
 	{
 		Log.v(LOGTAG, "userLikesIdsCb");
-		if (isAjaxErrorThenReport(status)) return;
+		if (isAjaxErrorThenReport(status)) {
+			aq.id(R.id.emptyMessage).visible();
+			return;
+		}
 		
 		if (jarr != null) {
 			// successful ajax call
@@ -253,7 +256,6 @@ public class ArrayListFragment extends ListFragment {
 
 				// refresh the adapter now
 				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -264,7 +266,9 @@ public class ArrayListFragment extends ListFragment {
 			apiError(LOGTAG,
 					"Error getting rolls", status, true, Log.ERROR);
 		}
-
+		if (stories.size()<1) {
+			aq.id(R.id.emptyMessage).visible();
+		}
 	}
 
 	public void getStoryListCb(String url, JSONArray jarr, AjaxStatus status) 
@@ -279,7 +283,10 @@ public class ArrayListFragment extends ListFragment {
 	
 	public void getStoryListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted) 
 	{
-		if (isAjaxErrorThenReport(status)) return;
+		if (isAjaxErrorThenReport(status)) {
+			aq.id(R.id.emptyMessage).visible();
+			return;
+		}
 			
 		Log.v(LOGTAG, "getStoryListCb " + mNum);
 		if (jarr != null) {
@@ -307,8 +314,8 @@ public class ArrayListFragment extends ListFragment {
 
 				// refresh the adapter now
 				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-
-			} catch (JSONException e) {
+			} 
+			catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -318,6 +325,9 @@ public class ArrayListFragment extends ListFragment {
 			apiError(LOGTAG,
 //					"userLikesCb: null Json, could not get story list for uuid " + mUuid, status, false, Log.ERROR);
 			"Error getting rolls", status, true, Log.ERROR);
+		}
+		if (stories.size()<1) {
+			aq.id(R.id.emptyMessage).visible();
 		}
 	}
 
