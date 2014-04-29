@@ -46,19 +46,15 @@ import com.storyroll.util.ViewUtility;
 public class ArrayListFragment extends ListFragment {
 	private static final String LOGTAG = "ArrayListFragment";
 
-//	private static final int TAB_BEST = 0;
-//	private static final int TAB_NEW = 1;
-//	public static final int TAB_MINE = 2;
-//	private static final int TAB_FAVORITE = 3;
+	private static final int TAB_BEST = 0;
+	private static final int TAB_NEW = 1;
+	public static final int TAB_MINE = 2;
+	private static final int TAB_FAVORITE = 3;
 //	public static final String[] TAB_HEADINGS = new String[] { "Best", "New", "Mine", "Likes" };
 //	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Best", "New", null, null };
 
-	private static final int TAB_BEST = 0;
-	public static final int TAB_MINE = 1;
-	private static final int TAB_NEW = 2;
-	private static final int TAB_FAVORITE = 3;
-	public static final String[] TAB_HEADINGS = new String[] { "Best Rolls", "My Rolls", null, null };
-	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Best Rolls", null, null, null };
+	public static final String[] TAB_HEADINGS = new String[] { "Hot Rolls", "New Rolls", "My Rolls", null };
+	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Hot Rolls", null, null, null };
 	
 	private static final Integer LIMIT_ITEMS = 40;
 	
