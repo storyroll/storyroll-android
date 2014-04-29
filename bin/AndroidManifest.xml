@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.storyroll"
-    android:versionCode="20"
-    android:versionName="0.29a" >
+    android:versionCode="39"
+    android:versionName="0.48a" >
 
     <!-- You can control the behaviors and visibility of the action bar with the ActionBar APIs, which were added in Android 3.0 (API level 11) -->
     <uses-sdk
@@ -41,7 +41,6 @@
             android:name=".activity.LaunchActivity"
             android:configChanges="keyboardHidden|screenSize"
             android:label="@string/app_name"
-
             android:theme="@style/SRTheme"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -49,6 +48,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity 
+            android:name=".activity.HelpActivity"
+            android:label="@string/app_name"
+            android:theme="@style/SRThemeStyledTabs"
+            android:screenOrientation="portrait">
+        </activity>  
         <activity 
             android:name=".activity.TabbedPlaylistActivity"
             android:label="@string/app_name"
@@ -63,7 +68,12 @@
             android:name=".activity.SettingsActivity" 
             android:label="@string/app_name"
             android:theme="@style/SRTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+             <!-- The meta-data element is needed for versions lower than 4.1 -->
+	        <meta-data
+	            android:name="android.support.PARENT_ACTIVITY"
+	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
         </activity>
         <activity 
             android:name=".activity.LoginActivity" 
@@ -80,7 +90,12 @@
             android:name=".activity.ProfileActivity" 
             android:screenOrientation="portrait"
             android:theme="@style/SRTheme"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+	        android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+             <!-- The meta-data element is needed for versions lower than 4.1 -->
+	        <meta-data
+	            android:name="android.support.PARENT_ACTIVITY"
+	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
         </activity>
         <activity 
             android:name=".activity.RegistrationActivity" 

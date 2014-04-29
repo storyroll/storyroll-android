@@ -2,6 +2,7 @@ package com.storyroll.ui;
 
 import java.io.File;
 
+import com.storyroll.R;
 import com.storyroll.activity.ArrayListFragment;
 import com.storyroll.activity.ArrayListFragment.PlayListAdapter;
 import com.storyroll.tasks.VideoDownloadTask;
@@ -15,6 +16,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
 
@@ -26,7 +28,8 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	public boolean isLoading = false;
 	public boolean isLoaded = false;
 	boolean playQueued = true;
-	private View controlView, unseenIndicator, playControl;
+	private View controlView, unseenIndicator;
+	private ImageView playControl;
 	private ArrayListFragment parent;
 	int screenWidth;
 	private int itemPosition;
@@ -102,7 +105,7 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	}
 	
 	public void init(ArrayListFragment parent, View controlView, int screenWidth, int itemPosition, long storyId, String uuid, 
-			ProgressBar progressBar, View unseenIndicator, View playControl) {
+			ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
@@ -200,6 +203,8 @@ public class ControlledVideoView extends VideoView implements OnVideoTaskComplet
 	}
 	public void markSeen() {
 		unseenIndicator.setVisibility(View.INVISIBLE);
+		playControl.setImageResource(R.drawable.ic_play_roll);
+		playControl.setVisibility(View.VISIBLE);
 	}
 	public void markPlayable(boolean playable) {
 		Log.v(LOGTAG, "markPlayable: "+playable);

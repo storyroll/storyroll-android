@@ -152,7 +152,7 @@ public class ArrayListFragment extends ListFragment {
 		String apiUrl = PrefUtility.getApiUrl();
 		switch (mNum) {
 		case TAB_BEST:
-			apiUrl += "getTopLikedStories?limit=" + LIMIT_ITEMS;
+			apiUrl += "getHotStories?limit=" + LIMIT_ITEMS;
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
 					"getStoryListTopCb");
 

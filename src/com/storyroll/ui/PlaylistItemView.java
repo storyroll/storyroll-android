@@ -96,9 +96,15 @@ public class PlaylistItemView extends LinearLayout {
         }
         // update unseen indicator
         ImageView unseenIndicator = (ImageView) findViewById(R.id.unseenIndicator);
-        if (parent.unseenStories.contains(story.getId()+"") && Constants.IS_NEW_STORY_INDICATED) 
+
+        if (parent.unseenStories.contains(story.getId()+"")) 
         {
-        	unseenIndicator.setVisibility(View.VISIBLE);
+        	if (Constants.IS_NEW_STORY_INDICATED) {
+        		unseenIndicator.setVisibility(View.VISIBLE);
+        	} else {
+                ImageView playControl = (ImageView) findViewById(R.id.playControl);
+                playControl.setImageResource(R.drawable.ic_play_roll_new);
+        	}
         }
         else {
         	unseenIndicator.setVisibility(View.INVISIBLE);

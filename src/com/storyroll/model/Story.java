@@ -6,13 +6,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Story implements Serializable, Comparable<Story> {
-	long id;
-	int likes;
-	long publishedOn = 0;
-	boolean completed;
-	boolean published;
-	boolean userLikes = false;
-	boolean unseen = true;
+	private long id;
+	private int likes;
+	private long publishedOn = 0;
+	private boolean completed;
+	private boolean published;
+	private boolean userLikes = false;
+	private boolean unseen = true;
 	
 	String[] cast = null;
 	

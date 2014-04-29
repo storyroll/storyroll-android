@@ -20,15 +20,7 @@
 	        android:layout_height="wrap_content"
 			android:visibility="visible"
 	        />
-	    <ImageView
-            android:id="@+id/unseenIndicator"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:src="@drawable/ic_new_roll"
-            android:visibility="invisible" 
-            android:contentDescription="New"
-            android:alpha="0.5"
-        />
+
     
 	    <com.storyroll.ui.ControlledVideoView
 	        android:id="@+id/videoPlayerView"
@@ -47,6 +39,15 @@
 			android:src="@drawable/ic_play_roll"
 			android:alpha="0.8"
 	    />
+	    <ImageView
+            android:id="@+id/unseenIndicator"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_play_roll_new"
+            android:visibility="invisible" 
+            android:contentDescription="New"
+            android:alpha="0.5"
+        />
 
 	    <ProgressBar 
 			android:id="@+id/progress"	
