@@ -67,6 +67,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	
 	private static final int VIDEO_BITRATE = 1300000;
 	private static final int VIDEO_FRAMERATE = 30;
+	private static final int NUM_PREVIEW_FRAGMENTS = 20;
 	
 	private static int DEFAULT_CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
@@ -165,7 +166,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 		// get list of available fragments
 		show(progress);
-		aq.ajax(PrefUtility.getApiUrl()+"available?uuid="+getUuid()+"&c="+10, JSONArray.class, this, "availableCb");
+		aq.ajax(PrefUtility.getApiUrl()+"available?uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS, JSONArray.class, this, "availableCb");
 		
 		// it's time to refresh video length from server
 		refreshVideoLengthSetting();
