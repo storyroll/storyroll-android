@@ -275,7 +275,18 @@ public class ProfileActivity extends MenuActivity {
 	
 	protected boolean updateProfileGeneral(String url, JSONObject json, AjaxStatus status)
 	{		
-		if (isAjaxErrorThenReport(status)) return false;
+		if (status.getCode()==500) 
+		{
+			if (status.getError().contains("already present")) {
+				Log.w(LOGTAG, "Username already present");
+				Toast.makeText(this, R.string.msg_uname_not_unique, Toast.LENGTH_SHORT).show();
+				return false;
+			}
+		}
+		if (isAjaxErrorThenReport(status)) {
+			
+			return false;
+		}
 		
         if(json != null){
             //successful ajax call
