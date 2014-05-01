@@ -20,6 +20,8 @@ public class VideoSendActivity extends MenuActivity {
 
 	protected static final String LOGTAG = "VIDEOSENT";
 	private static final String SCREEN_NAME = "VideoSent";
+	
+	private boolean startNewMode = false; 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,8 @@ public class VideoSendActivity extends MenuActivity {
     	aq.id(R.id.btnOK).visibility(View.VISIBLE);
 		aq.id(R.id.btnOK).clicked(this, "againClickedCb");
 		aq.id(R.id.btnClose).clicked(this, "closeClickedCb");
+		
+		startNewMode = getIntent().getBooleanExtra("MODE_NEW", false);
 	}
 	
 	public void againClickedCb(View view)
@@ -63,6 +67,7 @@ public class VideoSendActivity extends MenuActivity {
 		fireGAnalyticsEvent("ui_action", "touch", "againButton", null);
 		Intent intent = new Intent(getApplicationContext(), VideoCaptureActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		intent.putExtra("MODE_NEW", startNewMode);
 		startActivity(intent);
 	}
 	

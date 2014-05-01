@@ -69,7 +69,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private static final int VIDEO_FRAMERATE = 30;
 	private static final int NUM_PREVIEW_FRAGMENTS = 20;
 	
-	private static int DEFAULT_CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_FRONT;
+	private static int DEFAULT_CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;
 
 	private SurfaceView surfaceView;
 	
@@ -108,6 +108,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //	private Camera.Size bestRecordSize;
 
 	private Integer currentCameraId = null;
+	private boolean startNewMode = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -163,13 +164,22 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		
 		rotateButton = aq.id(R.id.rotateButton).getButton();
 		aq.id(R.id.rotateButton).clicked(this, "switchCameraClickedCb");
-
-		// get list of available fragments
-		show(progress);
-		aq.ajax(PrefUtility.getApiUrl()+"available?uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS, JSONArray.class, this, "availableCb");
 		
-		// it's time to refresh video length from server
-		refreshVideoLengthSetting();
+		// implicit instruction to start new fragment?
+		startNewMode = getIntent().getBooleanExtra("MODE_NEW", false);
+		if (startNewMode) 
+		{
+			lastState = STATE_NO_STORY;
+			lastState = processAndSetState(STATE_PREV_CAM);
+		}
+		else {
+			// get list of available fragments
+			show(progress);
+			aq.ajax(PrefUtility.getApiUrl()+"available?uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS, JSONArray.class, this, "availableCb");
+			
+			// it's time to refresh video length from server
+			refreshVideoLengthSetting();
+		}
 	}
 	
 	// - - - callbacks
@@ -299,6 +309,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			// go to "video sent" activity
 			Intent sendActivity = new Intent(this, VideoSendActivity.class);
 			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			sendActivity.putExtra("MODE_NEW", startNewMode);
 			startActivity(sendActivity);
         }else
         {          

@@ -93,22 +93,32 @@ public class MenuFragmentActivity extends FragmentActivity {
 		{
 			fireGAnalyticsEvent("ui_action", "touch", "home", null);
 			return super.onOptionsItemSelected(item);
+			
 		} else if (item.getItemId() == R.id.action_join) 
 		{
 			 onJoinPressed();
 			 return true;
-		}else if (item.getItemId() == R.id.action_help) {
+			 
+		} else if (item.getItemId() == R.id.action_new) 
+		{
+			 onNewPressed();
+			 return true;
+			 
+		} else if (item.getItemId() == R.id.action_help) {
 			intent = new Intent (this, HelpActivity.class);
 			startActivity(intent);
 			return true;
+			
 		} else if (item.getItemId() == R.id.action_profile) {
 			intent = new Intent(this, ProfileActivity.class);
 			startActivity(intent);
 			return true;
+			
 		} else if (item.getItemId() == R.id.action_settings) {
 			intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
+			
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
@@ -116,6 +126,22 @@ public class MenuFragmentActivity extends FragmentActivity {
 	
     /*-- callbacks & helpers --*/
 	
+	private void onNewPressed() {
+		Intent intent;
+		if (isTrial) {
+			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_trial", null);
+			intent = new Intent(this, LoginActivity.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		}
+		else {
+			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_regged", null);
+			intent = new Intent(this, VideoCaptureActivity.class);
+			intent.putExtra("MODE_NEW", true);
+		}
+		
+		startActivity(intent);
+	}
+
 	private void onJoinPressed()
 	{
 		Intent intent;
