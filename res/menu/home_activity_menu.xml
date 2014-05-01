@@ -5,11 +5,11 @@
     <item android:id="@+id/action_join"
           android:icon="@drawable/ic_action_join"
           android:title="@string/action_join"
-          android:showAsAction="ifRoom"/>
+          android:showAsAction="always"/>
     
     <item android:id="@+id/action_new"
           android:title="NEW"
-          android:showAsAction="ifRoom"/>
+          android:showAsAction="always"/>
     
     <item android:id="@+id/action_profile"
           android:title="@string/action_profile" />

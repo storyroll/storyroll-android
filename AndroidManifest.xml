@@ -18,6 +18,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <permission android:name="com.storyroll.permission.C2D_MESSAGE" android:protectionLevel="signature" />
@@ -175,6 +176,13 @@
         </receiver>
         <service android:name=".gcm.GcmIntentService" />
         
+        <service android:name="com.storyroll.shake.ShakeService" />
+	    <receiver android:name="com.storyroll.shake.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+	    </receiver>
+        
 <!--         
 		<service android:name="ru.jecklandin.stickman.vp.ProcessingService" android:process=":remote">
             intent-filter>
@@ -183,11 +191,7 @@
             </intent-filter
         </service>
 
-        <service android:name="ru.jecklandin.stickman.vp.ProcessingService1" android:process=":remote1">
-        </service>
-
-        <service android:name="ru.jecklandin.stickman.vp.ProcessingService2" android:process=":remote2">
-        </service> -->
+-->
         
         <!--
           WakefulBroadcastReceiver that will receive intents from GCM
