@@ -20,6 +20,7 @@ import com.google.analytics.tracking.android.Fields;
 import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
+import com.storyroll.shake.ShakeService;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.PrefUtility;
 import com.storyroll.util.PushTester;
@@ -86,6 +87,16 @@ public class LaunchActivity extends BaseActivity {
 		if (getIntent().getBooleanExtra("EXIT", false)) {
 			 finish();
 			 return;
+		}
+		
+		// start shake check service on first run
+		if (
+				//AppUtility.isFirstRun() && 
+				!AppUtility.isShakeServiceRunning(this)) 
+		{
+			Log.i(LOGTAG, "Starting ShakeService");
+			Intent i = new Intent(getApplicationContext(), ShakeService.class);
+	        this.startService(i);
 		}
 		
 		// update loggedIn flag - in case user was deleted

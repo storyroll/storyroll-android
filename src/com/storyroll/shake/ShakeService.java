@@ -96,49 +96,6 @@ public class ShakeService extends Service implements SensorEventListener {
 
 	}
 
-//	private void getAccelerometer(SensorEvent event) {
-//		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-//			float[] values = event.values;
-//			// Movement
-//			float x = values[0];
-//			float y = values[1];
-//			float z = values[2];
-//
-//			float accelationSquareRoot = (x * x + y * y + z * z)
-//					/ (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-//			long actualTime = System.currentTimeMillis();
-//			if (accelationSquareRoot >= 2) //
-//			{
-//				if (actualTime - lastUpdate < 2000) {
-//					count++;
-//					return;
-//				}
-//
-//				lastUpdate = actualTime;
-//
-//				{
-//					// logics
-//					Log.v(LOGTAG, "phone shaken");
-//					onShaken();
-//				}
-//			}
-//
-//		}
-//	}
-
-//	public void onSensorChanged(SensorEvent event) {
-//
-//		getAccelerometer(event);
-//
-//	}
-	
-//	@Override
-//	public void onSensorChanged(SensorEvent event) {
-//	    if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-//	        //detect the shake and do your work here
-//	    }
-//
-//	}
 
 	  @Override
 	  public void onSensorChanged(SensorEvent event) {
@@ -148,28 +105,81 @@ public class ShakeService extends Service implements SensorEventListener {
 	  }	
 	  private long lastUpdate;
 
-	  private void getAccelerometer(SensorEvent event) {
-		    float[] values = event.values;
-		    // Movement
-		    float x = values[0];
-		    float y = values[1];
-		    float z = values[2];
+//	  private void getAccelerometer(SensorEvent event) {
+//		    float[] values = event.values;
+//		    // Movement
+//		    float x = values[0];
+//		    float y = values[1];
+//		    float z = values[2];
+//
+//		    float accelationSquareRoot = (x * x + y * y + z * z)
+//		            / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
+//		    long actualTime = System.currentTimeMillis();
+//		    if (accelationSquareRoot >= 7) //
+//		    {
+//		        if (actualTime - lastUpdate < 2000) {
+//		            return;
+//		        }
+//		        lastUpdate = actualTime;
+//		        Log.v(LOGTAG, "Device was shuffed _ " + accelationSquareRoot);
+//		        Vibrator v = (Vibrator) getApplicationContext().getSystemService(VIBRATOR_SERVICE);
+//		        v.vibrate(600);
+//		        onShake();
+//		    }
+//		}
+	  
+	  private void getAccelerometer(SensorEvent se) {
+		// get sensor data
+		    float x = se.values[SensorManager.DATA_X];
+		    float y = se.values[SensorManager.DATA_Y];
+		    float z = se.values[SensorManager.DATA_Z];
+		    
+		    // calculate movement
+		    float totalMovement = Math.abs(x + y + z - lastX - lastY - lastZ);
 
-		    float accelationSquareRoot = (x * x + y * y + z * z)
-		            / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-		    long actualTime = System.currentTimeMillis();
-		    if (accelationSquareRoot >= 7) //
-		    {
-		        if (actualTime - lastUpdate < 2000) {
-		            return;
+		    if (totalMovement > MIN_FORCE) {
+		      // get time
+		      long now = System.currentTimeMillis();
+
+		      // store first movement time
+		      if (mFirstDirectionChangeTime == 0) {
+		        mFirstDirectionChangeTime = now;
+		        mLastDirectionChangeTime = now;
+		      }
+
+		      // check if the last movement was not long ago
+		      long lastChangeWasAgo = now - mLastDirectionChangeTime;
+		      if (lastChangeWasAgo < MAX_PAUSE_BETHWEEN_DIRECTION_CHANGE) {
+
+		        // store movement data
+		        mLastDirectionChangeTime = now;
+		        mDirectionChangeCount++;
+
+		        // store last sensor data 
+		        lastX = x;
+		        lastY = y;
+		        lastZ = z;
+
+		        // check how many movements are so far
+		        if (mDirectionChangeCount >= MIN_DIRECTION_CHANGE) {
+
+		          // check total duration
+		          long totalDuration = now - mFirstDirectionChangeTime;
+		          if (totalDuration < MAX_TOTAL_DURATION_OF_SHAKE) 
+		          {
+		        	  Log.v(LOGTAG, "Shake detected");
+		        	  Vibrator v = (Vibrator) getApplicationContext().getSystemService(VIBRATOR_SERVICE);
+		        	  v.vibrate(600);
+		        	  onShake();
+		        	  resetShakeParameters();
+		          }
 		        }
-		        lastUpdate = actualTime;
-		        Log.v(LOGTAG, "Device was shuffed _ " + accelationSquareRoot);
-		        Vibrator v = (Vibrator) getApplicationContext().getSystemService(VIBRATOR_SERVICE);
-		        v.vibrate(600);
-		        onShake();
+
+		      } else {
+		        resetShakeParameters();
+		      }
 		    }
-		}
+	  }
 	  
 	  /**
 	   * Resets the shake parameters to their default values.

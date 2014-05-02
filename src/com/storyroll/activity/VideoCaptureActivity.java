@@ -176,10 +176,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			// get list of available fragments
 			show(progress);
 			aq.ajax(PrefUtility.getApiUrl()+"available?uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS, JSONArray.class, this, "availableCb");
-			
-			// it's time to refresh video length from server
-			refreshVideoLengthSetting();
 		}
+		// it's time to refresh video length from server
+		refreshVideoLengthSetting();
 	}
 	
 	// - - - callbacks
@@ -788,6 +787,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		camera.stopPreview();
+		holder.removeCallback(this);
 		camera.release();
 		camera = null;
 	}
@@ -795,7 +795,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		camera = getCameraInstance();
-
+		if (camera==null) {
+			Log.e(LOGTAG, "camera is null");
+			return;
+		}
+		
 		try {
 			camera.setPreviewDisplay(holder);
 		} catch (IOException e) {

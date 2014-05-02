@@ -8,6 +8,8 @@ import java.io.File;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -38,6 +40,7 @@ public class AppUtility {
 //	public final static String API_URL="http://192.168.1.64:8080/storyroll/api/";
 	
 	public final static Class ACTIVITY_HOME = TabbedPlaylistActivity.class;
+	private static final String LOGTAG = "AppUtility";
 
 	public static FacebookHandle makeHandle(Activity act){
 		
@@ -169,6 +172,25 @@ public class AppUtility {
 		String uuid = settings.getString(Constants.PREF_EMAIL, null);
 		Boolean loggedIn = settings.getBoolean(Constants.PREF_IS_LOGGED_IN, false);
 		return (uuid!=null) && loggedIn;
+    }
+    
+    public static boolean isFirstRun(){
+    	SharedPreferences p = MainApplication.getContext().getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+    	boolean firstRun = p.getBoolean(Constants.PREF_FIRST_RUN, true);
+    	p.edit().putBoolean(Constants.PREF_FIRST_RUN, false).commit();
+    	return firstRun;
+    }
+    
+    public static boolean isShakeServiceRunning(Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("com.storyroll.shake.ShakeService".equals(service.service.getClassName())) {
+            	Log.v(LOGTAG, "ShakeService already running");
+                return true;
+            }
+        }
+        Log.v(LOGTAG, "ShakeService not running");
+        return false;
     }
     
 //	public static FeedMode getDefaultMode(){

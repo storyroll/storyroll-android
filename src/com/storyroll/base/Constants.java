@@ -33,6 +33,8 @@ public interface Constants {
 	public static final String PREF_AVATAR = "sr.pref.avatar";
 	public static final String PREF_LOCATION = "sr.pref.location";
 	public static final String PREF_GCM_REG_ID = "sr.pref.gcm";
+	public static final String PREF_FIRST_RUN = "sr.pref.firstrun";
+
 	
 	public static final String PREF_SSO = "sf.pref.sso";
 	public static final String PREF_NID = "aq.fb.nid";
