@@ -19,7 +19,7 @@ public class ShakeService extends Service implements SensorEventListener {
 	SensorManager mSensorManager;
 
 	  /** Minimum movement force to consider. */
-	  private static final int MIN_FORCE = 10;
+	  private static final int MIN_FORCE = 15;
 
 	  /**
 	   * Minimum times in a shake gesture that the direction of movement needs to
@@ -28,7 +28,7 @@ public class ShakeService extends Service implements SensorEventListener {
 	  private static final int MIN_DIRECTION_CHANGE = 3;
 
 	  /** Maximum pause between movements. */
-	  private static final int MAX_PAUSE_BETHWEEN_DIRECTION_CHANGE = 200;
+	  private static final int MAX_PAUSE_BETWEEN_DIRECTION_CHANGE = 200;
 
 	  /** Maximum allowed time for shake gesture. */
 	  private static final int MAX_TOTAL_DURATION_OF_SHAKE = 400;
@@ -149,7 +149,7 @@ public class ShakeService extends Service implements SensorEventListener {
 
 		      // check if the last movement was not long ago
 		      long lastChangeWasAgo = now - mLastDirectionChangeTime;
-		      if (lastChangeWasAgo < MAX_PAUSE_BETHWEEN_DIRECTION_CHANGE) {
+		      if (lastChangeWasAgo < MAX_PAUSE_BETWEEN_DIRECTION_CHANGE) {
 
 		        // store movement data
 		        mLastDirectionChangeTime = now;

@@ -246,30 +246,13 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
                 && !event.isCanceled()) {
             // Back button press complete, handle
         	
-        	long currentTime = System.currentTimeMillis();
-        	long tDiff = currentTime - lastPressed;
-        	if (tDiff>DOUBLE_PUSH_BACK_MILLIS) {
-        		backTries = 0;
-        	}
-        	if (backTries++>0) {
-        		// on second press, exit
-        		
-        		fireGAnalyticsEvent("ui_action", "click", "SystemBack-1st", 0L);
-        			    
-        		Intent intent = new Intent(Intent.ACTION_MAIN);
-        		intent.addCategory(Intent.CATEGORY_HOME);
-        		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        		intent.putExtra("EXIT", true);
-        		startActivity(intent);
-        	}
-        	else {
-        		// on first press, show note
-        		Toast.makeText(this, "To exit, press back twice", Toast.LENGTH_SHORT).show();
-        		
-        		fireGAnalyticsEvent("ui_action", "click", "SystemBack-2nd", 0L);
-        	}
-        	lastPressed = currentTime;
-        	
+    		fireGAnalyticsEvent("ui_action", "click", "SystemBack", 0L);
+    			    
+    		Intent intent = new Intent(Intent.ACTION_MAIN);
+    		intent.addCategory(Intent.CATEGORY_HOME);
+    		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    		intent.putExtra("EXIT", true);
+    		startActivity(intent);
             return true;
         }
         return super.onKeyUp(keyCode, event);

@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import com.google.analytics.tracking.android.MapBuilder;
 import com.google.analytics.tracking.android.Tracker;
 import com.storyroll.PQuery;
 import com.storyroll.model.Profile;
+import com.storyroll.shake.ShakeService;
 import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.ErrorUtility;
@@ -38,6 +40,16 @@ public class BaseActivity extends Activity {
 	    	ActionBarUtility.initCustomActionBar(this, true);
 //	    }
 	    isTrial = getIntent().getBooleanExtra("TRIAL", false);
+		
+	    // start shake check service if it's not running
+		if (
+				//AppUtility.isFirstRun() && 
+				!AppUtility.isShakeServiceRunning(this)) 
+		{
+			Log.i(LOGTAG, "Starting ShakeService");
+			Intent i = new Intent(getApplicationContext(), ShakeService.class);
+	        this.startService(i);
+		}
 	}
 	
 //    @Override

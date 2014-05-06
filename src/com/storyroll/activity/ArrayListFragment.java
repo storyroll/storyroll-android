@@ -205,7 +205,7 @@ public class ArrayListFragment extends ListFragment {
 	{
 		Log.v(LOGTAG, "userLikesIdsCb");
 		if (isAjaxErrorThenReport(status)) {
-			aq.id(R.id.emptyMessage).visible();
+			aq.id(R.id.emptyMessage).gone();
 			return;
 		}
 		
@@ -267,7 +267,7 @@ public class ArrayListFragment extends ListFragment {
 					"Error getting rolls", status, true, Log.ERROR);
 		}
 		if (stories.size()<1) {
-			aq.id(R.id.emptyMessage).visible();
+			aq.id(R.id.emptyMessage).gone();
 		}
 	}
 
@@ -284,7 +284,7 @@ public class ArrayListFragment extends ListFragment {
 	public void getStoryListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted) 
 	{
 		if (isAjaxErrorThenReport(status)) {
-			aq.id(R.id.emptyMessage).visible();
+			aq.id(R.id.emptyMessage).gone();
 			return;
 		}
 			
@@ -327,7 +327,7 @@ public class ArrayListFragment extends ListFragment {
 			"Error getting rolls", status, true, Log.ERROR);
 		}
 		if (stories.size()<1) {
-			aq.id(R.id.emptyMessage).visible();
+			aq.id(R.id.emptyMessage).gone();
 		}
 	}
 

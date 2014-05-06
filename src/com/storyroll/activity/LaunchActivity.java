@@ -89,16 +89,6 @@ public class LaunchActivity extends BaseActivity {
 			 return;
 		}
 		
-		// start shake check service on first run
-		if (
-				//AppUtility.isFirstRun() && 
-				!AppUtility.isShakeServiceRunning(this)) 
-		{
-			Log.i(LOGTAG, "Starting ShakeService");
-			Intent i = new Intent(getApplicationContext(), ShakeService.class);
-	        this.startService(i);
-		}
-		
 		// update loggedIn flag - in case user was deleted
 		if (isLoggedIn()) {
 			String apiUrl = PrefUtility.getApiUrl() + "hasUser?uuid="+getUuid();
