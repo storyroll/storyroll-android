@@ -334,7 +334,7 @@ public class ArrayClipsFragment extends ListFragment {
 
 			// 4. set data & callbacks
 			Clip clip = clips.get(position);
-			rowView.init(clip, aq, ArrayClipsFragment.this);
+			rowView.initAndLoadCast(clip, aq, ArrayClipsFragment.this);
 
 			// TODO:
 			aq.id(clipThumb).image(PrefUtility.getApiUrl() + "clipThumb?clip=" + clip.getId());

@@ -14,7 +14,7 @@ public class Story implements Serializable, Comparable<Story> {
 	private boolean userLikes = false;
 	private boolean unseen = true;
 	
-	String[] cast = null;
+	private String[] cast = null;
 	
 	public Story(long id, int likes) {
 		this.id = id;

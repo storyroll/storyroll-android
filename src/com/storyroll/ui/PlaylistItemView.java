@@ -81,7 +81,6 @@ public class PlaylistItemView extends LinearLayout {
             //ajax error
         	Log.e(LOGTAG, "getStoryCastCb: null Json, cast not received for storyId="+story.getId());
         }
-       
 	}
 	
     @Override

@@ -59,15 +59,127 @@
 		/>
   	</FrameLayout>
 
-    <ImageButton 
-        android:id="@+id/replyButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:layout_marginRight="15dp"
-        android:src="@drawable/ic_action_join"
-        android:background="@color/sr_bg_actionbar"
-        android:layout_gravity="right"/>
+      	<LinearLayout
+  	    android:layout_width="match_parent"
+  	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    >
+    
+	    <TextView 
+	        android:layout_height="match_parent"
+	        android:layout_width="0dp"
+	        android:text="@string/cast"
+	        android:textColor="@color/sr_cast_text"
+	        android:textSize="12sp"
+	        android:textStyle="bold"
+	        android:layout_weight="1"
+	        android:gravity="right|center_vertical"
+	   />
+
+	  <LinearLayout
+	        android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:paddingLeft="0dp"
+	        android:paddingRight="0dp"
+	        android:paddingBottom="3dp"
+	        android:orientation="horizontal"
+	        android:gravity="center_horizontal"
+	        android:layout_weight="2"
+	        >
+	
+	        <com.storyroll.ui.RoundedImageView
+	            android:id="@+id/cast1"
+	            android:layout_height="40dp"
+	            android:layout_width="40dp"
+	            android:visibility="gone"
+	            app:corner_radius="20dp"
+	            app:round_background="false"
+	            app:is_oval="true"
+	            android:layout_marginRight="3dp"
+	            android:layout_marginLeft="3dp"
+	            android:alpha="0.5"
+	            />
+	        <com.storyroll.ui.RoundedImageView
+	            
+	            android:id="@+id/cast2"
+	            android:layout_height="40dp"
+	            android:layout_width="40dp"
+	            android:visibility="gone"
+	            app:corner_radius="20dp"
+	            app:round_background="false"
+	            app:is_oval="true"
+	          	android:layout_marginRight="3dp"
+	          	android:alpha="0.5"
+	            />
+	        <com.storyroll.ui.RoundedImageView
+	            android:id="@+id/cast3"
+	            android:layout_height="40dp"
+	            android:layout_width="40dp"
+	            android:visibility="gone"
+	            app:corner_radius="20dp"
+	            app:round_background="false"
+	            app:is_oval="true"
+	            android:layout_marginRight="3dp"
+	            android:alpha="0.5"
+
+	            />
+	        <!-- <ImageView
+	            android:id="@+id/cast4"
+	            android:layout_height="60dp"
+	            android:layout_width="60dp"
+	            android:layout_toRightOf="@id/cast3"
+	            android:layout_alignParentTop="true"
+	            android:paddingRight="10px"
+	            android:visibility="gone"/>
+	        <ImageView
+	            android:id="@+id/cast5"
+	            android:layout_height="60dp"
+	            android:layout_width="60dp"
+	            android:layout_alignParentTop="true"
+	            android:layout_toRightOf="@id/cast4"
+	            android:paddingRight="10px"
+	            android:visibility="gone"/> -->
+       </LinearLayout>
+	       
+	  <!--
+       <TextView 
+        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:visibility="invisible"
+        android:text=" "
+      />
+      -->
+       
+       <FrameLayout
+           android:layout_height="wrap_content"
+           android:layout_width="0dp"
+           android:layout_weight="1">
+           <ImageButton 
+	        android:id="@+id/replyButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:padding="5dp"
+	        android:layout_marginRight="15dp"
+	        android:src="@drawable/ic_action_join"
+	        android:background="@color/sr_bg_actionbar"
+	        android:layout_gravity="right|center_vertical"/>
+       </FrameLayout>
+           
+           
+    </LinearLayout>
+    
+  	<!-- SEPARATOR -->
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="1dp"
+	    android:background="@color/sr_bg_separator"
+	    android:layout_marginTop="8dp"
+	    android:layout_marginLeft="20dp"
+	    android:layout_marginRight="20dp"
+	    android:layout_marginBottom="15dp"
+    />
+
 
   	<FrameLayout 
   	    android:layout_height="wrap_content"

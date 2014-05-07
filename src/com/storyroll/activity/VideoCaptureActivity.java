@@ -77,7 +77,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	
 	TextView startStoryMessage;
 //	videocapReadyMessage;
-	ImageView counterOverlay, sliderOverlay, controlClose, controlBack;
+	ImageView counterOverlay, sliderOverlay;//, controlClose, controlBack;
 	ProgressBar progress, customRecProgress;
 
 	MediaRecorder recorder;
@@ -169,10 +169,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		if (startNewMode) 
 		{
 			lastState = STATE_NO_STORY;
-			lastState = processAndSetState(STATE_PREV_CAM);
+			lastState = processAndSwitchToState(STATE_PREV_CAM);
 		}
 		else if (respondToClipId!=NULL_RESPONSE_CLIP) 
 		{
+			lastState = STATE_INITIAL;
 			startVideoPreloadTask(respondToClipId);
 		}
 		else {
@@ -225,7 +226,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         	isFragmentCarousel = false;
             //ajax error - means no story to join, offer to start new one
         	Log.w(LOGTAG, "availableCb: null Json");
-        	lastState = processAndSetState(STATE_NO_STORY);
+        	lastState = processAndSwitchToState(STATE_NO_STORY);
         }
         
 	}
@@ -253,29 +254,33 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	
 	@Override
 	public void onVideoTaskCompleted(String cachedFileName, boolean success, boolean wasCached, Exception e) {
+		
+		hide(progress);
+		
 		// start playing last fragment and enable control button
 		lastFragmentPath = AppUtility.getVideoCacheDir(getApplicationContext())+"/"+cachedFileName;
 		Log.d(LOGTAG, "onVideoTaskCompleted: "+lastFragmentPath);
 		
 		if (success) {
-			// below will do all of the above
-			lastState = processAndSetState(STATE_PREV_LAST);
+			// below will do all the necessart UI cleanup
+			lastState = processAndSwitchToState(STATE_PREV_LAST);
 			failedAttempts = 0;
 		}
 		else {
 			// swallow, clean up after itself, and try next;
 			failedAttempts++;
-			hide(progress);
 			if (e!=null) {
 				BugSenseHandler.sendException(e);
 			}
 			if (failedAttempts < MAX_NEXT_FRAGMENT_ATTEMPTS) 
 			{
-				playNextCarouselItem(); // try loading next
+				if (isFragmentCarousel) {
+					playNextCarouselItem(); // try loading next
+				}
 			}
 			else {
-				Toast.makeText(this, "Error loading fragment, please try again.", Toast.LENGTH_SHORT).show();;
-				Log.e(LOGTAG, "Fragment load fail/retry exhausted.");
+				Toast.makeText(this, "Error loading video, please try again.", Toast.LENGTH_SHORT).show();;
+				Log.e(LOGTAG, "Video load fail/retry exhausted.");
 				failedAttempts = 0;
 			}
 		}
@@ -294,7 +299,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
     	}
     	else if (isAjaxErrorThenReport(status)) {
     		Toast.makeText(this, "Error uploading fragment, please try again", Toast.LENGTH_SHORT).show();
-    		processAndSetState(STATE_UPLOAD_FAIL);
+    		processAndSwitchToState(STATE_UPLOAD_FAIL);
     		return;
     	}
 
@@ -326,13 +331,13 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         	apiError(LOGTAG, "Could not upload the fragment, try again.", status, true, Log.ERROR);
 
         	// restore state
-        	processAndSetState(STATE_PREV_NEW);
+        	processAndSwitchToState(STATE_PREV_NEW);
 //			lastState = STATE_PREV_NEW;
         }
 	}
 
 	// this only activates necessary elements for new state, without taking into account the last state
-	public int processAndSetState(int newState) {
+	public int processAndSwitchToState(int newState) {
 		Log.i(LOGTAG, "processAndSetNewState: "+newState);
 		switch (newState) {
 		case STATE_NO_STORY:
@@ -653,12 +658,12 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			
 		case STATE_INITIAL:
 			// switch camera preview on
-			lastState = processAndSetState(STATE_PREV_CAM);
+			lastState = processAndSwitchToState(STATE_PREV_CAM);
 			break;
 			
 		case STATE_PREV_CAM:
 			// START RECORDING
-			lastState = processAndSetState(STATE_REC);
+			lastState = processAndSwitchToState(STATE_REC);
 			break;
 			
 		case STATE_REC:
@@ -670,7 +675,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			videoView.stopPlayback();
 			playsEarlierFragment = false;
 			videoView.setOnCompletionListener(null);
-			lastState = processAndSetState(STATE_UPLOAD);
+			lastState = processAndSwitchToState(STATE_UPLOAD);
 			break;
 
 		default:
@@ -696,10 +701,10 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	public void backAndCloseClickedCb()
 	{
 		fireGAnalyticsEvent("ui_action", "back&close_control_from_state", DataUtility.stateStr(lastState), null);
-		backAndCloseClicked();
+		backOrCloseClicked();
 	}
 	
-	public void backAndCloseClicked() 
+	public void backOrCloseClicked() 
 	{
 
 		Intent intent;
@@ -722,7 +727,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 				show(videoView);
 			}
 			hide(rotateButton);
-			lastState = processAndSetState(STATE_PREV_LAST);
+			lastState = processAndSwitchToState(STATE_PREV_LAST);
 			
 			break;
 		case STATE_REC:
@@ -733,7 +738,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			releaseMediaRecorder();
 			hide(surfaceView);
 			
-			lastState = processAndSetState(STATE_PREV_CAM);
+			lastState = processAndSwitchToState(STATE_PREV_CAM);
 
 			break;
 		case STATE_PREV_NEW:
@@ -742,13 +747,13 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			hide(videoView);
 			
 			// return to camera preview
-			lastState = processAndSetState(STATE_PREV_CAM);
+			lastState = processAndSwitchToState(STATE_PREV_CAM);
 
 			break;
 		case STATE_UPLOAD:
 			cancelUpload  = true;
 			
-			lastState = processAndSetState(STATE_PREV_NEW);
+			lastState = processAndSwitchToState(STATE_PREV_NEW);
 			break;
 		default:
 			Log.e(LOGTAG, "back pressed while in undefined state "+lastState);
@@ -799,7 +804,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		camera.stopPreview();
-		holder.removeCallback(this);
+//		holder.removeCallback(this);
 		camera.release();
 		camera = null;
 	}
@@ -979,7 +984,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			// here comes "hidden" stop state processing step
 			releaseMediaRecorder();
 			hide(surfaceView);
-			lastState = processAndSetState(STATE_PREV_NEW);
+			lastState = processAndSwitchToState(STATE_PREV_NEW);
 		}
 	}
 
@@ -1020,7 +1025,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
             
         	// Back button press complete, handle
     		fireGAnalyticsEvent("ui_action", "system_back_from_state", DataUtility.stateStr(lastState), null);
-    		backAndCloseClicked();
+    		backOrCloseClicked();
             return true;
         }
         return super.onKeyUp(keyCode, event);
