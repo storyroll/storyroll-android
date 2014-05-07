@@ -31,7 +31,9 @@ public class BaseActivity extends Activity {
     protected static boolean isTrial=false;
 	
 	public com.storyroll.PQuery aq;
-	
+
+	private static final boolean FORCE_SHAKE_SERVICE_ALIVE = false;
+
 	@Override
     protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -42,7 +44,7 @@ public class BaseActivity extends Activity {
 	    isTrial = getIntent().getBooleanExtra("TRIAL", false);
 		
 	    // start shake check service if it's not running
-		if (
+		if ( FORCE_SHAKE_SERVICE_ALIVE &&
 				//AppUtility.isFirstRun() && 
 				!AppUtility.isShakeServiceRunning(this)) 
 		{

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.storyroll"
-    android:versionCode="39"
-    android:versionName="0.48a" >
+    android:versionCode="40"
+    android:versionName="0.49a" >
 
     <!-- You can control the behaviors and visibility of the action bar with the ActionBar APIs, which were added in Android 3.0 (API level 11) -->
     <uses-sdk
@@ -58,6 +58,16 @@
         </activity>  
         <activity 
             android:name=".activity.TabbedPlaylistActivity"
+            android:label="@string/app_name"
+            android:theme="@style/SRThemeStyledTabs"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </activity>
+        <activity 
+            android:name=".activity.ClipPlaylistActivity"
             android:label="@string/app_name"
             android:theme="@style/SRThemeStyledTabs"
             android:screenOrientation="portrait">
@@ -177,13 +187,14 @@
         </receiver>
         <service android:name=".gcm.GcmIntentService" />
         
+        <!-- 
         <service android:name="com.storyroll.shake.ShakeService" />
 	    <receiver android:name="com.storyroll.shake.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
 	    </receiver>
-        
+         -->
 <!--         
 		<service android:name="ru.jecklandin.stickman.vp.ProcessingService" android:process=":remote">
             intent-filter>
