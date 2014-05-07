@@ -17,10 +17,8 @@ import android.widget.Button;
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
-import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
 import com.storyroll.base.BaseActivity;
-import com.storyroll.shake.ShakeService;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.PrefUtility;
 import com.storyroll.util.PushTester;
@@ -58,6 +56,8 @@ public class LaunchActivity extends BaseActivity {
 
 //	protected static final long SPLASH_SCREEN_WAIT = 3000;
 	protected static final long SPLASH_SCREEN_WAIT = 500;
+	
+	private static final boolean START_WITH_TUTORIAL = false;
 
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
@@ -285,8 +285,13 @@ public class LaunchActivity extends BaseActivity {
 	private void nextAction() {
 		Log.d(LOGTAG, "proceed to next action");
 		isGone = true;
-//		Intent intent = new Intent(getApplicationContext(), TabbedPlaylistActivity.class);
-		Intent intent = new Intent(getApplicationContext(), HelpActivity.class);
+		Intent intent = null;
+		if (START_WITH_TUTORIAL) {
+			intent = new Intent(getApplicationContext(), HelpActivity.class);
+		}
+		else {
+			intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);			
+		}
 
 		intent.putExtra("TRIAL", !isLoggedIn());
         startActivity(intent);

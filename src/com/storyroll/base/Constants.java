@@ -43,6 +43,7 @@ public interface Constants {
 	
 
 	public static final boolean IS_NEW_STORY_INDICATED = false;
+	public static final boolean IS_NEW_BLINK_INDICATED = false;
 
 	public static final String SERV_PREF_VIDEO_DURATION = "storyroll.app.video.duration";
 }

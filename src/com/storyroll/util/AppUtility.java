@@ -19,6 +19,7 @@ import android.util.Log;
 import com.androidquery.auth.FacebookHandle;
 import com.storyroll.MainApplication;
 import com.storyroll.R;
+import com.storyroll.activity.ClipPlaylistActivity;
 import com.storyroll.activity.TabbedPlaylistActivity;
 import com.storyroll.base.Constants;
 //import com.androidquery.simplefeed.data.Entity;
@@ -39,7 +40,8 @@ public class AppUtility {
 	
 //	public final static String API_URL="http://192.168.1.64:8080/storyroll/api/";
 	
-	public final static Class ACTIVITY_HOME = TabbedPlaylistActivity.class;
+//	public final static Class ACTIVITY_HOME = TabbedPlaylistActivity.class;
+	public final static Class ACTIVITY_HOME = ClipPlaylistActivity.class;
 	private static final String LOGTAG = "AppUtility";
 
 	public static FacebookHandle makeHandle(Activity act){

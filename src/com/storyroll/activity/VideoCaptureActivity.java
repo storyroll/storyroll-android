@@ -109,6 +109,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 	private Integer currentCameraId = null;
 	private boolean startNewMode = false;
+	private final static long NULL_RESPONSE_CLIP=-1L;
+	private Long respondToClipId = NULL_RESPONSE_CLIP;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -165,6 +167,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		rotateButton = aq.id(R.id.rotateButton).getButton();
 		aq.id(R.id.rotateButton).clicked(this, "switchCameraClickedCb");
 		
+		respondToClipId = getIntent().getLongExtra("RESPOND_TO_CLIP", NULL_RESPONSE_CLIP);
 		// implicit instruction to start new fragment?
 		startNewMode = getIntent().getBooleanExtra("MODE_NEW", false);
 		if (startNewMode) 

@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.DisplayMetrics;
@@ -22,6 +23,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,10 +35,10 @@ import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.enums.AutostartMode;
+import com.storyroll.model.Clip;
 import com.storyroll.model.Story;
+import com.storyroll.ui.ClipListItemView;
 import com.storyroll.ui.ControlledClipView;
-import com.storyroll.ui.ControlledVideoView;
-import com.storyroll.ui.PlaylistItemView;
 import com.storyroll.ui.RoundedImageView;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.ErrorUtility;
@@ -44,18 +46,14 @@ import com.storyroll.util.NetworkUtility;
 import com.storyroll.util.PrefUtility;
 import com.storyroll.util.ViewUtility;
 
-public class ArrayListFragment extends ListFragment {
+public class ArrayClipsFragment extends ListFragment {
 	private static final String LOGTAG = "ArrayListFragment";
 
-	private static final int TAB_BEST = 0;
-	private static final int TAB_NEW = 1;
-	public static final int TAB_MINE = 2;
-	private static final int TAB_FAVORITE = 3;
-//	public static final String[] TAB_HEADINGS = new String[] { "Best", "New", "Mine", "Likes" };
-//	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Best", "New", null, null };
+	public static final int TAB_ONE = 0;
+	public static final int TAB_TWO = 1;
 
-	public static final String[] TAB_HEADINGS = new String[] { "Hot Rolls", "New Rolls", "My Rolls", null };
-	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "Hot Rolls", null, null, null };
+	public static final String[] TAB_HEADINGS = new String[] { "One", "Two" };
+	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "One", null };
 	
 	private static final Integer LIMIT_ITEMS = 40;
 	
@@ -74,18 +72,16 @@ public class ArrayListFragment extends ListFragment {
 	private boolean isTrial;
 	private PQuery aq;
 	
-	private ArrayList<Story> stories = new ArrayList<Story>();
-//	private Map<Long, Story> idToStory = new HashMap<Long, Story>();
-	public static Set<String> userLikes = null;
-	public static Set<String> unseenStories = null;
+	private ArrayList<Clip> clips = new ArrayList<Clip>();
+	public static Set<String> unseenClips = null;
     
 
 	/**
 	 * Create a new instance of CountingFragment, providing "num" as an
 	 * argument.
 	 */
-	static ArrayListFragment newInstance(int num, String uuid, boolean isTrial) {
-		ArrayListFragment f = new ArrayListFragment();
+	static ArrayClipsFragment newInstance(int num, String uuid, boolean isTrial) {
+		ArrayClipsFragment f = new ArrayClipsFragment();
 
 		// Supply num input as an argument.
 		Bundle args = new Bundle();
@@ -108,32 +104,7 @@ public class ArrayListFragment extends ListFragment {
 		mUuid = getArguments() != null ? getArguments().getString("uuid") : "";
 		isTrial = getArguments() != null ? getArguments().getBoolean("trial") : false;
 		
-		aq = ((TabbedPlaylistActivity) getActivity()).getPQuery();
-		
-		// get user likes only once
-		if (isTrial) {
-			userLikes = new HashSet<String>();
-		}
-		else if (userLikes==null || userLikes.isEmpty()) 
-		{
-			if (userLikes == null) {
-				userLikes = new HashSet<String>();
-			}
-			String apiUrl = PrefUtility.getApiUrl()+"userLikes?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
-			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "userLikesIdsCb");
-		}
-		// get unseen only once
-		if (isTrial) {
-			unseenStories = new HashSet<String>();
-		}
-		else if (unseenStories==null || unseenStories.isEmpty()) 
-		{
-			if (unseenStories == null) {
-				unseenStories = new HashSet<String>();
-			}
-			updateUnseenStoriesFromServer();
-		}
-
+		aq = ((ClipPlaylistActivity) getActivity()).getPQuery();
 	}
 
 	@Override
@@ -152,31 +123,19 @@ public class ArrayListFragment extends ListFragment {
 
 		String apiUrl = PrefUtility.getApiUrl();
 		switch (mNum) {
-		case TAB_BEST:
-			apiUrl += "getHotStories?limit=" + LIMIT_ITEMS;
+		case TAB_ONE:
+			apiUrl += "available?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
-					"getStoryListTopCb");
+					"getClipListCb");
 
 			break;
-		case TAB_FAVORITE:
-			apiUrl += "userLikes?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
+		case TAB_TWO:
+			apiUrl += "available?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
-					"userLikesCb");
+					"getClipListCb");
 
 			break;
-		case TAB_MINE:
-			apiUrl += "getUserPublishedStories?uuid=" + mUuid + "&limit="
-					+ LIMIT_ITEMS;
-			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
-					"getStoryListCb");
-
-			break;
-		case TAB_NEW:
-			apiUrl += "getLatestPublishedStories?limit=" + LIMIT_ITEMS;
-			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
-					"getStoryListCb");
-
-			break;
+		
 		default:
 			Log.e(LOGTAG, "Unrecognized tabnum: " + mNum);
 			break;
@@ -185,8 +144,8 @@ public class ArrayListFragment extends ListFragment {
 		// using application context to avoid the leak
 		// see
 		// http://stackoverflow.com/questions/18896880/passing-context-to-arrayadapter-inside-fragment-with-setretaininstancetrue-wil
-		PlayListAdapter pla = new PlayListAdapter(getActivity()
-				.getApplicationContext(), stories, aq, mUuid, isTrial);
+		ClipListAdapter pla = new ClipListAdapter(getActivity()
+				.getApplicationContext(), clips, aq, mUuid, isTrial);
 		
 		setListAdapter(pla);
 		getListView().setOnScrollListener(pla);
@@ -199,119 +158,44 @@ public class ArrayListFragment extends ListFragment {
 	// Log.i("FragmentList", "Item clicked: " + id);
 	// }
 
-    
-	// inner callbacks
-    // get initial, centralized (static) user "liked" story ids
-	public void userLikesIdsCb(String url, JSONArray jarr, AjaxStatus status) 
+
+	public void getClipListCb(String url, JSONArray jarr, AjaxStatus status) 
 	{
-		Log.v(LOGTAG, "userLikesIdsCb");
-		if (isAjaxErrorThenReport(status)) {
-			aq.id(R.id.emptyMessage).gone();
-			return;
-		}
-		
-		if (jarr != null) {
-			// successful ajax call
-			try {
-				
-				userLikes.clear();
-				for (int i = 0; i < jarr.length(); i++) {
-					JSONObject likeObj = jarr.getJSONObject(i);
-					JSONObject storyObj = (JSONObject) likeObj.get("story");
-					userLikes.add(storyObj.getLong("id")+"");
-				}
-				Log.v(LOGTAG, "user liked stories:" + userLikes.size()+" "+userLikes.toString());
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		} else {
-			// ajax error
-			apiError(LOGTAG,
-					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status, false, Log.ERROR);
-		}
-
+		getClipListSorted(url, jarr, status, true);
 	}
 	
-	public void userLikesCb(String url, JSONArray jarr, AjaxStatus status) {
-		Log.v(LOGTAG, "userLikesCb ");
-		if (jarr != null) {
-			// successful ajax call
-			// Log.i(LOGTAG, "userLikesCb success: "+jarr.length());
-			// do something with the jsonarray
-			try {
-				stories.clear();
-				userLikes.clear();
-				for (int i = 0; i < jarr.length(); i++) {
-					JSONObject likeObj = jarr.getJSONObject(i);
-					JSONObject storyObj = (JSONObject) likeObj.get("story");
-					Story story = new Story(storyObj);
-					// all stories in this list are likes
-					userLikes.add(story.getId()+"");
-					story.setUserLikes(true);
-					stories.add(story);
-				}
-				Collections.sort(stories);
-				Log.v(LOGTAG, "stories:" + stories.size());
 
-				// refresh the adapter now
-				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		} else {
-			// ajax error
-			apiError(LOGTAG,
-					"Error getting rolls", status, true, Log.ERROR);
-		}
-		if (stories.size()<1) {
-			aq.id(R.id.emptyMessage).gone();
-		}
-	}
-
-	public void getStoryListCb(String url, JSONArray jarr, AjaxStatus status) 
-	{
-		getStoryListSorted(url, jarr, status, true);
-	}
 	
-	public void getStoryListTopCb(String url, JSONArray jarr, AjaxStatus status) 
-	{
-		getStoryListSorted(url, jarr, status, false);
-	}
-	
-	public void getStoryListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted) 
+	public void getClipListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted) 
 	{
 		if (isAjaxErrorThenReport(status)) {
 			aq.id(R.id.emptyMessage).gone();
 			return;
 		}
 			
-		Log.v(LOGTAG, "getStoryListCb " + mNum);
+		Log.v(LOGTAG, "getClipListSorted " + mNum);
 		if (jarr != null) {
 			// successful ajax call
-			Log.i(LOGTAG, "getStoryListCb success: " + jarr.toString());
+			Log.i(LOGTAG, "getClipListSorted success: " + jarr.toString());
 			// do something with the jsonarray
 			try {
-				stories.clear();
+				clips.clear();
 //				for (int test = 0; test<3; test++) {
 				for (int i = 0; i < jarr.length(); i++) {
-					JSONObject storyObj = jarr.getJSONObject(i);
-					Story story = new Story(storyObj);
-					if (story.isPublished()) {
-						// manually set userLikes flag
-						story.setUserLikes(userLikes.contains(story.getId()+""));
-						story.setUnseen(unseenStories.contains(story.getId()+""));
-						stories.add(story);
-					}
+					JSONObject clipObj = jarr.getJSONObject(i);
+					Clip clip = new Clip(clipObj);
+//					if (blink.isPublished()) {
+//						// manually set userLikes flag
+////						story.setUserLikes(userLikes.contains(story.getId()+""));
+//						blink.setUnseen(unseenBlinks.contains(story.getId()+""));
+						clips.add(clip);
+//					}
 				}
 //				}
 				if (sorted) {
-					Collections.sort(stories);
+					Collections.sort(clips);
 				}
-				Log.v(LOGTAG, "stories:" + stories.size());
+				Log.v(LOGTAG, "clips:" + clips.size());
 
 				// refresh the adapter now
 				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
@@ -324,20 +208,21 @@ public class ArrayListFragment extends ListFragment {
 		} else {
 			// ajax error
 			apiError(LOGTAG,
-//					"userLikesCb: null Json, could not get story list for uuid " + mUuid, status, false, Log.ERROR);
-			"Error getting rolls", status, true, Log.ERROR);
+//					"getClipListSorted: null Json, could not get blink list for uuid " + mUuid, status, false, Log.ERROR);
+			"Error getting clips", status, true, Log.ERROR);
 		}
-		if (stories.size()<1) {
+		if (clips.size()<1) {
 			aq.id(R.id.emptyMessage).gone();
 		}
 	}
 
-	private static ControlledVideoView currentlyPlayed = null;
+	private static ControlledClipView currentlyPlayed = null;
+
 	
 	// stop currently played video and start new one, setting it as currently played
 	// needed to avoid playing two or more videos at once
 	// using this as a central point for play event counter
-	public void switchCurrentlyPlayed(ControlledVideoView v)
+	public void switchCurrentlyPlayedClip(ControlledClipView v)
 	{
 		if (currentlyPlayed!=null && currentlyPlayed.isPlaying()) {
 			currentlyPlayed.stopPlayback();
@@ -347,12 +232,12 @@ public class ArrayListFragment extends ListFragment {
 		
 		// hide "newness" indicator
 		v.markSeen();
-		unseenStories.remove(v.getStoryId()+"");
+		unseenClips.remove(v.getClipId()+"");
 		
 		// fire an event about new video start
 		// TODO do we track in trial?
-		String apiUrl = PrefUtility.getApiUrl()+"addView?story="+ v.getStoryId() +"&uuid=" + v.getUuid();
-		aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
+//		String apiUrl = PrefUtility.getApiUrl()+"addView?story="+ v.getBlinkId() +"&uuid=" + v.getUuid();
+//		aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
 	}
 	
 	public void addViewCb(String url, JSONObject json, AjaxStatus status){
@@ -378,7 +263,7 @@ public class ArrayListFragment extends ListFragment {
 	            	currentlyPlayed = null;
 	            }
 //	            lastTracked = -1;
-	            ((PlayListAdapter)getListAdapter()).resetAutoplayTracker();
+	            ((ClipListAdapter)getListAdapter()).resetAutoplayTracker();
 	        }
 	        else {
 	        	isTabVisible = true;
@@ -388,10 +273,10 @@ public class ArrayListFragment extends ListFragment {
 	    Log.d(LOGTAG, mNum +" set to visible "+isTabVisible);
 	}
 	
-	public class PlayListAdapter extends ArrayAdapter<Story> implements OnScrollListener {
+	public class ClipListAdapter extends ArrayAdapter<Clip> implements OnScrollListener {
 
 		private final Context context;
-		private final ArrayList<Story> stories;
+		private final ArrayList<Clip> clips;
 		private final PQuery aq;
 		private final String uuid;
 		private int screenWidth, screenHeight, calculcatedVideoWidth;
@@ -402,13 +287,13 @@ public class ArrayListFragment extends ListFragment {
 		
 		
 
-		public PlayListAdapter(Context context, ArrayList<Story> stories,
+		public ClipListAdapter(Context context, ArrayList<Clip> clips,
 				PQuery aq, String uuid, boolean trial) {
 
-			super(context, R.layout.tab_playlist_item, stories);
+			super(context, R.layout.tab_cliplist_item, clips);
 
 			this.context = context;
-			this.stories = stories;
+			this.clips = clips;
 			this.aq = aq;
 			this.uuid = uuid;
 			this.isTrial = trial;
@@ -437,53 +322,44 @@ public class ArrayListFragment extends ListFragment {
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 			// 2. Get rowView from inflater
-			PlaylistItemView rowView = (PlaylistItemView)inflater.inflate(R.layout.tab_playlist_item, parent, false);
+			ClipListItemView rowView = (ClipListItemView)inflater.inflate(R.layout.tab_cliplist_item, parent, false);
 
 			// 3. Get the views from the rowView
-			ImageView storyThumb = (ImageView) rowView.findViewById(R.id.storyThumb);
+			ImageView clipThumb = (ImageView) rowView.findViewById(R.id.videoThumb);
 			ImageView playControl = (ImageView) rowView.findViewById(R.id.playControl);
-			TextView likesNum = (TextView) rowView.findViewById(R.id.numLikes);
-			ImageView likeControl = (ImageView) rowView.findViewById(R.id.likeImage);
-			ControlledVideoView videoView = (ControlledVideoView) rowView.findViewById(R.id.videoPlayerView);
+			ControlledClipView videoView = (ControlledClipView) rowView.findViewById(R.id.videoPlayerView);
 			ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progress);
 			View unseenIndicator = rowView.findViewById(R.id.unseenIndicator);
+			ImageButton replyButton = (ImageButton)rowView.findViewById(R.id.replyButton);
 
 			// 4. set data & callbacks
-			Story story = stories.get(position);
-			rowView.initAndLoadCast(story, aq, ArrayListFragment.this);
+			Clip clip = clips.get(position);
+			rowView.init(clip, aq, ArrayClipsFragment.this);
 
-			aq.id(storyThumb).image(PrefUtility.getApiUrl() + "storyThumb?story=" + story.getId());
+			// TODO:
+			aq.id(clipThumb).image(PrefUtility.getApiUrl() + "clipThumb?clip=" + clip.getId());
 			
-			ViewUtility.setViewSquare(storyThumb, calculcatedVideoWidth);
+			ViewUtility.setViewSquare(clipThumb, calculcatedVideoWidth);
 			ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
 			
-			videoView.init(ArrayListFragment.this, storyThumb, calculcatedVideoWidth, position, story.getId(), mUuid, progressBar, unseenIndicator, playControl);
-			storyThumb.setOnClickListener(new ThumbClickListener(videoView, story.getId()));
-
-			likesNum.setText(shortLikesString(story.getLikes()));
-
-			if (story.getCast()!=null) {
-				for (int i=0; i<story.getCast().length; i++) {
-					RoundedImageView castImage = (RoundedImageView) rowView.findViewById(PlaylistItemView.castIds[i]);
-					aq.id(castImage).image(PrefUtility.getApiUrl()+"avatar?uuid="+story.getCast()[i], true, false, 0, R.drawable.ic_avatar_default);
-					aq.id(castImage).clicked(this, "onCastClickedCb");
-				}
-			}
+			videoView.init(ArrayClipsFragment.this, clipThumb, calculcatedVideoWidth, position, clip.getId(), mUuid, progressBar, unseenIndicator, playControl);
+			clipThumb.setOnClickListener(new ThumbClickListener(videoView, clip.getId()));
+			replyButton.setOnClickListener(new ReplyClickListener(clip.getId(), context));
 			
 			// set current user-story like state
-			story.setUserLikes( userLikes.contains(story.getId()+"") );
-			if (story.isUserLikes()) {
-				likeControl.setImageResource(R.drawable.ic_star_on);
-			}
-			else {
-				likeControl.setImageResource(R.drawable.ic_star_off);
-			}
-			
-			// disable liking in trial
-//			if (!isTrial) {
-				likeControl.setOnClickListener(new LikeClickListener(likeControl,
-						likesNum, uuid, story, isTrial));
+//			story.setUserLikes( userLikes.contains(story.getId()+"") );
+//			if (story.isUserLikes()) {
+//				likeControl.setImageResource(R.drawable.ic_star_on);
 //			}
+//			else {
+//				likeControl.setImageResource(R.drawable.ic_star_off);
+//			}
+			
+//			// disable liking in trial
+////			if (!isTrial) {
+//				likeControl.setOnClickListener(new LikeClickListener(likeControl,
+//						likesNum, uuid, story, isTrial));
+////			}
 				
 			// 5. return rowView
 			return rowView;
@@ -491,87 +367,37 @@ public class ArrayListFragment extends ListFragment {
 
 		// play/stop click listener
 		class ThumbClickListener implements ImageView.OnClickListener {
-			ControlledVideoView pv;
-			long storyId;
-			public ThumbClickListener(ControlledVideoView v, long storyId){
+			ControlledClipView pv;
+			long clipId;
+			public ThumbClickListener(ControlledClipView v, long clipId){
 				this.pv = v;
-				this.storyId = storyId;
+				this.clipId = clipId;
 			}
 
 			@Override
 			public void onClick(View v) {
-				fireGAnalyticsEvent("ui_action", "touch", "storyThumb", null);
+				fireGAnalyticsEvent("ui_action", "touch", "clipThumb", null);
 				pv.startVideoPreloading(true);
 			}
-			
 		}
 		
-		// like click listener
-		class LikeClickListener implements ImageView.OnClickListener {
-			String uuid;
-			Story story;
-			ImageView view;
-			TextView likesNum;
-			boolean trial;
-
-			public LikeClickListener(ImageView view, TextView likesNum,
-					String uuid, Story story, boolean trial) 
-			{
-				this.uuid = uuid;
-				this.story = story;
-				this.view = view;
-				this.likesNum = likesNum;
-				this.trial = trial;
+		// reply listener
+		class ReplyClickListener implements ImageButton.OnClickListener {
+			long clipId;
+			Context ctx;
+			
+			public ReplyClickListener(long clipId, Context ctx){
+				this.clipId = clipId;
+				this.ctx = ctx;
 			}
-
+			
 			@Override
 			public void onClick(View v) {
-				fireGAnalyticsEvent("ui_action", "touch", "likeButton", null);
-				
-				// first, invert the likes
-				story.setUserLikes(!story.isUserLikes());
-
-				if (story.isUserLikes()) {
-					story.setLikes(story.getLikes() + 1);
-					view.setImageResource(R.drawable.ic_star_on);
-					likesNum.setText(shortLikesString(story
-							.getLikes()));
-					userLikes.add(story.getId()+"");
-				} else {
-					story.setLikes(story.getLikes() - 1);
-					view.setImageResource(R.drawable.ic_star_off);
-					likesNum.setText(shortLikesString(story
-							.getLikes()));
-					userLikes.remove(story.getId()+"");
-				}
-
-				if (!trial) 
-				{
-					String url = PrefUtility.getApiUrl() + "like";
-					if (story.isUserLikes()) {
-						url = PrefUtility.getApiUrl() + "dislike";
-					}
-					url += "?uuid=" + this.uuid + "&story=" + story.getId();
-	
-					aq.ajax(url, JSONObject.class, new AjaxCallback<JSONObject>() {
-						@Override
-						public void callback(String url, JSONObject json,
-								AjaxStatus status) {
-							if (json != null) {
-								// successful ajax call
-								Log.v(LOGTAG, "likeCb success: " + json.toString());
-								// TODO: update like icon, and increase the count.
-								// TODO: collateral?
-							} else {
-								// ajax error, o change
-								apiError(LOGTAG,
-										"likeCb: Json null " + mUuid, status, false, Log.ERROR);
-							}
-						}
-					});
-				}
+				fireGAnalyticsEvent("ui_action", "touch", "replyButton", null);
+				Intent intent = new Intent(ctx, VideoCaptureActivity.class);
+				intent.putExtra("RESPOND_TO_CLIP", clipId);
+				startActivity(intent);
 			}
-
 		}
 		
 		// --------- HELPERS & CALLBACKS
@@ -625,7 +451,7 @@ public class ArrayListFragment extends ListFragment {
 			if (lastTrackedPos==-1 && visibleItemCount>0) {
 				// TODO: if it's currently selected fragment, autoplay, if not, schedule
 				
-				PlaylistItemView pv = (PlaylistItemView) ((ViewGroup)view).getChildAt(0);
+				ClipListItemView pv = (ClipListItemView) ((ViewGroup)view).getChildAt(0);
 				Log.v(LOGTAG, "onScroll: pv!=null, visible " + (pv!=null) + " " + isTabVisible);
 				if (pv!=null && isTabVisible) 
 				{
@@ -636,7 +462,7 @@ public class ArrayListFragment extends ListFragment {
 						currentlyPlayed.queueStopVideo();
 						currentlyPlayed = null;
 					}
-					ControlledVideoView videoView = (ControlledVideoView) pv.findViewById(R.id.videoPlayerView);
+					ControlledClipView videoView = (ControlledClipView) pv.findViewById(R.id.videoPlayerView);
 					handleAutostart(pv, videoView);
 				}
 			}
@@ -657,8 +483,8 @@ public class ArrayListFragment extends ListFragment {
 				boolean found = false;
 				for (int current=first, i=0; current<=last && !found; current++, i++) 
 				{
-					PlaylistItemView pv = (PlaylistItemView) ((ViewGroup)view).getChildAt(i);
-					ControlledVideoView videoView = (ControlledVideoView) pv.findViewById(R.id.videoPlayerView);
+					ClipListItemView pv = (ClipListItemView) ((ViewGroup)view).getChildAt(i);
+					ControlledClipView videoView = (ControlledClipView) pv.findViewById(R.id.videoPlayerView);
 					int[] location = new int[2];
 					videoView.getLocationOnScreen(location);
 					int viewCenterY = location[1] + calculcatedVideoWidth/2;
@@ -680,7 +506,7 @@ public class ArrayListFragment extends ListFragment {
 		}
 		
 		// autostart first visible video, video/network settings permitting
-		private void handleAutostart(PlaylistItemView pv, ControlledVideoView videoView) {
+		private void handleAutostart(ClipListItemView pv, ControlledClipView videoView) {
 
 
 			Log.v(LOGTAG, "handleAutostart: first visible item's position in list: "+videoView.getItemPosition());
@@ -729,15 +555,15 @@ public class ArrayListFragment extends ListFragment {
     }
     
     // unseen stories
-    public static void resetUnseenStoriesSet(int[] stories) {
-    	if (unseenStories == null) {
-    		unseenStories = new HashSet<String>();
+    public static void resetUnseenClipSet(int[] stories) {
+    	if (unseenClips == null) {
+    		unseenClips = new HashSet<String>();
     	}
     	else {
-    		unseenStories.clear();
+    		unseenClips.clear();
     	}
     	if (stories!=null) {
-    		for (int i : stories) unseenStories.add(i+"");
+    		for (int i : stories) unseenClips.add(i+"");
     	}
     }
     
@@ -753,11 +579,11 @@ public class ArrayListFragment extends ListFragment {
 		if (jarr != null) {
 			// successful ajax call
 			try {
-				resetUnseenStoriesSet(null);
+				resetUnseenClipSet(null);
 				for (int i = 0; i < jarr.length(); i++) {
-					unseenStories.add( jarr.getInt(i)+"" );
+					unseenClips.add( jarr.getInt(i)+"" );
 				}
-				Log.v(LOGTAG, "unseen stories:" + jarr.length()+", set: "+unseenStories.size());
+				Log.v(LOGTAG, "unseen clips:" + jarr.length()+", set: "+unseenClips.size());
 //				refreshUnseenBadge(unseenStories);
 			} catch (JSONException e) {
 				Log.e(LOGTAG, "jsonexception", e);
@@ -770,10 +596,6 @@ public class ArrayListFragment extends ListFragment {
 		}
 	}
 
-	public void switchCurrentlyPlayedBlink(
-			ControlledClipView controlledBlinkView) {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 }

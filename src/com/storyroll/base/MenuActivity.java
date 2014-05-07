@@ -29,7 +29,7 @@ public class MenuActivity extends GcmActivity {
 	  // Handle item selection
 	  Intent intent;
 	    if (item.getItemId() == R.id.action_join) {
-	    	onJoinPressed();
+	    	onJoinPressed(null);
 			return true;
 		} else if (item.getItemId() == R.id.action_help) {
 			intent = new Intent (this, HelpActivity.class);
@@ -56,7 +56,7 @@ public class MenuActivity extends GcmActivity {
 	
     /*-- callbacks & helpers --*/
 
-	private void onJoinPressed(){
+	protected void onJoinPressed(Long clipId){
 		Intent intent;
 		if (isTrial) {
 			intent = new Intent(this, LoginActivity.class);
@@ -64,6 +64,9 @@ public class MenuActivity extends GcmActivity {
 		}
 		else {
 			intent = new Intent(this, VideoCaptureActivity.class);
+		}
+		if (clipId!=null) {
+			intent.putExtra("RESPOND_TO_CLIP", clipId);
 		}
 		
 		startActivity(intent);

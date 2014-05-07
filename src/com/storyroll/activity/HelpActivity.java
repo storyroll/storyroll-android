@@ -14,6 +14,7 @@ import android.widget.ImageView;
 
 import com.storyroll.R;
 import com.storyroll.ui.AspectRatioImageView;
+import com.storyroll.util.AppUtility;
 import com.storyroll.util.ImageUtility;
 import com.viewpagerindicator.CirclePageIndicator;
 
@@ -85,7 +86,7 @@ public class HelpActivity extends FragmentActivity
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
 						// next step
-						Intent intent = new Intent(getApplicationContext(), TabbedPlaylistActivity.class);
+						Intent intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
 
 						// TODO
 						intent.putExtra("TRIAL", false);
