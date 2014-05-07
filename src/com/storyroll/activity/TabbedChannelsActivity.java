@@ -1,5 +1,9 @@
 package com.storyroll.activity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -23,21 +27,22 @@ import com.google.analytics.tracking.android.Fields;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.base.MenuFragmentActivity;
+import com.storyroll.model.Channel;
 import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.PrefUtility;
 
-public class ClipPlaylistActivity extends MenuFragmentActivity {
+public class TabbedChannelsActivity extends MenuFragmentActivity {
 
-	private static final String LOGTAG = "ClipPlaylistActivity";
-	private static final String SCREEN_NAME = "ClipPlaylist";
+	private static final String LOGTAG = "TabbedChanListActivity";
+	private static final String SCREEN_NAME = "ChanList";
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the object collection.
      */
     ViewPager mViewPager;
     
-    ClipPlaylistTabAdapter mAdapter;
+    ChannelTabAdapter mAdapter;
     FragmentPagerAdapter tAdapter;
     private static PQuery aq;
 //    private static Set<String> newStories = null;
@@ -48,28 +53,27 @@ public class ClipPlaylistActivity extends MenuFragmentActivity {
     	return aq;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_clip_playlist);
-        
-		// Fields set on a tracker persist for all hits, until they are
-	    // overridden or cleared by assignment to null.
-	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
-		
-        aq = new PQuery(this);
-        mUuid = getUuid();
-        // TODO this is temp hack
-        if (isTrial) {
-        	mUuid = "test@test.com";
-        }
-        
-        mAdapter = new ClipPlaylistTabAdapter(getSupportFragmentManager());
+    public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
+    	Log.v(LOGTAG, "chanListCb stub");
+    	// get the list of channels
+    	List<Channel> chans = new ArrayList<Channel>();
+    	chans.add(new Channel(0, "Chan1"));
+    	chans.add(new Channel(1, "Chan2"));
+    	
+    	init(chans);
+    }
+    
+    public void init(List<Channel> channels)  {
+    	
+    	// TODO bad, bad temporary hack
+    	ArrayClipsFragment.CHANNELS = channels;
+    	
+        mAdapter = new ChannelTabAdapter(getSupportFragmentManager());
         
         // Set up the ViewPager, attaching the adapter.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mAdapter);
-
+        
         // Set up action bar.
     	ActionBarUtility.initCustomActionBar(this, false);
     	final ActionBar actionBar = getActionBar();
@@ -94,10 +98,12 @@ public class ClipPlaylistActivity extends MenuFragmentActivity {
                 // When the tab is selected, switch to the
                 // corresponding page in the ViewPager.
             	
-            	fireGAnalyticsEvent("ui_action", "onTabSelected", ArrayClipsFragment.TAB_HEADINGS[tab.getPosition()], null);
-            	
-            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition()+" - "+ArrayClipsFragment.TAB_HEADINGS[tab.getPosition()]);
-                mViewPager.setCurrentItem(tab.getPosition());
+            	if (mViewPager!=null) {
+	            	fireGAnalyticsEvent("ui_action", "onTabSelected", ArrayClipsFragment.CHANNELS.get(tab.getPosition()).getName(), null);
+	            	
+	            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition()+" - "+ArrayClipsFragment.CHANNELS.get(tab.getPosition()).getName());
+	                mViewPager.setCurrentItem(tab.getPosition());
+            	}
             }
 
 			@Override
@@ -107,28 +113,25 @@ public class ClipPlaylistActivity extends MenuFragmentActivity {
         };
 
         // Add tabs, specifying the tab's text and TabListener
-        String[] tabHeads = ArrayClipsFragment.TAB_HEADINGS;
-        if (isTrial) {
-        	tabHeads = ArrayClipsFragment.TAB_HEADINGS_TRIAL;
-        }
-        for (int i = 0; i < ArrayClipsFragment.TAB_HEADINGS.length; i++) {
-        	if (tabHeads[i]!=null) {
+//        if (isTrial) {
+//        	tabHeads = ArrayClipsFragment.TAB_HEADINGS_TRIAL;
+//        }
+        for (int i = 0; i < ArrayClipsFragment.CHANNELS.size(); i++) {
+        	if (ArrayClipsFragment.CHANNELS.get(i)!=null) {
         		Tab tab = actionBar.newTab();
-        		if (i==ArrayClipsFragment.TAB_TWO) 
-        		{
-        			tab = tab.setText(tabHeads[i]);
-        			
-        			tab.setCustomView(R.layout.custom_actionbar_tab);
-        			View tabView = tab.getCustomView();
-        			TextView tabText  = (TextView) tabView.findViewById(R.id.tabText);
-        			tabText.setText(tabHeads[i]);
-        			
-        			tabUnseenBadgeText  = (TextView) tabView.findViewById(R.id.badgeTextt);
-
-        		}
-        		else {
-        			tab = tab.setText(tabHeads[i]);
-        		}
+//        		if (i==ArrayClipsFragment.TAB_TWO) 
+//        		{
+//        			tab = tab.setText(tabHeads[i]);
+//        			
+//        			tab.setCustomView(R.layout.custom_actionbar_tab);
+//        			View tabView = tab.getCustomView();
+//        			TextView tabText  = (TextView) tabView.findViewById(R.id.tabText);
+//        			tabText.setText(tabHeads[i]);
+//        			
+//        			tabUnseenBadgeText  = (TextView) tabView.findViewById(R.id.badgeTextt);
+//
+//        		}
+        		tab = tab.setText(ArrayClipsFragment.CHANNELS.get(i).getName());
 	            actionBar.addTab(tab.setTabListener(tabListener));
         	}
         }
@@ -144,13 +147,13 @@ public class ClipPlaylistActivity extends MenuFragmentActivity {
                         getActionBar().setSelectedNavigationItem(position);
                         
                         // manually selected "Mine"? refresh badge
-                        if (position == ArrayClipsFragment.TAB_TWO) {
-                        	updateUnseenVideosFromServer();
-                        }
+//                        if (position == ArrayClipsFragment.TAB_TWO) {
+//                        	updateUnseenVideosFromServer();
+//                        }
                         
                         // Also update tracker field to persist for all subsequent hits,
                 		// until they are overridden or cleared by assignment to null.
-                	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME+"_"+ArrayClipsFragment.TAB_HEADINGS[position]);
+                	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME+"_"+ArrayClipsFragment.CHANNELS.get(position));
                     }
                 });
         
@@ -160,12 +163,42 @@ public class ClipPlaylistActivity extends MenuFragmentActivity {
 			// TODO crappy hack
 			ArrayClipsFragment.resetUnseenClipSet( getIntent().getIntArrayExtra("clips") );
 			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
-			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
+//			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
 		}
 		else {
 			// update unseenStories
 			updateUnseenVideosFromServer();
 		}
+    }
+    
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_clip_playlist);
+        
+		// Fields set on a tracker persist for all hits, until they are
+	    // overridden or cleared by assignment to null.
+	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
+		
+        aq = new PQuery(this);
+        mUuid = getUuid();
+        
+        // TODO this is temp hack
+        if (isTrial) {
+        	mUuid = "test@test.com";
+        }
+        
+        // get chan list 
+        // TODO: stub
+        aq.ajax(PrefUtility.getApiUrl()+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "chanListCb");
+
+//        mAdapter = new ClipPlaylistTabAdapter(getSupportFragmentManager());
+//        
+//        // Set up the ViewPager, attaching the adapter.
+//        mViewPager = (ViewPager) findViewById(R.id.pager);
+//        mViewPager.setAdapter(mAdapter);
+
+
 
     }
     
@@ -335,19 +368,21 @@ public class ClipPlaylistActivity extends MenuFragmentActivity {
     
     /* 0-*/
     
-    public static class ClipPlaylistTabAdapter extends FragmentPagerAdapter {
+    // TODO:
+//    if you want to switch out the actual fragments that are being displayed, 
+//    you need to avoid FragmentPagerAdapter and use FragmentStatePagerAdapter.
+//    FragmentPagerAdapter never destroys a fragment after it's been displayed the first time.
+    
+    public static class ChannelTabAdapter extends FragmentPagerAdapter {
     	private int count;
     	
-        public ClipPlaylistTabAdapter(FragmentManager fm) {
+        public ChannelTabAdapter(FragmentManager fm) {
             super(fm);
-            String[] th = ArrayClipsFragment.TAB_HEADINGS;
-            if (isTrial) {
-            	th = ArrayClipsFragment.TAB_HEADINGS_TRIAL;
-            }
-        	count = 0;
-    		for(int i=0;i<th.length;i++) {
-    			if (th[i]!=null) count++;
-    		}
+            List<Channel> chans = ArrayClipsFragment.CHANNELS;
+//            if (isTrial) {
+//            	th = ArrayClipsFragment.TAB_HEADINGS_TRIAL;
+//            }
+        	count = chans.size();
         }
 
         @Override
@@ -362,7 +397,7 @@ public class ClipPlaylistActivity extends MenuFragmentActivity {
         
         @Override
         public CharSequence getPageTitle(int position) {
-            return ArrayClipsFragment.TAB_HEADINGS[position % ArrayClipsFragment.TAB_HEADINGS.length];
+            return ArrayClipsFragment.CHANNELS.get(position % ArrayClipsFragment.CHANNELS.size()).getName();
         }
     }
     

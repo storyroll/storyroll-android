@@ -3,6 +3,7 @@ package com.storyroll.activity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -35,6 +36,7 @@ import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.enums.AutostartMode;
+import com.storyroll.model.Channel;
 import com.storyroll.model.Clip;
 import com.storyroll.model.Story;
 import com.storyroll.ui.ClipListItemView;
@@ -49,10 +51,7 @@ import com.storyroll.util.ViewUtility;
 public class ArrayClipsFragment extends ListFragment {
 	private static final String LOGTAG = "ArrayListFragment";
 
-	public static final int TAB_ONE = 0;
-	public static final int TAB_TWO = 1;
-
-	public static final String[] TAB_HEADINGS = new String[] { "One", "Two" };
+	public static List<Channel> CHANNELS;
 	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "One", null };
 	
 	private static final Integer LIMIT_ITEMS = 40;
@@ -69,6 +68,8 @@ public class ArrayClipsFragment extends ListFragment {
 
 	private int mNum;
 	private String mUuid;
+	private long mChanId;
+
 	private boolean isTrial;
 	private PQuery aq;
 	
@@ -86,6 +87,7 @@ public class ArrayClipsFragment extends ListFragment {
 		// Supply num input as an argument.
 		Bundle args = new Bundle();
 		args.putInt("num", num);
+		args.putLong("chanId", ArrayClipsFragment.CHANNELS.get(num).getId());
 		args.putString("uuid", uuid);
 		args.putBoolean("trial", isTrial);
 		f.setArguments(args);
@@ -100,11 +102,12 @@ public class ArrayClipsFragment extends ListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		mNum = getArguments() != null ? getArguments().getInt("num") : 1;
+		mNum = getArguments() != null ? getArguments().getInt("num") : 0;
+		mChanId = getArguments() != null ? getArguments().getLong("chanId") : -1;
 		mUuid = getArguments() != null ? getArguments().getString("uuid") : "";
 		isTrial = getArguments() != null ? getArguments().getBoolean("trial") : false;
 		
-		aq = ((ClipPlaylistActivity) getActivity()).getPQuery();
+		aq = ((TabbedChannelsActivity) getActivity()).getPQuery();
 	}
 
 	@Override
@@ -122,24 +125,12 @@ public class ArrayClipsFragment extends ListFragment {
 		super.onActivityCreated(savedInstanceState);
 
 		String apiUrl = PrefUtility.getApiUrl();
-		switch (mNum) {
-		case TAB_ONE:
-			apiUrl += "available?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
-			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
-					"getClipListCb");
-
-			break;
-		case TAB_TWO:
-			apiUrl += "available?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
-			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
-					"getClipListCb");
-
-			break;
+		apiUrl += "available?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS +"&channel="+mChanId;
+		aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "getClipListCb");
 		
-		default:
-			Log.e(LOGTAG, "Unrecognized tabnum: " + mNum);
-			break;
-		}
+//		default:
+//			Log.e(LOGTAG, "Unrecognized tabnum: " + mNum);
+//			break;
 
 		// using application context to avoid the leak
 		// see
@@ -173,7 +164,7 @@ public class ArrayClipsFragment extends ListFragment {
 			return;
 		}
 			
-		Log.v(LOGTAG, "getClipListSorted " + mNum);
+		Log.v(LOGTAG, "getClipListSorted for tab no " + mNum);
 		if (jarr != null) {
 			// successful ajax call
 			Log.i(LOGTAG, "getClipListSorted success: " + jarr.toString());
@@ -270,7 +261,7 @@ public class ArrayClipsFragment extends ListFragment {
 	        }
 	    }
 	    isTabVisible = isVisibleToUser;
-	    Log.d(LOGTAG, mNum +" set to visible "+isTabVisible);
+	    Log.d(LOGTAG, "Tab num "+mNum +" set to visible "+isTabVisible);
 	}
 	
 	public class ClipListAdapter extends ArrayAdapter<Clip> implements OnScrollListener {

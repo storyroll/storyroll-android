@@ -67,7 +67,7 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name=".activity.ClipPlaylistActivity"
+            android:name=".activity.TabbedChannelsActivity"
             android:label="@string/app_name"
             android:theme="@style/SRThemeStyledTabs"
             android:screenOrientation="portrait">
