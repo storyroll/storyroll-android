@@ -59,31 +59,20 @@
 		/>
   	</FrameLayout>
 
-  	<!-- SEPARATOR -->
-    <View
-	    android:layout_width="fill_parent"
-	    android:layout_height="1dp"
-	    android:background="@color/sr_bg_separator"
-	    android:layout_marginTop="8dp"
-	    android:layout_marginLeft="20dp"
-	    android:layout_marginRight="20dp"
-	    android:layout_marginBottom="15dp"
-    />
-
     <ImageButton 
         android:id="@+id/replyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:layout_marginRight="15dp"
         android:src="@drawable/ic_action_join"
-        android:background="@color/sr_bg_actionbar"/>
+        android:background="@color/sr_bg_actionbar"
+        android:layout_gravity="right"/>
 
   	<FrameLayout 
   	    android:layout_height="wrap_content"
 	  	android:layout_width="wrap_content"
 	  	android:layout_gravity="center_horizontal"
 	  	android:layout_marginBottom="10dp">
-
-   	
   	</FrameLayout>
-  	
-
-
 </com.storyroll.ui.ClipListItemView>

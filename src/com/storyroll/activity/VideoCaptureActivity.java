@@ -27,8 +27,6 @@ import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -39,11 +37,8 @@ import android.widget.VideoView;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
-import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
-import com.storyroll.base.Constants;
 import com.storyroll.base.SwipeVideoActivity;
-import com.storyroll.exception.APIException;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import com.storyroll.util.AppUtility;
@@ -111,6 +106,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private boolean startNewMode = false;
 	private final static long NULL_RESPONSE_CLIP=-1L;
 	private Long respondToClipId = NULL_RESPONSE_CLIP;
+	private boolean isFragmentCarousel = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -175,6 +171,10 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			lastState = STATE_NO_STORY;
 			lastState = processAndSetState(STATE_PREV_CAM);
 		}
+		else if (respondToClipId!=NULL_RESPONSE_CLIP) 
+		{
+			startVideoPreloadTask(respondToClipId);
+		}
 		else {
 			// get list of available fragments
 			show(progress);
@@ -187,7 +187,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	// - - - callbacks
 	
 	private int currentLastCarouselItemId = 0;
-	private long currentLastFragmentId = 0;
+//	private long currentLastFragmentId = 0;
+	
 	private long[] fragmentIds = null;
 	
 	public void availableCb(String url, JSONArray jarr, AjaxStatus status)
@@ -217,9 +218,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 					e.printStackTrace();
 				}
 			}
+        	isFragmentCarousel = true;
 			fragmentCarousel(0);
         }
-        else{          
+        else{
+        	isFragmentCarousel = false;
             //ajax error - means no story to join, offer to start new one
         	Log.w(LOGTAG, "availableCb: null Json");
         	lastState = processAndSetState(STATE_NO_STORY);
@@ -229,17 +232,21 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 	private void fragmentCarousel(int i) 
 	{
-		currentLastFragmentId = fragmentIds[i];
+		respondToClipId = fragmentIds[i];
 		currentLastCarouselItemId = i;
 		
 		// load fragment
-		if (currentLastFragmentId!=0) 
+		if (respondToClipId!=NULL_RESPONSE_CLIP) 
 		{
    			// start a story fragment preload task
-			String fragmentApiUrl = PrefUtility.getApiUrl()+"fragmentFile?fragment="+fragmentIds[i]+"&uuid="+getUuid();
-	   		VideoDownloadTask task = new VideoDownloadTask(getApplicationContext(), this);
-	   		task.execute(fragmentApiUrl);
+	   		startVideoPreloadTask(fragmentIds[i]);
     	}		
+	}
+	
+	private void startVideoPreloadTask(long fragmentId) {
+		String fragmentApiUrl = PrefUtility.getApiUrl()+"fragmentFile?fragment="+fragmentId+"&uuid="+getUuid();
+   		VideoDownloadTask task = new VideoDownloadTask(getApplicationContext(), this);
+   		task.execute(fragmentApiUrl);
 	}
 
 	private int failedAttempts = 0;
@@ -340,7 +347,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		case STATE_INITIAL:
 			// we suppose a user already has a story to join, even if it's a new one and there is no preview
 			hide(progress);
-			show(startStoryMessage);
+			hide(startStoryMessage);
 			hide(videoView);
 			showClose();
 			showOk();
@@ -352,7 +359,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //			surfaceView.setVisibility(View.VISIBLE);
 //			show(videocapReadyMessage);
 			
-			ImageUtility.sliderAnimateRightToLeft(sliderOverlay);
+			if (isFragmentCarousel) {
+				ImageUtility.sliderAnimateRightToLeft(sliderOverlay);
+			}
 			
 			// start previewing last fragment
 			if (lastFragmentPath!=null) {
@@ -601,10 +610,10 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		
 		File file = new File(filePath);
 		
-		Map params = new HashMap();
+		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("file", file);
 		params.put("uuid", getUuid());
-		params.put("l", currentLastFragmentId);
+		params.put("l", respondToClipId);
 		
 		fireGAnalyticsEvent("fragment_workflow", "addFragmentStart", "", null);
 		
