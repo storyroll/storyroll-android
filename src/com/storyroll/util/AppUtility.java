@@ -131,11 +131,11 @@ public class AppUtility {
 		File cd = null;
 		if (Environment.MEDIA_MOUNTED.equals(state)) 
 		{
-			Log.v("AppUtility", "Media mounted");
+			Log.v(LOGTAG, "Media mounted");
 			cd = Environment.getExternalStorageDirectory();
 		}
 		else {
-			Log.w("AppUtility", "Media not mounted");
+			Log.w(LOGTAG, "Media not mounted");
 			cd = ctx.getApplicationContext().getFilesDir();
 		}
 		return  cd + File.separator + AppUtility.APP_PACKAGE_NAME;
@@ -146,12 +146,12 @@ public class AppUtility {
 		File cd = null;
 		if (Environment.MEDIA_MOUNTED.equals(state)) 
 		{
-			Log.v("AppUtility", "Media mounted");
+			Log.v(LOGTAG, "Media mounted");
 		    // We can read and write the media
 			cd = ctx.getApplicationContext().getExternalCacheDir();
 		}
 		else {
-			Log.w("AppUtility", "Media not mounted");
+			Log.w(LOGTAG, "Media not mounted");
 			cd = ctx.getApplicationContext().getFilesDir();
 		}
 		

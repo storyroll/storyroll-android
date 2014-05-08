@@ -31,11 +31,12 @@ import com.storyroll.model.Channel;
 import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 
 public class TabbedChannelsActivity extends MenuFragmentActivity {
 
-	private static final String LOGTAG = "TabbedChanListActivity";
-	private static final String SCREEN_NAME = "ChanList";
+	private static final String LOGTAG = "TabbedChannelsActivity";
+	private static final String SCREEN_NAME = "TabbedChannels";
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the object collection.
@@ -190,7 +191,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
         
         // get chan list 
         // TODO: stub
-        aq.ajax(PrefUtility.getApiUrl()+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "chanListCb");
+        aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_UNSEEN_STORIES, "uuid=" + mUuid), JSONArray.class, this, "chanListCb");
 
 //        mAdapter = new ClipPlaylistTabAdapter(getSupportFragmentManager());
 //        
@@ -215,7 +216,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     		Log.v(LOGTAG, "updateUnseenStoriesFromServer -- skip in trial");
     	}
     	else {
-    		aq.ajax(PrefUtility.getApiUrl()+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+    		aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_UNSEEN_STORIES, "uuid=" + mUuid), JSONArray.class, this, "unseenStoriesCb");
     	}
 	}
 

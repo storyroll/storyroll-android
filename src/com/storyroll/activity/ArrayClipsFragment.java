@@ -46,6 +46,7 @@ import com.storyroll.util.AppUtility;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.NetworkUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 import com.storyroll.util.ViewUtility;
 
 public class ArrayClipsFragment extends ListFragment {
@@ -124,8 +125,9 @@ public class ArrayClipsFragment extends ListFragment {
 		Log.v(LOGTAG, "onActivityCreated");
 		super.onActivityCreated(savedInstanceState);
 
-		String apiUrl = PrefUtility.getApiUrl();
-		apiUrl += "available?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS +"&channel="+mChanId;
+		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHAN_CLIPS,
+				"uuid=" + mUuid + "&limit=" + LIMIT_ITEMS +"&channel="+mChanId);
+		
 		aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "getClipListCb");
 		
 //		default:
@@ -328,7 +330,7 @@ public class ArrayClipsFragment extends ListFragment {
 			rowView.initAndLoadCast(clip, aq, ArrayClipsFragment.this);
 
 			// TODO:
-			aq.id(clipThumb).image(PrefUtility.getApiUrl() + "clipThumb?clip=" + clip.getId());
+			aq.id(clipThumb).image(PrefUtility.getApiUrl(ServerUtility.API_CLIP_THUMB, "clip=" + clip.getId()));
 			
 			ViewUtility.setViewSquare(clipThumb, calculcatedVideoWidth);
 			ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
@@ -559,9 +561,10 @@ public class ArrayClipsFragment extends ListFragment {
     }
     
     // TODO deduplicate code (TabbedPlaylistActivity)
-    private void updateUnseenStoriesFromServer() {
-    	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
-    	aq.ajax(PrefUtility.getApiUrl()+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+    private void updateUnseenClipsFromServer() {
+    	Log.v(LOGTAG, "updateUnseenClipsFromServer");
+    	aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_UNSEEN_CLIPS, "uuid=" + mUuid), 
+    			JSONArray.class, this, "unseenStoriesCb");
 	}
 
 	public void unseenStoriesCb(String url, JSONArray jarr, AjaxStatus status) 

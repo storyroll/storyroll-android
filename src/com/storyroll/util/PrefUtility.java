@@ -192,7 +192,7 @@ public class PrefUtility {
 		return am;
 	}
 	
-	public static String getApiUrl() {
+	public static String getApiUrl(String subj, String params) {
 		ServerPreference sp = PrefUtility.getEnum(ServerPreference.class, ServerPreference.AWS);
 		String s = Constants.API_URL_AWS;
 		if (sp.equals(ServerPreference.STAGING)) {
@@ -200,6 +200,12 @@ public class PrefUtility {
 		} else if (sp.equals(ServerPreference.DEV)) {
 			s = Constants.API_URL_DEV;
 		} 
+		if (subj!=null && subj.length()>0) {
+			s+=subj;
+		}
+		if (params!=null && params.length()>0) {
+			s+="?"+params;
+		}
 		return s;
 	}
 	

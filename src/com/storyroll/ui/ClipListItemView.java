@@ -20,6 +20,7 @@ import com.storyroll.activity.ArrayListFragment;
 import com.storyroll.base.Constants;
 import com.storyroll.model.Clip;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 
 public class ClipListItemView extends LinearLayout {
 	public final static int[] castIds = {R.id.cast1, R.id.cast2, R.id.cast3};
@@ -52,7 +53,8 @@ public class ClipListItemView extends LinearLayout {
 		if (blink.getCast() == null) {
 			// try to load cast
 //			this.aq.ajax(PrefUtility.getApiUrl()+"getClipCast?story="+blink.getId(), JSONArray.class, this, "getClipCastCb");
-			this.aq.ajax(PrefUtility.getApiUrl()+"getStoryCast?story="+12, JSONArray.class, this, "getClipCastCb");
+			// TODO
+			this.aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_STORY_CAST, "story="+12), JSONArray.class, this, "getClipCastCb");
 		}
 	}
 
@@ -70,7 +72,7 @@ public class ClipListItemView extends LinearLayout {
 					ImageView castImage = (ImageView) findViewById(castIds[i]);
 					String uuid = userObj.getString("uuid");
 					cast[i] = uuid;
-					aq.id(castImage).image(PrefUtility.getApiUrl()+"avatar?uuid="+uuid, true, false, 0, R.drawable.ic_avatar_default);
+					aq.id(castImage).image(PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+uuid), true, false, 0, R.drawable.ic_avatar_default);
 	        	}
 	        	clip.setCast(cast);
 	        	

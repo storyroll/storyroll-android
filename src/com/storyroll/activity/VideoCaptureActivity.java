@@ -179,7 +179,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		else {
 			// get list of available fragments
 			show(progress);
-			aq.ajax(PrefUtility.getApiUrl()+"available?uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS, JSONArray.class, this, "availableCb");
+			aq.ajax(PrefUtility.getApiUrl(
+					ServerUtility.API_AVAILABLE_CLIPS, "uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS), 
+					JSONArray.class, this, "availableCb");
 		}
 		// it's time to refresh video length from server
 		refreshVideoLengthSetting();
@@ -245,7 +247,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	}
 	
 	private void startVideoPreloadTask(long fragmentId) {
-		String fragmentApiUrl = PrefUtility.getApiUrl()+"fragmentFile?fragment="+fragmentId+"&uuid="+getUuid();
+		String fragmentApiUrl = PrefUtility.getApiUrl(ServerUtility.API_CLIP_FILE, "fragment="+fragmentId+"&uuid="+getUuid());
    		VideoDownloadTask task = new VideoDownloadTask(getApplicationContext(), this);
    		task.execute(fragmentApiUrl);
 	}
@@ -622,7 +624,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		
 		fireGAnalyticsEvent("fragment_workflow", "addFragmentStart", "", null);
 		
-		aq.ajax(PrefUtility.getApiUrl()+"addFragment", params, JSONObject.class, VideoCaptureActivity.this, "addFragmentCb").progress(R.id.progress);
+		aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_ADD_CLIP, null), 
+				params, JSONObject.class, VideoCaptureActivity.this, "addFragmentCb").progress(R.id.progress);
 	}
 	  
 	private boolean isUploading = false;
@@ -687,7 +690,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 	private void refreshVideoLengthSetting() {
 		// query API for server config
-		String apiUrl = PrefUtility.getApiUrl() + "getServerProperties";
+		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_SERVER_PROPERTIES, null);
 		aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, this, "getServerPropertiesCb");
 	}
 

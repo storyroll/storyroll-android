@@ -8,6 +8,7 @@ import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -71,7 +72,7 @@ public class ControlledClipView extends VideoView implements OnVideoTaskComplete
 //			}
 			isLoading = true;
 //		        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
-	        String url = PrefUtility.getApiUrl()+"fragmentFile?fragment="+mClipId+"&uuid="+mUuid;
+	        String url = PrefUtility.getApiUrl(ServerUtility.API_CLIP_FILE, "fragment="+mClipId+"&uuid="+mUuid);
 	        		        
 	   		VideoDownloadTask task = new VideoDownloadTask(getContext().getApplicationContext(), this);
 	        task.execute(url);
