@@ -21,7 +21,10 @@ public class VideoSendActivity extends MenuActivity {
 	protected static final String LOGTAG = "VIDEOSENT";
 	private static final String SCREEN_NAME = "VideoSent";
 	
-	private boolean startNewMode = false; 
+	private boolean startNewMode = false;
+	private long mChanId = -1L;
+	private long mLastClipId = -1L;
+	private long mMovieId = -1L;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,24 +63,42 @@ public class VideoSendActivity extends MenuActivity {
 		aq.id(R.id.btnClose).clicked(this, "closeClickedCb");
 		
 		startNewMode = getIntent().getBooleanExtra("MODE_NEW", false);
+		mChanId = getIntent().getLongExtra("CURRENT_CHANNEL", -1L);
+		mLastClipId = getIntent().getLongExtra("RESPOND_TO_CLIP", -1L);
+		mMovieId = getIntent().getLongExtra("MOVIE", -1L);
+
 	}
 	
 	public void againClickedCb(View view)
 	{
 		fireGAnalyticsEvent("ui_action", "touch", "againButton", null);
-		Intent intent = new Intent(getApplicationContext(), VideoCaptureActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		intent.putExtra("MODE_NEW", startNewMode);
-		startActivity(intent);
+		
+		if (startNewMode) {
+			Intent intent = new Intent(getApplicationContext(), VideoCaptureActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			intent.putExtra("MODE_NEW", true);
+			if (mLastClipId!=-1L) {
+				intent.putExtra("RESPOND_TO_CLIP", mLastClipId);
+			}
+			if (mChanId!=-1L) {
+				intent.putExtra("CURRENT_CHANNEL", mChanId);
+			}
+			if (mMovieId  != -1L) {
+				intent.putExtra("MOVIE", mMovieId);
+			}
+			startActivity(intent);
+		}
+		else {
+			returnHomeActivity();
+		}
+		
 	}
 	
 	public void closeClickedCb(View view)
 	{
 		fireGAnalyticsEvent("ui_action", "touch", "closeButton", null);
 		// return to the last used playlist
-		Intent intent = new Intent(VideoSendActivity.this, AppUtility.ACTIVITY_HOME);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		startActivity(intent);
+		returnHomeActivity();
 	}
 
 	

@@ -1,53 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.storyroll.ui.ClipListItemView 
+<com.storyroll.ui.MovieItemView 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:orientation="vertical"
       >
    
-     <FrameLayout
+     <RelativeLayout
          android:layout_width="match_parent"
          android:layout_height="wrap_content"
-         android:layout_gravity="center_horizontal"
 	     android:paddingTop="10dp"
+	     android:paddingBottom="10dp"
          android:layout_marginTop="0dp">
          
 	    <ImageView 
 	        android:id="@+id/videoThumb"
-	        android:layout_gravity="center_horizontal"
+	        android:layout_centerInParent="true"
 	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
+	        android:layout_height="0dp"
 			android:visibility="visible"
+			android:layout_alignParentTop="true"
 	        />
 
     
-	    <com.storyroll.ui.ControlledClipView
+	    <com.storyroll.ui.ControlledMovieView
 	        android:id="@+id/videoPlayerView"
-	        android:layout_gravity="center_horizontal"
+	        android:layout_centerInParent="true"
 	        android:visibility="invisible"
 	        android:layout_width="match_parent"
 	        android:layout_height="0dp"
+	        android:layout_alignParentTop="true"
 	         />
 	    <!-- The playable indicator shall stay above all visible elements -->
 	    <ImageView 
 	        android:id="@+id/playControl"
 	       	android:layout_gravity="center_horizontal"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_width="wrap_content"
 			android:visibility="visible"
 			android:src="@drawable/ic_play_roll"
 			android:alpha="0.8"
+			android:layout_alignParentTop="true"
+			android:layout_centerInParent="true"
 	    />
 	    <ImageView
             android:id="@+id/unseenIndicator"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_width="wrap_content"
             android:src="@drawable/ic_play_roll_new"
             android:visibility="invisible" 
             android:contentDescription="New"
             android:alpha="0.5"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
         />
 
 	    <ProgressBar 
@@ -56,8 +62,10 @@
 			android:layout_height="wrap_content"
 			android:visibility="gone"
 			android:layout_gravity="center"
+			android:layout_centerInParent="true"
+			android:layout_alignParentTop="true"
 		/>
-  	</FrameLayout>
+  	</RelativeLayout>
 
       	<LinearLayout
   	    android:layout_width="match_parent"
@@ -162,7 +170,7 @@
 	        android:padding="5dp"
 	        android:layout_marginRight="15dp"
 	        android:src="@drawable/ic_action_join"
-	        android:background="@color/sr_bg_actionbar"
+	        android:background="@drawable/rounded_corners"
 	        android:layout_gravity="right|center_vertical"/>
        </FrameLayout>
            
@@ -171,7 +179,7 @@
     
   	<!-- SEPARATOR -->
     <View
-	    android:layout_width="fill_parent"
+	    android:layout_width="match_parent"
 	    android:layout_height="1dp"
 	    android:background="@color/sr_bg_separator"
 	    android:layout_marginTop="8dp"
@@ -180,11 +188,58 @@
 	    android:layout_marginBottom="15dp"
     />
 
-
+    <LinearLayout 
+        android:layout_marginLeft="20dp"
+	    android:layout_marginRight="20dp"
+	    android:layout_marginBottom="20dp"
+	    android:orientation="horizontal"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    >
+        <LinearLayout 
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+        >
+	        <ImageView 
+		   	    android:id="@+id/likeImage"
+		   	    android:layout_height="wrap_content"
+		   	    android:layout_width="wrap_content"
+		   	    android:src="@drawable/ic_star_off"
+		   	    android:layout_marginRight="10dp"
+	   	    />
+	        <TextView
+		        android:layout_height="match_parent"
+		        android:layout_width="wrap_content"
+		        android:textColor="#464646"
+		        android:textSize="20sp"
+		        android:text="LIKES: "
+		    />
+	        <TextView
+		   	    android:id="@+id/numLikes"
+		        android:layout_height="match_parent"
+		        android:layout_width="wrap_content"
+		        android:textColor="@color/sr_bg_actionbar"
+		        android:textSize="20sp"
+		    />
+        </LinearLayout>
+        <TextView 
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="top|right"
+            android:text="..."
+            android:textStyle="bold"
+            android:textSize="30sp"
+            android:textColor="#464646"
+            android:layout_weight="1"
+            android:visibility="invisible"
+            />
+    </LinearLayout>
+    
   	<FrameLayout 
   	    android:layout_height="wrap_content"
 	  	android:layout_width="wrap_content"
 	  	android:layout_gravity="center_horizontal"
 	  	android:layout_marginBottom="10dp">
   	</FrameLayout>
-</com.storyroll.ui.ClipListItemView>
+</com.storyroll.ui.MovieItemView>

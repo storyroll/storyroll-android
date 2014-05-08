@@ -1,8 +1,7 @@
 package com.storyroll.activity;
 
-import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +18,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -30,12 +30,14 @@ import com.storyroll.base.MenuFragmentActivity;
 import com.storyroll.model.Channel;
 import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.ErrorUtility;
+import com.storyroll.util.ModelUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 
 public class TabbedChannelsActivity extends MenuFragmentActivity {
 
-	private static final String LOGTAG = "TabbedChanListActivity";
-	private static final String SCREEN_NAME = "ChanList";
+	private static final String LOGTAG = "TabbedChannelsActivity";
+	private static final String SCREEN_NAME = "TabbedChannels";
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the object collection.
@@ -48,25 +50,36 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 //    private static Set<String> newStories = null;
     private static String mUuid;
     private int unseenStoriesCount = 0;
+
+	private TextView tabUnseenBadgeText = null;
+	static List<Channel> mChannels = null;
+    
     
     public PQuery getPQuery(){
     	return aq;
     }
 
     public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
-    	Log.v(LOGTAG, "chanListCb stub");
-    	// get the list of channels
-    	List<Channel> chans = new ArrayList<Channel>();
-    	chans.add(new Channel(0, "Chan1"));
-    	chans.add(new Channel(1, "Chan2"));
+    	Log.v(LOGTAG, "chanListCb");
+    	List<Channel> channels = null;
     	
-    	init(chans);
+		if (jarr != null) {
+			// successful ajax call
+	    	channels = ModelUtility.channels(jarr);
+
+		} else {
+			// ajax error
+			ErrorUtility.apiError(LOGTAG,
+					"userLikesCb: null Json, could not get channels for uuid " + mUuid, status, this, false, Log.ERROR);
+		}
+		
+    	// get the list of channels
+    	init(channels);
     }
     
     public void init(List<Channel> channels)  {
     	
-    	// TODO bad, bad temporary hack
-    	ArrayClipsFragment.CHANNELS = channels;
+    	this.mChannels = channels;
     	
         mAdapter = new ChannelTabAdapter(getSupportFragmentManager());
         
@@ -99,9 +112,9 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
                 // corresponding page in the ViewPager.
             	
             	if (mViewPager!=null) {
-	            	fireGAnalyticsEvent("ui_action", "onTabSelected", ArrayClipsFragment.CHANNELS.get(tab.getPosition()).getName(), null);
+	            	fireGAnalyticsEvent("ui_action", "onTabSelected", getChannels().get(tab.getPosition()).getTitle(), null);
 	            	
-	            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition()+" - "+ArrayClipsFragment.CHANNELS.get(tab.getPosition()).getName());
+	            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition()+" - "+getChannels().get(tab.getPosition()).getTitle());
 	                mViewPager.setCurrentItem(tab.getPosition());
             	}
             }
@@ -116,8 +129,8 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 //        if (isTrial) {
 //        	tabHeads = ArrayClipsFragment.TAB_HEADINGS_TRIAL;
 //        }
-        for (int i = 0; i < ArrayClipsFragment.CHANNELS.size(); i++) {
-        	if (ArrayClipsFragment.CHANNELS.get(i)!=null) {
+        for (int i = 0; i < getChannels().size(); i++) {
+        	if (getChannels().get(i)!=null) {
         		Tab tab = actionBar.newTab();
 //        		if (i==ArrayClipsFragment.TAB_TWO) 
 //        		{
@@ -131,7 +144,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 //        			tabUnseenBadgeText  = (TextView) tabView.findViewById(R.id.badgeTextt);
 //
 //        		}
-        		tab = tab.setText(ArrayClipsFragment.CHANNELS.get(i).getName());
+        		tab = tab.setText(getChannels().get(i).getTitle());
 	            actionBar.addTab(tab.setTabListener(tabListener));
         	}
         }
@@ -153,7 +166,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
                         
                         // Also update tracker field to persist for all subsequent hits,
                 		// until they are overridden or cleared by assignment to null.
-                	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME+"_"+ArrayClipsFragment.CHANNELS.get(position));
+                	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME+"_"+getChannels().get(position));
                     }
                 });
         
@@ -161,13 +174,13 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 		if (getIntent().getBooleanExtra("NOTIFICATION", false)) 
 		{
 			// TODO crappy hack
-			ArrayClipsFragment.resetUnseenClipSet( getIntent().getIntArrayExtra("clips") );
-			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
+			ArrayMoviesFragment.resetUnseenMovieSet( getIntent().getIntArrayExtra("clips") );
+//			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
 //			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
 		}
 		else {
 			// update unseenStories
-			updateUnseenVideosFromServer();
+//			updateUnseenVideosFromServer();
 		}
     }
     
@@ -190,7 +203,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
         
         // get chan list 
         // TODO: stub
-        aq.ajax(PrefUtility.getApiUrl()+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "chanListCb");
+        aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS, "uuid=" + mUuid), JSONArray.class, this, "chanListCb");
 
 //        mAdapter = new ClipPlaylistTabAdapter(getSupportFragmentManager());
 //        
@@ -215,7 +228,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     		Log.v(LOGTAG, "updateUnseenStoriesFromServer -- skip in trial");
     	}
     	else {
-    		aq.ajax(PrefUtility.getApiUrl()+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+    		aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_UNSEEN_STORIES, "uuid=" + mUuid), JSONArray.class, this, "unseenStoriesCb");
     	}
 	}
 
@@ -230,7 +243,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 				for (int i = 0; i < jarr.length(); i++) {
 					stories[i] = jarr.getInt(i);
 				}
-				ArrayClipsFragment.resetUnseenClipSet(stories);
+				ArrayMoviesFragment.resetUnseenMovieSet(stories);
 				unseenStoriesCount = jarr.length();
 				Log.v(LOGTAG, "unseen stories:" + unseenStoriesCount);
 				refreshUnseenBadge(unseenStoriesCount);
@@ -247,11 +260,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     
 
 
-	private static final long DOUBLE_PUSH_BACK_MILLIS = 1000;
-    private int backTries = 0;
-    private Long lastPressed = 0L;
-	private TextView tabUnseenBadgeText = null;
-    
+
     private void refreshUnseenBadge(int num) {
     	unseenStoriesCount = num;
     	if (tabUnseenBadgeText!=null) {
@@ -378,7 +387,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     	
         public ChannelTabAdapter(FragmentManager fm) {
             super(fm);
-            List<Channel> chans = ArrayClipsFragment.CHANNELS;
+            List<Channel> chans = getChannels();
 //            if (isTrial) {
 //            	th = ArrayClipsFragment.TAB_HEADINGS_TRIAL;
 //            }
@@ -392,13 +401,32 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return ArrayClipsFragment.newInstance(position, mUuid, isTrial);
+            return ArrayMoviesFragment.newInstance(position, mChannels.get(position).getId(), mUuid, isTrial);
         }
         
         @Override
         public CharSequence getPageTitle(int position) {
-            return ArrayClipsFragment.CHANNELS.get(position % ArrayClipsFragment.CHANNELS.size()).getName();
+            return getChannels().get(position % getChannels().size()).getTitle();
         }
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) 
+    {
+		int idx = getActionBar().getSelectedNavigationIndex();
+
+    	if (item.getItemId() == R.id.action_join) 
+		{
+			onJoinPressed(null, mChannels.get(idx).getId());
+			return true;
+			 
+		} else if (item.getItemId() == R.id.action_new) 
+		{
+			 onNewPressed(mChannels.get(idx).getId());
+			 return true;
+			 
+		}
+		return super.onOptionsItemSelected(item);
     }
     
     /*-- lifecycle --*/
@@ -408,6 +436,17 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     	super.onDestroy();
     	aq.dismiss();
     }
+
+	public static void setChannels(List<Channel> mChannels) {
+		mChannels = mChannels;
+	}
+
+	public static List<Channel> getChannels() {
+		if (mChannels==null) {
+			Log.e(ArrayMoviesFragment.LOGTAG, "trying to access null channel list!");
+		}
+		return mChannels;
+	}
 
 }
 

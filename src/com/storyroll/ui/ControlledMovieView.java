@@ -3,11 +3,12 @@ package com.storyroll.ui;
 import java.io.File;
 
 import com.storyroll.R;
-import com.storyroll.activity.ArrayClipsFragment;
+import com.storyroll.activity.ArrayMoviesFragment;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -19,8 +20,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
 
-public class ControlledClipView extends VideoView implements OnVideoTaskCompleted {
-	private static final String LOGTAG = "ControlledClipView";
+public class ControlledMovieView extends VideoView implements OnVideoTaskCompleted {
+	private static final String LOGTAG = "ControlledMovieView";
 
 	protected static final boolean LOOPING = true;
 	
@@ -29,21 +30,23 @@ public class ControlledClipView extends VideoView implements OnVideoTaskComplete
 	boolean playQueued = true;
 	private View controlView, unseenIndicator;
 	private ImageView playControl;
-	private ArrayClipsFragment parent;
+	private ArrayMoviesFragment parent;
 	int screenWidth;
 	private int itemPosition;
-	private long mClipId;
+	private long mMovieId;
 	private String mUuid;
+	private long mUpdateTag;
 
 	private ProgressBar progressBar;
 
-	public ControlledClipView(Context context) {
+
+	public ControlledMovieView(Context context) {
 		super(context);
 	}
-	public ControlledClipView(Context context, AttributeSet attrs) {
+	public ControlledMovieView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
-    public ControlledClipView(Context context, AttributeSet attrs, int defStyle) {
+    public ControlledMovieView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
        
     }
@@ -71,7 +74,7 @@ public class ControlledClipView extends VideoView implements OnVideoTaskComplete
 //			}
 			isLoading = true;
 //		        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
-	        String url = PrefUtility.getApiUrl()+"fragmentFile?fragment="+mClipId+"&uuid="+mUuid;
+	        String url = PrefUtility.getApiUrl(ServerUtility.API_STORY_FILE, "story="+mMovieId+"&uuid="+mUuid+"&updateTag="+mUpdateTag);
 	        		        
 	   		VideoDownloadTask task = new VideoDownloadTask(getContext().getApplicationContext(), this);
 	        task.execute(url);
@@ -92,7 +95,7 @@ public class ControlledClipView extends VideoView implements OnVideoTaskComplete
 	public void startVideo() {
 		Log.v(LOGTAG, "will start video playback");
 
-		parent.switchCurrentlyPlayedClip(this);
+		parent.switchCurrentlyPlayedMovie(this);
 		markPlayable(false);
 		Log.v(LOGTAG, "starting video playback");
 		start();
@@ -105,17 +108,18 @@ public class ControlledClipView extends VideoView implements OnVideoTaskComplete
 		pause();
 	}
 	
-	public void init(ArrayClipsFragment parent, View controlView, int screenWidth, int itemPosition, long clipId, String uuid, 
+	public void init(ArrayMoviesFragment parent, View controlView, int screenWidth, int itemPosition, long movieId, long updateTag, String uuid, 
 			ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
 		this.parent = parent;
-		this.mClipId = clipId;
+		this.mMovieId = movieId;
 		this.mUuid = uuid;
 		this.progressBar = progressBar;
 		this.unseenIndicator = unseenIndicator;
 		this.playControl = playControl;
+		this.mUpdateTag = updateTag;
 		
 		setOnPreparedListener(new MediaPlayer.OnPreparedListener()  {
             @Override
@@ -197,8 +201,8 @@ public class ControlledClipView extends VideoView implements OnVideoTaskComplete
 	}
 	
 	
-	public long getClipId() {
-		return mClipId;
+	public long getMovieId() {
+		return mMovieId;
 	}
 	public String getUuid() {
 		return mUuid;

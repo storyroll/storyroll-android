@@ -105,8 +105,12 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private Integer currentCameraId = null;
 	private boolean startNewMode = false;
 	private final static long NULL_RESPONSE_CLIP=-1L;
-	private Long respondToClipId = NULL_RESPONSE_CLIP;
+	private final static long NULL_CHAN=-1L;
+
+	private long respondToClipId = NULL_RESPONSE_CLIP;
 	private boolean isFragmentCarousel = false;
+	private long currentChannelId = NULL_CHAN;
+	private long movieId = -1L;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -163,7 +167,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		rotateButton = aq.id(R.id.rotateButton).getButton();
 		aq.id(R.id.rotateButton).clicked(this, "switchCameraClickedCb");
 		
+		movieId = getIntent().getLongExtra("MOVIE", -1L);
 		respondToClipId = getIntent().getLongExtra("RESPOND_TO_CLIP", NULL_RESPONSE_CLIP);
+		currentChannelId  = getIntent().getLongExtra("CURRENT_CHANNEL", NULL_CHAN);
+		
+		
 		// implicit instruction to start new fragment?
 		startNewMode = getIntent().getBooleanExtra("MODE_NEW", false);
 		if (startNewMode) 
@@ -179,7 +187,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		else {
 			// get list of available fragments
 			show(progress);
-			aq.ajax(PrefUtility.getApiUrl()+"available?uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS, JSONArray.class, this, "availableCb");
+			aq.ajax(PrefUtility.getApiUrl(
+					ServerUtility.API_CLIPS_AVAILABLE, "uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS), 
+					JSONArray.class, this, "availableCb");
 		}
 		// it's time to refresh video length from server
 		refreshVideoLengthSetting();
@@ -245,7 +255,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	}
 	
 	private void startVideoPreloadTask(long fragmentId) {
-		String fragmentApiUrl = PrefUtility.getApiUrl()+"fragmentFile?fragment="+fragmentId+"&uuid="+getUuid();
+		String fragmentApiUrl = PrefUtility.getApiUrl(ServerUtility.API_CLIP_FILE, "fragment="+fragmentId+"&uuid="+getUuid());
    		VideoDownloadTask task = new VideoDownloadTask(getApplicationContext(), this);
    		task.execute(fragmentApiUrl);
 	}
@@ -618,11 +628,18 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("file", file);
 		params.put("uuid", getUuid());
-		params.put("l", respondToClipId);
+		if (movieId!=-1L) {
+			params.put("l", movieId);
+		}
+		Log.v(LOGTAG, "channel: "+currentChannelId);
+		if (currentChannelId!=NULL_CHAN) {
+			params.put("c", currentChannelId+"");
+		}
 		
 		fireGAnalyticsEvent("fragment_workflow", "addFragmentStart", "", null);
 		
-		aq.ajax(PrefUtility.getApiUrl()+"addFragment", params, JSONObject.class, VideoCaptureActivity.this, "addFragmentCb").progress(R.id.progress);
+		aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CLIP_ADD, null), 
+				params, JSONObject.class, VideoCaptureActivity.this, "addFragmentCb").progress(R.id.progress);
 	}
 	  
 	private boolean isUploading = false;
@@ -687,7 +704,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 	private void refreshVideoLengthSetting() {
 		// query API for server config
-		String apiUrl = PrefUtility.getApiUrl() + "getServerProperties";
+		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_SERVER_PROPERTIES, null);
 		aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, this, "getServerPropertiesCb");
 	}
 
@@ -698,9 +715,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	}
 	
 	// "BACK" and "CLOSE" control
-	public void backAndCloseClickedCb()
+	public void backOrCloseClickedCb()
 	{
-		fireGAnalyticsEvent("ui_action", "back&close_control_from_state", DataUtility.stateStr(lastState), null);
+		fireGAnalyticsEvent("ui_action", "back_close_control_from_state", DataUtility.stateStr(lastState), null);
 		backOrCloseClicked();
 	}
 	
@@ -715,6 +732,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			// return to the last used playlist
 			intent = new Intent(VideoCaptureActivity.this, AppUtility.ACTIVITY_HOME);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			intent.putExtra("RESPOND_TO_CLIP", respondToClipId);
+			intent.putExtra("CURRENT_CHANNEL", currentChannelId);			
+			intent.putExtra("MOVIE", movieId);			
 			startActivity(intent);
 			
 			break;
@@ -727,7 +747,19 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 				show(videoView);
 			}
 			hide(rotateButton);
-			lastState = processAndSwitchToState(STATE_PREV_LAST);
+			if (startNewMode) {
+//	    		fireGAnalyticsEvent("ui_action", "click", "SystemBack", null);
+//	    		fireGAnalyticsEvent("fragment_workflow", "videoUpload", "SystemBack", null);
+	        	
+        		intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
+        		intent.addCategory(Intent.CATEGORY_HOME);
+//        		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        		startActivity(intent);
+			}
+			else {
+				lastState = processAndSwitchToState(STATE_PREV_LAST);
+			}
 			
 			break;
 		case STATE_REC:

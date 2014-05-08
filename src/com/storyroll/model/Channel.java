@@ -4,32 +4,32 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Channel {
-	private String name;
-	private long id;
-	private long createdOn;
+	private String title = null;
+	private long id = -1L;
+	private long createdOn = -1L;
+	private String thumbnailFile = null;
 	
 	public Channel() {
-		name = null;
-		id = -1;
-		createdOn = -1;
 	}
 	
 	public Channel(long id, String name) {
 		this.id = id;
-		this.name = name;
+		this.title = name;		
 	}
 
 	public Channel(JSONObject chanObj) throws JSONException {
 		id = chanObj.getLong("id");
 		createdOn = chanObj.getLong("createdOn");
-		name = chanObj.getString("name");
+		title = chanObj.getString("title");
+		thumbnailFile = chanObj.getString("thumbnailFile");
 	}
-	public String getName() {
-		return name;
+	
+	public String getTitle() {
+		return title;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setTitle(String name) {
+		this.title = name;
 	}
 
 	public long getId() {

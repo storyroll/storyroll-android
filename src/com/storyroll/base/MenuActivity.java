@@ -1,6 +1,7 @@
 package com.storyroll.base;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,7 +30,8 @@ public class MenuActivity extends GcmActivity {
 	  // Handle item selection
 	  Intent intent;
 	    if (item.getItemId() == R.id.action_join) {
-	    	onJoinPressed(null);
+//	    	onJoinPressed(null, null);
+	    	Log.e(LOGTAG, "can't join video from this activity!");
 			return true;
 		} else if (item.getItemId() == R.id.action_help) {
 			intent = new Intent (this, HelpActivity.class);
@@ -56,7 +58,7 @@ public class MenuActivity extends GcmActivity {
 	
     /*-- callbacks & helpers --*/
 
-	protected void onJoinPressed(Long clipId){
+	protected void onJoinPressed(Long clipId, Long chanId){
 		Intent intent;
 		if (isTrial) {
 			intent = new Intent(this, LoginActivity.class);
@@ -65,8 +67,11 @@ public class MenuActivity extends GcmActivity {
 		else {
 			intent = new Intent(this, VideoCaptureActivity.class);
 		}
-		if (clipId!=null) {
+		if (clipId!=null && clipId!=-1L) {
 			intent.putExtra("RESPOND_TO_CLIP", clipId);
+		}
+		if (chanId!=null && chanId!=-1L) {
+			intent.putExtra("CURRENT_CHANNEL", chanId);
 		}
 		
 		startActivity(intent);

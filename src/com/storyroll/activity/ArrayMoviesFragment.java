@@ -3,7 +3,6 @@ package com.storyroll.activity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -28,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
@@ -36,23 +36,21 @@ import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.enums.AutostartMode;
-import com.storyroll.model.Channel;
-import com.storyroll.model.Clip;
-import com.storyroll.model.Story;
-import com.storyroll.ui.ClipListItemView;
-import com.storyroll.ui.ControlledClipView;
+import com.storyroll.model.Movie;
+import com.storyroll.ui.MovieItemView;
+import com.storyroll.ui.ControlledMovieView;
+import com.storyroll.ui.PlaylistItemView;
 import com.storyroll.ui.RoundedImageView;
-import com.storyroll.util.AppUtility;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.NetworkUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 import com.storyroll.util.ViewUtility;
 
-public class ArrayClipsFragment extends ListFragment {
-	private static final String LOGTAG = "ArrayListFragment";
+public class ArrayMoviesFragment extends ListFragment {
+	static final String LOGTAG = "ArrayMoviesFragment";
 
-	public static List<Channel> CHANNELS;
-	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "One", null };
+	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "StoryRoll_", null };
 	
 	private static final Integer LIMIT_ITEMS = 40;
 	
@@ -73,21 +71,23 @@ public class ArrayClipsFragment extends ListFragment {
 	private boolean isTrial;
 	private PQuery aq;
 	
-	private ArrayList<Clip> clips = new ArrayList<Clip>();
-	public static Set<String> unseenClips = null;
+	private ArrayList<Movie> movies = new ArrayList<Movie>();
+	public static Set<String> userLikes = null;
+	public static Set<String> unseenMovies = null;
     
 
 	/**
 	 * Create a new instance of CountingFragment, providing "num" as an
 	 * argument.
+	 * @param chanId TODO
 	 */
-	static ArrayClipsFragment newInstance(int num, String uuid, boolean isTrial) {
-		ArrayClipsFragment f = new ArrayClipsFragment();
+	static ArrayMoviesFragment newInstance(int num, long chanId, String uuid, boolean isTrial) {
+		ArrayMoviesFragment f = new ArrayMoviesFragment();
 
 		// Supply num input as an argument.
 		Bundle args = new Bundle();
 		args.putInt("num", num);
-		args.putLong("chanId", ArrayClipsFragment.CHANNELS.get(num).getId());
+		args.putLong("channelId", chanId);
 		args.putString("uuid", uuid);
 		args.putBoolean("trial", isTrial);
 		f.setArguments(args);
@@ -103,11 +103,35 @@ public class ArrayClipsFragment extends ListFragment {
 		super.onCreate(savedInstanceState);
 		
 		mNum = getArguments() != null ? getArguments().getInt("num") : 0;
-		mChanId = getArguments() != null ? getArguments().getLong("chanId") : -1;
+		mChanId = getArguments() != null ? getArguments().getLong("channelId") : -1;
 		mUuid = getArguments() != null ? getArguments().getString("uuid") : "";
 		isTrial = getArguments() != null ? getArguments().getBoolean("trial") : false;
 		
 		aq = ((TabbedChannelsActivity) getActivity()).getPQuery();
+		
+		// get user likes only once
+		if (isTrial) {
+			userLikes = new HashSet<String>();
+		}
+		else if (userLikes==null || userLikes.isEmpty()) 
+		{
+			if (userLikes == null) {
+				userLikes = new HashSet<String>();
+			}
+			String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_STORIES_LIKED_BY_USER, "uuid=" + mUuid + "&limit=" + LIMIT_ITEMS);
+			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "userLikesIdsCb");
+		}
+		// get unseen only once
+		if (isTrial) {
+			unseenMovies = new HashSet<String>();
+		}
+		else if (unseenMovies==null || unseenMovies.isEmpty()) 
+		{
+			if (unseenMovies == null) {
+				unseenMovies = new HashSet<String>();
+			}
+			updateUnseenMoviesFromServer();
+		}
 	}
 
 	@Override
@@ -124,9 +148,10 @@ public class ArrayClipsFragment extends ListFragment {
 		Log.v(LOGTAG, "onActivityCreated");
 		super.onActivityCreated(savedInstanceState);
 
-		String apiUrl = PrefUtility.getApiUrl();
-		apiUrl += "available?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS +"&channel="+mChanId;
-		aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "getClipListCb");
+		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHAN_MOVIES,
+				"uuid=" + mUuid +"&channel="+mChanId + "&limit=" + LIMIT_ITEMS);
+		
+		aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "getMovieListCb");
 		
 //		default:
 //			Log.e(LOGTAG, "Unrecognized tabnum: " + mNum);
@@ -135,8 +160,8 @@ public class ArrayClipsFragment extends ListFragment {
 		// using application context to avoid the leak
 		// see
 		// http://stackoverflow.com/questions/18896880/passing-context-to-arrayadapter-inside-fragment-with-setretaininstancetrue-wil
-		ClipListAdapter pla = new ClipListAdapter(getActivity()
-				.getApplicationContext(), clips, aq, mUuid, isTrial);
+		MovieListAdapter pla = new MovieListAdapter(getActivity()
+				.getApplicationContext(), movies, aq, mUuid, isTrial);
 		
 		setListAdapter(pla);
 		getListView().setOnScrollListener(pla);
@@ -149,44 +174,77 @@ public class ArrayClipsFragment extends ListFragment {
 	// Log.i("FragmentList", "Item clicked: " + id);
 	// }
 
-
-	public void getClipListCb(String url, JSONArray jarr, AjaxStatus status) 
+	// inner callbacks
+    // get initial, centralized (static) user "liked" video ids
+	public void userLikesIdsCb(String url, JSONArray jarr, AjaxStatus status) 
 	{
-		getClipListSorted(url, jarr, status, true);
+		Log.v(LOGTAG, "userLikesIdsCb");
+		if (isAjaxErrorThenReport(status)) {
+			aq.id(R.id.emptyMessage).gone();
+			return;
+		}
+		
+		if (jarr != null) {
+			// successful ajax call
+			try {
+				
+				userLikes.clear();
+				for (int i = 0; i < jarr.length(); i++) {
+					JSONObject likeObj = jarr.getJSONObject(i);
+					JSONObject videoObj = (JSONObject) likeObj.get("movie"); // TODO
+					userLikes.add(videoObj.getLong("id")+"");
+				}
+				Log.v(LOGTAG, "user liked videos:" + userLikes.size()+" "+userLikes.toString());
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		} else {
+			// ajax error
+			apiError(LOGTAG,
+					"userLikesCb: null Json, could not get likes for uuid " + mUuid, status, false, Log.ERROR);
+		}
+
+	}
+
+	public void getMovieListCb(String url, JSONArray jarr, AjaxStatus status) 
+	{
+		getMovieListSorted(url, jarr, status, true);
 	}
 	
 
 	
-	public void getClipListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted) 
+	public void getMovieListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted) 
 	{
 		if (isAjaxErrorThenReport(status)) {
 			aq.id(R.id.emptyMessage).gone();
 			return;
 		}
 			
-		Log.v(LOGTAG, "getClipListSorted for tab no " + mNum);
+		Log.v(LOGTAG, "getMovieListSorted for tab no " + mNum);
 		if (jarr != null) {
 			// successful ajax call
-			Log.i(LOGTAG, "getClipListSorted success: " + jarr.toString());
+			Log.i(LOGTAG, "getMovieListSorted success: " + jarr.toString());
 			// do something with the jsonarray
 			try {
-				clips.clear();
+				movies.clear();
 //				for (int test = 0; test<3; test++) {
 				for (int i = 0; i < jarr.length(); i++) {
-					JSONObject clipObj = jarr.getJSONObject(i);
-					Clip clip = new Clip(clipObj);
-//					if (blink.isPublished()) {
-//						// manually set userLikes flag
-////						story.setUserLikes(userLikes.contains(story.getId()+""));
-//						blink.setUnseen(unseenBlinks.contains(story.getId()+""));
-						clips.add(clip);
+					JSONObject movieObj = jarr.getJSONObject(i);
+					Movie movie = new Movie(movieObj);
+//					if (clip.isPublished()) {
+						// manually set userLikes flag
+						movie.setUserLikes(userLikes.contains(movie.getId()+""));
+						movie.setUnseen(unseenMovies.contains(movie.getId()+""));
+						movies.add(movie);
 //					}
 				}
 //				}
 				if (sorted) {
-					Collections.sort(clips);
+					Collections.sort(movies);
 				}
-				Log.v(LOGTAG, "clips:" + clips.size());
+				Log.v(LOGTAG, "movies:" + movies.size());
 
 				// refresh the adapter now
 				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
@@ -199,21 +257,21 @@ public class ArrayClipsFragment extends ListFragment {
 		} else {
 			// ajax error
 			apiError(LOGTAG,
-//					"getClipListSorted: null Json, could not get blink list for uuid " + mUuid, status, false, Log.ERROR);
-			"Error getting clips", status, true, Log.ERROR);
+//					"getMovieListSorted: null Json, could not get blink list for uuid " + mUuid, status, false, Log.ERROR);
+			"Error getting movies", status, true, Log.ERROR);
 		}
-		if (clips.size()<1) {
+		if (movies.size()<1) {
 			aq.id(R.id.emptyMessage).gone();
 		}
 	}
 
-	private static ControlledClipView currentlyPlayed = null;
+	private static ControlledMovieView currentlyPlayed = null;
 
 	
 	// stop currently played video and start new one, setting it as currently played
 	// needed to avoid playing two or more videos at once
 	// using this as a central point for play event counter
-	public void switchCurrentlyPlayedClip(ControlledClipView v)
+	public void switchCurrentlyPlayedMovie(ControlledMovieView v)
 	{
 		if (currentlyPlayed!=null && currentlyPlayed.isPlaying()) {
 			currentlyPlayed.stopPlayback();
@@ -223,12 +281,12 @@ public class ArrayClipsFragment extends ListFragment {
 		
 		// hide "newness" indicator
 		v.markSeen();
-		unseenClips.remove(v.getClipId()+"");
+		unseenMovies.remove(v.getMovieId()+"");
 		
 		// fire an event about new video start
 		// TODO do we track in trial?
-//		String apiUrl = PrefUtility.getApiUrl()+"addView?story="+ v.getBlinkId() +"&uuid=" + v.getUuid();
-//		aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
+		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_VIEW_ADD, "story="+ v.getMovieId() +"&uuid=" + v.getUuid());
+		aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
 	}
 	
 	public void addViewCb(String url, JSONObject json, AjaxStatus status){
@@ -254,7 +312,7 @@ public class ArrayClipsFragment extends ListFragment {
 	            	currentlyPlayed = null;
 	            }
 //	            lastTracked = -1;
-	            ((ClipListAdapter)getListAdapter()).resetAutoplayTracker();
+	            ((MovieListAdapter)getListAdapter()).resetAutoplayTracker();
 	        }
 	        else {
 	        	isTabVisible = true;
@@ -264,10 +322,10 @@ public class ArrayClipsFragment extends ListFragment {
 	    Log.d(LOGTAG, "Tab num "+mNum +" set to visible "+isTabVisible);
 	}
 	
-	public class ClipListAdapter extends ArrayAdapter<Clip> implements OnScrollListener {
+	public class MovieListAdapter extends ArrayAdapter<Movie> implements OnScrollListener {
 
 		private final Context context;
-		private final ArrayList<Clip> clips;
+		private final ArrayList<Movie> movies;
 		private final PQuery aq;
 		private final String uuid;
 		private int screenWidth, screenHeight, calculcatedVideoWidth;
@@ -278,13 +336,13 @@ public class ArrayClipsFragment extends ListFragment {
 		
 		
 
-		public ClipListAdapter(Context context, ArrayList<Clip> clips,
+		public MovieListAdapter(Context context, ArrayList<Movie> movies,
 				PQuery aq, String uuid, boolean trial) {
 
-			super(context, R.layout.tab_cliplist_item, clips);
+			super(context, R.layout.tab_movie_item, movies);
 
 			this.context = context;
-			this.clips = clips;
+			this.movies = movies;
 			this.aq = aq;
 			this.uuid = uuid;
 			this.isTrial = trial;
@@ -313,44 +371,63 @@ public class ArrayClipsFragment extends ListFragment {
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 			// 2. Get rowView from inflater
-			ClipListItemView rowView = (ClipListItemView)inflater.inflate(R.layout.tab_cliplist_item, parent, false);
+			MovieItemView rowView = (MovieItemView)inflater.inflate(R.layout.tab_movie_item, parent, false);
 
 			// 3. Get the views from the rowView
-			ImageView clipThumb = (ImageView) rowView.findViewById(R.id.videoThumb);
+			ImageView videoThumb = (ImageView) rowView.findViewById(R.id.videoThumb);
 			ImageView playControl = (ImageView) rowView.findViewById(R.id.playControl);
-			ControlledClipView videoView = (ControlledClipView) rowView.findViewById(R.id.videoPlayerView);
+			TextView likesNum = (TextView) rowView.findViewById(R.id.numLikes);
+			ImageView likeControl = (ImageView) rowView.findViewById(R.id.likeImage);
+			ControlledMovieView videoView = (ControlledMovieView) rowView.findViewById(R.id.videoPlayerView);
 			ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progress);
 			View unseenIndicator = rowView.findViewById(R.id.unseenIndicator);
 			ImageButton replyButton = (ImageButton)rowView.findViewById(R.id.replyButton);
 
 			// 4. set data & callbacks
-			Clip clip = clips.get(position);
-			rowView.initAndLoadCast(clip, aq, ArrayClipsFragment.this);
+			Movie movie = movies.get(position);
+			rowView.initAndLoadCast(movie, aq, ArrayMoviesFragment.this);
 
 			// TODO:
-			aq.id(clipThumb).image(PrefUtility.getApiUrl() + "clipThumb?clip=" + clip.getId());
+			aq.id(videoThumb).image(PrefUtility.getApiUrl(ServerUtility.API_MOVIE_THUMB, "m=" + movie.getId()));
 			
-			ViewUtility.setViewSquare(clipThumb, calculcatedVideoWidth);
+			ViewUtility.setViewSquare(videoThumb, calculcatedVideoWidth);
 			ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
 			
-			videoView.init(ArrayClipsFragment.this, clipThumb, calculcatedVideoWidth, position, clip.getId(), mUuid, progressBar, unseenIndicator, playControl);
-			clipThumb.setOnClickListener(new ThumbClickListener(videoView, clip.getId()));
-			replyButton.setOnClickListener(new ReplyClickListener(clip.getId(), context));
+			videoView.init(ArrayMoviesFragment.this, videoThumb, calculcatedVideoWidth, position, 
+					movie.getId(), movie.getLastClipId(), mUuid, progressBar, unseenIndicator, playControl);
+			videoThumb.setOnClickListener(new ThumbClickListener(videoView, movie.getId()));
+			replyButton.setOnClickListener(new ReplyClickListener(movie.getId(), movie.getLastClipId(), context));
 			
-			// set current user-story like state
-//			story.setUserLikes( userLikes.contains(story.getId()+"") );
-//			if (story.isUserLikes()) {
-//				likeControl.setImageResource(R.drawable.ic_star_on);
-//			}
-//			else {
-//				likeControl.setImageResource(R.drawable.ic_star_off);
-//			}
+			likesNum.setText(shortLikesString(movie.getLikes()));
 			
-//			// disable liking in trial
-////			if (!isTrial) {
-//				likeControl.setOnClickListener(new LikeClickListener(likeControl,
-//						likesNum, uuid, story, isTrial));
-////			}
+			if (movie.getCast()!=null) {
+				for (int i=0; i<movie.getCast().length; i++) {
+					RoundedImageView castImage = (RoundedImageView) 
+							rowView.findViewById(PlaylistItemView.castIds[i]);
+					aq.id(castImage).image(PrefUtility.getApiUrl(
+							ServerUtility.API_AVATAR, "uuid="+movie.getCast()[i]), 
+							true, false, 0, R.drawable.ic_avatar_default);
+					aq.id(castImage).clicked(this, "onCastClickedCb");
+				}
+			}
+			
+			// set current user-video like state
+			movie.setUserLikes( userLikes.contains(movie.getId()+"") );
+			if (movie.isUserLikes()) {
+				likeControl.setImageResource(R.drawable.ic_star_on);
+			}
+			else {
+				likeControl.setImageResource(R.drawable.ic_star_off);
+			}
+			
+			// disable liking in trial
+			if (!isTrial) {
+				likeControl.setOnClickListener(new LikeClickListener(likeControl,
+						likesNum, uuid, movie, isTrial));
+			}
+			else {
+				Toast.makeText(context, "You can like after logging in", Toast.LENGTH_SHORT).show();
+			}
 				
 			// 5. return rowView
 			return rowView;
@@ -358,27 +435,29 @@ public class ArrayClipsFragment extends ListFragment {
 
 		// play/stop click listener
 		class ThumbClickListener implements ImageView.OnClickListener {
-			ControlledClipView pv;
-			long clipId;
-			public ThumbClickListener(ControlledClipView v, long clipId){
+			ControlledMovieView pv;
+//			long movieId;
+			public ThumbClickListener(ControlledMovieView v, long movieId){
 				this.pv = v;
-				this.clipId = clipId;
+//				this.movieId = movieId;
 			}
 
 			@Override
 			public void onClick(View v) {
-				fireGAnalyticsEvent("ui_action", "touch", "clipThumb", null);
+				fireGAnalyticsEvent("ui_action", "touch", "movieThumb", null);
 				pv.startVideoPreloading(true);
 			}
 		}
 		
 		// reply listener
 		class ReplyClickListener implements ImageButton.OnClickListener {
-			long clipId;
+			long lastClipId;
 			Context ctx;
+			long movieId;
 			
-			public ReplyClickListener(long clipId, Context ctx){
-				this.clipId = clipId;
+			public ReplyClickListener(long movieId, long clipId, Context ctx){
+				this.movieId = movieId;
+				this.lastClipId = clipId;
 				this.ctx = ctx;
 			}
 			
@@ -386,9 +465,79 @@ public class ArrayClipsFragment extends ListFragment {
 			public void onClick(View v) {
 				fireGAnalyticsEvent("ui_action", "touch", "replyButton", null);
 				Intent intent = new Intent(ctx, VideoCaptureActivity.class);
-				intent.putExtra("RESPOND_TO_CLIP", clipId);
+				intent.putExtra("RESPOND_TO_CLIP", lastClipId);
+				intent.putExtra("CURRENT_CHANNEL", mChanId);
+				intent.putExtra("MOVIE", movieId);
 				startActivity(intent);
 			}
+		}
+		
+		// like click listener
+		class LikeClickListener implements ImageView.OnClickListener {
+			String uuid;
+			Movie movie;
+			ImageView view;
+			TextView likesNum;
+			boolean trial;
+
+			public LikeClickListener(ImageView view, TextView likesNum,
+					String uuid, Movie movie, boolean trial) 
+			{
+				this.uuid = uuid;
+				this.movie = movie;
+				this.view = view;
+				this.likesNum = likesNum;
+				this.trial = trial;
+			}
+
+			@Override
+			public void onClick(View v) {
+				fireGAnalyticsEvent("ui_action", "touch", "likeButton", null);
+				
+				// first, invert the likes
+				movie.setUserLikes(!movie.isUserLikes());
+
+				if (movie.isUserLikes()) {
+					movie.setLikes(movie.getLikes() + 1);
+					view.setImageResource(R.drawable.ic_star_on);
+					likesNum.setText(shortLikesString(movie.getLikes()));
+					userLikes.add(movie.getId()+"");
+				} else {
+					movie.setLikes(movie.getLikes() - 1);
+					view.setImageResource(R.drawable.ic_star_off);
+					likesNum.setText(shortLikesString(movie.getLikes()));
+					userLikes.remove(movie.getId()+"");
+				}
+
+				if (!trial) 
+				{
+					String url = PrefUtility.getApiUrl(ServerUtility.API_STORY_LIKE, "uuid=" + this.uuid + "&story=" + movie.getId());
+					
+					if (!movie.isUserLikes()) 
+					{
+						url = PrefUtility.getApiUrl(ServerUtility.API_STORY_DISLIKE, "uuid=" + this.uuid + "&story=" + movie.getId());
+					}
+					
+	
+					aq.ajax(url, JSONObject.class, new AjaxCallback<JSONObject>() {
+						@Override
+						public void callback(String url, JSONObject json,
+								AjaxStatus status) {
+							if (json != null) {
+								// successful ajax call
+								Log.v(LOGTAG, "likeCb success: " + json.toString());
+								// TODO: update like icon, and increase the count.
+								// TODO: collateral?
+							} else {
+								// ajax error, o change
+								apiError(LOGTAG,
+										"likeCb: Json null " + mUuid, status, false, Log.ERROR);
+							}
+						}
+					});
+				}
+			}
+
 		}
 		
 		// --------- HELPERS & CALLBACKS
@@ -442,7 +591,7 @@ public class ArrayClipsFragment extends ListFragment {
 			if (lastTrackedPos==-1 && visibleItemCount>0) {
 				// TODO: if it's currently selected fragment, autoplay, if not, schedule
 				
-				ClipListItemView pv = (ClipListItemView) ((ViewGroup)view).getChildAt(0);
+				MovieItemView pv = (MovieItemView) ((ViewGroup)view).getChildAt(0);
 				Log.v(LOGTAG, "onScroll: pv!=null, visible " + (pv!=null) + " " + isTabVisible);
 				if (pv!=null && isTabVisible) 
 				{
@@ -453,7 +602,7 @@ public class ArrayClipsFragment extends ListFragment {
 						currentlyPlayed.queueStopVideo();
 						currentlyPlayed = null;
 					}
-					ControlledClipView videoView = (ControlledClipView) pv.findViewById(R.id.videoPlayerView);
+					ControlledMovieView videoView = (ControlledMovieView) pv.findViewById(R.id.videoPlayerView);
 					handleAutostart(pv, videoView);
 				}
 			}
@@ -474,8 +623,8 @@ public class ArrayClipsFragment extends ListFragment {
 				boolean found = false;
 				for (int current=first, i=0; current<=last && !found; current++, i++) 
 				{
-					ClipListItemView pv = (ClipListItemView) ((ViewGroup)view).getChildAt(i);
-					ControlledClipView videoView = (ControlledClipView) pv.findViewById(R.id.videoPlayerView);
+					MovieItemView pv = (MovieItemView) ((ViewGroup)view).getChildAt(i);
+					ControlledMovieView videoView = (ControlledMovieView) pv.findViewById(R.id.videoPlayerView);
 					int[] location = new int[2];
 					videoView.getLocationOnScreen(location);
 					int viewCenterY = location[1] + calculcatedVideoWidth/2;
@@ -497,7 +646,7 @@ public class ArrayClipsFragment extends ListFragment {
 		}
 		
 		// autostart first visible video, video/network settings permitting
-		private void handleAutostart(ClipListItemView pv, ControlledClipView videoView) {
+		private void handleAutostart(MovieItemView pv, ControlledMovieView videoView) {
 
 
 			Log.v(LOGTAG, "handleAutostart: first visible item's position in list: "+videoView.getItemPosition());
@@ -546,35 +695,37 @@ public class ArrayClipsFragment extends ListFragment {
     }
     
     // unseen stories
-    public static void resetUnseenClipSet(int[] stories) {
-    	if (unseenClips == null) {
-    		unseenClips = new HashSet<String>();
+    public static void resetUnseenMovieSet(int[] stories) {
+    	if (unseenMovies == null) {
+    		unseenMovies = new HashSet<String>();
     	}
     	else {
-    		unseenClips.clear();
+    		unseenMovies.clear();
     	}
     	if (stories!=null) {
-    		for (int i : stories) unseenClips.add(i+"");
+    		for (int i : stories) unseenMovies.add(i+"");
     	}
     }
     
     // TODO deduplicate code (TabbedPlaylistActivity)
-    private void updateUnseenStoriesFromServer() {
-    	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
-    	aq.ajax(PrefUtility.getApiUrl()+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+    private void updateUnseenMoviesFromServer() {
+    	Log.v(LOGTAG, "updateUnseenMoviesFromServer");
+    	// TODO
+//    	aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_UNSEEN_MOVIES, "uuid=" + mUuid), 
+//    			JSONArray.class, this, "unseenMoviesCb");
 	}
 
-	public void unseenStoriesCb(String url, JSONArray jarr, AjaxStatus status) 
+	public void unseenMoviesCb(String url, JSONArray jarr, AjaxStatus status) 
 	{
-		Log.v(LOGTAG, "unseenStoriesCb");
+		Log.v(LOGTAG, "unseenMoviesCb");
 		if (jarr != null) {
 			// successful ajax call
 			try {
-				resetUnseenClipSet(null);
+				resetUnseenMovieSet(null);
 				for (int i = 0; i < jarr.length(); i++) {
-					unseenClips.add( jarr.getInt(i)+"" );
+					unseenMovies.add( jarr.getInt(i)+"" );
 				}
-				Log.v(LOGTAG, "unseen clips:" + jarr.length()+", set: "+unseenClips.size());
+				Log.v(LOGTAG, "unseen movie:" + jarr.length()+", set: "+unseenMovies.size());
 //				refreshUnseenBadge(unseenStories);
 			} catch (JSONException e) {
 				Log.e(LOGTAG, "jsonexception", e);
@@ -583,7 +734,7 @@ public class ArrayClipsFragment extends ListFragment {
 		} else {
 			// ajax error
 			apiError(LOGTAG,
-					"userLikesCb: null Json, could not get unseenStories for uuid " + mUuid, status, false, Log.ERROR);
+					"userLikesCb: null Json, could not get unseenMovies for uuid " + mUuid, status, false, Log.ERROR);
 		}
 	}
 

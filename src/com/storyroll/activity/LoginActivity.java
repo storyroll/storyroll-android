@@ -24,6 +24,7 @@ import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.DataUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 
 public class LoginActivity extends GcmActivity {
 	private final static String LOGTAG = "LOGIN";
@@ -81,7 +82,7 @@ public class LoginActivity extends GcmActivity {
             Toast.makeText(aq.getContext(), R.string.msg_password_email_required, Toast.LENGTH_SHORT).show();
 			return;
 		}
-		String apiUrl = PrefUtility.getApiUrl() + "getProfile?uuid="+profile.email;
+		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_PROFILE, "?uuid="+profile.email);
 		aq.ajax(apiUrl, JSONObject.class, LoginActivity.this, "getSrProfileCb");
 	}
 
@@ -101,7 +102,7 @@ public class LoginActivity extends GcmActivity {
                     populateProfileFromFbJson(json);
                     
                     // query API, user exists?
-    				String apiUrl = PrefUtility.getApiUrl() + "hasUser?uuid="+profile.email;
+    				String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_USER_EXISTS, "uuid="+profile.email);
 					aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "hasFbUserInSrCb");
 					
 				} catch (JSONException e) {
@@ -155,7 +156,7 @@ public class LoginActivity extends GcmActivity {
 			// update profile
 			profile = populateProfileFromSrJson(json, true);
 			
-			String apiUrl = PrefUtility.getApiUrl() + "loginValid?uuid="+profile.email+"&password="+md5;
+			String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_LOGIN_VALID, "uuid="+profile.email+"&password="+md5);
 			aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "loginValidCb");
 		
 		}else{

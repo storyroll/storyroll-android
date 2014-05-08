@@ -43,6 +43,7 @@ import com.storyroll.util.DialogUtility;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.IntentUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 //import com.androidquery.simplefeed.util.AppUtility;
 //import com.androidquery.simplefeed.util.DialogUtility;
 //import com.androidquery.simplefeed.util.IntentUtility;
@@ -357,7 +358,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         	Log.w(LOGTAG, "logout");
         	
     		// first of all, remove associated GCM reg id from the db record
-    		String apiRegUrl = PrefUtility.getApiUrl()+"updateProfile?uuid="+ getUuid() +"&registrationId= ";
+    		String apiRegUrl = PrefUtility.getApiUrl(ServerUtility.API_PROFILE_UPDATE, "uuid="+ getUuid() +"&registrationId= ");
     		aq.progress(R.id.progress).ajax(apiRegUrl, JSONObject.class, this, "removeProfileGcmRegCb");
     		
         	AppUtility.purgeProfile(this);

@@ -34,7 +34,7 @@ import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.enums.AutostartMode;
 import com.storyroll.model.Story;
-import com.storyroll.ui.ControlledClipView;
+import com.storyroll.ui.ControlledMovieView;
 import com.storyroll.ui.ControlledVideoView;
 import com.storyroll.ui.PlaylistItemView;
 import com.storyroll.ui.RoundedImageView;
@@ -42,6 +42,7 @@ import com.storyroll.util.AppUtility;
 import com.storyroll.util.ErrorUtility;
 import com.storyroll.util.NetworkUtility;
 import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
 import com.storyroll.util.ViewUtility;
 
 public class ArrayListFragment extends ListFragment {
@@ -119,7 +120,7 @@ public class ArrayListFragment extends ListFragment {
 			if (userLikes == null) {
 				userLikes = new HashSet<String>();
 			}
-			String apiUrl = PrefUtility.getApiUrl()+"userLikes?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
+			String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_STORIES_LIKED_BY_USER, "uuid=" + mUuid + "&limit=" + LIMIT_ITEMS);
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "userLikesIdsCb");
 		}
 		// get unseen only once
@@ -150,29 +151,28 @@ public class ArrayListFragment extends ListFragment {
 		Log.v(LOGTAG, "onActivityCreated");
 		super.onActivityCreated(savedInstanceState);
 
-		String apiUrl = PrefUtility.getApiUrl();
+		String apiUrl;
 		switch (mNum) {
 		case TAB_BEST:
-			apiUrl += "getHotStories?limit=" + LIMIT_ITEMS;
+			apiUrl = PrefUtility.getApiUrl(ServerUtility.API_STORIES_BEST, "limit=" + LIMIT_ITEMS);
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
 					"getStoryListTopCb");
 
 			break;
 		case TAB_FAVORITE:
-			apiUrl += "userLikes?uuid=" + mUuid + "&limit=" + LIMIT_ITEMS;
+			apiUrl = PrefUtility.getApiUrl(ServerUtility.API_STORIES_LIKED_BY_USER, "uuid=" + mUuid + "&limit=" + LIMIT_ITEMS);
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
 					"userLikesCb");
 
 			break;
 		case TAB_MINE:
-			apiUrl += "getUserPublishedStories?uuid=" + mUuid + "&limit="
-					+ LIMIT_ITEMS;
+			apiUrl = PrefUtility.getApiUrl(ServerUtility.API_STORIES_PUBLISHED_BY_USER, "uuid=" + mUuid + "&limit=" + LIMIT_ITEMS);
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
 					"getStoryListCb");
 
 			break;
 		case TAB_NEW:
-			apiUrl += "getLatestPublishedStories?limit=" + LIMIT_ITEMS;
+			apiUrl = PrefUtility.getApiUrl(ServerUtility.API_STORIES_LATEST_BY_USER, "limit=" + LIMIT_ITEMS);
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this,
 					"getStoryListCb");
 
@@ -351,7 +351,7 @@ public class ArrayListFragment extends ListFragment {
 		
 		// fire an event about new video start
 		// TODO do we track in trial?
-		String apiUrl = PrefUtility.getApiUrl()+"addView?story="+ v.getStoryId() +"&uuid=" + v.getUuid();
+		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_VIEW_ADD, "story="+ v.getStoryId() +"&uuid=" + v.getUuid());
 		aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
 	}
 	
@@ -452,7 +452,7 @@ public class ArrayListFragment extends ListFragment {
 			Story story = stories.get(position);
 			rowView.initAndLoadCast(story, aq, ArrayListFragment.this);
 
-			aq.id(storyThumb).image(PrefUtility.getApiUrl() + "storyThumb?story=" + story.getId());
+			aq.id(storyThumb).image(PrefUtility.getApiUrl(ServerUtility.API_STORY_THUMB, "story=" + story.getId()));
 			
 			ViewUtility.setViewSquare(storyThumb, calculcatedVideoWidth);
 			ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
@@ -464,8 +464,11 @@ public class ArrayListFragment extends ListFragment {
 
 			if (story.getCast()!=null) {
 				for (int i=0; i<story.getCast().length; i++) {
-					RoundedImageView castImage = (RoundedImageView) rowView.findViewById(PlaylistItemView.castIds[i]);
-					aq.id(castImage).image(PrefUtility.getApiUrl()+"avatar?uuid="+story.getCast()[i], true, false, 0, R.drawable.ic_avatar_default);
+					RoundedImageView castImage = (RoundedImageView) 
+							rowView.findViewById(PlaylistItemView.castIds[i]);
+					aq.id(castImage).image(PrefUtility.getApiUrl(
+							ServerUtility.API_AVATAR, "uuid="+story.getCast()[i]), 
+							true, false, 0, R.drawable.ic_avatar_default);
 					aq.id(castImage).clicked(this, "onCastClickedCb");
 				}
 			}
@@ -547,11 +550,14 @@ public class ArrayListFragment extends ListFragment {
 
 				if (!trial) 
 				{
-					String url = PrefUtility.getApiUrl() + "like";
-					if (story.isUserLikes()) {
-						url = PrefUtility.getApiUrl() + "dislike";
+					String url = "uuid=" + this.uuid + "&story=" + story.getId(); 
+					url = PrefUtility.getApiUrl(ServerUtility.API_STORY_LIKE, url);
+					
+					if (story.isUserLikes()) 
+					{
+						url = PrefUtility.getApiUrl(ServerUtility.API_STORY_DISLIKE, url);
 					}
-					url += "?uuid=" + this.uuid + "&story=" + story.getId();
+					
 	
 					aq.ajax(url, JSONObject.class, new AjaxCallback<JSONObject>() {
 						@Override
@@ -744,7 +750,7 @@ public class ArrayListFragment extends ListFragment {
     // TODO deduplicate code (TabbedPlaylistActivity)
     private void updateUnseenStoriesFromServer() {
     	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
-    	aq.ajax(PrefUtility.getApiUrl()+"unseenStories?uuid=" + mUuid, JSONArray.class, this, "unseenStoriesCb");
+    	aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_UNSEEN_STORIES, "uuid=" + mUuid), JSONArray.class, this, "unseenStoriesCb");
 	}
 
 	public void unseenStoriesCb(String url, JSONArray jarr, AjaxStatus status) 
@@ -770,10 +776,5 @@ public class ArrayListFragment extends ListFragment {
 		}
 	}
 
-	public void switchCurrentlyPlayedBlink(
-			ControlledClipView controlledBlinkView) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

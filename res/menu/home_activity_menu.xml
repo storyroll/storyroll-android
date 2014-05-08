@@ -2,15 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" 
       xmlns:storyroll="http://schemas.android.com/apk/res-auto">
     
-    <item android:id="@+id/action_join"
+    <item android:id="@+id/action_new"
           android:icon="@drawable/ic_action_join"
           android:title="@string/action_join"
           android:showAsAction="always"/>
     
-    <item android:id="@+id/action_new"
+<!--     <item android:id="@+id/action_new"
           android:title="NEW"
           android:showAsAction="always"/>
-    
+ -->    
     <item android:id="@+id/action_profile"
           android:title="@string/action_profile" />
     <item android:id="@+id/action_settings"

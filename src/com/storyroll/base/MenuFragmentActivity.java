@@ -96,12 +96,12 @@ public class MenuFragmentActivity extends FragmentActivity {
 			
 		} else if (item.getItemId() == R.id.action_join) 
 		{
-			 onJoinPressed();
+			 onJoinPressed(null, null);
 			 return true;
 			 
 		} else if (item.getItemId() == R.id.action_new) 
 		{
-			 onNewPressed();
+			 onNewPressed(null);
 			 return true;
 			 
 		} else if (item.getItemId() == R.id.action_help) {
@@ -126,7 +126,7 @@ public class MenuFragmentActivity extends FragmentActivity {
 	
     /*-- callbacks & helpers --*/
 	
-	private void onNewPressed() {
+	protected void onNewPressed(Long chanId) {
 		Intent intent;
 		if (isTrial) {
 			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_trial", null);
@@ -137,22 +137,32 @@ public class MenuFragmentActivity extends FragmentActivity {
 			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_regged", null);
 			intent = new Intent(this, VideoCaptureActivity.class);
 			intent.putExtra("MODE_NEW", true);
+			if (chanId!=null && chanId!=-1L) {
+				intent.putExtra("CURRENT_CHANNEL", chanId);
+			}
 		}
 		
 		startActivity(intent);
 	}
 
-	private void onJoinPressed()
-	{
+	
+	protected void onJoinPressed(Long clipId, Long chanId){
 		Intent intent;
-		if (isTrial) {
-			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_trial", null);
-			intent = new Intent(this, LoginActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		}
-		else {
+//		if (isTrial) {
+//			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_trial", null);
+//			intent = new Intent(this, LoginActivity.class);
+//			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//		}
+//		else 
+		{
 			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_regged", null);
 			intent = new Intent(this, VideoCaptureActivity.class);
+		}
+		if (clipId!=null && clipId!=-1L) {
+			intent.putExtra("RESPOND_TO_CLIP", clipId);
+		}
+		if (chanId!=null && chanId!=-1L) {
+			intent.putExtra("CURRENT_CHANNEL", chanId);
 		}
 		
 		startActivity(intent);

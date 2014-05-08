@@ -18,6 +18,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
 import com.google.analytics.tracking.android.Tracker;
 import com.storyroll.PQuery;
+import com.storyroll.activity.VideoSendActivity;
 import com.storyroll.model.Profile;
 import com.storyroll.shake.ShakeService;
 import com.storyroll.util.ActionBarUtility;
@@ -219,5 +220,9 @@ public class BaseActivity extends Activity {
 	public void swallowCb(String url, JSONObject json, AjaxStatus status) {
 		// just swallow it
 	}
-
+	protected void returnHomeActivity() {
+		Intent intent = new Intent(this, AppUtility.ACTIVITY_HOME);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+	}
 }

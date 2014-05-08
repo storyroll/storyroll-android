@@ -9,7 +9,10 @@ public class Clip implements Serializable, Comparable<Clip> {
 	private long id;
 	private long createdOn = 0;
 	String[] cast = null;
-	
+	private int likes;
+	private boolean userLikes = false;
+	private boolean unseen = true;
+
 	public Clip(long id) {
 		this.id = id;
 	}
@@ -36,9 +39,28 @@ public class Clip implements Serializable, Comparable<Clip> {
 	}
 
 	public void setCast(String[] cast) {
-//		this.cast = cast;
-		// TODO: stub
-		this.cast = new String[]{"martynas@ore.lt"};
+		this.cast = cast;
 	}
 	
+	public boolean isUnseen() {
+		return unseen;
+	}
+
+	public void setUnseen(boolean unseen) {
+		this.unseen = unseen;
+	}
+	
+	public int getLikes() {
+		return likes;
+	}
+	public void setLikes(int likes) {
+		this.likes = likes;
+	}
+	public boolean isUserLikes() {
+		return userLikes;
+	}
+
+	public void setUserLikes(boolean userLikes) {
+		this.userLikes = userLikes;
+	}
 }
