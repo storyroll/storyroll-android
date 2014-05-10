@@ -77,7 +77,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	
 	TextView startStoryMessage;
 //	videocapReadyMessage;
-	ImageView counterOverlay, sliderOverlay;//, controlClose, controlBack;
+	ImageView counterOverlay, sliderOverlay, avatar;//, controlClose, controlBack;
 	ProgressBar progress, customRecProgress;
 
 	MediaRecorder recorder;
@@ -111,6 +111,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private boolean isFragmentCarousel = false;
 	private long currentChannelId = NULL_CHAN;
 	private long movieId = -1L;
+	private String lastUserUuid = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +142,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		
 		counterOverlay = (ImageView)findViewById(R.id.counterOverlay);
 		sliderOverlay = (ImageView)findViewById(R.id.sliderOverlay);
-
+		avatar = (ImageView)findViewById(R.id.avatar);
 		progress = (ProgressBar) findViewById(R.id.progress);
 		customRecProgress = (ProgressBar) findViewById(R.id.customProgressBar);
 		
@@ -161,15 +162,22 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //		videocapReadyMessage = (TextView)findViewById(R.id.videocapReadyMessage);
 		startStoryMessage = (TextView)findViewById(R.id.startStoryMessage);
 
-		aq.id(R.id.btnClose).clicked(this, "backAndCloseClickedCb");
-		aq.id(R.id.btnBack).clicked(this, "backAndCloseClickedCb");
+		aq.id(R.id.btnClose).clicked(this, "backOrCloseClickedCb");
+		aq.id(R.id.btnBack).clicked(this, "backOrCloseClickedCb");
 		
 		rotateButton = aq.id(R.id.rotateButton).getButton();
 		aq.id(R.id.rotateButton).clicked(this, "switchCameraClickedCb");
 		
 		movieId = getIntent().getLongExtra("MOVIE", -1L);
+		lastUserUuid = getIntent().getStringExtra("LAST_USER");
 		respondToClipId = getIntent().getLongExtra("RESPOND_TO_CLIP", NULL_RESPONSE_CLIP);
 		currentChannelId  = getIntent().getLongExtra("CURRENT_CHANNEL", NULL_CHAN);
+		
+		Log.v(LOGTAG, "lastUserId="+lastUserUuid);
+		if (lastUserUuid!=null) {
+			Log.v(LOGTAG, "url="+PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+lastUserUuid));
+			aq.id(avatar).image(PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+lastUserUuid), true, true, 0, R.drawable.ic_avatar_default);
+		}
 		
 		
 		// implicit instruction to start new fragment?
@@ -362,6 +370,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		case STATE_INITIAL:
 			// we suppose a user already has a story to join, even if it's a new one and there is no preview
 			hide(progress);
+			gone(avatar);
 			hide(startStoryMessage);
 			hide(videoView);
 			showClose();
@@ -376,6 +385,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			
 			if (isFragmentCarousel) {
 				ImageUtility.sliderAnimateRightToLeft(sliderOverlay);
+			} else {
+				show(avatar);
 			}
 			
 			// start previewing last fragment
@@ -392,6 +403,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		case STATE_PREV_CAM:
 			// hide possibly previously shown elements
 			hide(startStoryMessage);
+			hide(avatar);
 //			hide(videocapReadyMessage);
 			hide(videoView);
 			show(surfaceView);

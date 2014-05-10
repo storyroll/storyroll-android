@@ -63,7 +63,8 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 		}	
 	}
 	
-	public void startVideoPreloading(boolean autoStart) {
+	public void startVideoPreloading(boolean autoStart) 
+	{
 		Log.v(LOGTAG, "startVideoPreloading, autostart: "+autoStart);
 		markPlayable(false);
 		if (autoStart) queueStartVideo();

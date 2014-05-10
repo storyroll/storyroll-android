@@ -7,11 +7,12 @@
       android:orientation="vertical"
       >
    
-     <RelativeLayout
+     <FrameLayout
          android:layout_width="match_parent"
          android:layout_height="wrap_content"
 	     android:paddingTop="10dp"
 	     android:paddingBottom="10dp"
+	     android:paddingLeft="10dp"
          android:layout_marginTop="0dp">
          
 	    <ImageView 
@@ -29,7 +30,7 @@
 	        android:layout_centerInParent="true"
 	        android:visibility="invisible"
 	        android:layout_width="match_parent"
-	        android:layout_height="0dp"
+	        android:layout_height="wrap_content"
 	        android:layout_alignParentTop="true"
 	         />
 	    <!-- The playable indicator shall stay above all visible elements -->
@@ -65,7 +66,7 @@
 			android:layout_centerInParent="true"
 			android:layout_alignParentTop="true"
 		/>
-  	</RelativeLayout>
+  	</FrameLayout>
 
       	<LinearLayout
   	    android:layout_width="match_parent"

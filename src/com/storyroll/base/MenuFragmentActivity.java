@@ -77,8 +77,9 @@ public class MenuFragmentActivity extends FragmentActivity {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         if (isTrial) {
-        	inflater.inflate(R.menu.trial_activity_menu, menu);
-        }
+        	inflater.inflate(R.menu.home_activity_menu, menu);
+//           	inflater.inflate(R.menu.trial_activity_menu, menu);
+                   }
         else {
         	inflater.inflate(R.menu.home_activity_menu, menu);
         }
@@ -94,16 +95,19 @@ public class MenuFragmentActivity extends FragmentActivity {
 			fireGAnalyticsEvent("ui_action", "touch", "home", null);
 			return super.onOptionsItemSelected(item);
 			
-		} else if (item.getItemId() == R.id.action_join) 
-		{
-			 onJoinPressed(null, null);
-			 return true;
-			 
+//		} else if (item.getItemId() == R.id.action_join) 
+//		{
+//			 onJoinPressed(null, null);
+//			 return true;
+//			 
 		} else if (item.getItemId() == R.id.action_new) 
 		{
 			 onNewPressed(null);
 			 return true;
 			 
+//		} else if (item.getItemId()==R.id.action_login) {
+//			// TOOD
+//			return true;
 		} else if (item.getItemId() == R.id.action_help) {
 			intent = new Intent (this, HelpActivity.class);
 			startActivity(intent);

@@ -82,7 +82,7 @@ public class LoginActivity extends GcmActivity {
             Toast.makeText(aq.getContext(), R.string.msg_password_email_required, Toast.LENGTH_SHORT).show();
 			return;
 		}
-		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_PROFILE, "?uuid="+profile.email);
+		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_PROFILE, "uuid="+profile.email);
 		aq.ajax(apiUrl, JSONObject.class, LoginActivity.this, "getSrProfileCb");
 	}
 

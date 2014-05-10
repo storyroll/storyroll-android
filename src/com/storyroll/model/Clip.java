@@ -8,7 +8,7 @@ import org.json.JSONObject;
 public class Clip implements Serializable, Comparable<Clip> {
 	private long id;
 	private long createdOn = 0;
-	String[] cast = null;
+	
 	private int likes;
 	private boolean userLikes = false;
 	private boolean unseen = true;
@@ -34,13 +34,6 @@ public class Clip implements Serializable, Comparable<Clip> {
 		 return new Long(another.getId()).compareTo(new Long(getId()));
 	}
 
-	public String[] getCast() {
-		return cast;
-	}
-
-	public void setCast(String[] cast) {
-		this.cast = cast;
-	}
 	
 	public boolean isUnseen() {
 		return unseen;

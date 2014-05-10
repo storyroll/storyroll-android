@@ -396,7 +396,7 @@ public class ArrayMoviesFragment extends ListFragment {
 			videoView.init(ArrayMoviesFragment.this, videoThumb, calculcatedVideoWidth, position, 
 					movie.getId(), movie.getLastClipId(), mUuid, progressBar, unseenIndicator, playControl);
 			videoThumb.setOnClickListener(new ThumbClickListener(videoView, movie.getId()));
-			replyButton.setOnClickListener(new ReplyClickListener(movie.getId(), movie.getLastClipId(), context));
+			replyButton.setOnClickListener(new ReplyClickListener(movie, context));
 			
 			likesNum.setText(shortLikesString(movie.getLikes()));
 			
@@ -421,13 +421,11 @@ public class ArrayMoviesFragment extends ListFragment {
 			}
 			
 			// disable liking in trial
-			if (!isTrial) {
+//			if (!isTrial) {
 				likeControl.setOnClickListener(new LikeClickListener(likeControl,
 						likesNum, uuid, movie, isTrial));
-			}
-			else {
-				Toast.makeText(context, "You can like after logging in", Toast.LENGTH_SHORT).show();
-			}
+//			}
+
 				
 			// 5. return rowView
 			return rowView;
@@ -451,13 +449,11 @@ public class ArrayMoviesFragment extends ListFragment {
 		
 		// reply listener
 		class ReplyClickListener implements ImageButton.OnClickListener {
-			long lastClipId;
+			Movie movie;
 			Context ctx;
-			long movieId;
 			
-			public ReplyClickListener(long movieId, long clipId, Context ctx){
-				this.movieId = movieId;
-				this.lastClipId = clipId;
+			public ReplyClickListener(Movie movie, Context ctx){
+				this.movie = movie;
 				this.ctx = ctx;
 			}
 			
@@ -465,9 +461,10 @@ public class ArrayMoviesFragment extends ListFragment {
 			public void onClick(View v) {
 				fireGAnalyticsEvent("ui_action", "touch", "replyButton", null);
 				Intent intent = new Intent(ctx, VideoCaptureActivity.class);
-				intent.putExtra("RESPOND_TO_CLIP", lastClipId);
+				intent.putExtra("RESPOND_TO_CLIP", movie.getLastClipId());
 				intent.putExtra("CURRENT_CHANNEL", mChanId);
-				intent.putExtra("MOVIE", movieId);
+				intent.putExtra("MOVIE", movie.getId());
+				intent.putExtra("LAST_USER", movie.getLastUserId());
 				startActivity(intent);
 			}
 		}
@@ -479,6 +476,7 @@ public class ArrayMoviesFragment extends ListFragment {
 			ImageView view;
 			TextView likesNum;
 			boolean trial;
+			int count;
 
 			public LikeClickListener(ImageView view, TextView likesNum,
 					String uuid, Movie movie, boolean trial) 
@@ -488,12 +486,24 @@ public class ArrayMoviesFragment extends ListFragment {
 				this.view = view;
 				this.likesNum = likesNum;
 				this.trial = trial;
+				this.count=0;
 			}
 
 			@Override
 			public void onClick(View v) {
 				fireGAnalyticsEvent("ui_action", "touch", "likeButton", null);
 				
+				if (trial) {
+					count++;
+					if (count==1){
+						Toast.makeText(context, "Can like after logging in.", Toast.LENGTH_SHORT).show();
+					}
+					else {
+						Toast.makeText(context, "Login already!", Toast.LENGTH_SHORT).show();
+						count=0;
+					}
+					return;
+				}
 				// first, invert the likes
 				movie.setUserLikes(!movie.isUserLikes());
 

@@ -29,11 +29,12 @@ public class MenuActivity extends GcmActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 	  // Handle item selection
 	  Intent intent;
-	    if (item.getItemId() == R.id.action_join) {
-//	    	onJoinPressed(null, null);
-	    	Log.e(LOGTAG, "can't join video from this activity!");
-			return true;
-		} else if (item.getItemId() == R.id.action_help) {
+//	    if (item.getItemId() == R.id.action_join) {
+////	    	onJoinPressed(null, null);
+//	    	Log.e(LOGTAG, "can't join video from this activity!");
+//			return true;
+//		} else 
+			if (item.getItemId() == R.id.action_help) {
 			intent = new Intent (this, HelpActivity.class);
 			startActivity(intent);
 			return true;

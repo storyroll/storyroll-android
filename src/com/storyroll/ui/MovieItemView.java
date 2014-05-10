@@ -19,6 +19,7 @@ import com.storyroll.activity.ArrayMoviesFragment;
 import com.storyroll.activity.ArrayListFragment;
 import com.storyroll.base.Constants;
 import com.storyroll.model.Clip;
+import com.storyroll.model.Movie;
 import com.storyroll.util.PrefUtility;
 import com.storyroll.util.ServerUtility;
 
@@ -26,7 +27,7 @@ public class MovieItemView extends LinearLayout {
 	public final static int[] castIds = {R.id.cast1, R.id.cast2, R.id.cast3};
 	private static final String LOGTAG = "BlinkListItem";
 
-	Clip clip;
+	Movie movie;
 	PQuery aq;
 	ArrayMoviesFragment parent;
 	
@@ -45,14 +46,14 @@ public class MovieItemView extends LinearLayout {
 	}
 	
 	// this all pretty sloppy, needs better design
-	public void initAndLoadCast(Clip blink, PQuery aq, ArrayMoviesFragment parent) {
+	public void initAndLoadCast(Movie movie, PQuery aq, ArrayMoviesFragment parent) {
 		Log.v(LOGTAG, "initAndLoadCast");
-		this.clip = blink;
+		this.movie = movie;
 		this.aq = aq;
 		this.parent = parent;
-		if (blink.getCast() == null) {
+		if (movie.getCast() == null) {
 			// try to load cast
-			this.aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CAST, "story="+clip.getId()), JSONArray.class, this, "getMovieCastCb");
+			this.aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CAST, "story="+movie.getId()), JSONArray.class, this, "getMovieCastCb");
 		}
 	}
 
@@ -73,7 +74,7 @@ public class MovieItemView extends LinearLayout {
 					cast[i] = uuid;
 					aq.id(castImage).image(PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+uuid), true, false, 0, R.drawable.ic_avatar_default);
 	        	}
-	        	clip.setCast(cast);
+	        	movie.setCast(cast);
 	        	
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -82,7 +83,7 @@ public class MovieItemView extends LinearLayout {
   		
       }else{          
           //ajax error
-      	Log.e(LOGTAG, "getStoryCastCb: null Json, cast not received for clipId="+clip.getId());
+      	Log.e(LOGTAG, "getStoryCastCb: null Json, cast not received for clipId="+movie.getId());
       }
 	}
 	

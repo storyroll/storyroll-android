@@ -415,12 +415,13 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     {
 		int idx = getActionBar().getSelectedNavigationIndex();
 
-    	if (item.getItemId() == R.id.action_join) 
-		{
-			onJoinPressed(null, mChannels.get(idx).getId());
-			return true;
-			 
-		} else if (item.getItemId() == R.id.action_new) 
+//    	if (item.getItemId() == R.id.action_join) 
+//		{
+//			onJoinPressed(null, mChannels.get(idx).getId());
+//			return true;
+//			 
+//		} else 
+			if (item.getItemId() == R.id.action_new) 
 		{
 			 onNewPressed(mChannels.get(idx).getId());
 			 return true;
