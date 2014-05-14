@@ -25,7 +25,7 @@ import com.storyroll.util.ServerUtility;
 
 public class MovieItemView extends LinearLayout {
 	public final static int[] castIds = {R.id.cast1, R.id.cast2, R.id.cast3};
-	private static final String LOGTAG = "BlinkListItem";
+	private static final String LOGTAG = "MovieItemView";
 
 	Movie movie;
 	PQuery aq;

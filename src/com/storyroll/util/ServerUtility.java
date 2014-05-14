@@ -27,7 +27,6 @@ public class ServerUtility {
 	public static final String API_LOGIN_VALID = "loginValid";
 
 
-	public static final String API_MOVIE_FILE = "storyFile";
 	public static final String API_MOVIE_THUMB = "movieThumb";
 
 	public static final String API_PROFILE = "getProfile";
@@ -42,10 +41,8 @@ public class ServerUtility {
 	public static final String API_STORIES_LATEST_BY_USER = "getLatestPublishedStories"; //
 
 	public static final String API_CAST = "getStoryCast"; // get some kind of cast
-	public static final String API_STORY_FILE = "storyFile"; //
 	public static final String API_STORY_LIKE = "like";
 	public static final String API_STORY_DISLIKE = "dislike";
-	public static final String API_STORY_THUMB = "storyThumb"; //
 
 	public static final String API_UNSEEN_CLIPS = "unseenStories"; //
 	public static final String API_UNSEEN_STORIES = "unseenStories"; //
@@ -55,6 +52,10 @@ public class ServerUtility {
 
 	public static final String API_VIEW_ADD = "addView";
 
+	// obsolete
+	public static final String API_STORY_FILE = "storyFile"; //
+	public static final String API_STORY_THUMB = "storyThumb"; //
+//	public static final String API_MOVIE_FILE = "storyFile";
 
 
 

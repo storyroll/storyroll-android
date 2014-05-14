@@ -392,13 +392,13 @@ public class ArrayMoviesFragment extends ListFragment {
 			rowView.initAndLoadCast(movie, aq, ArrayMoviesFragment.this);
 
 			// TODO:
-			aq.id(videoThumb).image(PrefUtility.getApiUrl(ServerUtility.API_MOVIE_THUMB, "m=" + movie.getId()));
+			aq.id(videoThumb).image(movie.getThumbUrl());
 			
 			ViewUtility.setViewSquare(videoThumb, calculcatedVideoWidth);
 			ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
 			
 			videoView.init(ArrayMoviesFragment.this, videoThumb, calculcatedVideoWidth, position, 
-					movie.getId(), movie.getLastClipId(), mUuid, progressBar, unseenIndicator, playControl);
+					movie.getId(), movie.getLastClipId(), mUuid, progressBar, unseenIndicator, playControl, movie.getUrl());
 			videoThumb.setOnClickListener(new ThumbClickListener(videoView, movie.getId()));
 			replyButton.setOnClickListener(new ReplyClickListener(movie, context));
 			

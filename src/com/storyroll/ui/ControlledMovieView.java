@@ -36,6 +36,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	private long mMovieId;
 	private String mUuid;
 	private long mUpdateTag;
+	private String fileUrl;
 
 	private ProgressBar progressBar;
 
@@ -75,10 +76,10 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 //			}
 			isLoading = true;
 //		        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
-	        String url = PrefUtility.getApiUrl(ServerUtility.API_MOVIE_FILE, "story="+mMovieId+"&uuid="+mUuid+"&updateTag="+mUpdateTag);
+//	        String url = PrefUtility.getApiUrl(ServerUtility.API_MOVIE_FILE, "story="+mMovieId+"&uuid="+mUuid+"&updateTag="+mUpdateTag);
 	        		        
 	   		VideoDownloadTask task = new VideoDownloadTask(getContext().getApplicationContext(), this);
-	        task.execute(url);
+	        task.execute(fileUrl+"#"+mUpdateTag);
 		}
 	}
 	
@@ -110,7 +111,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	}
 	
 	public void init(ArrayMoviesFragment parent, View controlView, int screenWidth, int itemPosition, long movieId, long updateTag, String uuid, 
-			ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
+			ProgressBar progressBar, View unseenIndicator, ImageView playControl, String fileUrl) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
@@ -121,6 +122,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 		this.unseenIndicator = unseenIndicator;
 		this.playControl = playControl;
 		this.mUpdateTag = updateTag;
+		this.fileUrl = fileUrl;
 		
 		setOnPreparedListener(new MediaPlayer.OnPreparedListener()  {
             @Override
