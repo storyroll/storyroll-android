@@ -75,7 +75,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 //			}
 			isLoading = true;
 //		        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
-	        String url = PrefUtility.getApiUrl(ServerUtility.API_STORY_FILE, "story="+mMovieId+"&uuid="+mUuid+"&updateTag="+mUpdateTag);
+	        String url = PrefUtility.getApiUrl(ServerUtility.API_MOVIE_FILE, "story="+mMovieId+"&uuid="+mUuid+"&updateTag="+mUpdateTag);
 	        		        
 	   		VideoDownloadTask task = new VideoDownloadTask(getContext().getApplicationContext(), this);
 	        task.execute(url);

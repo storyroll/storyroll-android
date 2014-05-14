@@ -7,6 +7,7 @@ public class Movie extends Clip {
 	long lastClipId = -1L;
 	String lastUserUuid = null;
 	String[] cast = null;
+	long publishedOn = 0;
 	
 	public Movie(long id){
 		super(id);
@@ -36,9 +37,18 @@ public class Movie extends Clip {
 		this.cast = cast;
 	}
 	
+	public long getPublishedOn() {
+		return publishedOn;
+	}
+
+	public void setPublishedOn(long publishedOn) {
+		this.publishedOn = publishedOn;
+	}
+
 	public Movie(JSONObject obj) throws JSONException {
 		super(obj);
 		lastClipId = obj.getLong("lastClipId");
 		lastUserUuid = obj.getString("lastUserUuid");
+		publishedOn = obj.getLong("publishedOn");
 	}
 }

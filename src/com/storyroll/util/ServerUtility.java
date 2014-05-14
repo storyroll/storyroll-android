@@ -26,6 +26,8 @@ public class ServerUtility {
 	
 	public static final String API_LOGIN_VALID = "loginValid";
 
+
+	public static final String API_MOVIE_FILE = "storyFile";
 	public static final String API_MOVIE_THUMB = "movieThumb";
 
 	public static final String API_PROFILE = "getProfile";
@@ -52,6 +54,8 @@ public class ServerUtility {
 	public static final String API_USER_EXISTS = "hasUser";
 
 	public static final String API_VIEW_ADD = "addView";
+
+
 
 
 

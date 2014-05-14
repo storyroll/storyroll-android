@@ -72,8 +72,20 @@
   	    android:layout_width="match_parent"
   	    android:layout_height="wrap_content"
 	    android:orientation="horizontal"
+	    android:layout_marginLeft="10dp"
+	    android:layout_marginRight="10dp"
 	    >
     
+      	<TextView
+      	    android:id="@+id/ageText" 
+	        android:layout_height="match_parent"
+	        android:layout_width="0dp"
+	        android:textColor="@color/sr_cast_text"
+	        android:textSize="12sp"
+	        android:textStyle="italic"
+	        android:layout_weight="1"
+	        android:gravity="left|center_vertical"
+	   />
 	    <TextView 
 	        android:layout_height="match_parent"
 	        android:layout_width="0dp"
@@ -166,10 +178,9 @@
            android:layout_weight="1">
            <ImageButton 
 	        android:id="@+id/replyButton"
-	        android:layout_width="wrap_content"
+	        android:layout_width="40dp"
 	        android:layout_height="wrap_content"
 	        android:padding="5dp"
-	        android:layout_marginRight="15dp"
 	        android:src="@drawable/ic_action_join"
 	        android:background="@drawable/rounded_corners"
 	        android:layout_gravity="right|center_vertical"/>

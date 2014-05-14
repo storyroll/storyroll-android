@@ -1,6 +1,7 @@
 package com.storyroll.activity;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +15,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.text.format.DateUtils;
+import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -74,7 +77,8 @@ public class ArrayMoviesFragment extends ListFragment {
 	private ArrayList<Movie> movies = new ArrayList<Movie>();
 	public static Set<String> userLikes = null;
 	public static Set<String> unseenMovies = null;
-    
+	private Calendar c = Calendar.getInstance(); 
+	
 
 	/**
 	 * Create a new instance of CountingFragment, providing "num" as an
@@ -398,6 +402,8 @@ public class ArrayMoviesFragment extends ListFragment {
 			videoThumb.setOnClickListener(new ThumbClickListener(videoView, movie.getId()));
 			replyButton.setOnClickListener(new ReplyClickListener(movie, context));
 			
+			aq.id(rowView.findViewById(R.id.ageText)).text(DateUtils.getRelativeTimeSpanString(
+							movie.getPublishedOn(), c.getTimeInMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE));
 			likesNum.setText(shortLikesString(movie.getLikes()));
 			
 			if (movie.getCast()!=null) {
