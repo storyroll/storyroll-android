@@ -51,4 +51,10 @@ public class Movie extends Clip {
 		lastUserUuid = obj.getString("lastUserUuid");
 		publishedOn = obj.getLong("publishedOn");
 	}
+	
+	@Override
+	public int compareTo(Clip another) {
+		 return new Long( ((Movie)another).getPublishedOn() ).compareTo(new Long(getPublishedOn()));
+	}
+
 }

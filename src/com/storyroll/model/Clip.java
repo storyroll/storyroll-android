@@ -76,6 +76,7 @@ public class Clip implements Serializable, Comparable<Clip> {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+
 	
 	
 }

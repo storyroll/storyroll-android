@@ -1,6 +1,5 @@
 package com.storyroll.activity;
 
-import java.util.Currency;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -45,7 +44,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     ViewPager mViewPager;
     
     ChannelTabAdapter mAdapter;
-    FragmentPagerAdapter tAdapter;
+//    FragmentPagerAdapter tAdapter;
     private static PQuery aq;
 //    private static Set<String> newStories = null;
     private static String mUuid;
@@ -53,6 +52,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 
 	private TextView tabUnseenBadgeText = null;
 	static List<Channel> mChannels = null;
+	private int currentPosition = 0;
     
     
     public PQuery getPQuery(){
@@ -421,18 +421,40 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 //			return true;
 //			 
 //		} else 
-			if (item.getItemId() == R.id.action_new) 
+		if (item.getItemId() == R.id.action_new) 
 		{
 			 onNewPressed(mChannels.get(idx).getId());
 			 return true;
 			 
 		}
+		else if (item.getItemId() == R.id.action_refresh) {
+			onRefreshChannel();
+			return true;
+		}
+			
 		return super.onOptionsItemSelected(item);
     }
+    /*-- helper --*/
     
+    private void onRefreshChannel() {
+		// TODO Auto-generated method stub
+		Log.v(LOGTAG, "onRefreshChannel");
+		int pos = getActionBar().getSelectedNavigationIndex();
+		ArrayMoviesFragment amf = (ArrayMoviesFragment)findFragmentByPosition(pos);
+		amf.updateMovieList();
+	}
+    
+    // a hack?
+    // http://stackoverflow.com/questions/11976397/android-getting-fragment-that-is-in-fragmentpageradapter
+    public Fragment findFragmentByPosition(int position) {
+        
+        return getSupportFragmentManager().findFragmentByTag(
+                "android:switcher:" + mViewPager.getId() + ":"
+                        + mAdapter.getItemId(position));
+    }
     /*-- lifecycle --*/
-    
-    @Override
+
+	@Override
     public void onDestroy(){
     	super.onDestroy();
     	aq.dismiss();

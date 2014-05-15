@@ -67,7 +67,7 @@ public class MovieItemView extends LinearLayout {
   		try {
   			// TODO: sloppy
   			String[] cast = new String[jarr.length()];
-	        	for (int i = 0; i < jarr.length(); i++) {
+	        	for (int i = 0; i < jarr.length() && i<castIds.length; i++) {
 					JSONObject userObj = jarr.getJSONObject(i);
 					ImageView castImage = (ImageView) findViewById(castIds[i]);
 					String uuid = userObj.getString("uuid");

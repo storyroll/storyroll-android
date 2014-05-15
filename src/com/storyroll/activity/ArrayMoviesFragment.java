@@ -28,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,7 +56,7 @@ public class ArrayMoviesFragment extends ListFragment {
 
 	public static final String[] TAB_HEADINGS_TRIAL = new String[] { "StoryRoll_", null };
 	
-	private static final Integer LIMIT_ITEMS = 40;
+	static final Integer LIMIT_ITEMS = 40;
 	
 	// how many percents of width should a squared video take
 	private static final int PERCENT_SQUARE = 95;
@@ -216,8 +217,74 @@ public class ArrayMoviesFragment extends ListFragment {
 	{
 		getMovieListSorted(url, jarr, status, true);
 	}
-	
 
+	public void updateMovieListCb(String url, JSONArray jarr, AjaxStatus status) 
+	{
+		refreshMovieListSorted(url, jarr, status, true);
+	}
+
+	public void refreshMovieListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted) 
+	{
+		if (isAjaxErrorThenReport(status)) {
+			aq.id(R.id.emptyMessage).gone();
+			return;
+		}
+			
+		Log.v(LOGTAG, "mergeMovieListSorted for tab no " + mNum);
+		if (jarr != null) {
+			// successful ajax call
+			Log.i(LOGTAG, "mergeMovieListSorted success: " + jarr.toString());
+			// do something with the jsonarray
+			try {
+				ArrayAdapter<Movie> aa = (ArrayAdapter<Movie>)getListAdapter();
+				int updates = 0;
+				for (int i = 0; i < jarr.length(); i++) {
+					JSONObject movieObj = jarr.getJSONObject(i);
+					Movie movie = new Movie(movieObj);
+					
+					// movie with this id exists?
+					Movie checkMovie = getMovieById(movie.getId());
+					if (checkMovie!=null && checkMovie.getPublishedOn() != movie.getPublishedOn()) 
+					{
+						// movie updated, remove and insert
+						
+						aa.remove(checkMovie);
+						
+						// manually set userLikes flag
+						movie.setUserLikes(userLikes.contains(movie.getId()+""));
+						movie.setUnseen(unseenMovies.contains(movie.getId()+""));
+						
+						aa.insert(movie, 0);
+						updates++;
+					}
+				}
+				Log.v(LOGTAG, "movies:" + movies.size()+ ", ArrayAdapter: "+aa.getCount()+", updated items: "+updates);
+
+				// refresh the adapter now
+				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+			} 
+			catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		} else {
+			// ajax error
+			apiError(LOGTAG,
+//					"getMovieListSorted: null Json, could not get blink list for uuid " + mUuid, status, false, Log.ERROR);
+			"Error getting movies", status, true, Log.ERROR);
+		}
+		if (movies.size()<1) {
+			aq.id(R.id.emptyMessage).gone();
+		}
+	}
+	
+	private Movie getMovieById(long id) {
+	    for(int i = 0; i < movies.size(); ++i) {
+	        if(movies.get(i).getId() == id) return movies.get(i);
+	    }
+	    return null;
+	}
 	
 	public void getMovieListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted) 
 	{
@@ -233,7 +300,6 @@ public class ArrayMoviesFragment extends ListFragment {
 			// do something with the jsonarray
 			try {
 				movies.clear();
-//				for (int test = 0; test<3; test++) {
 				for (int i = 0; i < jarr.length(); i++) {
 					JSONObject movieObj = jarr.getJSONObject(i);
 					Movie movie = new Movie(movieObj);
@@ -242,9 +308,8 @@ public class ArrayMoviesFragment extends ListFragment {
 						movie.setUserLikes(userLikes.contains(movie.getId()+""));
 						movie.setUnseen(unseenMovies.contains(movie.getId()+""));
 						movies.add(movie);
-//					}
-				}
 //				}
+				}
 				if (sorted) {
 					Collections.sort(movies);
 				}
@@ -752,6 +817,15 @@ public class ArrayMoviesFragment extends ListFragment {
 			apiError(LOGTAG,
 					"userLikesCb: null Json, could not get unseenMovies for uuid " + mUuid, status, false, Log.ERROR);
 		}
+	}
+
+	public void updateMovieList() {
+		Log.v(LOGTAG, "updateMovieList on chan: "+mChanId);
+		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHAN_MOVIES,
+				"uuid=" + mUuid +"&channel="+mChanId + "&limit=" + LIMIT_ITEMS);
+		
+		aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "updateMovieListCb");
+		
 	}
 
 
