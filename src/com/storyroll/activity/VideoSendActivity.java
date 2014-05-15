@@ -48,7 +48,6 @@ public class VideoSendActivity extends MenuActivity {
 		aq.id(R.id.btnBack).visibility(View.INVISIBLE);
 		aq.id(R.id.btnClose).visibility(View.VISIBLE);
 		
-		
 		TextView upMsg = aq.id(R.id.videoUploadedMessage).getTextView();
 		upMsg.setVisibility(View.VISIBLE);
 		
@@ -62,11 +61,19 @@ public class VideoSendActivity extends MenuActivity {
 		aq.id(R.id.btnOK).clicked(this, "againClickedCb");
 		aq.id(R.id.btnClose).clicked(this, "closeClickedCb");
 		
-		startNewMode = getIntent().getBooleanExtra("MODE_NEW", false);
-		mChanId = getIntent().getLongExtra("CURRENT_CHANNEL", -1L);
-		mLastClipId = getIntent().getLongExtra("RESPOND_TO_CLIP", -1L);
-		mMovieId = getIntent().getLongExtra("MOVIE", -1L);
-
+		if( savedInstanceState != null ) {
+			Log.v(LOGTAG, "restoring activity");
+			startNewMode = 	savedInstanceState.getBoolean("MODE_NEW", false);
+			mChanId = 	savedInstanceState.getLong("CURRENT_CHANNEL", -1L);
+			mLastClipId = savedInstanceState.getLong("RESPOND_TO_CLIP", -1L);
+			mMovieId = savedInstanceState.getLong("MOVIE", -1L);
+		}
+		else {
+			startNewMode = getIntent().getBooleanExtra("MODE_NEW", false);
+			mChanId = getIntent().getLongExtra("CURRENT_CHANNEL", -1L);
+			mLastClipId = getIntent().getLongExtra("RESPOND_TO_CLIP", -1L);
+			mMovieId = getIntent().getLongExtra("MOVIE", -1L);
+		}
 	}
 	
 	public void againClickedCb(View view)
@@ -105,6 +112,15 @@ public class VideoSendActivity extends MenuActivity {
 	private String getNewFragmentFilePath() {
 		return AppUtility.getAppWorkingDir(this) + File.separator+"new_fragment.mp4";
 
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean("MODE_NEW", startNewMode);
+		outState.putLong("CURRENT_CHANNEL", mChanId);
+		outState.putLong("RESPOND_TO_CLIP", mLastClipId);
+		outState.putLong("MOVIE", mMovieId);
 	}
 	
 	   @Override
