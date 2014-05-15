@@ -52,7 +52,8 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 
 	private TextView tabUnseenBadgeText = null;
 	static List<Channel> mChannels = null;
-	private int currentPosition = 0;
+	private int initialChannelid = 0;
+	
     
     
     public PQuery getPQuery(){
@@ -175,8 +176,19 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 		{
 			// TODO crappy hack
 			ArrayMoviesFragment.resetUnseenMovieSet( getIntent().getIntArrayExtra("clips") );
+			initialChannelid = getIntent().getIntExtra("channelId", 0);
+			// find which position is that
+			int initialPosition = 0;
+			for (int i=0; i<channels.size(); i++) {
+				if (channels.get(i).getId()==initialChannelid) {
+					initialPosition = i;
+				}
+			}
 //			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
 //			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
+			
+//			mViewPager.setCurrentItem(tab.getPosition());
+			actionBar.setSelectedNavigationItem(initialPosition);
 		}
 		else {
 			// update unseenStories

@@ -472,7 +472,7 @@ public class ArrayMoviesFragment extends ListFragment {
 			likesNum.setText(shortLikesString(movie.getLikes()));
 			
 			if (movie.getCast()!=null) {
-				for (int i=0; i<movie.getCast().length; i++) {
+				for (int i=0; i<movie.getCast().length && i<PlaylistItemView.castIds.length; i++) {
 					RoundedImageView castImage = (RoundedImageView) 
 							rowView.findViewById(PlaylistItemView.castIds[i]);
 					aq.id(castImage).image(PrefUtility.getApiUrl(

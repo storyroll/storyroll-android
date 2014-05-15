@@ -62,7 +62,7 @@ public class MovieItemView extends LinearLayout {
 //      progressBar.setVisibility(View.GONE);
       if(jarr != null){               
           //successful ajax call
-      	Log.i(LOGTAG, "getClipCastCb success: "+jarr.toString());
+      	Log.i(LOGTAG, "getClipCastCb success, items: "+jarr.length());
       	// make cast avatars visible
   		try {
   			// TODO: sloppy

@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -42,6 +43,12 @@ import android.util.Log;
  * wake lock.
  */
 public class GcmIntentService extends IntentService {
+	private static String NEW_MOVIE_IN_CHANNEL = "NEW_MOVIE_IN_CHANNEL";
+	private static String NEW_REPLY_IN_CHANNEL = "NEW_REPLY_IN_CHANNEL";
+	private static String STORY_PUBLISHED = "STORY_PUBLISHED";
+	private static String REPLY_PUBLISHED = "STORY_PUBLISHED";
+	
+	
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
@@ -103,7 +110,8 @@ public class GcmIntentService extends IntentService {
         // is this a notification for current user?
         String uuid = extras.getString("uuid");
         String currentUuid = PrefUtility.getUuid();
-        if (uuid==null || !uuid.equals(currentUuid)) {
+        if (uuid==null || !uuid.equals(currentUuid)) 
+        {
         	Log.w(LOGTAG, "GCM message received for "+uuid+", not for current user: "+currentUuid);
         	// TODO: fire analytics or bugSense event
         	return;
@@ -120,27 +128,39 @@ public class GcmIntentService extends IntentService {
         
         String collapseKey = extras.getString("collapse_key");
         Log.v(LOGTAG, "collapse_key="+collapseKey);
-        boolean isNewStory = "story_published".equalsIgnoreCase(collapseKey);
         
         String msg = "";
-        String countNewStoriesStr = extras.getString("count");
-        if (isNewStory) 
+        String countNewStoriesStr = extras.getString("count", null);
+        String channelTitle = extras.getString("channelTitle", "<UNKNOWN>");
+        
+        if (TextUtils.isEmpty(countNewStoriesStr)) 
         {
-        	// override sent message
-        	msg = "You have new story published!";
-        	int countNewStories = Integer.valueOf(countNewStoriesStr);
-        	if (countNewStories>1) {
-            	msg=msg+" There's "+countNewStories+" of your new stories waiting.";
-            }
-        }
-        else {
         	Log.w(LOGTAG, "No message count in GCM message payload");
 //        	BugSenseHandler.sendException(new Exception("No message count GCM message payload"));
         	msg = extras.getString("message");
         }
+        else if (STORY_PUBLISHED.equalsIgnoreCase(collapseKey)) {
+        	msg = "Your glimpse was stiched and published to "+channelTitle.toUpperCase()+"!";
+        	
+        }
+        else if (REPLY_PUBLISHED.equalsIgnoreCase(collapseKey)) {
+        	msg = "YOUR movie got response in "+channelTitle.toUpperCase()+"!";
+        }
+    	else if (NEW_MOVIE_IN_CHANNEL.equalsIgnoreCase(collapseKey)) {
+    		msg = "Someone just posted a new glimpse to "+channelTitle.toUpperCase()+"!";
+    	}
+    	else if (NEW_REPLY_IN_CHANNEL.equalsIgnoreCase(collapseKey)) {
+    		msg = "Someone just posted a response to "+channelTitle.toUpperCase()+"!";
+    	}
+        int countNewStories = Integer.valueOf(countNewStoriesStr);
+		if (countNewStories>1) {
+	    	msg=msg+" You have "+countNewStories+" unchecked movie(s).";
+	    }
         
         String newStoriesStr = extras.getString("stories");
         notificationIntent.putExtra("stories", DataUtility.stringToIntArray(newStoriesStr));
+        notificationIntent.putExtra("lastUpdatedMovie", extras.getLong("lastUpdatedMovie"));
+        notificationIntent.putExtra("channelId", extras.getLong("channelId"));
         
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
