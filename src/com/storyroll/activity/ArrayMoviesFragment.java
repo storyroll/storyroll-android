@@ -243,18 +243,21 @@ public class ArrayMoviesFragment extends ListFragment {
 					Movie movie = new Movie(movieObj);
 					
 					// movie with this id exists?
-					Movie checkMovie = getMovieById(movie.getId());
-					if (checkMovie!=null && checkMovie.getPublishedOn() != movie.getPublishedOn()) 
+					int foundIdx = getMovieIndexById(movie.getId());
+					
+					
+					if (foundIdx!=-1 && movies.get(foundIdx).getPublishedOn() != movie.getPublishedOn()) 
 					{
 						// movie updated, remove and insert
-						
-						aa.remove(checkMovie);
+						aa.remove(movies.get(foundIdx));
+						movies.remove(foundIdx);
 						
 						// manually set userLikes flag
 						movie.setUserLikes(userLikes.contains(movie.getId()+""));
 						movie.setUnseen(unseenMovies.contains(movie.getId()+""));
 						
 						aa.insert(movie, 0);
+						movies.add(movie);
 						updates++;
 					}
 				}
@@ -279,11 +282,11 @@ public class ArrayMoviesFragment extends ListFragment {
 		}
 	}
 	
-	private Movie getMovieById(long id) {
+	private int getMovieIndexById(long id) {
 	    for(int i = 0; i < movies.size(); ++i) {
-	        if(movies.get(i).getId() == id) return movies.get(i);
+	        if(movies.get(i).getId() == id) return i;
 	    }
-	    return null;
+	    return -1;
 	}
 	
 	public void getMovieListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted) 
@@ -453,7 +456,8 @@ public class ArrayMoviesFragment extends ListFragment {
 			ImageButton replyButton = (ImageButton)rowView.findViewById(R.id.replyButton);
 
 			// 4. set data & callbacks
-			Movie movie = movies.get(position);
+//			Movie movie = movies.get(position);
+			Movie movie = (Movie)getListAdapter().getItem(position);
 			rowView.initAndLoadCast(movie, aq, ArrayMoviesFragment.this);
 
 			// TODO:
@@ -535,6 +539,7 @@ public class ArrayMoviesFragment extends ListFragment {
 				intent.putExtra("RESPOND_TO_CLIP", movie.getLastClipId());
 				intent.putExtra("CURRENT_CHANNEL", mChanId);
 				intent.putExtra("MOVIE", movie.getId());
+//				Log.v(LOGTAG, "movie.getLastUserId()="+movie.getLastUserId());
 				intent.putExtra("LAST_USER", movie.getLastUserId());
 				startActivity(intent);
 			}

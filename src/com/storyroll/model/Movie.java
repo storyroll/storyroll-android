@@ -3,7 +3,10 @@ package com.storyroll.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 public class Movie extends Clip {
+	private static final String LOGTAG = "Movie";
 	long lastClipId = -1L;
 	String lastUserUuid = null;
 	String[] cast = null;
@@ -49,6 +52,7 @@ public class Movie extends Clip {
 		super(obj);
 		lastClipId = obj.getLong("lastClipId");
 		lastUserUuid = obj.getString("lastUserUuid");
+//		Log.v(LOGTAG, "lastUserUid: "+lastUserUuid);
 		publishedOn = obj.getLong("publishedOn");
 	}
 	

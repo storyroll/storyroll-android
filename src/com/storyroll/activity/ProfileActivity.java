@@ -187,6 +187,10 @@ public class ProfileActivity extends MenuActivity {
 				aq.id(R.id.avatar).image(PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+profile.email), 
 						false, false, 0, R.drawable.ic_avatar_default);
 			}
+			else if (!TextUtils.isEmpty(profile.getAvatarUrl())) {
+				aq.id(R.id.avatar).image(profile.getAvatarUrl(), 
+						false, false, 0, R.drawable.ic_avatar_default);
+			}
 			// otherwise load avatar from FB
 			else if (profile.isAuthFacebook())
 			{

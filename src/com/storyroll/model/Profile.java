@@ -25,6 +25,7 @@ public class Profile implements Serializable {
 	public String gcmRegistrationId = null;
 	
     public Integer avatar = null;
+    private String avatarUrl = null;
     public Boolean loggedIn = false;
     public Integer authMethod = AUTH_UNKNOWN;
     public String location = null;
@@ -71,6 +72,16 @@ public class Profile implements Serializable {
     	}
     	return s;
     }
+    
+    
+
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
+	}
 
 	@Override
 	public String toString() {

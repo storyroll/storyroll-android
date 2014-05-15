@@ -182,6 +182,7 @@ public class BaseActivity extends Activity {
 		Profile	profile = new Profile();
 		profile.email = json.getString("uuid");
 		profile.username = json.getString("username");
+		profile.setAvatarUrl(json.getString("avatarUrl"));
 		// TODO
 //		profile.birthday = json.getString("birthday");
 //		profile.gender = json.getString("gender");
