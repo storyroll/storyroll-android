@@ -130,8 +130,9 @@ public class GcmIntentService extends IntentService {
         Log.v(LOGTAG, "collapse_key="+collapseKey);
         
         String msg = "";
+        String contentTitle = "StoryRoll";
         String countNewStoriesStr = extras.getString("count", null);
-        String channelTitle = extras.getString("channelTitle", "<UNKNOWN>");
+        String channelName = extras.getString("channelName", "<UNKNOWN>");
         
         if (TextUtils.isEmpty(countNewStoriesStr)) 
         {
@@ -140,17 +141,21 @@ public class GcmIntentService extends IntentService {
         	msg = extras.getString("message");
         }
         else if (STORY_PUBLISHED.equalsIgnoreCase(collapseKey)) {
-        	msg = "Your glimpse was stiched and published to "+channelTitle.toUpperCase()+"!";
+        	contentTitle = "Your video is on!";
+        	msg = "Published in "+channelName.toUpperCase()+"!";
         	
         }
         else if (REPLY_PUBLISHED.equalsIgnoreCase(collapseKey)) {
-        	msg = "YOUR movie got response in "+channelTitle.toUpperCase()+"!";
+        	contentTitle = "You got response!";
+        	msg = "Someone replied to you in "+channelName.toUpperCase()+"!";
         }
     	else if (NEW_MOVIE_IN_CHANNEL.equalsIgnoreCase(collapseKey)) {
-    		msg = "Someone just posted a new glimpse to "+channelTitle.toUpperCase()+"!";
+    		contentTitle = "New video";
+        	msg = "New video in "+channelName.toUpperCase()+"!";
     	}
     	else if (NEW_REPLY_IN_CHANNEL.equalsIgnoreCase(collapseKey)) {
-    		msg = "Someone just posted a response to "+channelTitle.toUpperCase()+"!";
+    		contentTitle = "New response";
+    		msg = "Someone posted a response in "+channelName.toUpperCase()+"!";
     	}
         int countNewStories = Integer.valueOf(countNewStoriesStr);
 		if (countNewStories>1) {
@@ -159,13 +164,13 @@ public class GcmIntentService extends IntentService {
         
         String newStoriesStr = extras.getString("stories");
         notificationIntent.putExtra("stories", DataUtility.stringToIntArray(newStoriesStr));
-        notificationIntent.putExtra("lastUpdatedMovie", extras.getLong("lastUpdatedMovie"));
-        notificationIntent.putExtra("channelId", extras.getLong("channelId"));
+        notificationIntent.putExtra("lastUpdatedMovie", extras.getString("lastUpdatedMovie"));
+        notificationIntent.putExtra("channelId", extras.getString("channel"));
         
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
         .setSmallIcon(R.drawable.ic_notif_newstory)
-        .setContentTitle("StoryRoll")
+        .setContentTitle(contentTitle)
         .setStyle(new NotificationCompat.BigTextStyle()
         .bigText(msg))
         .setContentText(msg)

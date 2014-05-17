@@ -15,6 +15,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -53,7 +54,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 	private TextView tabUnseenBadgeText = null;
 	static List<Channel> mChannels = null;
 	private int initialChannelid = 0;
-	
+	private int lastUpdatedMovieIdx = 0;
     
     
     public PQuery getPQuery(){
@@ -176,7 +177,9 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 		{
 			// TODO crappy hack
 			ArrayMoviesFragment.resetUnseenMovieSet( getIntent().getIntArrayExtra("clips") );
-			initialChannelid = getIntent().getIntExtra("channelId", 0);
+			
+			String chIdStr = getIntent().getStringExtra("channelId");
+			initialChannelid = TextUtils.isEmpty(chIdStr)?0:Integer.valueOf(chIdStr);
 			// find which position is that
 			int initialPosition = 0;
 			for (int i=0; i<channels.size(); i++) {
@@ -184,9 +187,16 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 					initialPosition = i;
 				}
 			}
+			
+			String lumIdStr = getIntent().getStringExtra("lastUpdatedMovie");
+			long lastUpdatedMovieId = TextUtils.isEmpty(lumIdStr)?-1L:Long.valueOf(chIdStr);
+			lastUpdatedMovieIdx = movieIdToIdx(lastUpdatedMovieId);
+			
 //			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
 //			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
 			
+			
+			// TODO is this correct place to select tab? and what is better way?
 //			mViewPager.setCurrentItem(tab.getPosition());
 			actionBar.setSelectedNavigationItem(initialPosition);
 		}
@@ -196,7 +206,11 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 		}
     }
     
-    @Override
+    private int movieIdToIdx(long lastUpdatedMovieId) {
+		return 0;
+	}
+
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clip_playlist);
