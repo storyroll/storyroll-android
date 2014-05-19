@@ -20,4 +20,6 @@
           android:title="@string/action_settings" />
     <item android:id="@+id/action_help"
           android:title="@string/action_help" />
+   	<item android:id="@+id/action_log"
+	  	android:title="@string/action_log" />
 </menu>

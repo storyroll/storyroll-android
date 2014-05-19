@@ -179,16 +179,16 @@ public class LaunchActivity extends BaseActivity {
 		});
 
 		
-//		Button bt3 = (Button) findViewById(R.id.camera_button);
-//		bt3.setOnTouchListener(mDelayHideTouchListener);
-//
-//		bt3.setOnClickListener(new Button.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				isGone = true;
-//	        	startActivity(new Intent(getApplicationContext(), CameraPreview.class));		        
-//			}
-//		});
+		Button bt3 = (Button) findViewById(R.id.log_button);
+		bt3.setOnTouchListener(mDelayHideTouchListener);
+
+		bt3.setOnClickListener(new Button.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				isGone = true;
+	        	startActivity(new Intent(getApplicationContext(), LogReadActivity.class));		        
+			}
+		});
 		
 		Button bt4 = (Button) findViewById(R.id.gcm_button);
 		bt4.setOnTouchListener(mDelayHideTouchListener);

@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import com.storyroll.R;
 import com.storyroll.activity.HelpActivity;
 import com.storyroll.activity.LoginActivity;
+import com.storyroll.activity.LogReadActivity;
 import com.storyroll.activity.ProfileActivity;
 import com.storyroll.activity.SettingsActivity;
 import com.storyroll.activity.VideoCaptureActivity;
@@ -46,6 +47,10 @@ public class MenuActivity extends GcmActivity {
 			intent = new Intent (this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
+		} else if (item.getItemId() == R.id.action_log) {
+			intent = new Intent (this, LogReadActivity.class);
+			startActivity(intent);
+			return true;	
 //		} else if (item.getItemId() == R.id.action_rolls_favs || item.getItemId() == R.id.action_rolls_my
 //				|| item.getItemId() == R.id.action_rolls_new || item.getItemId() == R.id.action_rolls_top) {
 //			intent = new Intent (this, RollFlipPlayActivity.class);

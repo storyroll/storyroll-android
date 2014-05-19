@@ -23,7 +23,7 @@
     <string name="sym_left">&lt;</string>
     
     <string name="action_join">Join Some Roll</string>
-    
+    <string name="action_log">LogCat</string>
     
     <string name="facebook_button">Connect with Facebook</string>
     <string name="msg_registration">Registration - review/fill</string>

@@ -461,7 +461,8 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) 
     {
-		int idx = getActionBar().getSelectedNavigationIndex();
+		int tabIdx = getActionBar().getSelectedNavigationIndex();
+		if (tabIdx<0) tabIdx=0;
 
 //    	if (item.getItemId() == R.id.action_join) 
 //		{
@@ -471,7 +472,8 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 //		} else 
 		if (item.getItemId() == R.id.action_new) 
 		{
-			 onNewPressed(mChannels.get(idx).getId());
+			Log.v(LOGTAG, "New item in channel idx="+tabIdx+", channels = "+mChannels);
+			 onNewPressed( mChannels.get(tabIdx).getId() );
 			 return true;
 			 
 		}
@@ -487,16 +489,18 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     private void onRefreshChannel() {
 		// TODO Auto-generated method stub
 		Log.v(LOGTAG, "onRefreshChannel");
-		int pos = getActionBar().getSelectedNavigationIndex();
-		ArrayMoviesFragment amf = (ArrayMoviesFragment)findFragmentByPosition(pos);
+		int channelIdx = getActionBar().getSelectedNavigationIndex();
+		if (channelIdx<0) channelIdx=0;
+		ArrayMoviesFragment amf = (ArrayMoviesFragment)findFragmentByPosition(channelIdx);
 		amf.updateMovieList();
 	}
     
     private void postSelectItem(int idx) {
 		// TODO Auto-generated method stub
 		Log.v(LOGTAG, "postSelectItem: "+idx);
-		int pos = getActionBar().getSelectedNavigationIndex();
-		ArrayMoviesFragment amf = (ArrayMoviesFragment)findFragmentByPosition(pos);
+		int channelIdx = getActionBar().getSelectedNavigationIndex();
+		if (channelIdx<0) channelIdx=0;
+		ArrayMoviesFragment amf = (ArrayMoviesFragment)findFragmentByPosition(channelIdx);
 		amf.postSelectItem(idx);
 	}
     

@@ -9,6 +9,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
 import com.storyroll.R;
 import com.storyroll.activity.HelpActivity;
+import com.storyroll.activity.LogReadActivity;
 import com.storyroll.activity.LoginActivity;
 import com.storyroll.activity.ProfileActivity;
 import com.storyroll.activity.SettingsActivity;
@@ -122,7 +123,10 @@ public class MenuFragmentActivity extends FragmentActivity {
 			intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
-			
+		} else if (item.getItemId() == R.id.action_log) {
+			intent = new Intent (this, LogReadActivity.class);
+			startActivity(intent);
+			return true;		
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
