@@ -159,7 +159,7 @@ public class GcmIntentService extends IntentService {
     	}
         int countNewStories = Integer.valueOf(countNewStoriesStr);
 		if (countNewStories>1) {
-	    	msg=msg+" You have "+countNewStories+" unchecked movie(s).";
+	    	msg=msg+" You have "+countNewStories+" unchecked video(s).";
 	    }
         
         String newStoriesStr = extras.getString("stories");

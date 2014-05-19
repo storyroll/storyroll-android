@@ -50,7 +50,7 @@ public class Movie extends Clip {
 
 	public Movie(JSONObject obj) throws JSONException {
 		super(obj);
-		lastClipId = obj.getLong("lastClipId");
+		lastClipId = obj.has("lastClipId")?obj.getLong("lastClipId"):-1L;
 		lastUserUuid = obj.getString("lastUserUuid");
 //		Log.v(LOGTAG, "lastUserUid: "+lastUserUuid);
 		publishedOn = obj.getLong("publishedOn");

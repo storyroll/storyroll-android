@@ -53,7 +53,9 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 
 	private TextView tabUnseenBadgeText = null;
 	static List<Channel> mChannels = null;
-	private int initialChannelid = 0;
+	
+	private boolean isCallFromNotificationProcessing = false;
+	private long initialChannelid = -1L;
 	private int lastUpdatedMovieIdx = 0;
     
     
@@ -107,6 +109,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 			@Override
 			public void onTabReselected(Tab tab, FragmentTransaction ft) {
 				// TODO Auto-generated method stub
+				Log.v(LOGTAG, "onTabReselected stub");
 			}
 
             public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
@@ -126,13 +129,18 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 				// TODO Auto-generated method stub
 			}
         };
+        
+	    // comes from notification? switch to indicated tab and then scroll to indicated item on list
+        boolean comesFromNotif = getIntent().getBooleanExtra("NOTIFICATION", false);
+        Log.v(LOGTAG, "comesFromNotif: "+comesFromNotif);
 
         // Add tabs, specifying the tab's text and TabListener
 //        if (isTrial) {
 //        	tabHeads = ArrayClipsFragment.TAB_HEADINGS_TRIAL;
 //        }
         for (int i = 0; i < getChannels().size(); i++) {
-        	if (getChannels().get(i)!=null) {
+        	Channel chan = getChannels().get(i);
+        	if (chan!=null) {
         		Tab tab = actionBar.newTab();
 //        		if (i==ArrayClipsFragment.TAB_TWO) 
 //        		{
@@ -146,8 +154,8 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 //        			tabUnseenBadgeText  = (TextView) tabView.findViewById(R.id.badgeTextt);
 //
 //        		}
-        		tab = tab.setText(getChannels().get(i).getTitle());
-	            actionBar.addTab(tab.setTabListener(tabListener));
+        		tab = tab.setText(chan.getTitle());
+	            actionBar.addTab(tab.setTabListener(tabListener), initialChannelid==chan.getId()); // TODO select default here
         	}
         }
 
@@ -158,8 +166,17 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
                     {
                         // When swiping between pages, select the
                         // corresponding tab.
-                    	Log.v(LOGTAG, "OnPageChangeListener: "+position);
+                    	Log.v(LOGTAG, "OnPageChangeListener:onPageSelected, pos="+position);
                         getActionBar().setSelectedNavigationItem(position);
+                        
+                        // TODO is this called when 1st (0) tab selected?
+                        
+                        Log.v(LOGTAG, "lastUpdatedMovieIdx: "+lastUpdatedMovieIdx);
+                        if (isCallFromNotificationProcessing && lastUpdatedMovieIdx!=0) 
+                        {
+                        	postSelectItem(lastUpdatedMovieIdx);
+                        	isCallFromNotificationProcessing = false;
+                        }
                         
                         // manually selected "Mine"? refresh badge
 //                        if (position == ArrayClipsFragment.TAB_TWO) {
@@ -172,21 +189,23 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
                     }
                 });
         
-	    // comes from notification? switch to MINE tab
-		if (getIntent().getBooleanExtra("NOTIFICATION", false)) 
+
+		if (comesFromNotif) 
 		{
+			isCallFromNotificationProcessing = true;
 			// TODO crappy hack
 			ArrayMoviesFragment.resetUnseenMovieSet( getIntent().getIntArrayExtra("clips") );
 			
 			String chIdStr = getIntent().getStringExtra("channelId");
 			initialChannelid = TextUtils.isEmpty(chIdStr)?0:Integer.valueOf(chIdStr);
 			// find which position is that
-			int initialPosition = 0;
-			for (int i=0; i<channels.size(); i++) {
-				if (channels.get(i).getId()==initialChannelid) {
-					initialPosition = i;
-				}
-			}
+//			int initialPosition = 0;
+//			for (int i=0; i<channels.size(); i++) {
+//				if (channels.get(i).getId()==initialChannelid) {
+//					initialPosition = i;
+//				}
+//			}
+//			Log.v(LOGTAG, "initial channel idx: "+initialPosition);
 			
 			String lumIdStr = getIntent().getStringExtra("lastUpdatedMovie");
 			long lastUpdatedMovieId = TextUtils.isEmpty(lumIdStr)?-1L:Long.valueOf(chIdStr);
@@ -198,7 +217,10 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 			
 			// TODO is this correct place to select tab? and what is better way?
 //			mViewPager.setCurrentItem(tab.getPosition());
-			actionBar.setSelectedNavigationItem(initialPosition);
+//			if (initialPosition!=0 && isCallFromNotificationProcessing) {
+//				Log.v(LOGTAG, "CallFromNotificationProcessing=true, selecting Nav Item "+initialPosition);
+//				actionBar.setSelectedNavigationItem(initialPosition);
+//			}
 		}
 		else {
 			// update unseenStories
@@ -207,7 +229,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     }
     
     private int movieIdToIdx(long lastUpdatedMovieId) {
-		return 0;
+		return 1;
 	}
 
 	@Override
@@ -469,6 +491,15 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 		ArrayMoviesFragment amf = (ArrayMoviesFragment)findFragmentByPosition(pos);
 		amf.updateMovieList();
 	}
+    
+    private void postSelectItem(int idx) {
+		// TODO Auto-generated method stub
+		Log.v(LOGTAG, "postSelectItem: "+idx);
+		int pos = getActionBar().getSelectedNavigationIndex();
+		ArrayMoviesFragment amf = (ArrayMoviesFragment)findFragmentByPosition(pos);
+		amf.postSelectItem(idx);
+	}
+    
     
     // a hack?
     // http://stackoverflow.com/questions/11976397/android-getting-fragment-that-is-in-fragmentpageradapter

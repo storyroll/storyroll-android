@@ -246,7 +246,7 @@ public class ArrayMoviesFragment extends ListFragment {
 					int foundIdx = getMovieIndexById(movie.getId());
 					
 					
-					if (foundIdx!=-1 && movies.get(foundIdx).getPublishedOn() != movie.getPublishedOn()) 
+					if (foundIdx!=-1 && movies.size()>0 && movies.get(foundIdx).getPublishedOn() != movie.getPublishedOn()) 
 					{
 						// movie updated, remove and insert
 						aa.remove(movies.get(foundIdx));
@@ -833,6 +833,16 @@ public class ArrayMoviesFragment extends ListFragment {
 		
 	}
 
+	public void postSelectItem(final int pos) {
+		Log.v(LOGTAG, "postSelectItem: "+pos);
+//		getListView().setSelection(pos);
+		getListView().post(new Runnable() {
+	        @Override
+	        public void run() {
+	            getListView().setSelection(pos);
+	        }
+	    });
+	}
 
 
 }
