@@ -77,8 +77,9 @@ public class ArrayMoviesFragment extends ListFragment {
 	
 	private ArrayList<Movie> movies = new ArrayList<Movie>();
 	public static Set<String> userLikes = null;
-	public static Set<String> unseenMovies = null;
-	private Calendar c = Calendar.getInstance(); 
+	private Calendar c = Calendar.getInstance();
+
+	private static int unseenMoviesCount=0; 
 	
 
 	/**
@@ -127,14 +128,7 @@ public class ArrayMoviesFragment extends ListFragment {
 			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "userLikesIdsCb");
 		}
 		// get unseen only once
-		if (isTrial) {
-			unseenMovies = new HashSet<String>();
-		}
-		else if (unseenMovies==null || unseenMovies.isEmpty()) 
-		{
-			if (unseenMovies == null) {
-				unseenMovies = new HashSet<String>();
-			}
+		if (!isTrial) {
 			updateUnseenMoviesFromServer();
 		}
 	}
@@ -254,7 +248,6 @@ public class ArrayMoviesFragment extends ListFragment {
 						
 						// manually set userLikes flag
 						movie.setUserLikes(userLikes.contains(movie.getId()+""));
-						movie.setUnseen(unseenMovies.contains(movie.getId()+""));
 						
 						aa.insert(movie, 0);
 						movies.add(movie);
@@ -309,7 +302,6 @@ public class ArrayMoviesFragment extends ListFragment {
 //					if (clip.isPublished()) {
 						// manually set userLikes flag
 						movie.setUserLikes(userLikes.contains(movie.getId()+""));
-						movie.setUnseen(unseenMovies.contains(movie.getId()+""));
 						movies.add(movie);
 //				}
 				}
@@ -353,7 +345,7 @@ public class ArrayMoviesFragment extends ListFragment {
 		
 		// hide "newness" indicator
 		v.markSeen();
-		unseenMovies.remove(v.getMovieId()+"");
+		unseenMoviesCount--;
 		
 		// fire an event about new video start
 		// TODO do we track in trial?
@@ -463,13 +455,16 @@ public class ArrayMoviesFragment extends ListFragment {
 
 			// TODO:
 			aq.id(videoThumb).image(movie.getThumbUrl());
+			if (!movie.isSeen()) {
+	            playControl.setImageResource(R.drawable.ic_play_roll_new);
+			}
 			
 			ViewUtility.setViewSquare(videoThumb, calculcatedVideoWidth);
 			ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
 			
 			videoView.init(ArrayMoviesFragment.this, videoThumb, calculcatedVideoWidth, position, 
-					movie.getId(), movie.getLastClipId(), mUuid, progressBar, unseenIndicator, playControl, movie.getUrl());
-			videoThumb.setOnClickListener(new ThumbClickListener(videoView, movie.getId()));
+					movie, mUuid, progressBar, unseenIndicator, playControl);
+			videoThumb.setOnClickListener(new ThumbClickListener(videoView));
 			replyButton.setOnClickListener(new ReplyClickListener(movie, context));
 			
 			String ageText = DateUtils.getRelativeTimeSpanString(
@@ -514,10 +509,8 @@ public class ArrayMoviesFragment extends ListFragment {
 		// play/stop click listener
 		class ThumbClickListener implements ImageView.OnClickListener {
 			ControlledMovieView pv;
-//			long movieId;
-			public ThumbClickListener(ControlledMovieView v, long movieId){
+			public ThumbClickListener(ControlledMovieView v){
 				this.pv = v;
-//				this.movieId = movieId;
 			}
 
 			@Override
@@ -786,16 +779,8 @@ public class ArrayMoviesFragment extends ListFragment {
     }
     
     // unseen stories
-    public static void resetUnseenMovieSet(int[] stories) {
-    	if (unseenMovies == null) {
-    		unseenMovies = new HashSet<String>();
-    	}
-    	else {
-    		unseenMovies.clear();
-    	}
-    	if (stories!=null) {
-    		for (int i : stories) unseenMovies.add(i+"");
-    	}
+    public static void resetUnseenMoviesNumber(int num) {
+    	unseenMoviesCount = num;
     }
     
     // TODO deduplicate code (TabbedPlaylistActivity)
@@ -811,17 +796,12 @@ public class ArrayMoviesFragment extends ListFragment {
 		Log.v(LOGTAG, "unseenMoviesCb");
 		if (jarr != null) {
 			// successful ajax call
-			try {
-				resetUnseenMovieSet(null);
-				for (int i = 0; i < jarr.length(); i++) {
-					unseenMovies.add( jarr.getInt(i)+"" );
-				}
-				Log.v(LOGTAG, "unseen movie:" + jarr.length()+", set: "+unseenMovies.size());
-//				refreshUnseenBadge(unseenStories);
-			} catch (JSONException e) {
-				Log.e(LOGTAG, "jsonexception", e);
+			resetUnseenMoviesNumber(0);
+			for (int i = 0; i < jarr.length(); i++) {
+				unseenMoviesCount++;
 			}
-
+			Log.v(LOGTAG, "unseen movie:" + jarr.length()+", set: "+unseenMoviesCount);
+//				refreshUnseenBadge(unseenStories);
 		} else {
 			// ajax error
 			apiError(LOGTAG,

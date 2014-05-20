@@ -196,8 +196,8 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 		if (comesFromNotif) 
 		{
 			isCallFromNotificationProcessing = true;
-			// TODO crappy hack
-			ArrayMoviesFragment.resetUnseenMovieSet( getIntent().getIntArrayExtra("clips") );
+			// TODO crappy hack / set properties for each channels badges
+//			ArrayMoviesFragment.resetUnseenMoviesNumber( getIntent().getInt("clips") );
 			
 			String chIdStr = getIntent().getStringExtra("channelId");
 			initialChannelid = TextUtils.isEmpty(chIdStr)?0:Integer.valueOf(chIdStr);
@@ -275,39 +275,39 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     }
     
     private void updateUnseenVideosFromServer() {
-    	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
-    	if (isTrial) {
-    		Log.v(LOGTAG, "updateUnseenStoriesFromServer -- skip in trial");
-    	}
-    	else {
-    		aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_UNSEEN_STORIES, "uuid=" + mUuid), JSONArray.class, this, "unseenStoriesCb");
-    	}
+//    	Log.v(LOGTAG, "updateUnseenStoriesFromServer");
+//    	if (isTrial) {
+//    		Log.v(LOGTAG, "updateUnseenStoriesFromServer -- skip in trial");
+//    	}
+//    	else {
+//    		aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_UNSEEN_STORIES, "uuid=" + mUuid), JSONArray.class, this, "unseenStoriesCb");
+//    	}
 	}
 
 	public void unseenStoriesCb(String url, JSONArray jarr, AjaxStatus status) 
 	{
-		Log.v(LOGTAG, "unseenStoriesCb");
-		if (jarr != null) {
-			// successful ajax call
-			try {
-				// TODO crappy hack
-				int[] stories = new int[jarr.length()];
-				for (int i = 0; i < jarr.length(); i++) {
-					stories[i] = jarr.getInt(i);
-				}
-				ArrayMoviesFragment.resetUnseenMovieSet(stories);
-				unseenStoriesCount = jarr.length();
-				Log.v(LOGTAG, "unseen stories:" + unseenStoriesCount);
-				refreshUnseenBadge(unseenStoriesCount);
-			} catch (JSONException e) {
-				Log.e(LOGTAG, "jsonexception", e);
-			}
-
-		} else {
-			// ajax error
-			ErrorUtility.apiError(LOGTAG,
-					"userLikesCb: null Json, could not get unseenStories for uuid " + mUuid, status, this, false, Log.ERROR);
-		}
+//		Log.v(LOGTAG, "unseenStoriesCb");
+//		if (jarr != null) {
+//			// successful ajax call
+//			try {
+//				// TODO crappy hack
+//				int[] stories = new int[jarr.length()];
+//				for (int i = 0; i < jarr.length(); i++) {
+//					stories[i] = jarr.getInt(i);
+//				}
+//				ArrayMoviesFragment.resetUnseenMovieSet(stories);
+//				unseenStoriesCount = jarr.length();
+//				Log.v(LOGTAG, "unseen stories:" + unseenStoriesCount);
+//				refreshUnseenBadge(unseenStoriesCount);
+//			} catch (JSONException e) {
+//				Log.e(LOGTAG, "jsonexception", e);
+//			}
+//
+//		} else {
+//			// ajax error
+//			ErrorUtility.apiError(LOGTAG,
+//					"userLikesCb: null Json, could not get unseenStories for uuid " + mUuid, status, this, false, Log.ERROR);
+//		}
 	}
     
 

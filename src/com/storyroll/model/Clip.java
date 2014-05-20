@@ -39,11 +39,11 @@ public class Clip implements Serializable, Comparable<Clip> {
 	}
 
 	
-	public boolean isUnseen() {
+	public boolean isUnseen_() {
 		return unseen;
 	}
 
-	public void setUnseen(boolean unseen) {
+	public void setUnseen_(boolean unseen) {
 		this.unseen = unseen;
 	}
 	

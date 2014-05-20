@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.storyroll.R;
 import com.storyroll.activity.ArrayMoviesFragment;
+import com.storyroll.model.Movie;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import com.storyroll.util.AppUtility;
@@ -36,9 +37,11 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	private long mMovieId;
 	private String mUuid;
 	private long mUpdateTag;
-	private String fileUrl;
+	private String movieFileUrl;
 
 	private ProgressBar progressBar;
+
+	private Movie mMovie;
 
 
 	public ControlledMovieView(Context context) {
@@ -79,7 +82,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 //	        String url = PrefUtility.getApiUrl(ServerUtility.API_MOVIE_FILE, "story="+mMovieId+"&uuid="+mUuid+"&updateTag="+mUpdateTag);
 	        		        
 	   		VideoDownloadTask task = new VideoDownloadTask(getContext().getApplicationContext(), this);
-	        task.execute(fileUrl+"#"+mUpdateTag);
+	        task.execute(movieFileUrl+"#"+mUpdateTag);
 		}
 	}
 	
@@ -110,19 +113,20 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 		pause();
 	}
 	
-	public void init(ArrayMoviesFragment parent, View controlView, int screenWidth, int itemPosition, long movieId, long updateTag, String uuid, 
-			ProgressBar progressBar, View unseenIndicator, ImageView playControl, String fileUrl) {
+	public void init(ArrayMoviesFragment parent, View controlView, int screenWidth, int itemPosition, Movie movie, String uuid, 
+			ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
 		this.parent = parent;
-		this.mMovieId = movieId;
+		this.mMovieId = movie.getId();
+		this.mMovie = movie;
 		this.mUuid = uuid;
 		this.progressBar = progressBar;
 		this.unseenIndicator = unseenIndicator;
 		this.playControl = playControl;
-		this.mUpdateTag = updateTag;
-		this.fileUrl = fileUrl;
+		this.mUpdateTag = movie.getPublishedOn();
+		this.movieFileUrl = movie.getUrl();
 		
 		setOnPreparedListener(new MediaPlayer.OnPreparedListener()  {
             @Override
@@ -183,6 +187,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 			isLoaded = true;
 			
 			if (playQueued) {
+				mMovie.setSeen(true);
 				startVideo();
 			}
 		}

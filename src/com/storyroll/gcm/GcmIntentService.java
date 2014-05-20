@@ -43,11 +43,13 @@ import android.util.Log;
  * wake lock.
  */
 public class GcmIntentService extends IntentService {
+
+	private static final String DEFAULT_UNKNOWN_CHAN_NAME = "<UNKNOWN>";
+	private static final String DEFAULT_LAST_USERNAME = "Someone";
+
 	private static final String EXTRA_CHANNEL_ID_GCM = "channel";
-	private static final String EXTRA_DEFAULT_LASTUSER = "Someone";
 	private static final String EXTRA_LAST_USERNAME = "lastUsername";
 	private static final String EXTRA_COLLAPSE_KEY = "collapse_key";
-	private static final String DEFAULT_UNKNOWN_CHAN_NAME = "<UNKNOWN>";
 	private static final String EXTRA_UNSEEN_COUNT = "count";
 	private static final String EXTRA_CHANNEL_NAME = "channelName";
 	private static final String EXTRA_CHANNEL_ID = "channelId";
@@ -143,7 +145,7 @@ public class GcmIntentService extends IntentService {
         String contentTitle = "StoryRoll";
         String countNewStoriesStr = extras.getString(EXTRA_UNSEEN_COUNT, null);
         String channelName = extras.getString(EXTRA_CHANNEL_NAME, DEFAULT_UNKNOWN_CHAN_NAME);
-        String lastUserame = extras.getString(EXTRA_LAST_USERNAME, EXTRA_DEFAULT_LASTUSER);
+        String lastUserame = extras.getString(EXTRA_LAST_USERNAME, DEFAULT_LAST_USERNAME);
         
         if (TextUtils.isEmpty(countNewStoriesStr)) 
         {

@@ -109,19 +109,6 @@ public class MovieItemView extends LinearLayout {
 //        likesControl.setImageResource(R.drawable.ic_star_off);
         // update unseen indicator
 //        ImageView unseenIndicator = (ImageView) findViewById(R.id.unseenIndicator);
-
-//        if (parent.unseenClips.contains(clip.getId()+"")) 
-//        {
-//        	if (Constants.IS_NEW_BLINK_INDICATED) {
-////        		unseenIndicator.setVisibility(View.VISIBLE);
-//        	} else {
-//                ImageView playControl = (ImageView) findViewById(R.id.playControl);
-//                playControl.setImageResource(R.drawable.ic_play_roll_new);
-//        	}
-//        }
-//        else {
-////        	unseenIndicator.setVisibility(View.INVISIBLE);
-//        }
         super.onDraw(canvas);
     }
 }

@@ -11,6 +11,7 @@ public class Movie extends Clip {
 	String lastUserUuid = null;
 	String[] cast = null;
 	long publishedOn = 0;
+	boolean seen = false;
 	
 	public Movie(long id){
 		super(id);
@@ -47,6 +48,14 @@ public class Movie extends Clip {
 	public void setPublishedOn(long publishedOn) {
 		this.publishedOn = publishedOn;
 	}
+	
+	public boolean isSeen() {
+		return seen;
+	}
+
+	public void setSeen(boolean seen) {
+		this.seen = seen;
+	}
 
 	public Movie(JSONObject obj) throws JSONException {
 		super(obj);
@@ -54,6 +63,7 @@ public class Movie extends Clip {
 		lastUserUuid = obj.getString("lastUserUuid");
 //		Log.v(LOGTAG, "lastUserUid: "+lastUserUuid);
 		publishedOn = obj.getLong("publishedOn");
+		seen = obj.getBoolean("seen");
 	}
 	
 	@Override
