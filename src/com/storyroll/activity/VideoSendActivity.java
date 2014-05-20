@@ -27,8 +27,8 @@ public class VideoSendActivity extends MenuActivity {
 	private long mMovieId = -1L;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	protected void onCreate(Bundle bundle) {
+		super.onCreate(bundle);
 		setContentView(R.layout.activity_videocapture);
 		
 		// Fields set on a tracker persist for all hits, until they are
@@ -61,12 +61,12 @@ public class VideoSendActivity extends MenuActivity {
 		aq.id(R.id.btnOK).clicked(this, "againClickedCb");
 		aq.id(R.id.btnClose).clicked(this, "closeClickedCb");
 		
-		if( savedInstanceState != null ) {
+		if( bundle != null ) {
 			Log.v(LOGTAG, "restoring activity");
-			startNewMode = 	savedInstanceState.getBoolean("MODE_NEW", false);
-			mChanId = 	savedInstanceState.getLong("CURRENT_CHANNEL", -1L);
-			mLastClipId = savedInstanceState.getLong("RESPOND_TO_CLIP", -1L);
-			mMovieId = savedInstanceState.getLong("MOVIE", -1L);
+			startNewMode = 	bundle.getBoolean("MODE_NEW", false);
+			mChanId = 	bundle.getLong("CURRENT_CHANNEL", -1L);
+			mLastClipId = bundle.getLong("RESPOND_TO_CLIP", -1L);
+			mMovieId = bundle.getLong("MOVIE", -1L);
 		}
 		else {
 			startNewMode = getIntent().getBooleanExtra("MODE_NEW", false);

@@ -43,6 +43,16 @@ import android.util.Log;
  * wake lock.
  */
 public class GcmIntentService extends IntentService {
+	private static final String EXTRA_CHANNEL_ID_GCM = "channel";
+	private static final String EXTRA_DEFAULT_LASTUSER = "Someone";
+	private static final String EXTRA_LAST_USERNAME = "lastUsername";
+	private static final String EXTRA_COLLAPSE_KEY = "collapse_key";
+	private static final String DEFAULT_UNKNOWN_CHAN_NAME = "<UNKNOWN>";
+	private static final String EXTRA_UNSEEN_COUNT = "count";
+	private static final String EXTRA_CHANNEL_NAME = "channelName";
+	private static final String EXTRA_CHANNEL_ID = "channelId";
+	private static final String EXTRA_LAST_UPDATED_MOVIE = "lastUpdatedMovie";
+	private static final String EXTRA_STORIES = "stories";
 	private static String NEW_MOVIE_IN_CHANNEL = "NEW_MOVIE_IN_CHANNEL";
 	private static String NEW_REPLY_IN_CHANNEL = "NEW_REPLY_IN_CHANNEL";
 	private static String STORY_PUBLISHED = "STORY_PUBLISHED";
@@ -126,13 +136,14 @@ public class GcmIntentService extends IntentService {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
         		notificationIntent, 0);
         
-        String collapseKey = extras.getString("collapse_key");
+        String collapseKey = extras.getString(EXTRA_COLLAPSE_KEY);
         Log.v(LOGTAG, "collapse_key="+collapseKey);
         
         String msg = "";
         String contentTitle = "StoryRoll";
-        String countNewStoriesStr = extras.getString("count", null);
-        String channelName = extras.getString("channelName", "<UNKNOWN>");
+        String countNewStoriesStr = extras.getString(EXTRA_UNSEEN_COUNT, null);
+        String channelName = extras.getString(EXTRA_CHANNEL_NAME, DEFAULT_UNKNOWN_CHAN_NAME);
+        String lastUserame = extras.getString(EXTRA_LAST_USERNAME, EXTRA_DEFAULT_LASTUSER);
         
         if (TextUtils.isEmpty(countNewStoriesStr)) 
         {
@@ -147,25 +158,25 @@ public class GcmIntentService extends IntentService {
         }
         else if (REPLY_PUBLISHED.equalsIgnoreCase(collapseKey)) {
         	contentTitle = "You got response!";
-        	msg = "Someone replied to you in "+channelName.toUpperCase()+"!";
+        	msg = lastUserame+" replied in "+channelName.toUpperCase()+"!";
         }
     	else if (NEW_MOVIE_IN_CHANNEL.equalsIgnoreCase(collapseKey)) {
     		contentTitle = "New video";
-        	msg = "New video in "+channelName.toUpperCase()+"!";
+        	msg = lastUserame+" posted new video in "+channelName.toUpperCase()+"!";
     	}
     	else if (NEW_REPLY_IN_CHANNEL.equalsIgnoreCase(collapseKey)) {
     		contentTitle = "New response";
-    		msg = "Someone posted a response in "+channelName.toUpperCase()+"!";
+    		msg = lastUserame+" posted a response in "+channelName.toUpperCase()+"!";
     	}
         int countNewStories = Integer.valueOf(countNewStoriesStr);
 		if (countNewStories>1) {
 	    	msg=msg+" You have "+countNewStories+" unchecked video(s).";
 	    }
         
-        String newStoriesStr = extras.getString("stories");
-        notificationIntent.putExtra("stories", DataUtility.stringToIntArray(newStoriesStr));
-        notificationIntent.putExtra("lastUpdatedMovie", extras.getString("lastUpdatedMovie"));
-        notificationIntent.putExtra("channelId", extras.getString("channel"));
+        String newStoriesStr = extras.getString(EXTRA_STORIES);
+        notificationIntent.putExtra(EXTRA_STORIES, DataUtility.stringToIntArray(newStoriesStr));
+        notificationIntent.putExtra(EXTRA_LAST_UPDATED_MOVIE, extras.getString(EXTRA_LAST_UPDATED_MOVIE));
+        notificationIntent.putExtra(EXTRA_CHANNEL_ID, extras.getString(EXTRA_CHANNEL_ID_GCM));
         
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
