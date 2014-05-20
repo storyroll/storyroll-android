@@ -39,6 +39,7 @@ public class LoginActivity extends GcmActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		isHomeEnabled = !getIntent().getBooleanExtra("logout", false);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 		

@@ -233,7 +233,7 @@ public class ArrayMoviesFragment extends ListFragment {
 		Log.v(LOGTAG, "mergeMovieListSorted for tab no " + mNum);
 		if (jarr != null) {
 			// successful ajax call
-			Log.i(LOGTAG, "mergeMovieListSorted success: " + jarr.toString());
+			Log.i(LOGTAG, "mergeMovieListSorted success: " + jarr.length());
 			// do something with the jsonarray
 			try {
 				ArrayAdapter<Movie> aa = (ArrayAdapter<Movie>)getListAdapter();
@@ -299,7 +299,7 @@ public class ArrayMoviesFragment extends ListFragment {
 		Log.v(LOGTAG, "getMovieListSorted for tab no " + mNum);
 		if (jarr != null) {
 			// successful ajax call
-			Log.i(LOGTAG, "getMovieListSorted success: " + jarr.toString());
+			Log.i(LOGTAG, "getMovieListSorted success: " + jarr.length());
 			// do something with the jsonarray
 			try {
 				movies.clear();

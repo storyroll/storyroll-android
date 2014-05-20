@@ -37,9 +37,9 @@ public interface Constants {
 
 	
 	public static final String PREF_SSO = "sf.pref.sso";
-	public static final String PREF_NID = "aq.fb.nid";
-	public static final String PREF_ACTION_ITEM = "aq.fb.item";
-	public static final String PREF_LAST_NOTI = "aq.fb.noti";
+//	public static final String PREF_NID = "aq.fb.nid";
+//	public static final String PREF_ACTION_ITEM = "aq.fb.item";
+//	public static final String PREF_LAST_NOTI = "aq.fb.noti";
 	
 
 	public static final boolean IS_NEW_STORY_INDICATED = false;

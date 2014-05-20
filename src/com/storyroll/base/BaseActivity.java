@@ -34,13 +34,14 @@ public class BaseActivity extends Activity {
 	public com.storyroll.PQuery aq;
 
 	private static final boolean FORCE_SHAKE_SERVICE_ALIVE = false;
+	protected boolean isHomeEnabled = true;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		aq = new PQuery(this);
 //		if(isActionBar()){
-	    	ActionBarUtility.initCustomActionBar(this, true);
+	    	ActionBarUtility.initCustomActionBar(this, isHomeEnabled);
 //	    }
 	    isTrial = getIntent().getBooleanExtra("TRIAL", false);
 		

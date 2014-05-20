@@ -166,6 +166,8 @@ public class AppUtility {
 		editor.remove(Constants.PREF_AVATAR);
 		editor.remove(Constants.PREF_AUTH_METHOD);
 		editor.remove(Constants.PREF_IS_LOGGED_IN);
+		editor.remove(Constants.PREF_FIRST_RUN);
+		editor.remove(Constants.PREF_GCM_REG_ID);
 		editor.commit();
 	}
 	
