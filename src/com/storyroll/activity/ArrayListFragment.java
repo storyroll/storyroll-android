@@ -152,6 +152,7 @@ public class ArrayListFragment extends ListFragment {
 		super.onActivityCreated(savedInstanceState);
 
 		String apiUrl;
+
 		switch (mNum) {
 		case TAB_BEST:
 			apiUrl = PrefUtility.getApiUrl(ServerUtility.API_STORIES_BEST, "limit=" + LIMIT_ITEMS);

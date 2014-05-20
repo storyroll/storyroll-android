@@ -11,7 +11,6 @@ import com.storyroll.base.Constants;
 
 public class ServerUtility {
 	private static final String LOGTAG = "ServerUtility";
-	
 
 	public static final String API_AVATAR = "avatar";
 	public static final String API_AVATAR_SET = "setAvatar";
@@ -56,11 +55,6 @@ public class ServerUtility {
 	public static final String API_STORY_FILE = "storyFile"; //
 	public static final String API_STORY_THUMB = "storyThumb"; //
 //	public static final String API_MOVIE_FILE = "storyFile";
-
-
-
-
-
 
 
 	public static void getServerPropertiesCb(String url, JSONObject json, AjaxStatus status, Context ctx)
