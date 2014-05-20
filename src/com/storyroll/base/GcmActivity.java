@@ -36,6 +36,7 @@ public class GcmActivity extends BaseActivity {
 
             @Override
             protected String doInBackground(Void... params) {
+            	Log.v(LOGTAG, "background GCM registration process starting...");
                 String msg = "";
                 
                 try {
@@ -66,8 +67,10 @@ public class GcmActivity extends BaseActivity {
                     // TODO
                     BugSenseHandler.sendException(ex);
                 }
-                
-                return "Currently app is not registering with GCM";
+
+                return msg;
+
+//                return "Currently app is not registering with GCM";
             }
 
             @Override
