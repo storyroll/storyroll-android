@@ -57,6 +57,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 	private boolean isCallFromNotificationProcessing = false;
 	private long initialChannelid = -1L;
 	private int lastUpdatedMovieIdx = 0;
+	private boolean channelsLoaded = false;
     
     
     public PQuery getPQuery(){
@@ -70,11 +71,13 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 		if (jarr != null) {
 			// successful ajax call
 	    	channels = ModelUtility.channels(jarr);
+	    	channelsLoaded = true;
 
 		} else {
 			// ajax error
 			ErrorUtility.apiError(LOGTAG,
 					"userLikesCb: null Json, could not get channels for uuid " + mUuid, status, this, false, Log.ERROR);
+			channelsLoaded = false;
 		}
 		
     	// get the list of channels
@@ -250,18 +253,19 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
         }
         
         // get chan list 
-        // TODO: stub
-        aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS, "uuid=" + mUuid), JSONArray.class, this, "chanListCb");
-
+        chanListAjaxCall();
+        
 //        mAdapter = new ClipPlaylistTabAdapter(getSupportFragmentManager());
 //        
 //        // Set up the ViewPager, attaching the adapter.
 //        mViewPager = (ViewPager) findViewById(R.id.pager);
 //        mViewPager.setAdapter(mAdapter);
 
-
-
     }
+	
+	private void chanListAjaxCall(){
+        aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS, "uuid=" + mUuid), JSONArray.class, this, "chanListCb");
+	}
     
     @Override
     public void onStart(){
@@ -488,11 +492,17 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     
     private void onRefreshChannel() {
 		// TODO Auto-generated method stub
-		Log.v(LOGTAG, "onRefreshChannel");
-		int channelIdx = getActionBar().getSelectedNavigationIndex();
-		if (channelIdx<0) channelIdx=0;
-		ArrayMoviesFragment amf = (ArrayMoviesFragment)findFragmentByPosition(channelIdx);
-		amf.updateMovieList();
+		Log.v(LOGTAG, "onRefreshChannel, channels been loaded: "+channelsLoaded);
+		if (channelsLoaded) {
+			int channelIdx = getActionBar().getSelectedNavigationIndex();
+			if (channelIdx<0) channelIdx=0;
+			ArrayMoviesFragment amf = (ArrayMoviesFragment)findFragmentByPosition(channelIdx);
+			amf.updateMovieList();
+		}
+		else {
+			// try updating channels
+			chanListAjaxCall();
+		}
 	}
     
     private void postSelectItem(int idx) {

@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.androidquery.callback.AjaxStatus;
 import com.storyroll.PQuery;
@@ -67,19 +68,26 @@ public class MovieItemView extends LinearLayout {
   		try {
   			// TODO: sloppy
   			String[] cast = new String[jarr.length()];
-	        	for (int i = 0; i < jarr.length() && i<castIds.length; i++) {
-					JSONObject userObj = jarr.getJSONObject(i);
+  			int i = 0;
+        	for (; i < jarr.length(); i++) {
+				JSONObject userObj = jarr.getJSONObject(i);
+				String uuid = userObj.getString("uuid");
+				cast[i] = uuid;
+				if (i<castIds.length) {
 					ImageView castImage = (ImageView) findViewById(castIds[i]);
-					String uuid = userObj.getString("uuid");
-					cast[i] = uuid;
 					aq.id(castImage).image(PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+uuid), true, false, 0, R.drawable.ic_avatar_default);
-	        	}
-	        	movie.setCast(cast);
+				}
+        	}
+        	movie.setCast(cast);
+        	// indicate that there's more fragments
+        	if (i>=castIds.length) {
+        		aq.id(R.id.cast_more).text("+"+(castIds.length-i+2)).visible();
+        	}
 	        	
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
   		
       }else{          
           //ajax error

@@ -53,6 +53,14 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		SurfaceHolder.Callback, OnVideoTaskCompleted,  OnInfoListener {
 
 	public static final String LOGTAG = "VIDEOCAPTURE";
+
+	private static final String LAST_USER_UUID = "LAST_USER";
+	private static final String MODE_NEW = "MODE_NEW";
+	private static final String CURRENT_CHANNEL = "CURRENT_CHANNEL";
+	private static final String RESPOND_TO_CLIP = "RESPOND_TO_CLIP";
+	private static final String MOVIE = "MOVIE";
+	private static final String CURRENT_CAMERA = "CURRENT_CAMERA";
+	private static final String LAST_STATE = "LAST_STATE";
 	private static final String SCREEN_NAME = "VideoCapture";
 
 	
@@ -67,7 +75,6 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private static int DEFAULT_CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;
 
 	private SurfaceView surfaceView;
-	
 	private VideoView videoView;
 
 	SurfaceHolder previewHolder = null;
@@ -95,26 +102,29 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	public static final int STATE_PREV_NEW = 4;
 	public static final int STATE_UPLOAD = 5;
 	public static final int STATE_UPLOAD_FAIL = 6;
+	
 	private static final int MAX_NEXT_FRAGMENT_ATTEMPTS =5;
 
-	private int lastState = STATE_NO_STORY;
+	private int mLastState = STATE_NO_STORY;
 	private int cameraOrientation;
 	private Camera.Size bestPreviewSize;
 //	private Camera.Size bestRecordSize;
 
-	private Integer currentCameraId = null;
-	private boolean startNewMode = false;
+	private Integer mCurrentCameraId = null;
+	private boolean mStartNewMode = false;
 	private final static long NULL_RESPONSE_CLIP=-1L;
 	private final static long NULL_CHAN=-1L;
 
-	private long respondToClipId = NULL_RESPONSE_CLIP;
+	private long mRespondToClipId = NULL_RESPONSE_CLIP;
 	private boolean isFragmentCarousel = false;
-	private long currentChannelId = NULL_CHAN;
-	private long movieId = -1L;
-	private String lastUserUuid = null;
+	
+	private long mCurrentChanlId = NULL_CHAN;
+	private long mMovieId = -1L;
+	private String mLastUserUuid = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.v(LOGTAG, "onCreate");
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_videocapture);
@@ -168,39 +178,59 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		rotateButton = aq.id(R.id.rotateButton).getButton();
 		aq.id(R.id.rotateButton).clicked(this, "switchCameraClickedCb");
 		
-		movieId = getIntent().getLongExtra("MOVIE", -1L);
-		lastUserUuid = getIntent().getStringExtra("LAST_USER");
-		respondToClipId = getIntent().getLongExtra("RESPOND_TO_CLIP", NULL_RESPONSE_CLIP);
-		currentChannelId  = getIntent().getLongExtra("CURRENT_CHANNEL", NULL_CHAN);
-		
-		Log.v(LOGTAG, "lastUserId="+lastUserUuid);
-		if (lastUserUuid!=null) {
-			Log.v(LOGTAG, "url="+PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+lastUserUuid));
-			aq.id(avatar).image(PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+lastUserUuid), true, true, 0, R.drawable.ic_avatar_default);
-		}
-		
-		
-		// implicit instruction to start new fragment?
-		startNewMode = getIntent().getBooleanExtra("MODE_NEW", false);
-		if (startNewMode) 
-		{
-			lastState = STATE_NO_STORY;
-			lastState = processAndSwitchToState(STATE_PREV_CAM);
-		}
-		else if (respondToClipId!=NULL_RESPONSE_CLIP) 
-		{
-			lastState = STATE_INITIAL;
-			startVideoPreloadTask(respondToClipId);
+		if( savedInstanceState == null ) {
+			// initialize fresh
+			mMovieId = getIntent().getLongExtra(MOVIE, -1L);
+			mLastUserUuid = getIntent().getStringExtra(LAST_USER_UUID);
+			mRespondToClipId = getIntent().getLongExtra(RESPOND_TO_CLIP, NULL_RESPONSE_CLIP);
+			mCurrentChanlId  = getIntent().getLongExtra(CURRENT_CHANNEL, NULL_CHAN);
+			
+			Log.v(LOGTAG, "lastUserId="+mLastUserUuid);
+			if (mLastUserUuid!=null) {
+				Log.v(LOGTAG, "url="+PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+mLastUserUuid));
+				aq.id(avatar).image(PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+mLastUserUuid), true, true, 0, R.drawable.ic_avatar_default);
+			}
+			
+			Log.v("LOGTAG", "onCreate - savedInstanceState: "+savedInstanceState);
+	
+			// implicit instruction to start new fragment?
+			mStartNewMode = getIntent().getBooleanExtra(MODE_NEW, false);
+			if (mStartNewMode) 
+			{
+				mLastState = STATE_NO_STORY;
+				mLastState = processAndSwitchToState(STATE_PREV_CAM);
+			}
+			else if (mRespondToClipId!=NULL_RESPONSE_CLIP) 
+			{
+				mLastState = STATE_INITIAL;
+				startVideoPreloadTask(mRespondToClipId);
+			}
+			else {
+				// get list of available fragments
+				show(progress);
+				aq.ajax(PrefUtility.getApiUrl(
+						ServerUtility.API_CLIPS_AVAILABLE, "uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS), 
+						JSONArray.class, this, "availableCb");
+			}
 		}
 		else {
-			// get list of available fragments
-			show(progress);
-			aq.ajax(PrefUtility.getApiUrl(
-					ServerUtility.API_CLIPS_AVAILABLE, "uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS), 
-					JSONArray.class, this, "availableCb");
+			mMovieId = savedInstanceState.getLong(MOVIE);
+			mLastUserUuid = savedInstanceState.getString(LAST_USER_UUID);
+			mStartNewMode = savedInstanceState.getBoolean(MODE_NEW);
+			mCurrentChanlId = savedInstanceState.getLong(CURRENT_CHANNEL);
+			mRespondToClipId = savedInstanceState.getLong(RESPOND_TO_CLIP);
+			mCurrentCameraId = savedInstanceState.getInt(CURRENT_CAMERA);
+			mLastState = savedInstanceState.getInt(LAST_STATE);
+			
+			// TODO hack trying to handle/reset state
+			int stateToSet = mLastState;
+			if (mLastState<0) mLastState=0;
+			mLastState = processAndSwitchToState(stateToSet);
+			
 		}
 		// it's time to refresh video length from server
 		refreshVideoLengthSetting();
+		
 	}
 	
 	// - - - callbacks
@@ -244,18 +274,18 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         	isFragmentCarousel = false;
             //ajax error - means no story to join, offer to start new one
         	Log.w(LOGTAG, "availableCb: null Json");
-        	lastState = processAndSwitchToState(STATE_NO_STORY);
+        	mLastState = processAndSwitchToState(STATE_NO_STORY);
         }
         
 	}
 
 	private void fragmentCarousel(int i) 
 	{
-		respondToClipId = fragmentIds[i];
+		mRespondToClipId = fragmentIds[i];
 		currentLastCarouselItemId = i;
 		
 		// load fragment
-		if (respondToClipId!=NULL_RESPONSE_CLIP) 
+		if (mRespondToClipId!=NULL_RESPONSE_CLIP) 
 		{
    			// start a story fragment preload task
 	   		startVideoPreloadTask(fragmentIds[i]);
@@ -281,7 +311,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		
 		if (success) {
 			// below will do all the necessart UI cleanup
-			lastState = processAndSwitchToState(STATE_PREV_LAST);
+			mLastState = processAndSwitchToState(STATE_PREV_LAST);
 			failedAttempts = 0;
 		}
 		else {
@@ -341,7 +371,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			// go to "video sent" activity
 			Intent sendActivity = new Intent(this, VideoSendActivity.class);
 			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			sendActivity.putExtra("MODE_NEW", startNewMode);
+			sendActivity.putExtra(MODE_NEW, mStartNewMode);
 			startActivity(sendActivity);
         }else
         {          
@@ -475,7 +505,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 				videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 					@Override
 					public void onCompletion(MediaPlayer mp) {
-						if (playsEarlierFragment && lastState==STATE_PREV_NEW)
+						if (playsEarlierFragment && mLastState==STATE_PREV_NEW)
 							videoView.setVideoPath(CameraUtility.getNewFragmentFilePath(VideoCaptureActivity.this));
 						else
 							videoView.setVideoPath(lastFragmentPath);
@@ -541,11 +571,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         public void run() {
         	hide(counterOverlay);
         	
-        	String cs = "CAMERA_"+currentCameraId;
-        	if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+        	String cs = "CAMERA_"+mCurrentCameraId;
+        	if (mCurrentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
         		cs = "CAMERA_FACING_FRONT";
         	}
-        	else if (currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+        	else if (mCurrentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
         		cs = "CAMERA_FACING_BACK";
         	}
         	
@@ -625,7 +655,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	  }
 	  @Override
 	  protected void onPause() {
-	    super.onPause();
+		  super.onPause();
 	  }
 	
 	  
@@ -640,12 +670,12 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("file", file);
 		params.put("uuid", getUuid());
-		if (movieId!=-1L) {
-			params.put("l", movieId);
+		if (mMovieId!=-1L) {
+			params.put("l", mMovieId);
 		}
-		Log.v(LOGTAG, "channel: "+currentChannelId);
-		if (currentChannelId!=NULL_CHAN) {
-			params.put("c", currentChannelId+"");
+		Log.v(LOGTAG, "channel: "+mCurrentChanlId);
+		if (mCurrentChanlId!=NULL_CHAN) {
+			params.put("c", mCurrentChanlId+"");
 		}
 		
 		fireGAnalyticsEvent("fragment_workflow", "addFragmentStart", "", null);
@@ -661,21 +691,21 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	
 	public void workflowClickedButtonCb()
 	{
-		fireGAnalyticsEvent("ui_action", "controll_button_from_state", DataUtility.stateStr(lastState), null);
+		fireGAnalyticsEvent("ui_action", "controll_button_from_state", DataUtility.stateStr(mLastState), null);
 		workflowClicked() ;
 	}
 
 	public void workflowClickedMessageCb()
 	{
 		Log.v(LOGTAG, "workflowClickedMessageCb");
-		fireGAnalyticsEvent("ui_action", "controll_message_from_state", DataUtility.stateStr(lastState), null);
+		fireGAnalyticsEvent("ui_action", "controll_message_from_state", DataUtility.stateStr(mLastState), null);
 		workflowClicked() ;
 	}
 	
 	public void workflowClicked() 
 	{
 		
-		switch (lastState) {
+		switch (mLastState) {
 		case STATE_NO_STORY:
 			// not creating new stories any more
 //			aq.ajax(PrefUtility.getApiUrl()+"startStory?uuid="+getUuid(), JSONObject.class, this, "startStoryCb").progress(progress);
@@ -687,12 +717,12 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			
 		case STATE_INITIAL:
 			// switch camera preview on
-			lastState = processAndSwitchToState(STATE_PREV_CAM);
+			mLastState = processAndSwitchToState(STATE_PREV_CAM);
 			break;
 			
 		case STATE_PREV_CAM:
 			// START RECORDING
-			lastState = processAndSwitchToState(STATE_REC);
+			mLastState = processAndSwitchToState(STATE_REC);
 			break;
 			
 		case STATE_REC:
@@ -704,12 +734,12 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			videoView.stopPlayback();
 			playsEarlierFragment = false;
 			videoView.setOnCompletionListener(null);
-			lastState = processAndSwitchToState(STATE_UPLOAD);
+			mLastState = processAndSwitchToState(STATE_UPLOAD);
 			break;
 
 		default:
-			BugSenseHandler.sendException(new RuntimeException("Undefined state for Controll "+lastState));
-			Log.e(LOGTAG, "control switch in undefined state "+lastState);
+			BugSenseHandler.sendException(new RuntimeException("Undefined state for Controll "+mLastState));
+			Log.e(LOGTAG, "control switch in undefined state "+mLastState);
 			break;
 			}
 	}
@@ -729,7 +759,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	// "BACK" and "CLOSE" control
 	public void backOrCloseClickedCb()
 	{
-		fireGAnalyticsEvent("ui_action", "back_close_control_from_state", DataUtility.stateStr(lastState), null);
+		fireGAnalyticsEvent("ui_action", "back_close_control_from_state", DataUtility.stateStr(mLastState), null);
 		backOrCloseClicked();
 	}
 	
@@ -737,16 +767,16 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	{
 
 		Intent intent;
-		switch (lastState) {
+		switch (mLastState) {
 		case STATE_NO_STORY:
 		case STATE_PREV_LAST:
 		case STATE_INITIAL:
 			// return to the last used playlist
 			intent = new Intent(VideoCaptureActivity.this, AppUtility.ACTIVITY_HOME);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			intent.putExtra("RESPOND_TO_CLIP", respondToClipId);
-			intent.putExtra("CURRENT_CHANNEL", currentChannelId);			
-			intent.putExtra("MOVIE", movieId);			
+			intent.putExtra(RESPOND_TO_CLIP, mRespondToClipId);
+			intent.putExtra(CURRENT_CHANNEL, mCurrentChanlId);			
+			intent.putExtra(MOVIE, mMovieId);			
 			startActivity(intent);
 			
 			break;
@@ -759,7 +789,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 				show(videoView);
 			}
 			hide(rotateButton);
-			if (startNewMode) {
+			if (mStartNewMode) {
 //	    		fireGAnalyticsEvent("ui_action", "click", "SystemBack", null);
 //	    		fireGAnalyticsEvent("fragment_workflow", "videoUpload", "SystemBack", null);
 	        	
@@ -770,7 +800,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         		startActivity(intent);
 			}
 			else {
-				lastState = processAndSwitchToState(STATE_PREV_LAST);
+				mLastState = processAndSwitchToState(STATE_PREV_LAST);
 			}
 			
 			break;
@@ -782,7 +812,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			releaseMediaRecorder();
 			hide(surfaceView);
 			
-			lastState = processAndSwitchToState(STATE_PREV_CAM);
+			mLastState = processAndSwitchToState(STATE_PREV_CAM);
 
 			break;
 		case STATE_PREV_NEW:
@@ -791,17 +821,17 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			hide(videoView);
 			
 			// return to camera preview
-			lastState = processAndSwitchToState(STATE_PREV_CAM);
+			mLastState = processAndSwitchToState(STATE_PREV_CAM);
 
 			break;
 		case STATE_UPLOAD:
 			cancelUpload  = true;
 			
-			lastState = processAndSwitchToState(STATE_PREV_NEW);
+			mLastState = processAndSwitchToState(STATE_PREV_NEW);
 			break;
 		default:
-			Log.e(LOGTAG, "back pressed while in undefined state "+lastState);
-			BugSenseHandler.sendException(new RuntimeException("Undefined state for Back "+lastState));
+			Log.e(LOGTAG, "back pressed while in undefined state "+mLastState);
+			BugSenseHandler.sendException(new RuntimeException("Undefined state for Back "+mLastState));
 			break;
 		}
 	}
@@ -811,18 +841,18 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 		fireGAnalyticsEvent("ui_action", "touch", "switchCamera", null);
 
-		if (lastState==STATE_PREV_CAM) {
+		if (mLastState==STATE_PREV_CAM) {
 			Log.d(LOGTAG, "change camera");
 			// todo: rotate
-			if (lastState == STATE_PREV_CAM) {
+			if (mLastState == STATE_PREV_CAM) {
 		        camera.stopPreview();
 		    }
 			//NB: if you don't release the current camera before switching, you app will crash
 		    camera.release();
 		    //swap the id of the camera to be used
-		    currentCameraId++;
-		    if (currentCameraId >= Camera.getNumberOfCameras())
-		    	currentCameraId = 0;
+		    mCurrentCameraId++;
+		    if (mCurrentCameraId >= Camera.getNumberOfCameras())
+		    	mCurrentCameraId = 0;
 //			    if(currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
 //			        currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
 //			    }
@@ -882,22 +912,22 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		Log.i(LOGTAG, "getCameraInstance");
 		Camera c = null;
 		try {
-			if (currentCameraId==null) {
+			if (mCurrentCameraId==null) {
 				// get default camera, if it exists, otherwise use first available
 				int cameras = Camera.getNumberOfCameras();
 				Log.v(LOGTAG, "Cameras: " + cameras);
-				currentCameraId = 0;
+				mCurrentCameraId = 0;
 				for (int i=0;i<cameras;i++) {
 					if (i==DEFAULT_CAMERA_ID) {
-						currentCameraId = i;
+						mCurrentCameraId = i;
 					}
 				}
 			}
 			
-			c = Camera.open(currentCameraId); // attempt to get a Camera instance
+			c = Camera.open(mCurrentCameraId); // attempt to get a Camera instance
 			
 			// not much difference when is this being set
-			cameraOrientation = CameraUtility.getCameraDisplayOrientation(this, currentCameraId, true);
+			cameraOrientation = CameraUtility.getCameraDisplayOrientation(this, mCurrentCameraId, true);
 			c.setDisplayOrientation(cameraOrientation);
 			
 			Log.d(LOGTAG, "cameraOrientation "+cameraOrientation);
@@ -941,8 +971,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			c.setParameters(cp);
 		} catch (Exception e) {
 			// Camera is not available (in use or does not exist)
-			Log.e(LOGTAG, "Camera is not available (in use or does not exist), camera id "+currentCameraId);
-			BugSenseHandler.sendException(new Exception("Camera not available "+currentCameraId));
+			Log.e(LOGTAG, "Camera is not available (in use or does not exist), camera id "+mCurrentCameraId);
+			BugSenseHandler.sendException(new Exception("Camera not available "+mCurrentCameraId));
 		}
 		return c; // returns null if camera is unavailable
 	}
@@ -986,7 +1016,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
         // Tags the video with an appropriate (90) angle in order to tell the phone how to display it
 		// the compensation parameter here is off, in order to work with both front and back facing cameras
-		int orientationHint = CameraUtility.getCameraDisplayOrientation(this, currentCameraId, false);
+		int orientationHint = CameraUtility.getCameraDisplayOrientation(this, mCurrentCameraId, false);
         recorder.setOrientationHint(orientationHint);
         
 		recorder.setPreviewDisplay(previewHolder.getSurface());
@@ -1028,13 +1058,13 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			// here comes "hidden" stop state processing step
 			releaseMediaRecorder();
 			hide(surfaceView);
-			lastState = processAndSwitchToState(STATE_PREV_NEW);
+			mLastState = processAndSwitchToState(STATE_PREV_NEW);
 		}
 	}
 
 	@Override
 	protected void leftSwipe() {
-		if (lastState!=STATE_PREV_LAST) return;
+		if (mLastState!=STATE_PREV_LAST) return;
 		fireGAnalyticsEvent("fragment_workflow", "swipe", "left", 0L);
 		// next fragment
 		playNextCarouselItem();
@@ -1046,7 +1076,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 	@Override
 	protected void rightSwipe() {
-		if (lastState!=STATE_PREV_LAST) return;
+		if (mLastState!=STATE_PREV_LAST) return;
 		fireGAnalyticsEvent("fragment_workflow", "swipe", "right", 0L);
 		show(progress);
 		// previous fragment
@@ -1068,7 +1098,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
                 && !event.isCanceled()) {
             
         	// Back button press complete, handle
-    		fireGAnalyticsEvent("ui_action", "system_back_from_state", DataUtility.stateStr(lastState), null);
+    		fireGAnalyticsEvent("ui_action", "system_back_from_state", DataUtility.stateStr(mLastState), null);
     		backOrCloseClicked();
             return true;
         }
@@ -1104,5 +1134,49 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		aq.id(R.id.btnCamera).visible(); 
 		aq.id(R.id.btnReply).gone();
 		aq.id(R.id.btnSend).gone();
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) 
+	{
+		Log.v(LOGTAG, "onSaveInstanceState");
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(MODE_NEW, mStartNewMode);
+		outState.putLong(CURRENT_CHANNEL, mCurrentChanlId);
+		outState.putLong(RESPOND_TO_CLIP, mRespondToClipId);
+		outState.putLong(MOVIE, mMovieId);
+		
+		outState.putInt(CURRENT_CAMERA, mCurrentCameraId);
+		outState.putInt(LAST_STATE, mLastState);
+		outState.putString(LAST_USER_UUID, mLastUserUuid);
+		
+	}
+	
+	@Override
+	public void onStop() {
+
+// see http://stackoverflow.com/questions/11022031/managing-camera-preview-surfaceview-throughout-the-activity-lifecycle
+//				  if (mCamera != null) {
+//				        mCamera.stopPreview();
+//				        mCamera.release();        // release the camera for other applications
+//				        mCamera = null;
+//				    }
+//				    if (mCameraPreview != null) {
+//				        mLayoutRoot.removeView(mCameraPreview);
+//				        mCameraPreview = null;
+//				    }
+//				    super.onPause();
+//				    Log.d(TAG, "onPause OUT mCamera, mCameraPreview: " + mCamera + ", " + mCameraPreview);	  
+		
+		// but we stop camera in onSurfaceDestroy
+		
+		Log.v(LOGTAG, "onStop");
+		super.onStop();
+	}
+	@Override
+	public void onStart() {
+		// TODO Auto-generated method stub
+		Log.v(LOGTAG, "onStart");
+		super.onStop();
 	}
 }

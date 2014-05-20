@@ -396,6 +396,7 @@ public class ArrayMoviesFragment extends ListFragment {
 	
 	public class MovieListAdapter extends ArrayAdapter<Movie> implements OnScrollListener {
 
+		private static final boolean HIDE_AGE_AGO_POSTFIX = true;
 		private final Context context;
 		private final ArrayList<Movie> movies;
 		private final PQuery aq;
@@ -471,8 +472,12 @@ public class ArrayMoviesFragment extends ListFragment {
 			videoThumb.setOnClickListener(new ThumbClickListener(videoView, movie.getId()));
 			replyButton.setOnClickListener(new ReplyClickListener(movie, context));
 			
-			aq.id(rowView.findViewById(R.id.ageText)).text(DateUtils.getRelativeTimeSpanString(
-							movie.getPublishedOn(), c.getTimeInMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE));
+			String ageText = DateUtils.getRelativeTimeSpanString(
+					movie.getPublishedOn(), c.getTimeInMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE).toString();
+			if (HIDE_AGE_AGO_POSTFIX) {
+				ageText = ageText.replace(" ago", "");
+			}
+			aq.id(rowView.findViewById(R.id.ageText)).text(ageText);
 			likesNum.setText(shortLikesString(movie.getLikes()));
 			
 			if (movie.getCast()!=null) {
