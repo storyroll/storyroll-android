@@ -193,7 +193,7 @@ public class ArrayMoviesFragment extends ListFragment {
 					JSONObject videoObj = (JSONObject) likeObj.get("movie"); // TODO
 					userLikes.add(videoObj.getLong("id")+"");
 				}
-				Log.v(LOGTAG, "user liked videos:" + userLikes.size()+" "+userLikes.toString());
+				Log.v(LOGTAG, "user liked videos:" + userLikes.size()+", "+userLikes.toString());
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -473,7 +473,7 @@ public class ArrayMoviesFragment extends ListFragment {
 				ageText = ageText.replace(" ago", "");
 			}
 			aq.id(rowView.findViewById(R.id.ageText)).text(ageText);
-			likesNum.setText(shortLikesString(movie.getLikes()));
+			likesNum.setText(shortLikesString(movie.getLikeCount()));
 			
 			if (movie.getCast()!=null) {
 				for (int i=0; i<movie.getCast().length && i<PlaylistItemView.castIds.length; i++) {
@@ -582,14 +582,14 @@ public class ArrayMoviesFragment extends ListFragment {
 				movie.setUserLikes(!movie.isUserLikes());
 
 				if (movie.isUserLikes()) {
-					movie.setLikes(movie.getLikes() + 1);
+					movie.setLikeCount(movie.getLikeCount() + 1);
 					view.setImageResource(R.drawable.ic_star_on);
-					likesNum.setText(shortLikesString(movie.getLikes()));
+					likesNum.setText(shortLikesString(movie.getLikeCount()));
 					userLikes.add(movie.getId()+"");
 				} else {
-					movie.setLikes(movie.getLikes() - 1);
+					movie.setLikeCount(movie.getLikeCount() - 1);
 					view.setImageResource(R.drawable.ic_star_off);
-					likesNum.setText(shortLikesString(movie.getLikes()));
+					likesNum.setText(shortLikesString(movie.getLikeCount()));
 					userLikes.remove(movie.getId()+"");
 				}
 
@@ -805,7 +805,7 @@ public class ArrayMoviesFragment extends ListFragment {
 		} else {
 			// ajax error
 			apiError(LOGTAG,
-					"userLikesCb: null Json, could not get unseenMovies for uuid " + mUuid, status, false, Log.ERROR);
+					"unseenMoviesCb: null Json, could not get unseenMovies for uuid " + mUuid, status, false, Log.ERROR);
 		}
 	}
 

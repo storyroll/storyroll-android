@@ -212,7 +212,7 @@ public class TabbedPlaylistActivity extends MenuFragmentActivity {
 		} else {
 			// ajax error
 			ErrorUtility.apiError(LOGTAG,
-					"userLikesCb: null Json, could not get unseenStories for uuid " + mUuid, status, this, false, Log.ERROR);
+					"unseenStoriesCb: null Json, could not get unseenStories for uuid " + mUuid, status, this, false, Log.ERROR);
 		}
 	}
     

@@ -9,7 +9,7 @@ public class Clip implements Serializable, Comparable<Clip> {
 	private long id;
 	private long createdOn = 0;
 	
-	private int likes = 0;
+	private int likeCount = 0;
 	private boolean userLikes = false;
 	private boolean unseen = true;
 	private String thumbUrl;
@@ -24,6 +24,7 @@ public class Clip implements Serializable, Comparable<Clip> {
 		createdOn = videoObj.getLong("createdOn");
 		thumbUrl = videoObj.getString("thumbUrl");
 		url = videoObj.getString("url");
+		likeCount = videoObj.getInt("likeCount");
 	}
 	
 	public long getId() {
@@ -47,11 +48,11 @@ public class Clip implements Serializable, Comparable<Clip> {
 		this.unseen = unseen;
 	}
 	
-	public int getLikes() {
-		return likes;
+	public int getLikeCount() {
+		return likeCount;
 	}
-	public void setLikes(int likes) {
-		this.likes = likes;
+	public void setLikeCount(int likes) {
+		this.likeCount = likes;
 	}
 	public boolean isUserLikes() {
 		return userLikes;
