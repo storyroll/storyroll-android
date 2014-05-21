@@ -79,25 +79,25 @@ public class VideoSendActivity extends MenuActivity {
 	public void againClickedCb(View view)
 	{
 		fireGAnalyticsEvent("ui_action", "touch", "againButton", null);
-		
-		if (startNewMode) {
-			Intent intent = new Intent(getApplicationContext(), VideoCaptureActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			intent.putExtra("MODE_NEW", true);
-			if (mLastClipId!=-1L) {
-				intent.putExtra("RESPOND_TO_CLIP", mLastClipId);
-			}
-			if (mChanId!=-1L) {
-				intent.putExtra("CURRENT_CHANNEL", mChanId);
-			}
-			if (mMovieId  != -1L) {
-				intent.putExtra("MOVIE", mMovieId);
-			}
-			startActivity(intent);
-		}
-		else {
+//		
+//		if (startNewMode) {
+//			Intent intent = new Intent(getApplicationContext(), VideoCaptureActivity.class);
+//			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//			intent.putExtra("MODE_NEW", true);
+//			if (mLastClipId!=-1L) {
+//				intent.putExtra("RESPOND_TO_CLIP", mLastClipId);
+//			}
+//			if (mChanId!=-1L) {
+//				intent.putExtra("CURRENT_CHANNEL", mChanId);
+//			}
+//			if (mMovieId  != -1L) {
+//				intent.putExtra("MOVIE", mMovieId);
+//			}
+//			startActivity(intent);
+//		}
+//		else {
 			returnHomeActivity();
-		}
+//		}
 		
 	}
 	
