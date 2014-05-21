@@ -1,6 +1,9 @@
 package com.storyroll;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import android.app.Application;
 import android.content.Context;
@@ -8,7 +11,6 @@ import android.content.SharedPreferences;
 
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.BitmapAjaxCallback;
-
 import com.androidquery.util.AQUtility;
 import com.bugsense.trace.BugSenseHandler;
 import com.storyroll.base.Constants;
@@ -20,7 +22,6 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
 
 	
 	public static final String MOBILE_AGENT = "Mozilla/5.0 (Linux; U; Android 2.2) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533";		
-	
 	
 	@Override
     public void onCreate() {     

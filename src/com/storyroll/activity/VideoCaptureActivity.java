@@ -2,9 +2,15 @@ package com.storyroll.activity;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -121,7 +127,11 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private long mCurrentChanlId = NULL_CHAN;
 	private long mMovieId = -1L;
 	private String mLastUserUuid = null;
-
+	private String recordingCompletedTsAsISO = null;
+	
+	TimeZone tz = TimeZone.getTimeZone("UTC");
+    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.v(LOGTAG, "onCreate");
@@ -228,11 +238,15 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			mLastState = processAndSwitchToState(stateToSet);
 			
 		}
-		// it's time to refresh video length from server
+		// refresh video length from server
 		refreshVideoLengthSetting();
-		
+		// init date formatter for ISO8601
+		df.setTimeZone(tz);
 	}
 	
+	private void init() {
+
+	}
 	// - - - callbacks
 	
 	private int currentLastCarouselItemId = 0;
@@ -524,7 +538,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			break;
 		case STATE_UPLOAD:
 			// upload the video
-			doUpload(CameraUtility.getNewFragmentFilePath(this));
+			doUpload(CameraUtility.getNewFragmentFilePath(this), recordingCompletedTsAsISO);
 			break;
 		case STATE_UPLOAD_FAIL:
 			hide(progress);
@@ -659,7 +673,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	  }
 	
 	  
-	public void doUpload(String filePath){
+	public void doUpload(String filePath, String timeStampAsISO){
 		isUploading = true;
 		cancelUpload = false;
 		showClose();
@@ -670,6 +684,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("file", file);
 		params.put("uuid", getUuid());
+		Log.v(LOGTAG, "timestamp as ISO: "+timeStampAsISO);
+		params.put("t", timeStampAsISO);
 		if (mMovieId!=-1L) {
 			params.put("l", mMovieId);
 		}
@@ -1049,6 +1065,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	{
 		if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) 
 		{
+		    recordingCompletedTsAsISO = df.format(new Date());
+		    
 			hide(customRecProgress);
 			
 			Log.v(LOGTAG, "OnInfoListener: Maximum Duration Reached");
