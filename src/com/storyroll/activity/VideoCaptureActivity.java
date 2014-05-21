@@ -361,7 +361,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
     	}
     	else if (isAjaxErrorThenReport(status)) {
     		Toast.makeText(this, "Error uploading fragment, please try again", Toast.LENGTH_SHORT).show();
-    		processAndSwitchToState(STATE_UPLOAD_FAIL);
+    		mLastState = processAndSwitchToState(STATE_UPLOAD_FAIL);
     		return;
     	}
 
@@ -393,7 +393,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         	apiError(LOGTAG, "Could not upload the fragment, try again.", status, true, Log.ERROR);
 
         	// restore state
-        	processAndSwitchToState(STATE_PREV_NEW);
+        	mLastState = processAndSwitchToState(STATE_PREV_NEW);
 //			lastState = STATE_PREV_NEW;
         }
 	}
@@ -748,8 +748,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		case STATE_PREV_NEW:
 			// Stop previewing NEW fragment
 			videoView.stopPlayback();
-			playsEarlierFragment = false;
 			videoView.setOnCompletionListener(null);
+			playsEarlierFragment = false;
+		case STATE_UPLOAD_FAIL:
 			mLastState = processAndSwitchToState(STATE_UPLOAD);
 			break;
 
@@ -842,6 +843,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			break;
 		case STATE_UPLOAD:
 			cancelUpload  = true;
+		case STATE_UPLOAD_FAIL:
 			
 			mLastState = processAndSwitchToState(STATE_PREV_NEW);
 			break;

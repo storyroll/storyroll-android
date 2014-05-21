@@ -66,13 +66,20 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 
     public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
     	Log.v(LOGTAG, "chanListCb");
+
+		if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
+			channelsLoaded = false;
+			return;
+		}
+    	
     	List<Channel> channels = null;
     	
 		if (jarr != null) {
 			// successful ajax call
 	    	channels = ModelUtility.channels(jarr);
 	    	channelsLoaded = true;
-
+	    	// get the list of channels
+	    	init(channels);
 		} else {
 			// ajax error
 			ErrorUtility.apiError(LOGTAG,
@@ -80,8 +87,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 			channelsLoaded = false;
 		}
 		
-    	// get the list of channels
-    	init(channels);
+
     }
     
     public void init(List<Channel> channels)  {
