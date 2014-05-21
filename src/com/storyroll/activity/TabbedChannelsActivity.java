@@ -94,73 +94,12 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mAdapter);
         
-        // Set up action bar.
-    	ActionBarUtility.initCustomActionBar(this, false);
-    	final ActionBar actionBar = getActionBar();
-    	
-//    	actionBar.setHomeButtonEnabled(true);
-        
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        
-        // TODO: custom underline?
-        actionBar.setStackedBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.sr_actionbar_tab_underline)));
-
-        // Create a tab listener that is called when the user changes tabs.
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() 
-        {
-			@Override
-			public void onTabReselected(Tab tab, FragmentTransaction ft) {
-				// TODO Auto-generated method stub
-				Log.v(LOGTAG, "onTabReselected stub");
-			}
-
-            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-                // When the tab is selected, switch to the
-                // corresponding page in the ViewPager.
-            	
-            	if (mViewPager!=null) {
-	            	fireGAnalyticsEvent("ui_action", "onTabSelected", getChannels().get(tab.getPosition()).getTitle(), null);
-	            	
-	            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition()+" - "+getChannels().get(tab.getPosition()).getTitle());
-	                mViewPager.setCurrentItem(tab.getPosition());
-            	}
-            }
-
-			@Override
-			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-				// TODO Auto-generated method stub
-			}
-        };
+        initializeActionBar();
         
 	    // comes from notification? switch to indicated tab and then scroll to indicated item on list
         boolean comesFromNotif = getIntent().getBooleanExtra("NOTIFICATION", false);
         Log.v(LOGTAG, "comesFromNotif: "+comesFromNotif);
 
-        // Add tabs, specifying the tab's text and TabListener
-//        if (isTrial) {
-//        	tabHeads = ArrayClipsFragment.TAB_HEADINGS_TRIAL;
-//        }
-        for (int i = 0; i < getChannels().size(); i++) {
-        	Channel chan = getChannels().get(i);
-        	if (chan!=null) {
-        		Tab tab = actionBar.newTab();
-//        		if (i==ArrayClipsFragment.TAB_TWO) 
-//        		{
-//        			tab = tab.setText(tabHeads[i]);
-//        			
-//        			tab.setCustomView(R.layout.custom_actionbar_tab);
-//        			View tabView = tab.getCustomView();
-//        			TextView tabText  = (TextView) tabView.findViewById(R.id.tabText);
-//        			tabText.setText(tabHeads[i]);
-//        			
-//        			tabUnseenBadgeText  = (TextView) tabView.findViewById(R.id.badgeTextt);
-//
-//        		}
-        		tab = tab.setText(chan.getTitle());
-	            actionBar.addTab(tab.setTabListener(tabListener), initialChannelid==chan.getId()); // TODO select default here
-        	}
-        }
 
         mViewPager.setOnPageChangeListener(
                 new ViewPager.SimpleOnPageChangeListener() {
@@ -231,7 +170,74 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 		}
     }
     
-    private int movieIdToIdx(long lastUpdatedMovieId) {
+    private void initializeActionBar() {
+        // Set up action bar.
+    	ActionBarUtility.initCustomActionBar(this, false);
+    	final ActionBar actionBar = getActionBar();
+    	
+//    	actionBar.setHomeButtonEnabled(true);
+        
+        // Specify that tabs should be displayed in the action bar.
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        
+        // TODO: custom underline?
+        actionBar.setStackedBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.sr_actionbar_tab_underline)));
+
+        // Create a tab listener that is called when the user changes tabs.
+        ActionBar.TabListener tabListener = new ActionBar.TabListener() 
+        {
+			@Override
+			public void onTabReselected(Tab tab, FragmentTransaction ft) {
+				// TODO Auto-generated method stub
+				Log.v(LOGTAG, "onTabReselected stub");
+			}
+
+            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+                // When the tab is selected, switch to the
+                // corresponding page in the ViewPager.
+            	
+            	if (mViewPager!=null) {
+	            	fireGAnalyticsEvent("ui_action", "onTabSelected", getChannels().get(tab.getPosition()).getTitle(), null);
+	            	
+	            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition()+" - "+getChannels().get(tab.getPosition()).getTitle());
+	                mViewPager.setCurrentItem(tab.getPosition());
+            	}
+            }
+
+			@Override
+			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+				// TODO Auto-generated method stub
+			}
+        };	
+        
+        // Add tabs, specifying the tab's text and TabListener
+//      if (isTrial) {
+//      	tabHeads = ArrayClipsFragment.TAB_HEADINGS_TRIAL;
+//      }
+      for (int i = 0; i < getChannels().size(); i++) {
+      	Channel chan = getChannels().get(i);
+      	if (chan!=null) {
+      		Tab tab = actionBar.newTab();
+//      		if (i==ArrayClipsFragment.TAB_TWO) 
+//      		{
+//      			tab = tab.setText(tabHeads[i]);
+//      			
+//      			tab.setCustomView(R.layout.custom_actionbar_tab);
+//      			View tabView = tab.getCustomView();
+//      			TextView tabText  = (TextView) tabView.findViewById(R.id.tabText);
+//      			tabText.setText(tabHeads[i]);
+//      			
+//      			tabUnseenBadgeText  = (TextView) tabView.findViewById(R.id.badgeTextt);
+//
+//      		}
+      		tab = tab.setText(chan.getTitle());
+	            actionBar.addTab(tab.setTabListener(tabListener), initialChannelid==chan.getId()); // TODO select default here
+      	}
+      }
+
+	}
+
+	private int movieIdToIdx(long lastUpdatedMovieId) {
 		return 1;
 	}
 
