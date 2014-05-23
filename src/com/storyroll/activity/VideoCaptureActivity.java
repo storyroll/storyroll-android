@@ -51,6 +51,7 @@ import com.storyroll.util.AppUtility;
 import com.storyroll.util.CameraUtility;
 import com.storyroll.util.DataUtility;
 import com.storyroll.util.ErrorUtility;
+import com.storyroll.util.TimeISO8601;
 import com.storyroll.util.ImageUtility;
 import com.storyroll.util.PrefUtility;
 import com.storyroll.util.ServerUtility;
@@ -128,9 +129,6 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private long mMovieId = -1L;
 	private String mLastUserUuid = null;
 	private String recordingCompletedTsAsISO = null;
-	
-	TimeZone tz = TimeZone.getTimeZone("UTC");
-    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -240,8 +238,6 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		}
 		// refresh video length from server
 		refreshVideoLengthSetting();
-		// init date formatter for ISO8601
-		df.setTimeZone(tz);
 	}
 	
 	private void init() {
@@ -1067,7 +1063,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	{
 		if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) 
 		{
-		    recordingCompletedTsAsISO = df.format(new Date());
+		    recordingCompletedTsAsISO = TimeISO8601.now();
+		    
 		    
 			hide(customRecProgress);
 			
