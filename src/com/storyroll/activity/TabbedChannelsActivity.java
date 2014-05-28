@@ -22,9 +22,11 @@ import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.base.MenuFragmentActivity;
 import com.storyroll.model.Channel;
+import com.storyroll.model.Contact;
 import com.storyroll.util.*;
 import org.json.JSONArray;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TabbedChannelsActivity extends MenuFragmentActivity {
@@ -489,13 +491,17 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 			onRefreshChannel();
 			return true;
 		}
-			
+        else if (item.getItemId() == R.id.action_add_group) {
+            onAddGroup();
+            return true;
+        }
+
+
 		return super.onOptionsItemSelected(item);
     }
     /*-- helper --*/
     
     private void onRefreshChannel() {
-		// TODO Auto-generated method stub
 		Log.v(LOGTAG, "onRefreshChannel, channels been loaded: "+channelsLoaded);
 		if (channelsLoaded) {
 			int channelIdx = getActionBar().getSelectedNavigationIndex();
@@ -508,6 +514,48 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 			chanListAjaxCall();
 		}
 	}
+
+    static final int PICK_CONTACTS_REQUEST = 1111;  // The request code
+    private void onAddGroup() {
+        Log.v(LOGTAG, "onAddGroup");
+        if (channelsLoaded) {
+            int channelIdx = getActionBar().getSelectedNavigationIndex();
+            if (channelIdx<0) channelIdx=0;
+            long channelId = getChannels().get(channelIdx).getId();
+
+            // call address picker
+            Intent pickContactsIntent = new Intent(getApplicationContext(), ContactManager.class);
+            startActivityForResult(pickContactsIntent, PICK_CONTACTS_REQUEST);
+        }
+        else {
+            // try updating channels
+            chanListAjaxCall();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.v(LOGTAG, "onActivityResult: "+resultCode);
+        // Check which request we're responding to
+        if (requestCode == PICK_CONTACTS_REQUEST) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                Log.v(LOGTAG, "onActivityResult: RESULT_OK");
+                // The user picked a contact.
+                ArrayList<Contact> cons = intent.getParcelableArrayListExtra("SELECTED_CONTACTS");
+                for (int i = 0; i < cons.size(); i++) {
+                    Log.e(LOGTAG, "contact: " + cons.get(i).toString());
+                }
+                // Do something with the contact here
+                // send ajax call
+//            aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_INVITES_ADD, "uuid=" + mUuid+"&c="+channelId), JSONArray.class, this, "chanListCb");
+
+            }
+            else if (resultCode == RESULT_CANCELED) {
+                Log.v(LOGTAG, "onActivityResult: RESULT_CANCELED");
+            }
+        }
+    }
     
     private void postSelectItem(int idx) {
 		// TODO Auto-generated method stub

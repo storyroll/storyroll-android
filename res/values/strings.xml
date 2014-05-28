@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="selectAccountLabel">Select</string>
+    <string name="selectLabel">Select label</string>
+    <string name="targetAccountLabel">Target Account</string>
+    <string name="undefinedTypeLabel">(Undefined)</string>
+    <string name="allAccounts">All Accounts</string>
+    <string name="contactCreationFailure">Contact creation failed, check logs.</string>
+    <string name="contactEmailLabel">Contact Email</string>
+    <string name="contactNameLabel">Contact Name</string>
+    <string name="contactPhoneLabel">Contact Phone</string>
+    <string name="save">Save</string>
 
     <string name="app_name">StoryRoll</string>
     <string name="app_desc">Create your story and let it roll.</string>

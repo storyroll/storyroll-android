@@ -1,4 +1,6 @@
 <resources>
+    <color name="white">#FFF</color>
+    <color name="transparent">#00000000</color>
 
     <color name="black_overlay">#66000000</color>
 	<color name="ph">#FFEEEEEE</color>
@@ -11,6 +13,7 @@
 <!-- 	<color name="sr_bg_actionbar">#569bb8</color>
  -->	
  	<color name="sr_bg_actionbar">#569bb8</color>
+    <color name="sr_bg_actionbar_shadow">#ff407290</color>
  	<color name="sr_bg_cast">#f5f3e4</color>
  	<color name="sr_cast_text">#464646</color>
  	<color name="sr_bg_separator">#C6C6C6</color>
