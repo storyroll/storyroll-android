@@ -9,14 +9,12 @@ import android.support.v4.view.ViewPager;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
-
 import com.storyroll.R;
 import com.storyroll.ui.AspectRatioImageView;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.ImageUtility;
-import com.viewpagerindicator.CirclePageIndicator;
+//import com.viewpagerindicator.CirclePageIndicator;
 
 public class HelpActivity extends FragmentActivity
 {
@@ -37,10 +35,10 @@ public class HelpActivity extends FragmentActivity
         vp.setAdapter(ia);
         
         //Bind the title indicator to the adapter
-        CirclePageIndicator circleIndicator = (CirclePageIndicator)findViewById(R.id.circles);
-        final float density = getResources().getDisplayMetrics().density;
-        circleIndicator.setRadius(7 * density);
-        circleIndicator.setViewPager(vp);
+//        CirclePageIndicator circleIndicator = (CirclePageIndicator)findViewById(R.id.circles);
+//        final float density = getResources().getDisplayMetrics().density;
+//        circleIndicator.setRadius(7 * density);
+//        circleIndicator.setViewPager(vp);
         
 
     }

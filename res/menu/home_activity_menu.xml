@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" 
-      xmlns:storyroll="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+        >
     
     <item android:id="@+id/action_refresh"
           android:icon="@drawable/ic_menu_refresh"
@@ -9,17 +9,21 @@
     <item android:id="@+id/action_new"
           android:icon="@drawable/ic_action_join"
           android:showAsAction="always"/>
-    
-<!--     <item android:id="@+id/action_new"
-          android:title="NEW"
+
+    <item android:id="@+id/action_chan"
+          android:title="#CH"
           android:showAsAction="always"/>
- -->    
+
     <item android:id="@+id/action_profile"
           android:title="@string/action_profile" />
+
     <item android:id="@+id/action_settings"
           android:title="@string/action_settings" />
+
     <item android:id="@+id/action_help"
           android:title="@string/action_help" />
+
    	<item android:id="@+id/action_log"
 	  	android:title="@string/action_log" />
+
 </menu>

@@ -1,23 +1,6 @@
 package com.storyroll.base;
 
-import java.util.Date;
 
-import com.androidquery.callback.AjaxStatus;
-import com.bugsense.trace.BugSense;
-import com.bugsense.trace.BugSenseHandler;
-import com.google.analytics.tracking.android.EasyTracker;
-import com.google.analytics.tracking.android.MapBuilder;
-import com.storyroll.R;
-import com.storyroll.activity.HelpActivity;
-import com.storyroll.activity.LogReadActivity;
-import com.storyroll.activity.LoginActivity;
-import com.storyroll.activity.ProfileActivity;
-import com.storyroll.activity.SettingsActivity;
-import com.storyroll.activity.VideoCaptureActivity;
-import com.storyroll.util.AppUtility;
-import com.storyroll.util.ErrorUtility;
-
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -26,6 +9,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import com.bugsense.trace.BugSenseHandler;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.MapBuilder;
+import com.storyroll.R;
+import com.storyroll.activity.*;
 
 public class MenuFragmentActivity extends FragmentActivity {
 	
@@ -105,7 +93,12 @@ public class MenuFragmentActivity extends FragmentActivity {
 		{
 			 onNewPressed(null);
 			 return true;
-			 
+
+        } else if (item.getItemId() == R.id.action_chan)
+        {
+            onNewChanPressed(null);
+            return true;
+
 //		} else if (item.getItemId()==R.id.action_login) {
 //			// TOOD
 //			return true;
@@ -123,10 +116,12 @@ public class MenuFragmentActivity extends FragmentActivity {
 			intent = new Intent(this, SettingsActivity.class);
 			startActivity(intent);
 			return true;
+
 		} else if (item.getItemId() == R.id.action_log) {
 			intent = new Intent (this, LogReadActivity.class);
 			startActivity(intent);
-			return true;		
+			return true;
+
 		} else {
 			return super.onOptionsItemSelected(item);
 		}
@@ -152,6 +147,20 @@ public class MenuFragmentActivity extends FragmentActivity {
 		
 		startActivity(intent);
 	}
+
+    protected void onNewChanPressed(Long chanId) {
+        Intent intent;
+        if (isTrial) {
+            fireGAnalyticsEvent("ui_action", "touch", "createChan_trial", null);
+            intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        }
+        else {
+            fireGAnalyticsEvent("ui_action", "touch", "createChan_regged", null);
+            intent = new Intent(this, ChannelCreateActivity.class);
+        }
+        startActivity(intent);
+    }
 
 	
 	protected void onJoinPressed(Long clipId, Long chanId){

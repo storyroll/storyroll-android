@@ -1,10 +1,5 @@
 package com.storyroll.activity;
 
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
@@ -21,23 +16,22 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
 import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.base.MenuFragmentActivity;
 import com.storyroll.model.Channel;
-import com.storyroll.util.ActionBarUtility;
-import com.storyroll.util.ErrorUtility;
-import com.storyroll.util.ModelUtility;
-import com.storyroll.util.PrefUtility;
-import com.storyroll.util.ServerUtility;
+import com.storyroll.util.*;
+import org.json.JSONArray;
+
+import java.util.List;
 
 public class TabbedChannelsActivity extends MenuFragmentActivity {
 
 	private static final String LOGTAG = "TabbedChannelsActivity";
 	private static final String SCREEN_NAME = "TabbedChannels";
+    public static final String EXTRA_CHANNEL_ID = "channelId" ;
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the object collection.
@@ -64,118 +58,6 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     	return aq;
     }
 
-    public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
-    	Log.v(LOGTAG, "chanListCb");
-
-		if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
-			channelsLoaded = false;
-			return;
-		}
-    	
-    	List<Channel> channels = null;
-    	
-		if (jarr != null) {
-			// successful ajax call
-	    	channels = ModelUtility.channels(jarr);
-	    	channelsLoaded = true;
-	    	// get the list of channels
-	    	init(channels);
-		} else {
-			// ajax error
-			ErrorUtility.apiError(LOGTAG,
-					"userLikesCb: null Json, could not get channels for uuid " + mUuid, status, this, false, Log.ERROR);
-			channelsLoaded = false;
-		}
-		
-
-    }
-    
-    public void init(List<Channel> channels)  {
-    	
-    	this.mChannels = channels;
-    	
-        mAdapter = new ChannelTabAdapter(getSupportFragmentManager());
-        
-        // Set up the ViewPager, attaching the adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mAdapter);
-        
-        initializeActionBar();
-        
-	    // comes from notification? switch to indicated tab and then scroll to indicated item on list
-        boolean comesFromNotif = getIntent().getBooleanExtra("NOTIFICATION", false);
-        Log.v(LOGTAG, "comesFromNotif: "+comesFromNotif);
-
-
-        mViewPager.setOnPageChangeListener(
-                new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) 
-                    {
-                        // When swiping between pages, select the
-                        // corresponding tab.
-                    	Log.v(LOGTAG, "OnPageChangeListener:onPageSelected, pos="+position);
-                        getActionBar().setSelectedNavigationItem(position);
-                        
-                        // TODO is this called when 1st (0) tab selected?
-                        
-                        Log.v(LOGTAG, "lastUpdatedMovieIdx: "+lastUpdatedMovieIdx);
-                        if (isCallFromNotificationProcessing && lastUpdatedMovieIdx!=0) 
-                        {
-                        	postSelectItem(lastUpdatedMovieIdx);
-                        	isCallFromNotificationProcessing = false;
-                        }
-                        
-                        // manually selected "Mine"? refresh badge
-//                        if (position == ArrayClipsFragment.TAB_TWO) {
-//                        	updateUnseenVideosFromServer();
-//                        }
-                        
-                        // Also update tracker field to persist for all subsequent hits,
-                		// until they are overridden or cleared by assignment to null.
-                	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME+"_"+getChannels().get(position));
-                    }
-                });
-        
-
-		if (comesFromNotif) 
-		{
-			isCallFromNotificationProcessing = true;
-			// TODO crappy hack / set properties for each channels badges
-//			ArrayMoviesFragment.resetUnseenMoviesNumber( getIntent().getInt("clips") );
-			
-			String chIdStr = getIntent().getStringExtra("channelId");
-			initialChannelid = TextUtils.isEmpty(chIdStr)?0:Integer.valueOf(chIdStr);
-			// find which position is that
-//			int initialPosition = 0;
-//			for (int i=0; i<channels.size(); i++) {
-//				if (channels.get(i).getId()==initialChannelid) {
-//					initialPosition = i;
-//				}
-//			}
-//			Log.v(LOGTAG, "initial channel idx: "+initialPosition);
-			
-			String lumIdStr = getIntent().getStringExtra("lastUpdatedMovie");
-			long lastUpdatedMovieId = TextUtils.isEmpty(lumIdStr)?-1L:Long.valueOf(chIdStr);
-			lastUpdatedMovieIdx = movieIdToIdx(lastUpdatedMovieId);
-			
-//			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
-//			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
-			
-			
-			// TODO is this correct place to select tab? and what is better way?
-//			mViewPager.setCurrentItem(tab.getPosition());
-//			if (initialPosition!=0 && isCallFromNotificationProcessing) {
-//				Log.v(LOGTAG, "CallFromNotificationProcessing=true, selecting Nav Item "+initialPosition);
-//				actionBar.setSelectedNavigationItem(initialPosition);
-//			}
-		}
-		else {
-			// update unseenStories
-//			updateUnseenVideosFromServer();
-		}
-    }
-    
     private void initializeActionBar() {
         // Set up action bar.
     	ActionBarUtility.initCustomActionBar(this, false);
@@ -278,7 +160,117 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 	private void chanListAjaxCall(){
         aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS, "uuid=" + mUuid), JSONArray.class, this, "chanListCb");
 	}
-    
+
+    public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
+        Log.v(LOGTAG, "chanListCb");
+
+        if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
+            channelsLoaded = false;
+            return;
+        }
+
+        List<Channel> channels = null;
+
+        if (jarr != null) {
+            // successful ajax call
+            channels = ModelUtility.channels(jarr);
+            channelsLoaded = true;
+            // get the list of channels
+            init(channels);
+        } else {
+            // ajax error
+            ErrorUtility.apiError(LOGTAG,
+                    "userLikesCb: null Json, could not get channels for uuid " + mUuid, status, this, false, Log.ERROR);
+            channelsLoaded = false;
+        }
+    }
+
+    public void init(List<Channel> channels)  {
+
+        this.mChannels = channels;
+
+        mAdapter = new ChannelTabAdapter(getSupportFragmentManager());
+
+        // Set up the ViewPager, attaching the adapter.
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setAdapter(mAdapter);
+
+        initializeActionBar();
+
+        // comes from notification? switch to indicated tab and then scroll to indicated item on list
+        boolean comesFromNotif = getIntent().getBooleanExtra("NOTIFICATION", false);
+        Log.v(LOGTAG, "comesFromNotif: "+comesFromNotif);
+
+
+        mViewPager.setOnPageChangeListener(
+                new ViewPager.SimpleOnPageChangeListener() {
+                    @Override
+                    public void onPageSelected(int position)
+                    {
+                        // When swiping between pages, select the
+                        // corresponding tab.
+                        Log.v(LOGTAG, "OnPageChangeListener:onPageSelected, pos="+position);
+                        getActionBar().setSelectedNavigationItem(position);
+
+                        // TODO is this called when 1st (0) tab selected?
+
+                        Log.v(LOGTAG, "lastUpdatedMovieIdx: "+lastUpdatedMovieIdx);
+                        if (isCallFromNotificationProcessing && lastUpdatedMovieIdx!=0)
+                        {
+                            postSelectItem(lastUpdatedMovieIdx);
+                            isCallFromNotificationProcessing = false;
+                        }
+
+                        // manually selected "Mine"? refresh badge
+//                        if (position == ArrayClipsFragment.TAB_TWO) {
+//                        	updateUnseenVideosFromServer();
+//                        }
+
+                        // Also update tracker field to persist for all subsequent hits,
+                        // until they are overridden or cleared by assignment to null.
+                        getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME+"_"+getChannels().get(position));
+                    }
+                });
+
+
+        if (comesFromNotif)
+        {
+            isCallFromNotificationProcessing = true;
+            // TODO crappy hack / set properties for each channels badges
+//			ArrayMoviesFragment.resetUnseenMoviesNumber( getIntent().getInt("clips") );
+
+            String chIdStr = getIntent().getStringExtra(EXTRA_CHANNEL_ID);
+            initialChannelid = TextUtils.isEmpty(chIdStr)?0:Integer.valueOf(chIdStr);
+            // find which position is that
+//			int initialPosition = 0;
+//			for (int i=0; i<channels.size(); i++) {
+//				if (channels.get(i).getId()==initialChannelid) {
+//					initialPosition = i;
+//				}
+//			}
+//			Log.v(LOGTAG, "initial channel idx: "+initialPosition);
+
+            String lumIdStr = getIntent().getStringExtra("lastUpdatedMovie");
+            long lastUpdatedMovieId = TextUtils.isEmpty(lumIdStr)?-1L:Long.valueOf(chIdStr);
+            lastUpdatedMovieIdx = movieIdToIdx(lastUpdatedMovieId);
+
+//			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
+//			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
+
+
+            // TODO is this correct place to select tab? and what is better way?
+//			mViewPager.setCurrentItem(tab.getPosition());
+//			if (initialPosition!=0 && isCallFromNotificationProcessing) {
+//				Log.v(LOGTAG, "CallFromNotificationProcessing=true, selecting Nav Item "+initialPosition);
+//				actionBar.setSelectedNavigationItem(initialPosition);
+//			}
+        }
+        else {
+            // update unseenStories
+//			updateUnseenVideosFromServer();
+        }
+    }
+
     @Override
     public void onStart(){
     	super.onStart();

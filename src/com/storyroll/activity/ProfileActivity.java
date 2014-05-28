@@ -1,18 +1,5 @@
 package com.storyroll.activity;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,7 +14,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
@@ -38,6 +24,14 @@ import com.storyroll.model.Profile;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.PrefUtility;
 import com.storyroll.util.ServerUtility;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ProfileActivity extends MenuActivity {
 	private final String LOGTAG = "PROFILE";
@@ -301,7 +295,7 @@ public class ProfileActivity extends MenuActivity {
 		
         if(json != null){
             //successful ajax call
-        	Log.v(LOGTAG, "updateProfileCb success");
+        	Log.v(LOGTAG, "updateProfileGeneral success");
         	// persist profile
         	profile.loggedIn = true;
         	persistProfile(profile);

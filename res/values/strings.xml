@@ -7,6 +7,9 @@
     <string name="dummy_button">Proceed</string>
     <string name="dummy_content">STORYROLL\nCollaborative storytelling</string>
     <string name="login_text">Want to join the story? Please signup/login</string>
+    <string name="channel_text">Create new private channel</string>
+    <string name="channel_name">Name</string>
+
     <string name="user_name">User name</string>
     <string name="email">E-mail</string>
     <string name="password">Password</string>
@@ -30,7 +33,8 @@
     <string name="msg_password_email_required">Please enter both email and password</string>
     <string name="msg_uname_required">Please provide valid username</string>
     <string name="msg_uname_not_unique">Such username already registered, edit and try again</string>
-    
+    <string name="msg_channel_name_required">Please enter channel name</string>
+
     <string name="play_roll_info">To see next roll, swipe left</string>
 
     <string name="app_id">556141531146952</string>

@@ -1,30 +1,29 @@
 package com.storyroll.util;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.util.Log;
-
 import com.androidquery.callback.AjaxStatus;
 import com.storyroll.base.Constants;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ServerUtility {
 	private static final String LOGTAG = "ServerUtility";
 
 	public static final String API_AVATAR = "avatar";
 	public static final String API_AVATAR_SET = "setAvatar";
-	
-	public static final String API_CLIPS_AVAILABLE = "available"; //
+
+    public static final String API_CHANNEL_CREATE = "channel/create";
+    public static final String API_CHANNELS = "channels";
+    public static final String API_CHAN_MOVIES = "videosInChannel";
+
+    public static final String API_CLIPS_AVAILABLE = "available"; //
 	public static final String API_CLIP_ADD = "addFragment";
 	public static final String API_CLIP_FILE = "fragmentFile";
 	public static final String API_CLIP_THUMB = "clipThumb";
 
-	public static final String API_CHANNELS = "channels";
-	public static final String API_CHAN_MOVIES = "videosInChannel";
-	
-	public static final String API_LOGIN_VALID = "loginValid";
 
+	public static final String API_LOGIN_VALID = "loginValid";
 
 	public static final String API_MOVIE_THUMB = "movieThumb";
 

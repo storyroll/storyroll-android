@@ -150,7 +150,18 @@
 	            android:name="android.support.PARENT_ACTIVITY"
 	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
         </activity>
-        
+        <activity
+                android:name=".activity.ChannelCreateActivity"
+                android:label="@string/app_name"
+                android:theme="@style/SRTheme"
+                android:screenOrientation="portrait"
+                android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+            <!-- The meta-data element is needed for versions lower than 4.1 -->
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.storyroll.activity.TabbedPlaylistActivity" />
+        </activity>
+
         <!-- TEST ACTIVITIES -->
         <meta-data android:name="com.google.android.gms.version"
            android:value="@integer/google_play_services_version" />
