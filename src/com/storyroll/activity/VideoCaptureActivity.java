@@ -1,21 +1,5 @@
 package com.storyroll.activity;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
@@ -33,13 +17,7 @@ import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.VideoView;
-
+import android.widget.*;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
@@ -47,14 +25,16 @@ import com.storyroll.R;
 import com.storyroll.base.SwipeVideoActivity;
 import com.storyroll.tasks.VideoDownloadTask;
 import com.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
-import com.storyroll.util.AppUtility;
-import com.storyroll.util.CameraUtility;
-import com.storyroll.util.DataUtility;
-import com.storyroll.util.ErrorUtility;
-import com.storyroll.util.TimeISO8601;
-import com.storyroll.util.ImageUtility;
-import com.storyroll.util.PrefUtility;
-import com.storyroll.util.ServerUtility;
+import com.storyroll.util.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class VideoCaptureActivity extends SwipeVideoActivity implements
 		SurfaceHolder.Callback, OnVideoTaskCompleted,  OnInfoListener {
@@ -993,6 +973,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 
 
 	private void prepareRecorder() {
+        camera.stopPreview(); // this fixes https://github.com/storyroll/storyroll-android/issues/190
 		camera.unlock();
 
 		recorder = new MediaRecorder();
