@@ -4,9 +4,6 @@
  ******************************************************************************/
 package com.storyroll.util;
 
-import java.io.File;
-import java.util.Locale;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
@@ -15,17 +12,19 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Environment;
 import android.util.Log;
-
 import com.androidquery.auth.FacebookHandle;
+import com.androidquery.util.AQUtility;
+import com.flurry.android.FlurryAgent;
 import com.storyroll.MainApplication;
 import com.storyroll.R;
 import com.storyroll.activity.TabbedChannelsActivity;
-import com.storyroll.activity.TabbedPlaylistActivity;
 import com.storyroll.base.Constants;
+
+import java.io.File;
+import java.util.Locale;
+
 //import com.androidquery.simplefeed.data.Entity;
 //import com.androidquery.simplefeed.enums.FeedMode;
-import com.androidquery.util.AQUtility;
-import com.flurry.android.FlurryAgent;
 
 public class AppUtility {
 
@@ -163,7 +162,7 @@ public class AppUtility {
 		SharedPreferences.Editor editor = settings.edit();
 		editor.remove(Constants.PREF_EMAIL);
 		editor.remove(Constants.PREF_USERNAME);
-		editor.remove(Constants.PREF_AVATAR);
+		editor.remove(Constants.PREF_AVATAR_URL);
 		editor.remove(Constants.PREF_AUTH_METHOD);
 		editor.remove(Constants.PREF_IS_LOGGED_IN);
 		editor.remove(Constants.PREF_FIRST_RUN);

@@ -30,7 +30,7 @@ public interface Constants {
 	public static final String PREF_USERNAME = "sr.pref.username";
 	public static final String PREF_IS_LOGGED_IN = "sr.pref.loggedin";
 	public static final String PREF_AUTH_METHOD = "sr.pref.auth.method";
-	public static final String PREF_AVATAR = "sr.pref.avatar";
+	public static final String PREF_AVATAR_URL = "sr.pref.avatar";
 	public static final String PREF_LOCATION = "sr.pref.location";
 	public static final String PREF_GCM_REG_ID = "sr.pref.gcm";
 	public static final String PREF_FIRST_RUN = "sr.pref.firstrun";

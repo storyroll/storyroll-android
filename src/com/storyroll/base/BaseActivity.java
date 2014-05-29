@@ -1,29 +1,25 @@
 package com.storyroll.base;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
-
 import com.androidquery.callback.AjaxStatus;
 import com.androidquery.util.AQUtility;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
-import com.google.analytics.tracking.android.Tracker;
 import com.storyroll.PQuery;
-import com.storyroll.activity.VideoSendActivity;
 import com.storyroll.model.Profile;
 import com.storyroll.shake.ShakeService;
 import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.ErrorUtility;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class BaseActivity extends Activity {
@@ -146,18 +142,15 @@ public class BaseActivity extends Activity {
 		p.loggedIn = settings.getBoolean(Constants.PREF_IS_LOGGED_IN, false);
 		p.location = settings.getString(Constants.PREF_LOCATION, "");
 		p.gcmRegistrationId = settings.getString(Constants.PREF_GCM_REG_ID, "");
-		if (settings.contains(Constants.PREF_AVATAR)) {
-			p.avatar = settings.getInt(Constants.PREF_AVATAR, 0);
-		}
-		else { p.avatar = null; }
+		p.setAvatarUrl( settings.getString(Constants.PREF_AVATAR_URL, null) );
 		Log.v(LOGTAG, "profile: "+p.toString());
 		return p;
 	}
 	
 	protected void persistProfile(Profile profile) {
-		persistProfile(profile.email, profile.username, profile.avatar, profile.authMethod, profile.location, profile.loggedIn, profile.gcmRegistrationId);
+		persistProfile(profile.email, profile.username, profile.getAvatarUrl(), profile.authMethod, profile.location, profile.loggedIn, profile.gcmRegistrationId);
 	}
-	protected void persistProfile(String email, String username, Integer avatar, Integer authMethod, String location, Boolean isLoggedIn, String GCMRegId) {
+	protected void persistProfile(String email, String username, String avatarUrl, Integer authMethod, String location, Boolean isLoggedIn, String GCMRegId) {
 		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString(Constants.PREF_EMAIL, email);
@@ -166,11 +159,11 @@ public class BaseActivity extends Activity {
 		editor.putBoolean(Constants.PREF_IS_LOGGED_IN, isLoggedIn);
 		editor.putString(Constants.PREF_LOCATION, location);
 		editor.putString(Constants.PREF_GCM_REG_ID, GCMRegId);
-		if (avatar==null) {
-			editor.remove(Constants.PREF_AVATAR);
+		if (TextUtils.isEmpty(avatarUrl)) {
+			editor.remove(Constants.PREF_AVATAR_URL);
 		}
 		else {
-			editor.putInt(Constants.PREF_AVATAR, avatar);
+			editor.putString(Constants.PREF_AVATAR_URL, avatarUrl);
 	}
 	
 		editor.commit();	
@@ -197,10 +190,7 @@ public class BaseActivity extends Activity {
 			profile.authMethod = json.getInt("authMethod");
 		}
 		// set avatar id
-		if (json.has("avatar") && !json.isNull("avatar")) {
-			JSONObject avatarJson = json.getJSONObject("avatar");
-			profile.avatar = avatarJson.getInt("id");
-		}
+	    profile.setAvatarUrl(json.getString("avatarUrl"));
 		// set gcm reg id
 		if (json.has("gcmRegistrationId") && !json.isNull("gcmRegistrationId")) {
 			profile.gcmRegistrationId = json.getString("gcmRegistrationId").trim();

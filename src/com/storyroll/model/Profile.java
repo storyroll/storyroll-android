@@ -2,9 +2,6 @@ package com.storyroll.model;
 
 import java.io.Serializable;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 public class Profile implements Serializable {
 	
 	public static final int AVATAR_WIDTH = 200;
@@ -24,8 +21,7 @@ public class Profile implements Serializable {
 	public String gender = null;
 	public String gcmRegistrationId = null;
 	
-    public Integer avatar = null;
-    private String avatarUrl = null;
+    public String avatarUrl = null;
     public Boolean loggedIn = false;
     public Integer authMethod = AUTH_UNKNOWN;
     public String location = null;
@@ -88,7 +84,7 @@ public class Profile implements Serializable {
 		return "Profile [id=" + id + ", username=" + username + ", password="
 				+ password + ", email=" + email + ", birthday=" + birthday
 				+ ", gender=" + gender + ", gcmRegistrationId="
-				+ gcmRegistrationId + ", avatar=" + avatar + ", loggedIn="
+				+ gcmRegistrationId + ", avatarUrl=" + avatarUrl + ", loggedIn="
 				+ loggedIn + ", authMethod=" + authMethod + ", location="
 				+ location + "]";
 	}

@@ -47,7 +47,7 @@ public class ProfileActivity extends MenuActivity {
 	private final static String STATE_PASSWORD = "profile.state.password";
 	private final static String STATE_LOCATION = "profile.state.location";
 	private final static String STATE_AUTH_METHOD = "profile.state.auth_method";
-	private final static String STATE_AVATAR = "profile.state.avatar";
+	private final static String STATE_AVATAR_URL = "profile.state.avatar";
 
 	private final static String STATE_AVATAR_CHANGE_STARTED = "profile.state.avatarChangeStarted";
 	private final static String STATE_AVATAR_CHANGE_COMPLETED = "profile.state.avatarChangeCompleted";
@@ -166,7 +166,7 @@ public class ProfileActivity extends MenuActivity {
 			aq.id(R.id.password).text( storedState.getString(STATE_PASSWORD) );
 			aq.id(R.id.location).text( storedState.getString(STATE_LOCATION) );
 			profile.authMethod = storedState.getInt(STATE_AUTH_METHOD);
-			profile.avatar = storedState.getInt(STATE_AVATAR);
+			profile.setAvatarUrl(storedState.getString(STATE_AVATAR_URL));
 
 		}
 	}
@@ -176,13 +176,9 @@ public class ProfileActivity extends MenuActivity {
 		if (!avatarChangeStarted && !avatarChangeCompleted) 
 		{
 			// do we have SR avatar?
-			if (profile.avatar!=null) {
+			if (!TextUtils.isEmpty(profile.getAvatarUrl())) {
 				Log.v(LOGTAG, "loading avatar");
-				aq.id(R.id.avatar).image(PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+profile.email), 
-						false, false, 0, R.drawable.ic_avatar_default);
-			}
-			else if (!TextUtils.isEmpty(profile.getAvatarUrl())) {
-				aq.id(R.id.avatar).image(profile.getAvatarUrl(), 
+				aq.id(R.id.avatar).image(profile.getAvatarUrl(),
 						false, false, 0, R.drawable.ic_avatar_default);
 			}
 			// otherwise load avatar from FB
@@ -349,8 +345,8 @@ public class ProfileActivity extends MenuActivity {
         	// reset flag
         	avatarChangeCompleted = false;
         	// set avatar flag in profile
-        	profile.avatar = json.getJSONObject("avatar").getInt("id");
-        	Log.v(LOGTAG, "set avatar id to "+profile.avatar);
+//        	profile.avatar = json.getJSONObject("avatar").getInt("id");
+        	Log.v(LOGTAG, "set avatarUrl to "+profile.getAvatarUrl());
 			persistProfile(profile);			
         }else{          
         	apiError(LOGTAG, "Could not store avatar", status, true, Log.ERROR);

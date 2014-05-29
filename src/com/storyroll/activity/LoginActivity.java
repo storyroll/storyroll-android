@@ -1,8 +1,5 @@
 package com.storyroll.activity;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -10,21 +7,19 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
-
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
-import com.google.analytics.tracking.android.MapBuilder;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.storyroll.R;
-import com.storyroll.base.BaseActivity;
 import com.storyroll.base.GcmActivity;
 import com.storyroll.model.Profile;
-import com.storyroll.util.ActionBarUtility;
 import com.storyroll.util.AppUtility;
 import com.storyroll.util.DataUtility;
 import com.storyroll.util.PrefUtility;
 import com.storyroll.util.ServerUtility;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class LoginActivity extends GcmActivity {
 	private final static String LOGTAG = "LOGIN";
@@ -224,8 +219,10 @@ public class LoginActivity extends GcmActivity {
 		}
 		profile.email = json.getString("email");
 		profile.username = json.getString("first_name");
-		JSONObject location = json.getJSONObject("location");
-		profile.location = location.getString("name");
+        if (json.has("location")) {
+            JSONObject location = json.getJSONObject("location");
+            profile.location = location.getString("name");
+        }
 		// TODO: age, gender
 	}
 	
