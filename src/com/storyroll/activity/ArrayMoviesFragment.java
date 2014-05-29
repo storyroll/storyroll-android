@@ -1,38 +1,17 @@
 package com.storyroll.activity;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.format.DateUtils;
-import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
+import android.widget.*;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -41,15 +20,16 @@ import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.enums.AutostartMode;
 import com.storyroll.model.Movie;
-import com.storyroll.ui.MovieItemView;
 import com.storyroll.ui.ControlledMovieView;
+import com.storyroll.ui.MovieItemView;
 import com.storyroll.ui.PlaylistItemView;
 import com.storyroll.ui.RoundedImageView;
-import com.storyroll.util.ErrorUtility;
-import com.storyroll.util.NetworkUtility;
-import com.storyroll.util.PrefUtility;
-import com.storyroll.util.ServerUtility;
-import com.storyroll.util.ViewUtility;
+import com.storyroll.util.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.*;
 
 public class ArrayMoviesFragment extends ListFragment {
 	static final String LOGTAG = "ArrayMoviesFragment";
@@ -253,6 +233,11 @@ public class ArrayMoviesFragment extends ListFragment {
 						movies.add(movie);
 						updates++;
 					}
+                    else if (foundIdx==-1) {
+                        aa.insert(movie, 0);
+                        movies.add(movie);
+                        updates++;
+                    }
 				}
 				Log.v(LOGTAG, "movies:" + movies.size()+ ", ArrayAdapter: "+aa.getCount()+", updated items: "+updates);
 
