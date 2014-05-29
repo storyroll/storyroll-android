@@ -15,8 +15,7 @@
           android:showAsAction="always"/>
 
     <item android:id="@+id/action_chan"
-          android:title="#CH"
-          android:showAsAction="always"/>
+          android:title="New Channel"/>
 
     <item android:id="@+id/action_profile"
           android:title="@string/action_profile" />

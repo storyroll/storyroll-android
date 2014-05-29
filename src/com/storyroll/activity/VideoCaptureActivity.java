@@ -927,11 +927,15 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			Log.d(LOGTAG, "cameraOrientation "+cameraOrientation);
 			
 			Camera.Parameters cp = c.getParameters();
+            // This should be called before starting preview for the best result
+            cp.setRecordingHint(true);
 
 			cp.setRotation(cameraOrientation);
 			cp.set("orientation", "portrait");
 //			cp.set("rotation", "90");
 			cp.set("rotation", cameraOrientation+"");
+
+
 
 
 //			bestPreviewSize = CameraUtility.getOptimalPreviewSize(640, 640, c);
@@ -951,8 +955,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 //			}
 			// TODO: get stats about mono effect support?
 			
-			// TODO)
-			cp.setRecordingHint(true);
+			// This should be called before starting preview for the best result
+//			cp.setRecordingHint(true);
 			
 			List<String> focusModes = cp.getSupportedFocusModes();
 			if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
