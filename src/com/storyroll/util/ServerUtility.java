@@ -22,8 +22,10 @@ public class ServerUtility {
 	public static final String API_CLIP_FILE = "fragmentFile";
 	public static final String API_CLIP_THUMB = "clipThumb";
 
+    public static final String API_INVITES_ADD = "invites/add";
 
-	public static final String API_LOGIN_VALID = "loginValid";
+
+    public static final String API_LOGIN_VALID = "loginValid";
 
 	public static final String API_MOVIE_THUMB = "movieThumb";
 

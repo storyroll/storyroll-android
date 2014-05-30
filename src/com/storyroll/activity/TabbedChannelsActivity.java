@@ -16,6 +16,8 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
 import com.storyroll.PQuery;
@@ -24,8 +26,11 @@ import com.storyroll.base.MenuFragmentActivity;
 import com.storyroll.model.Channel;
 import com.storyroll.model.Contact;
 import com.storyroll.util.*;
+import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -519,10 +524,6 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     private void onAddGroup() {
         Log.v(LOGTAG, "onAddGroup");
         if (channelsLoaded) {
-            int channelIdx = getActionBar().getSelectedNavigationIndex();
-            if (channelIdx<0) channelIdx=0;
-            long channelId = getChannels().get(channelIdx).getId();
-
             // call address picker
             Intent pickContactsIntent = new Intent(getApplicationContext(), ContactManager.class);
             startActivityForResult(pickContactsIntent, PICK_CONTACTS_REQUEST);
@@ -539,22 +540,63 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
         // Check which request we're responding to
         if (requestCode == PICK_CONTACTS_REQUEST) {
             // Make sure the request was successful
-            if (resultCode == RESULT_OK) {
+            if (resultCode == RESULT_OK)
+            {
                 Log.v(LOGTAG, "onActivityResult: RESULT_OK");
                 // The user picked a contact.
                 ArrayList<Contact> cons = intent.getParcelableArrayListExtra("SELECTED_CONTACTS");
-                for (int i = 0; i < cons.size(); i++) {
-                    Log.e(LOGTAG, "contact: " + cons.get(i).toString());
-                }
-                // Do something with the contact here
-                // send ajax call
-//            aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_INVITES_ADD, "uuid=" + mUuid+"&c="+channelId), JSONArray.class, this, "chanListCb");
-
+                int k = sendInvites(cons);
+                Toast.makeText(this, "You invited "+k+" people", Toast.LENGTH_SHORT).show();
             }
             else if (resultCode == RESULT_CANCELED) {
                 Log.v(LOGTAG, "onActivityResult: RESULT_CANCELED");
             }
         }
+    }
+
+    // todo crappy hack
+    static int k = 0;
+    private int sendInvites(ArrayList<Contact> cons){
+        JSONArray emailsJson = new JSONArray();
+
+        for (Contact c: cons)
+        {
+            Log.e(LOGTAG, "contact: " + c.toString());
+            String email = c.getContactEmail();
+            emailsJson.put(email);
+        }
+
+        String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_INVITES_ADD, "uuid=" + mUuid + "&c=" + getCurrentChannelId());
+
+
+        AjaxCallback ac =  new AjaxCallback<JSONObject>() {
+            @Override
+            public void callback(String url, JSONObject json, AjaxStatus status)
+            {
+                Log.v(LOGTAG, "callback result: "+json.toString());
+                String s = json.toString();
+                k = 0;
+                for( int i=0; i<s.length(); i++ ) {
+                    if( s.charAt(i) == '@' ) {
+                        k++;
+                    }
+                }
+            }
+        };
+
+        try {
+            StringEntity entity = new StringEntity(emailsJson.toString());
+            aq.post(apiUrl, "application/json", entity, JSONObject.class, ac);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return k;
+    }
+
+    private long getCurrentChannelId() {
+        int channelIdx = getActionBar().getSelectedNavigationIndex();
+        if (channelIdx<0) channelIdx=0;
+        return getChannels().get(channelIdx).getId();
     }
     
     private void postSelectItem(int idx) {
@@ -583,9 +625,9 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     	aq.dismiss();
     }
 
-	public static void setChannels(List<Channel> mChannels) {
-		mChannels = mChannels;
-	}
+//	public static void setChannels(List<Channel> mChannels) {
+//		mChannels = mChannels;
+//	}
 
 	public static List<Channel> getChannels() {
 		if (mChannels==null) {
