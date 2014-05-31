@@ -47,7 +47,6 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     
     ChannelTabAdapter mAdapter;
 //    FragmentPagerAdapter tAdapter;
-    private static PQuery aq;
 //    private static Set<String> newStories = null;
     private static String mUuid;
     private int unseenStoriesCount = 0;
@@ -144,8 +143,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 		// Fields set on a tracker persist for all hits, until they are
 	    // overridden or cleared by assignment to null.
 	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
-		
-        aq = new PQuery(this);
+
         mUuid = getUuid();
         
         // TODO this is temp hack
@@ -161,6 +159,9 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 //        // Set up the ViewPager, attaching the adapter.
 //        mViewPager = (ViewPager) findViewById(R.id.pager);
 //        mViewPager.setAdapter(mAdapter);
+
+        // update notification counter
+        updateInvitesFromServer();
 
     }
 	
@@ -493,7 +494,8 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 			 
 		}
 		else if (item.getItemId() == R.id.action_refresh) {
-			onRefreshChannel();
+            updateInvitesFromServer();
+            onRefreshChannel();
 			return true;
 		}
         else if (item.getItemId() == R.id.action_add_group) {

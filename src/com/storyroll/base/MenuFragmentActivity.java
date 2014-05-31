@@ -9,30 +9,70 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Button;
+import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
+import com.storyroll.PQuery;
 import com.storyroll.R;
 import com.storyroll.activity.*;
+import com.storyroll.util.ErrorUtility;
+import com.storyroll.util.PrefUtility;
+import com.storyroll.util.ServerUtility;
+import org.json.JSONArray;
 
 public class MenuFragmentActivity extends FragmentActivity {
 	
 	private static final String LOGTAG = "MenuFragment";
     protected static boolean isTrial=false;
-
+    static int mNotifCount = 0;
+    protected PQuery aq;
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         isTrial = getIntent().getBooleanExtra("TRIAL", false);
         if (!isTrial) {
-        	isTrial = getUuid()==null;
+            isTrial = getUuid() == null;
         }
-        
+
+        aq = new PQuery(this);
+
         // Setup search by username on Android
 		BugSenseHandler.setUserIdentifier(getUuid());
 	}
-	
+
+    protected void updateInvitesFromServer() {
+        aq.ajax(PrefUtility.getApiUrl(
+                ServerUtility.API_INVITES_PENDING, "uuid=" + getUuid()), JSONArray.class, this, "invitesPendingCb");
+    }
+
+
+    public void invitesPendingCb(String url, JSONArray jarr, AjaxStatus status)  {
+        Log.v(LOGTAG, "invitesPendingCb");
+
+        if (status.getCode() != 200 && status.getCode()!=AjaxStatus.TRANSFORM_ERROR) {
+            ErrorUtility.apiError(LOGTAG, "Error getting pending invites for uuid="+getUuid(), status, this, false, Log.ERROR);
+            return;
+        }
+
+        mNotifCount = jarr.length();
+        updateInvitesBadge();
+//        if (mNotifCount<1) {
+//            this.invalidateOptionsMenu();
+//        }
+
+//        List<Channel> channels = null;
+//
+//        // successful ajax call
+//        channels = ModelUtility.channels(jarr);
+//        channelsLoaded = true;
+//        // get the list of channels
+//        init(channels);
+
+    }
+
     @Override
     public void onStart() {
       super.onStart();
@@ -60,9 +100,13 @@ public class MenuFragmentActivity extends FragmentActivity {
     }
     
     // ------- menus
-    
+
+    static Button notifCount;
+    static MenuItem count = null;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.v(LOGTAG, "onCreateOptionsMenu");
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         if (isTrial) {
@@ -71,8 +115,20 @@ public class MenuFragmentActivity extends FragmentActivity {
                    }
         else {
         	inflater.inflate(R.menu.home_activity_menu, menu);
+            count = menu.findItem(R.id.badge);
+            notifCount = (Button) count.getActionView().findViewById(R.id.invites_notif_count);
+            if (mNotifCount<1){
+                count.setVisible(false);
+            } else {
+                count.setVisible(true);
+                updateInvitesBadge();
+            }
         }
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void updateInvitesBadge(){
+            notifCount.setText(String.valueOf(mNotifCount));
     }
     
 	@Override
