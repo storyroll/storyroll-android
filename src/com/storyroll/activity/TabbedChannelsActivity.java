@@ -39,6 +39,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 	private static final String LOGTAG = "TabbedChannelsActivity";
 	private static final String SCREEN_NAME = "TabbedChannels";
     public static final String EXTRA_CHANNEL_ID = "channelId" ;
+    static final int PICK_CONTACTS_REQUEST = 1111;  // The request code
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the object collection.
@@ -477,8 +478,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) 
     {
-		int tabIdx = getActionBar().getSelectedNavigationIndex();
-		if (tabIdx<0) tabIdx=0;
+        Log.v(LOGTAG, "onOptionsItemSelected: "+item.getItemId()+"");
 
 //    	if (item.getItemId() == R.id.action_join) 
 //		{
@@ -488,6 +488,8 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 //		} else 
 		if (item.getItemId() == R.id.action_new) 
 		{
+            int tabIdx = getActionBar().getSelectedNavigationIndex();
+            if (tabIdx<0) tabIdx=0;
 			Log.v(LOGTAG, "New item in channel idx="+tabIdx+", channels = "+mChannels);
 			 onNewPressed( mChannels.get(tabIdx).getId() );
 			 return true;
@@ -502,7 +504,6 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
             onAddGroup();
             return true;
         }
-
 
 		return super.onOptionsItemSelected(item);
     }
@@ -522,7 +523,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 		}
 	}
 
-    static final int PICK_CONTACTS_REQUEST = 1111;  // The request code
+
     private void onAddGroup() {
         Log.v(LOGTAG, "onAddGroup");
         if (channelsLoaded) {
@@ -548,11 +549,18 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
                 // The user picked a contact.
                 ArrayList<Contact> cons = intent.getParcelableArrayListExtra("SELECTED_CONTACTS");
                 int k = sendInvites(cons);
-                Toast.makeText(this, "You invited "+k+" people", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Invitations sent", Toast.LENGTH_SHORT).show(); // TODO - show to how many people it was sent?
             }
             else if (resultCode == RESULT_CANCELED) {
                 Log.v(LOGTAG, "onActivityResult: RESULT_CANCELED");
             }
+        }
+        else if (requestCode == MANAGE_INVITES_REQUEST) {
+            updateInvitesFromServer();
+            chanListAjaxCall();
+        }
+        else {
+            super.onActivityResult(requestCode, resultCode, intent);
         }
     }
 
@@ -618,13 +626,6 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
         return getSupportFragmentManager().findFragmentByTag(
                 "android:switcher:" + mViewPager.getId() + ":"
                         + mAdapter.getItemId(position));
-    }
-    /*-- lifecycle --*/
-
-	@Override
-    public void onDestroy(){
-    	super.onDestroy();
-    	aq.dismiss();
     }
 
 //	public static void setChannels(List<Channel> mChannels) {

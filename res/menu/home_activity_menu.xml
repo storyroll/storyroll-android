@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-        >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/badge"
+    <item android:id="@+id/action_invitations_badge"
         android:actionLayout="@layout/chan_invitations_count"
         android:icon="@drawable/shape_invites_notification"
-        android:showAsAction="always">
-    </item>
+        android:showAsAction="always"/>
 
     <item android:id="@+id/action_refresh"
           android:icon="@drawable/ic_action_refresh"

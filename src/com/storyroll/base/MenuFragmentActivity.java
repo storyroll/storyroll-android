@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
@@ -25,19 +26,21 @@ import org.json.JSONArray;
 public class MenuFragmentActivity extends FragmentActivity {
 	
 	private static final String LOGTAG = "MenuFragment";
+    protected static final int MANAGE_INVITES_REQUEST = 1019;
     protected static boolean isTrial=false;
     static int mNotifCount = 0;
     protected PQuery aq;
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         isTrial = getIntent().getBooleanExtra("TRIAL", false);
         if (!isTrial) {
             isTrial = getUuid() == null;
         }
 
         aq = new PQuery(this);
+
+        updateInvitesFromServer();
 
         // Setup search by username on Android
 		BugSenseHandler.setUserIdentifier(getUuid());
@@ -59,18 +62,7 @@ public class MenuFragmentActivity extends FragmentActivity {
 
         mNotifCount = jarr.length();
         updateInvitesBadge();
-//        if (mNotifCount<1) {
-//            this.invalidateOptionsMenu();
-//        }
-
-//        List<Channel> channels = null;
-//
-//        // successful ajax call
-//        channels = ModelUtility.channels(jarr);
-//        channelsLoaded = true;
-//        // get the list of channels
-//        init(channels);
-
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -101,11 +93,11 @@ public class MenuFragmentActivity extends FragmentActivity {
     
     // ------- menus
 
-    static Button notifCount;
-    static MenuItem count = null;
+    static Button notifCountButton = null;
+    static MenuItem countMenuItem = null;
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         Log.v(LOGTAG, "onCreateOptionsMenu");
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
@@ -115,20 +107,30 @@ public class MenuFragmentActivity extends FragmentActivity {
                    }
         else {
         	inflater.inflate(R.menu.home_activity_menu, menu);
-            count = menu.findItem(R.id.badge);
-            notifCount = (Button) count.getActionView().findViewById(R.id.invites_notif_count);
+
+            countMenuItem = menu.findItem(R.id.action_invitations_badge);
+            notifCountButton = (Button) countMenuItem.getActionView().findViewById(R.id.invites_notif_count);
+            countMenuItem.getActionView().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    menu.performIdentifierAction(countMenuItem.getItemId(), 0);
+                }
+            });
+
             if (mNotifCount<1){
-                count.setVisible(false);
+                countMenuItem.setVisible(false);
             } else {
-                count.setVisible(true);
-                updateInvitesBadge();
+                countMenuItem.setVisible(true);
             }
+            notifCountButton.setText(String.valueOf(mNotifCount));
         }
         return super.onCreateOptionsMenu(menu);
     }
 
     private void updateInvitesBadge(){
-            notifCount.setText(String.valueOf(mNotifCount));
+        if (notifCountButton!=null) {
+            notifCountButton.setText(String.valueOf(mNotifCount));
+        }
     }
     
 	@Override
@@ -174,17 +176,30 @@ public class MenuFragmentActivity extends FragmentActivity {
 			return true;
 
 		} else if (item.getItemId() == R.id.action_log) {
-			intent = new Intent (this, LogReadActivity.class);
-			startActivity(intent);
-			return true;
+            intent = new Intent(this, LogReadActivity.class);
+            startActivity(intent);
+            return true;
 
-		} else {
+        } else if (item.getItemId() == R.id.action_invitations_badge) {
+            Log.v(LOGTAG, "onOptionsItemSelected:invitations_badge");
+            onNewInvitations();
+            return true;
+
+        } else {
 			return super.onOptionsItemSelected(item);
 		}
 	}
 	
     /*-- callbacks & helpers --*/
-	
+    private void onNewInvitations()
+    {
+        Log.v(LOGTAG, "onNewInvitations");
+        Intent invitesIntent = new Intent(getApplicationContext(), InvitesManager.class);
+        invitesIntent.putExtra("UUID", getUuid());
+        startActivityForResult(invitesIntent, MANAGE_INVITES_REQUEST);
+    }
+
+
 	protected void onNewPressed(Long chanId) {
 		Intent intent;
 		if (isTrial) {
@@ -252,5 +267,13 @@ public class MenuFragmentActivity extends FragmentActivity {
 		Log.v(LOGTAG, "uuid: " + uuid + ", username: " + username);
 		return uuid;
 	}
+
+    /*-- lifecycle --*/
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        aq.dismiss();
+    }
 	
 }

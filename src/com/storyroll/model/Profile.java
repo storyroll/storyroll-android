@@ -1,5 +1,8 @@
 package com.storyroll.model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
 
 public class Profile implements Serializable {
@@ -36,6 +39,14 @@ public class Profile implements Serializable {
     	this.password = password;
     	this.location = location;
     	this.authMethod = authMethod;
+    }
+
+    public Profile(JSONObject json) throws JSONException {
+        if (json!=null) {
+            avatarUrl = json.getString("avatarUrl");
+            email = json.getString("email");
+            username = json.getString("username");
+        }
     }
     
     public boolean isAuthFacebook() {
@@ -79,7 +90,23 @@ public class Profile implements Serializable {
 		this.avatarUrl = avatarUrl;
 	}
 
-	@Override
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
 	public String toString() {
 		return "Profile [id=" + id + ", username=" + username + ", password="
 				+ password + ", email=" + email + ", birthday=" + birthday

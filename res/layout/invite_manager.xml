@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <!-- Header  Starts -->
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/title_bg" >
+
+        <TextView
+            android:id="@+id/tvheader"
+            style="@style/TitleTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:paddingLeft="10dp"
+            android:text="Invites" />
+
+        <ImageView
+            android:id="@+id/doneSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/btn_bg"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/ic_action_cancel_white" />
+    </RelativeLayout>
+    <!-- Header Ends -->
+
+    <ListView
+        android:id="@+id/inviteList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/header"
+        android:background="@color/transparent"
+        android:cacheColorHint="@android:color/transparent"
+        android:divider="@drawable/list_divider"
+        android:dividerHeight="1dp"
+        android:fastScrollEnabled="true" />
+
+
+</RelativeLayout>

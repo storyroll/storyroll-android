@@ -78,8 +78,8 @@
 	    <Button
 	        android:id="@+id/rotateButton"
 	        android:background="@drawable/ctrl_camera_rotate" 
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
+	        android:layout_width="50dp"
+	        android:layout_height="50dp"
 	        android:layout_alignParentTop="true"
 	        android:layout_alignParentRight="true"
 	        android:layout_marginRight="20dp"
