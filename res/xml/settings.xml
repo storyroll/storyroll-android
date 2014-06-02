@@ -51,32 +51,30 @@
 		    android:defaultValue="NEVER"
             android:dialogTitle="Autostart Options" />
            
-        <!-- 
-        <Preference
-	        android:key="share"
-	        android:title="@string/share"
-	        android:summary="@string/share_app_sum"      
-		/>
-        
+        <!--<Preference-->
+	        <!--android:key="share"-->
+	        <!--android:title="@string/share"-->
+	        <!--android:summary="@string/share_app_sum"      -->
+		<!--/>-->
+
         <Preference
 	        android:key="share_others"
 	        android:title="@string/share"
-	        android:summary="@string/share_app_sum"      
+	        android:summary="@string/share_app_sum"
 		/>
-        
-        <Preference
-	        android:key="review"
-	        android:title="@string/review"
-	        android:summary="@string/review_app_sum"      
-		/>
-        
-        <Preference
-	        android:key="feedback"
-	        android:title="@string/discuss"
-	        android:summary="" 
-		/>
-         -->
-        
+
+        <!--<Preference-->
+	        <!--android:key="review"-->
+	        <!--android:title="@string/review"-->
+	        <!--android:summary="@string/review_app_sum"      -->
+		<!--/>-->
+        <!---->
+        <!--<Preference-->
+	        <!--android:key="feedback"-->
+	        <!--android:title="@string/discuss"-->
+	        <!--android:summary="" -->
+		<!--/>-->
+
         <Preference
 	        android:key="version"
 	        android:title="@string/version"

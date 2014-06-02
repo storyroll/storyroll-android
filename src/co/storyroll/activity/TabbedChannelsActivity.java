@@ -6,6 +6,7 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -22,6 +23,7 @@ import co.storyroll.R;
 import co.storyroll.base.MenuFragmentActivity;
 import co.storyroll.model.Channel;
 import co.storyroll.model.Contact;
+import co.storyroll.ui.SignupDialog;
 import co.storyroll.util.*;
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
@@ -34,7 +36,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TabbedChannelsActivity extends MenuFragmentActivity {
+public class TabbedChannelsActivity extends MenuFragmentActivity implements SignupDialog.SigninDialogListener {
 
 	private static final String LOGTAG = "TabbedChannelsActivity";
 	private static final String SCREEN_NAME = "TabbedChannels";
@@ -147,10 +149,10 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 
         mUuid = getUuid();
         
-        // TODO this is temp hack
-        if (isTrial) {
-        	mUuid = "test@test.com";
-        }
+//        // TODO this is temp hack
+//        if (isTrial) {
+//        	mUuid = "test@test.com";
+//        }
         
         // get chan list 
         chanListAjaxCall();
@@ -167,7 +169,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
     }
 	
 	private void chanListAjaxCall(){
-        aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS, "uuid=" + mUuid), JSONArray.class, this, "chanListCb");
+        aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS, mUuid==null?null:("uuid=" + mUuid)), JSONArray.class, this, "chanListCb");
 	}
 
     public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
@@ -293,7 +295,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 //    		Log.v(LOGTAG, "updateUnseenStoriesFromServer -- skip in trial");
 //    	}
 //    	else {
-//    		aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_UNSEEN_STORIES, "uuid=" + mUuid), JSONArray.class, this, "unseenStoriesCb");
+//    		aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_UNSEEN_STORIES, mUuid==null?null:("uuid=" + mUuid)), JSONArray.class, this, "unseenStoriesCb");
 //    	}
 	}
 
@@ -362,7 +364,16 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
         return super.onKeyUp(keyCode, event);
     }
 
-    
+    @Override
+    public void onDialogSigninClick(DialogFragment dialog) {
+        // User touched the dialog's Sign-in button
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.putExtra("overrideBackPress", false);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+
 //    @Override
 //    public boolean onKeyDown(int keyCode, KeyEvent event) {
 //        if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -488,10 +499,15 @@ public class TabbedChannelsActivity extends MenuFragmentActivity {
 //		} else 
 		if (item.getItemId() == R.id.action_new) 
 		{
-            int tabIdx = getActionBar().getSelectedNavigationIndex();
-            if (tabIdx<0) tabIdx=0;
-			Log.v(LOGTAG, "New item in channel idx="+tabIdx+", channels = "+mChannels);
-			 onNewPressed( mChannels.get(tabIdx).getId() );
+            if (isTrial) {
+                new SignupDialog().show(getSupportFragmentManager(), "SignupDialog");
+            }
+            else {
+                int tabIdx = getActionBar().getSelectedNavigationIndex();
+                if (tabIdx < 0) tabIdx = 0;
+                Log.v(LOGTAG, "New item in channel idx=" + tabIdx + ", channels = " + mChannels);
+                onNewPressed(mChannels.get(tabIdx).getId());
+            }
 			 return true;
 			 
 		}

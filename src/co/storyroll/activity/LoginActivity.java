@@ -31,10 +31,12 @@ public class LoginActivity extends GcmActivity {
 	private FacebookHandle facebookHandle;
 	private Profile profile = null;
 	private boolean connectedViaFacebook = false;
+    private boolean isOverrideBackPress = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		isHomeEnabled = !getIntent().getBooleanExtra("logout", false);
+        isOverrideBackPress = getIntent().getBooleanExtra("overrideBackPress", true);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 		
@@ -290,8 +292,9 @@ public class LoginActivity extends GcmActivity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
+        Log.v(LOGTAG, "onKeyUp, isOverrideBackPress: "+isOverrideBackPress);
         if (keyCode == KeyEvent.KEYCODE_BACK && event.isTracking()
-                && !event.isCanceled()) {
+                && !event.isCanceled() && isOverrideBackPress) {
             // Back button press complete, handle
     		Intent intent = new Intent(Intent.ACTION_MAIN);
     		intent.addCategory(Intent.CATEGORY_HOME);

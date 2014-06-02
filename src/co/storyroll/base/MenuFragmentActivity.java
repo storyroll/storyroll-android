@@ -102,9 +102,10 @@ public class MenuFragmentActivity extends FragmentActivity {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         if (isTrial) {
-        	inflater.inflate(R.menu.home_activity_menu, menu);
-//           	inflater.inflate(R.menu.trial_activity_menu, menu);
-                   }
+            Log.v(LOGTAG, "initializing trial menu");
+//        	inflater.inflate(R.menu.home_activity_menu, menu);
+           	inflater.inflate(R.menu.trial_activity_menu, menu);
+        }
         else {
         	inflater.inflate(R.menu.home_activity_menu, menu);
 
@@ -185,6 +186,13 @@ public class MenuFragmentActivity extends FragmentActivity {
             onNewInvitations();
             return true;
 
+        } else if (item.getItemId() == R.id.action_login) {
+            intent = new Intent(this, LoginActivity.class);
+            intent.putExtra("overrideBackPress", false);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            return true;
+
         } else {
 			return super.onOptionsItemSelected(item);
 		}
@@ -203,7 +211,8 @@ public class MenuFragmentActivity extends FragmentActivity {
 	protected void onNewPressed(Long chanId) {
 		Intent intent;
 		if (isTrial) {
-			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_trial", null);
+            Log.w(LOGTAG, "new video should not be allowd in Trial");
+            fireGAnalyticsEvent("ui_action", "touch", "joinRoll_trial", null);
 			intent = new Intent(this, LoginActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		}
@@ -222,6 +231,7 @@ public class MenuFragmentActivity extends FragmentActivity {
     protected void onNewChanPressed(Long chanId) {
         Intent intent;
         if (isTrial) {
+            Log.w(LOGTAG, "new channel should not be allowd in Trial");
             fireGAnalyticsEvent("ui_action", "touch", "createChan_trial", null);
             intent = new Intent(this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

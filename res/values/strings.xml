@@ -16,7 +16,7 @@
     
     <string name="dummy_button">Proceed</string>
     <string name="dummy_content">STORYROLL\nCollaborative storytelling</string>
-    <string name="login_text">Want to join the story? Please signup/login</string>
+    <string name="login_text">Want to join the story? Please signup or login.</string>
     <string name="channel_text">Create new private channel</string>
     <string name="channel_name">Name</string>
 
@@ -60,7 +60,7 @@
 	<string name="commented">Commented</string>
 	<string name="updated">Updated</string>
 	<string name="liked">Liked</string>
-	<string name="share_app_message">Liking this Facebook app on Android</string>
+	<string name="share_app_message">Liking this StoryRoll app on Android</string>
 	<string name="videocap_ready_message">Continue this episode</string>
 	<string name="video_uploaded_message">We\'ll send notification when the story is completed and posted!</string>
 	<string name="no_rolls_message">No rolls to display in this section.</string>
@@ -152,5 +152,10 @@
         
     <string name="other_data">Other Info</string>
     <string name="help_text">Continue random\n stories by <font color='red'>recording</font>\n short video sequels\n and <font color='blue'>enjoy</font> unexpected\n outcome</string>
-    
+    <string name="action_add_group_trial">Invite people (signed)</string>
+    <string name="action_chan_new_trial">New channel (signed)</string>
+    <string name="dialog_signup">You have to be signed in to join the story. Sign up now?</string>
+    <string name="button_signin">Sign-in</string>
+    <string name="dialog_signup_title">Welcome to StoryRoll</string>
+
 </resources>

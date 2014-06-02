@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/action_invitations_badge"
+        android:actionLayout="@layout/chan_invitations_count"
+        android:icon="@drawable/shape_invites_notification"
+        android:showAsAction="always"
+        android:visible="false"/>
+
+    <item android:id="@+id/action_refresh"
+          android:icon="@drawable/ic_action_refresh"
+          android:showAsAction="always"/>
+        
+    <item android:id="@+id/action_new"
+          android:icon="@drawable/ic_action_join"
+          android:showAsAction="always"/>
+
+    <item android:id="@+id/action_add_group"
+          android:title="@string/action_add_group_trial"
+          android:enabled="false"/>
+
+    <item android:id="@+id/action_chan"
+          android:title="@string/action_chan_new_trial"
+          android:enabled="false"/>
+
+    <item android:id="@+id/action_login"
+          android:title="@string/action_login"/>
+
+    <item android:id="@+id/action_settings"
+          android:title="@string/action_settings" />
+
+    <item android:id="@+id/action_help"
+          android:title="@string/action_help" />
+
+   	<item android:id="@+id/action_log"
+	  	android:title="@string/action_log" />
+
+</menu>
