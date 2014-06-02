@@ -18,7 +18,9 @@
           android:title="Invite people"/>
 
     <item android:id="@+id/action_chan"
-          android:title="New Channel"/>
+          android:title="New channel"/>
+
+
 
     <item android:id="@+id/action_profile"
           android:title="@string/action_profile" />

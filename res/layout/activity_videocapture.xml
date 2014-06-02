@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:custom="http://schemas.android.com/apk/res/com.storyroll"
+    xmlns:custom="http://schemas.android.com/apk/res/co.storyroll"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
@@ -50,7 +50,7 @@
 		    android:visibility="invisible">
 	    </VideoView>
 	    
-		<com.storyroll.ui.RoundedImageView
+		<co.storyroll.ui.RoundedImageView
             android:id="@+id/avatar"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
@@ -139,7 +139,7 @@
 	        />
 	</RelativeLayout>
 	
-    <com.storyroll.ui.SquarePane 
+    <co.storyroll.ui.SquarePane
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
@@ -158,9 +158,9 @@
 	        android:visibility="invisible"
 	        android:layout_marginBottom="24dp"
 	        />
-	</com.storyroll.ui.SquarePane>    
+	</co.storyroll.ui.SquarePane>
     
-    <com.storyroll.ui.BottomPane
+    <co.storyroll.ui.BottomPane
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
@@ -211,6 +211,6 @@
 	        android:layout_marginTop="10dp"
 	        android:layout_gravity="center_horizontal"
         />
-    </com.storyroll.ui.BottomPane>
+    </co.storyroll.ui.BottomPane>
 
 </FrameLayout>

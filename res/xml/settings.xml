@@ -42,8 +42,8 @@
                 android:dialogTitle="Image Options" />  
         -->
 
-		<com.storyroll.ui.SummaryListPreference 
-		    android:key="com.storyroll.enums.AutostartMode"
+		<co.storyroll.ui.SummaryListPreference
+		    android:key="co.storyroll.enums.AutostartMode"
 		    android:title="Video Autostart"
             android:summary="Automatically start videos: %s"
 		    android:entries="@array/autostart_pref_items"
@@ -90,8 +90,8 @@
 	        android:summary="@string/report_problem_sum" 
 		/>
         
-        <com.storyroll.ui.SummaryListPreference 
-		    android:key="com.storyroll.enums.ServerPreference"
+        <co.storyroll.ui.SummaryListPreference
+		    android:key="co.storyroll.enums.ServerPreference"
 		    android:title="Server Selection"
             android:summary="Server: %s"
 		    android:entries="@array/server_pref_items"

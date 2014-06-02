@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.storyroll"
-    android:versionCode="45"
-    android:versionName="0.54a" >
+    package="co.storyroll"
+    android:versionCode="46"
+    android:versionName="0.55a" >
 
     <!-- You can control the behaviors and visibility of the action bar with the ActionBar APIs, which were added in Android 3.0 (API level 11) -->
     <uses-sdk
@@ -25,8 +25,8 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-    <permission android:name="com.storyroll.permission.C2D_MESSAGE" android:protectionLevel="signature" />
-    <uses-permission android:name="com.storyroll.permission.C2D_MESSAGE" />
+    <permission android:name="co.storyroll.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    <uses-permission android:name="co.storyroll.permission.C2D_MESSAGE" />
     
 	<uses-feature android:name="android.hardware.camera"/>
 	<uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
@@ -38,7 +38,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" 
-        android:name="com.storyroll.MainApplication"
+        android:name=".MainApplication"
         android:hardwareAccelerated="true"
         android:screenOrientation="portrait">
                     <!--  android:theme="@style/FullscreenTheme"  -->
@@ -107,33 +107,33 @@
             android:label="@string/app_name"
             android:theme="@style/SRTheme"
             android:screenOrientation="portrait"
-            android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+            android:parentActivityName=".activity.TabbedPlaylistActivity">
              <!-- The meta-data element is needed for versions lower than 4.1 -->
 	        <meta-data
 	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
+	            android:value="co.storyroll.activity.TabbedPlaylistActivity" />
         </activity>
         <activity 
             android:name=".activity.LoginActivity" 
             android:label="@string/app_name"
             android:theme="@style/SRTheme"
             android:screenOrientation="portrait"
-            android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+            android:parentActivityName=".activity.TabbedPlaylistActivity">
              <!-- The meta-data element is needed for versions lower than 4.1 -->
 	        <meta-data
 	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
+	            android:value="co.storyroll.activity.TabbedPlaylistActivity" />
         </activity>        
         <activity 
             android:name=".activity.ProfileActivity" 
             android:screenOrientation="portrait"
             android:theme="@style/SRTheme"
             android:label="@string/app_name"
-	        android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+	        android:parentActivityName=".activity.TabbedPlaylistActivity">
              <!-- The meta-data element is needed for versions lower than 4.1 -->
 	        <meta-data
 	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
+	            android:value="co.storyroll.activity.TabbedPlaylistActivity" />
         </activity>
         <activity 
             android:name=".activity.RegistrationActivity" 
@@ -146,11 +146,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/SRTheme"
             android:label="@string/app_name"
-	        android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+	        android:parentActivityName=".activity.TabbedPlaylistActivity">
              <!-- The meta-data element is needed for versions lower than 4.1 -->
 	        <meta-data
 	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
+	            android:value="co.storyroll.activity.TabbedPlaylistActivity" />
         </activity>
 
         <activity 
@@ -158,33 +158,33 @@
             android:label="@string/app_name"
             android:theme="@style/SRTheme"
             android:screenOrientation="portrait"
-            android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+            android:parentActivityName=".activity.TabbedPlaylistActivity">
              <!-- The meta-data element is needed for versions lower than 4.1 -->
 	        <meta-data
 	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
+	            android:value="co.storyroll.activity.TabbedPlaylistActivity" />
         </activity>    
         <activity 
             android:name=".activity.VideoSendActivity" 
             android:label="@string/app_name"
             android:theme="@style/SRTheme"
             android:screenOrientation="portrait"
-            android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity"
+            android:parentActivityName=".activity.TabbedPlaylistActivity"
             >
 	        <meta-data
 	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="com.storyroll.activity.TabbedPlaylistActivity" />
+	            android:value="co.storyroll.activity.TabbedPlaylistActivity" />
         </activity>
         <activity
                 android:name=".activity.ChannelCreateActivity"
                 android:label="@string/app_name"
                 android:theme="@style/SRTheme"
                 android:screenOrientation="portrait"
-                android:parentActivityName="com.storyroll.activity.TabbedPlaylistActivity">
+                android:parentActivityName=".activity.TabbedPlaylistActivity">
             <!-- The meta-data element is needed for versions lower than 4.1 -->
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value="com.storyroll.activity.TabbedPlaylistActivity" />
+                    android:value="co.storyroll.activity.TabbedPlaylistActivity" />
         </activity>
 
         <!-- TEST ACTIVITIES -->
@@ -202,24 +202,6 @@
             android:theme="@style/SRTheme"
             android:screenOrientation="portrait">
         </activity>
-        <activity 
-            android:name=".activity.CameraPreview"
-            android:label="@string/app_name"
-            android:theme="@style/SRTheme"
-            android:screenOrientation="portrait">
-        </activity>  
-        <activity 
-            android:name=".activity.TabbedPlaylistActivity1"
-            android:label="@string/app_name"
-            android:theme="@style/SRThemeStyledTabs"
-            android:screenOrientation="portrait">
-        </activity>
-        <activity 
-            android:name=".activity.RollFlipPlayActivity" 
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/SRTheme">
-        </activity>
         
                 
         <!-- SERVICE RELATED -->
@@ -236,8 +218,8 @@
         <service android:name=".gcm.GcmIntentService" />
         
         <!-- 
-        <service android:name="com.storyroll.shake.ShakeService" />
-	    <receiver android:name="com.storyroll.shake.BootReceiver">
+        <service android:name="ShakeService" />
+	    <receiver android:name="BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
