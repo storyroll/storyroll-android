@@ -22,17 +22,21 @@ import co.storyroll.util.ImageUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
 import com.androidquery.auth.FacebookHandle;
+import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
 
 public class ProfileActivity extends MenuActivity {
 	private final String LOGTAG = "PROFILE";
@@ -314,14 +318,7 @@ public class ProfileActivity extends MenuActivity {
         	// upload avatar
     		if (avatarChangeCompleted) 
     		{
-    			File file = new File(AppUtility.getAppWorkingDir(this)+File.separator+"avatar.jpg");
-    			
-    			Map params = new HashMap();
-    	        params.put("file", file);
-    	        params.put("uuid", profile.email);
-    	        aq.progress(R.id.progress).ajax(
-    	        		PrefUtility.getApiUrl(ServerUtility.API_AVATAR_SET, null), 
-    	        		params, JSONObject.class, this, "setAvatarCb");
+                doUploadAvatar(profile.email);
     	        
     		}
     		else {
@@ -333,8 +330,34 @@ public class ProfileActivity extends MenuActivity {
         }
         return true;
 	}
+
+    private void doUploadAvatar(String email){
+        File file = new File(AppUtility.getAppWorkingDir(this)+File.separator+"avatar.jpg");
+
+//        Map params = new HashMap();
+//        params.put("file", file);
+//        params.put("uuid", email);
+//        aq.progress(R.id.progress).ajax(
+//                PrefUtility.getApiUrl(ServerUtility.API_AVATAR_SET, null),
+//                params, JSONObject.class, this, "setAvatarCb");
+
+        HttpEntity reqEntity = MultipartEntityBuilder.create()
+                .addBinaryBody("file", file, APPLICATION_OCTET_STREAM, "avatar.jpg")
+                .addTextBody("uuid", email, ContentType.TEXT_PLAIN).build();
+
+
+        aq.progress(R.id.progress).post(PrefUtility.getApiUrl(ServerUtility.API_AVATAR_SET),
+                reqEntity, JSONObject.class, new AjaxCallback<JSONObject>() {
+
+                    @Override
+                    public void callback(String url, JSONObject json, AjaxStatus status) {
+                        Log.v(LOGTAG, "callback: json=" + json == null ? "null" : json.toString());
+                        setAvatarCb(url, json, status);
+                    }
+                });
+    }
 	
-	public void setAvatarCb(String url, JSONObject json, AjaxStatus status) throws JSONException
+	public void setAvatarCb(String url, JSONObject json, AjaxStatus status)
 	{
 		fireGAnalyticsEvent("profile_avatar", "setAvatar", json != null?"success":"fail", null);
 

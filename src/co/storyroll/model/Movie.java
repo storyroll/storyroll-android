@@ -6,6 +6,7 @@ import org.json.JSONObject;
 public class Movie extends Clip {
 	private static final String LOGTAG = "Movie";
 	long lastClipId = -1L;
+    String lastClipUrl = null;
 	String lastUserUuid = null;
 	String[] cast = null;
 	long publishedOn = 0;
@@ -55,10 +56,19 @@ public class Movie extends Clip {
 		this.seen = seen;
 	}
 
-	public Movie(JSONObject obj) throws JSONException {
+    public String getLastClipUrl() {
+        return lastClipUrl;
+    }
+
+    public void setLastClipUrl(String lastClipUrl) {
+        this.lastClipUrl = lastClipUrl;
+    }
+
+    public Movie(JSONObject obj) throws JSONException {
 		super(obj);
 		lastClipId = obj.has("lastClipId")?obj.getLong("lastClipId"):-1L;
 		lastUserUuid = obj.getString("lastUserUuid");
+        lastClipUrl = obj.getString("lastClipUrl");
 //		Log.v(LOGTAG, "lastUserUid: "+lastUserUuid);
 		publishedOn = obj.getLong("publishedOn");
 		seen = obj.getBoolean("seen");

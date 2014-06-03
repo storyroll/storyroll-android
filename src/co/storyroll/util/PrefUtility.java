@@ -187,7 +187,10 @@ public class PrefUtility {
 		AutostartMode am = PrefUtility.getEnum(AutostartMode.class, AutostartMode.WIFI);
 		return am;
 	}
-	
+
+    public static String getApiUrl(String subj) {
+        return getApiUrl(subj, null);
+    }
 	public static String getApiUrl(String subj, String params) {
 		ServerPreference sp = PrefUtility.getEnum(ServerPreference.class, ServerPreference.AWS);
 		String s = Constants.API_URL_AWS;

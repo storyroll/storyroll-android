@@ -500,9 +500,11 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 		if (item.getItemId() == R.id.action_new) 
 		{
             if (isTrial) {
+                fireGAnalyticsEvent("ui_action", "touch", "newVidepButton_trial", null);
                 new SignupDialog().show(getSupportFragmentManager(), "SignupDialog");
             }
             else {
+                fireGAnalyticsEvent("ui_action", "touch", "newVideoButton_trial", null);
                 int tabIdx = getActionBar().getSelectedNavigationIndex();
                 if (tabIdx < 0) tabIdx = 0;
                 Log.v(LOGTAG, "New item in channel idx=" + tabIdx + ", channels = " + mChannels);

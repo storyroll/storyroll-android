@@ -31,8 +31,11 @@ import android.widget.TextView;
 import co.storyroll.ui.LayoutString;
 import co.storyroll.ui.SlimTextView;
 import co.storyroll.util.PrefUtility;
+import com.androidquery.AQuery;
 import com.androidquery.AbstractAQuery;
+import com.androidquery.callback.AjaxCallback;
 import com.androidquery.util.AQUtility;
+import org.apache.http.HttpEntity;
 
 //import com.androidquery.simplefeed.callback.WebPageAjaxCallback;
 
@@ -197,4 +200,11 @@ public class PQuery extends AbstractAQuery<PQuery>{
 			  }
 			});
 	}
+
+    public <K> PQuery post(String url, HttpEntity entity, Class<K> type, AjaxCallback<K> callback){
+
+        callback.url(url).type(type).method(AQuery.METHOD_POST).param(AQuery.POST_ENTITY, entity);
+        return ajax(callback);
+
+    }
 }

@@ -67,7 +67,7 @@ public class LaunchActivity extends BaseActivity {
 	private Thread timerThread;
 	private boolean loginChecked = false;
 	private Button bt;
-	private static boolean activityClosed = false; 
+	private static boolean activityClosed = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -241,7 +241,10 @@ public class LaunchActivity extends BaseActivity {
 	
 	public void hasUserCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
 		Log.v(LOGTAG, "hasUserCb");
-		if (isAjaxErrorThenReport(status)) return;
+		if (isAjaxErrorThenReport(status)) {
+            aq.id(R.id.progressMarker).invisible();
+            return;
+        }
 		
 		if(json!=null){
 			// TODO: got proper response
@@ -256,7 +259,7 @@ public class LaunchActivity extends BaseActivity {
 			// user not found, purge profile
 			apiError(LOGTAG, "hasUserCb bad (json null) response", status, false, Log.ERROR);			
         }
-		aq.id(R.id.progressMarker).visibility(View.INVISIBLE);
+		aq.id(R.id.progressMarker).invisible();
 		bt.setEnabled(true);
 		loginChecked = true;
 	}

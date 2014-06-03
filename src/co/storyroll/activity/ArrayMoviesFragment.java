@@ -517,14 +517,21 @@ public class ArrayMoviesFragment extends ListFragment {
 			
 			@Override
 			public void onClick(View v) {
-				fireGAnalyticsEvent("ui_action", "touch", "replyButton", null);
-				Intent intent = new Intent(ctx, VideoCaptureActivity.class);
-				intent.putExtra("RESPOND_TO_CLIP", movie.getLastClipId());
-				intent.putExtra("CURRENT_CHANNEL", mChanId);
-				intent.putExtra("MOVIE", movie.getId());
-//				Log.v(LOGTAG, "movie.getLastUserId()="+movie.getLastUserId());
-				intent.putExtra("LAST_USER", movie.getLastUserId());
-				startActivity(intent);
+                if (isTrial) {
+                    fireGAnalyticsEvent("ui_action", "touch", "replyButton_trial", null);
+                    Toast.makeText(context, "Please sign in to reply to this video. You can sign in from app menu.", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    fireGAnalyticsEvent("ui_action", "touch", "replyButton", null);
+                    Intent intent = new Intent(ctx, VideoCaptureActivity.class);
+                    intent.putExtra(VideoCaptureActivity.RESPOND_TO_CLIP, movie.getLastClipId());
+                    intent.putExtra(VideoCaptureActivity.RESPOND_TO_CLIP_URL, movie.getLastClipUrl());
+                    intent.putExtra(VideoCaptureActivity.CURRENT_CHANNEL, mChanId);
+                    intent.putExtra(VideoCaptureActivity.MOVIE, movie.getId());
+//				    Log.v(LOGTAG, "movie.getLastUserId()="+movie.getLastUserId());
+                    intent.putExtra(VideoCaptureActivity.LAST_USER_UUID, movie.getLastUserId());
+                    startActivity(intent);
+                }
 			}
 		}
 		
@@ -550,15 +557,15 @@ public class ArrayMoviesFragment extends ListFragment {
 
 			@Override
 			public void onClick(View v) {
-				fireGAnalyticsEvent("ui_action", "touch", "likeButton", null);
+				fireGAnalyticsEvent("ui_action", "touch", "likeButton"+(isTrial?"_trial":""), null);
 				
 				if (trial) {
 					count++;
 					if (count==1){
-						Toast.makeText(context, "Can like after logging in.", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, "You can \"like\" the video after signing in via app menu.", Toast.LENGTH_SHORT).show();
 					}
 					else {
-						Toast.makeText(context, "Login already!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, "Sign in already! ;)", Toast.LENGTH_SHORT).show();
 						count=0;
 					}
 					return;

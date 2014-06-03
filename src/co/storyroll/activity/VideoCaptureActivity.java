@@ -19,33 +19,38 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.*;
 import co.storyroll.R;
-import co.storyroll.base.SwipeVideoActivity;
+import co.storyroll.base.BaseActivity;
 import co.storyroll.tasks.VideoDownloadTask;
 import co.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import co.storyroll.util.*;
+import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class VideoCaptureActivity extends SwipeVideoActivity implements
+import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
+
+public class VideoCaptureActivity extends BaseActivity implements
 		SurfaceHolder.Callback, OnVideoTaskCompleted,  OnInfoListener {
 
 	public static final String LOGTAG = "VIDEOCAPTURE";
 
-	private static final String LAST_USER_UUID = "LAST_USER";
+	static final String LAST_USER_UUID = "LAST_USER";
 	private static final String MODE_NEW = "MODE_NEW";
-	private static final String CURRENT_CHANNEL = "CURRENT_CHANNEL";
-	private static final String RESPOND_TO_CLIP = "RESPOND_TO_CLIP";
-	private static final String MOVIE = "MOVIE";
+	static final String CURRENT_CHANNEL = "CURRENT_CHANNEL";
+	static final String RESPOND_TO_CLIP = "RESPOND_TO_CLIP";
+    static final String RESPOND_TO_CLIP_URL = "RESPOND_TO_CLIP_URL";
+    static final String MOVIE = "MOVIE";
 	private static final String CURRENT_CAMERA = "CURRENT_CAMERA";
 	private static final String LAST_STATE = "LAST_STATE";
 	private static final String SCREEN_NAME = "VideoCapture";
@@ -58,8 +63,8 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private static final int VIDEO_BITRATE = 1300000;
 	private static final int VIDEO_FRAMERATE = 30;
 	private static final int NUM_PREVIEW_FRAGMENTS = 20;
-	
-	private static int DEFAULT_CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;
+
+    private static int DEFAULT_CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;
 
 	private SurfaceView surfaceView;
 	private VideoView videoView;
@@ -103,6 +108,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	private final static long NULL_CHAN=-1L;
 
 	private long mRespondToClipId = NULL_RESPONSE_CLIP;
+    private String mRespondToClipUrl = null;
 	private boolean isFragmentCarousel = false;
 	
 	private long mCurrentChanlId = NULL_CHAN;
@@ -136,7 +142,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			}
 		});
 //		videoView.setOnClickListener(SwipeVideoActivity.this); 
-		videoView.setOnTouchListener(gestureListener);
+//		videoView.setOnTouchListener(gestureListener);
 		
 		counterOverlay = (ImageView)findViewById(R.id.counterOverlay);
 		sliderOverlay = (ImageView)findViewById(R.id.sliderOverlay);
@@ -171,7 +177,9 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			mMovieId = getIntent().getLongExtra(MOVIE, -1L);
 			mLastUserUuid = getIntent().getStringExtra(LAST_USER_UUID);
 			mRespondToClipId = getIntent().getLongExtra(RESPOND_TO_CLIP, NULL_RESPONSE_CLIP);
-			mCurrentChanlId  = getIntent().getLongExtra(CURRENT_CHANNEL, NULL_CHAN);
+            mRespondToClipUrl = getIntent().getStringExtra(RESPOND_TO_CLIP_URL);
+
+            mCurrentChanlId  = getIntent().getLongExtra(CURRENT_CHANNEL, NULL_CHAN);
 			
 			Log.v(LOGTAG, "lastUserId="+mLastUserUuid);
 			if (mLastUserUuid!=null) {
@@ -191,7 +199,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			else if (mRespondToClipId!=NULL_RESPONSE_CLIP) 
 			{
 				mLastState = STATE_INITIAL;
-				startVideoPreloadTask(mRespondToClipId);
+				startVideoPreloadTask(mRespondToClipUrl);
 			}
 			else {
 				// get list of available fragments
@@ -207,6 +215,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			mStartNewMode = savedInstanceState.getBoolean(MODE_NEW);
 			mCurrentChanlId = savedInstanceState.getLong(CURRENT_CHANNEL);
 			mRespondToClipId = savedInstanceState.getLong(RESPOND_TO_CLIP);
+            mRespondToClipUrl = savedInstanceState.getString(RESPOND_TO_CLIP_URL);
 			mCurrentCameraId = savedInstanceState.getInt(CURRENT_CAMERA);
 			mLastState = savedInstanceState.getInt(LAST_STATE);
 			
@@ -258,7 +267,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 				}
 			}
         	isFragmentCarousel = true;
-			fragmentCarousel(0);
+//			fragmentCarousel(0);
         }
         else{
         	isFragmentCarousel = false;
@@ -269,25 +278,28 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
         
 	}
 
-	private void fragmentCarousel(int i) 
-	{
-		mRespondToClipId = fragmentIds[i];
-		currentLastCarouselItemId = i;
-		
-		// load fragment
-		if (mRespondToClipId!=NULL_RESPONSE_CLIP) 
-		{
-   			// start a story fragment preload task
-	   		startVideoPreloadTask(fragmentIds[i]);
-    	}		
-	}
+//	private void fragmentCarousel(int i)
+//	{
+//		mRespondToClipId = fragmentIds[i];
+//		currentLastCarouselItemId = i;
+//
+//		// load fragment
+//		if (mRespondToClipId!=NULL_RESPONSE_CLIP)
+//		{
+//   			// start a story fragment preload task
+//	   		startVideoPreloadTask(fragmentIds[i]);
+//    	}
+//	}
 	
-	private void startVideoPreloadTask(long fragmentId) {
-		String fragmentApiUrl = PrefUtility.getApiUrl(ServerUtility.API_CLIP_FILE, "fragment="+fragmentId+"&uuid="+getUuid());
-   		VideoDownloadTask task = new VideoDownloadTask(getApplicationContext(), this);
-   		task.execute(fragmentApiUrl);
-	}
-
+//	private void startVideoPreloadTask(long fragmentId) {
+//		String fragmentApiUrl = PrefUtility.getApiUrl(ServerUtility.API_CLIP_FILE, "fragment="+fragmentId+"&uuid="+getUuid());
+//   		VideoDownloadTask task = new VideoDownloadTask(getApplicationContext(), this);
+//   		task.execute(fragmentApiUrl);
+//	}
+    private void startVideoPreloadTask(String fragmentFileUrl) {
+        VideoDownloadTask task = new VideoDownloadTask(getApplicationContext(), this);
+        task.execute(fragmentFileUrl);
+    }
 	private int failedAttempts = 0;
 	
 	@Override
@@ -305,22 +317,22 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			failedAttempts = 0;
 		}
 		else {
-			// swallow, clean up after itself, and try next;
-			failedAttempts++;
-			if (e!=null) {
-				BugSenseHandler.sendException(e);
-			}
-			if (failedAttempts < MAX_NEXT_FRAGMENT_ATTEMPTS) 
-			{
-				if (isFragmentCarousel) {
-					playNextCarouselItem(); // try loading next
-				}
-			}
-			else {
+//			// swallow, clean up after itself, and try next;
+//			failedAttempts++;
+//			if (e!=null) {
+//				BugSenseHandler.sendException(e);
+//			}
+//			if (failedAttempts < MAX_NEXT_FRAGMENT_ATTEMPTS)
+//			{
+//				if (isFragmentCarousel) {
+//					playNextCarouselItem(); // try loading next
+//				}
+//			}
+//			else {
 				Toast.makeText(this, "Error loading video, please try again.", Toast.LENGTH_SHORT).show();;
 				Log.e(LOGTAG, "Video load fail/retry exhausted.");
 				failedAttempts = 0;
-			}
+//			}
 		}
 	}
 	
@@ -647,35 +659,72 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 	  protected void onPause() {
 		  super.onPause();
 	  }
-	
-	  
-	public void doUpload(String filePath, String timeStampAsISO){
-		isUploading = true;
-		cancelUpload = false;
-		showClose();
-		show(progress);
-		
-		File file = new File(filePath);
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("file", file);
-		params.put("uuid", getUuid());
-		Log.v(LOGTAG, "timestamp as ISO: "+timeStampAsISO);
-		params.put("t", timeStampAsISO);
-		if (mMovieId!=-1L) {
-			params.put("l", mMovieId);
+
+
+//	public void doUpload1(String filePath, String timeStampAsISO){
+//		isUploading = true;
+//		cancelUpload = false;
+//		showClose();
+//		show(progress);
+//
+//		File file = new File(filePath);
+//
+//		Map<String, Object> params = new HashMap<String, Object>();
+//		params.put("file", file);
+//		params.put("uuid", getUuid());
+//		Log.v(LOGTAG, "timestamp as ISO: "+timeStampAsISO);
+//		params.put("t", timeStampAsISO);
+//		if (mMovieId!=-1L)
+//        {
+//			params.put("l", mMovieId);
+//		}
+//		Log.v(LOGTAG, "channel: "+mCurrentChanlId);
+//		if (mCurrentChanlId!=NULL_CHAN)
+//        {
+//			params.put("c", mCurrentChanlId+"");
+//		}
+//
+//		fireGAnalyticsEvent("fragment_workflow", "addFragmentStart", "", null);
+//
+//		aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CLIP_ADD, null),
+//				params, JSONObject.class, VideoCaptureActivity.this, "addFragmentCb").progress(R.id.progress);
+//	}
+
+    public void doUpload(String filePath, String timeStampAsISO)
+    {
+        isUploading = true;
+        cancelUpload = false;
+        showClose();
+        show(progress);
+
+        File file = new File(filePath);
+
+        Log.v(LOGTAG, "timestamp as ISO: "+timeStampAsISO+", fileName: "+file.getName());
+
+        MultipartEntityBuilder mpeb = MultipartEntityBuilder.create()
+                .addBinaryBody("file", file, APPLICATION_OCTET_STREAM, file.getName())
+                .addTextBody("uuid", getUuid(), ContentType.TEXT_PLAIN)
+                .addTextBody("t", timeStampAsISO, ContentType.TEXT_PLAIN);
+        if (mMovieId!=-1L) {
+            mpeb.addTextBody("l", mMovieId + "", ContentType.TEXT_PLAIN);
+        }
+		if (mCurrentChanlId!=NULL_CHAN)
+        {
+            mpeb.addTextBody("c", mCurrentChanlId + "", ContentType.TEXT_PLAIN);
 		}
-		Log.v(LOGTAG, "channel: "+mCurrentChanlId);
-		if (mCurrentChanlId!=NULL_CHAN) {
-			params.put("c", mCurrentChanlId+"");
-		}
-		
-		fireGAnalyticsEvent("fragment_workflow", "addFragmentStart", "", null);
-		
-		aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CLIP_ADD, null), 
-				params, JSONObject.class, VideoCaptureActivity.this, "addFragmentCb").progress(R.id.progress);
-	}
-	  
+        HttpEntity reqEntity = mpeb.build();
+        String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CLIP_ADD);
+
+        fireGAnalyticsEvent("fragment_workflow", "addFragmentStart", "", null);
+        aq.post(apiUrl, reqEntity, JSONObject.class, new AjaxCallback<JSONObject>() {
+
+            @Override
+            public void callback(String url, JSONObject json, AjaxStatus status) {
+                Log.v(LOGTAG, "callback: json="+json==null?"null":json.toString());
+                addFragmentCb(url, json, status);
+            }
+        } );
+    }
 	private boolean isUploading = false;
 	private boolean cancelUpload = false;
 	
@@ -768,6 +817,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 			intent = new Intent(VideoCaptureActivity.this, AppUtility.ACTIVITY_HOME);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			intent.putExtra(RESPOND_TO_CLIP, mRespondToClipId);
+            intent.putExtra(RESPOND_TO_CLIP_URL, mRespondToClipUrl);
 			intent.putExtra(CURRENT_CHANNEL, mCurrentChanlId);			
 			intent.putExtra(MOVIE, mMovieId);			
 			startActivity(intent);
@@ -1064,26 +1114,26 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		}
 	}
 
-	@Override
-	protected void leftSwipe() {
-		if (mLastState!=STATE_PREV_LAST) return;
-		fireGAnalyticsEvent("fragment_workflow", "swipe", "left", 0L);
-		// next fragment
-		playNextCarouselItem();
-	}
-	
-	private void playNextCarouselItem(){
-		fragmentCarousel(++currentLastCarouselItemId<fragmentIds.length?currentLastCarouselItemId:0);
-	}
-
-	@Override
-	protected void rightSwipe() {
-		if (mLastState!=STATE_PREV_LAST) return;
-		fireGAnalyticsEvent("fragment_workflow", "swipe", "right", 0L);
-		show(progress);
-		// previous fragment
-		fragmentCarousel(--currentLastCarouselItemId>=0?currentLastCarouselItemId:fragmentIds.length-1);
-	}
+//	@Override
+//	protected void leftSwipe() {
+//		if (mLastState!=STATE_PREV_LAST) return;
+//		fireGAnalyticsEvent("fragment_workflow", "swipe", "left", 0L);
+//		// next fragment
+//		playNextCarouselItem();
+//	}
+//
+//	private void playNextCarouselItem(){
+//		fragmentCarousel(++currentLastCarouselItemId<fragmentIds.length?currentLastCarouselItemId:0);
+//	}
+//
+//	@Override
+//	protected void rightSwipe() {
+//		if (mLastState!=STATE_PREV_LAST) return;
+//		fireGAnalyticsEvent("fragment_workflow", "swipe", "right", 0L);
+//		show(progress);
+//		// previous fragment
+//		fragmentCarousel(--currentLastCarouselItemId>=0?currentLastCarouselItemId:fragmentIds.length-1);
+//	}
 	
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -1146,6 +1196,7 @@ public class VideoCaptureActivity extends SwipeVideoActivity implements
 		outState.putBoolean(MODE_NEW, mStartNewMode);
 		outState.putLong(CURRENT_CHANNEL, mCurrentChanlId);
 		outState.putLong(RESPOND_TO_CLIP, mRespondToClipId);
+        outState.putString(RESPOND_TO_CLIP_URL, mRespondToClipUrl);
 		outState.putLong(MOVIE, mMovieId);
 		
 		outState.putInt(CURRENT_CAMERA, mCurrentCameraId);

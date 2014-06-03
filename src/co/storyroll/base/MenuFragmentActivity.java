@@ -101,7 +101,8 @@ public class MenuFragmentActivity extends FragmentActivity {
         Log.v(LOGTAG, "onCreateOptionsMenu");
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        if (isTrial) {
+        if (isTrial)
+        {
             Log.v(LOGTAG, "initializing trial menu");
 //        	inflater.inflate(R.menu.home_activity_menu, menu);
            	inflater.inflate(R.menu.trial_activity_menu, menu);
@@ -124,6 +125,11 @@ public class MenuFragmentActivity extends FragmentActivity {
                 countMenuItem.setVisible(true);
             }
             notifCountButton.setText(String.valueOf(mNotifCount));
+        }
+        // hide LogCat menu item
+        if (!PrefUtility.isTestDevice()) {
+            MenuItem logCatMenuItem = menu.findItem(R.id.action_log);
+            logCatMenuItem.setVisible(false);
         }
         return super.onCreateOptionsMenu(menu);
     }

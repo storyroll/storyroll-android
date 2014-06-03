@@ -54,7 +54,7 @@ public class ErrorUtility {
 		
 		if (logLevel>=Log.ERROR)
 		{
-			Log.e(logtag, logStr+". HTTP response: "+status.getMessage());
+			Log.e(logtag, logStr+". HTTP response: "+status.getMessage()+", "+status.getError());
 		} else if (logLevel==Log.WARN) 
 		{
 			Log.w(logtag, logStr);			

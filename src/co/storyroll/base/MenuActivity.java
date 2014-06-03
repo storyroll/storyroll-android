@@ -6,6 +6,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import co.storyroll.R;
 import co.storyroll.activity.*;
+import co.storyroll.util.PrefUtility;
 
 public class MenuActivity extends GcmActivity {
 	private static final String TAG = "MenuActivity";
@@ -16,6 +17,13 @@ public class MenuActivity extends GcmActivity {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity_menu, menu);
+        // hide LogCat menu item
+        if (!PrefUtility.isTestDevice())
+        {
+            MenuItem logCatMenuItem = menu.findItem(R.id.action_log);
+            logCatMenuItem.setVisible(false);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
     
