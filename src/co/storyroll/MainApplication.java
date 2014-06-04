@@ -15,15 +15,16 @@ import com.bugsense.trace.BugSenseHandler;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.security.*;
+import java.security.KeyStore;
 
 public class MainApplication extends Application implements Thread.UncaughtExceptionHandler{
 
 	
 	public static final String MOBILE_AGENT = "Mozilla/5.0 (Linux; U; Android 2.2) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533";
     private static final String TAG = "Application";
+
+    private static SSLSocketFactory ssf = null;
 
     @Override
     public void onCreate() {     
@@ -46,7 +47,8 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         
         AQUtility.setCacheDir(null);
 
-        AbstractAjaxCallback.setSSF(newSslSocketFactory());
+        ssf = newSslSocketFactory();
+        AbstractAjaxCallback.setSSF(ssf);
 
         AjaxCallback.setNetworkLimit(8);
         //AjaxCallback.setAgent(MOBILE_AGENT);
@@ -95,34 +97,34 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
 		ErrorReporter.report(ex, true);
 	}
 
-    private SSLSocketFactory StoryRollSSLSocketFactory() {
-        SSLSocketFactory ret = null;
-        try {
-            final KeyStore ks = KeyStore.getInstance("BKS");
-
-            final InputStream inputStream = getApplicationContext().getResources().openRawResource(R.raw.cert_storyroll_lb);
-
-            ks.load(inputStream, getApplicationContext().getString(R.string.store_pass).toCharArray());
-            inputStream.close();
-
-            ret = new SSLSocketFactory(ks);
-            Log.d(TAG, "SSLSocketFactory done");
-        } catch (UnrecoverableKeyException ex) {
-            Log.d(TAG, ex.getMessage());
-        } catch (KeyStoreException ex) {
-            Log.d(TAG, ex.getMessage());
-        } catch (KeyManagementException ex) {
-            Log.d(TAG, ex.getMessage());
-        } catch (NoSuchAlgorithmException ex) {
-            Log.d(TAG, ex.getMessage());
-        } catch (IOException ex) {
-            Log.d(TAG, ex.getMessage());
-        } catch (Exception ex) {
-            Log.d(TAG, ex.getMessage());
-        } finally {
-            return ret;
-        }
-    }
+//    private SSLSocketFactory StoryRollSSLSocketFactory() {
+//        SSLSocketFactory ret = null;
+//        try {
+//            final KeyStore ks = KeyStore.getInstance("BKS");
+//
+//            final InputStream inputStream = getApplicationContext().getResources().openRawResource(R.raw.cert_storyroll_lb);
+//
+//            ks.load(inputStream, getApplicationContext().getString(R.string.store_pass).toCharArray());
+//            inputStream.close();
+//
+//            ret = new SSLSocketFactory(ks);
+//            Log.d(TAG, "SSLSocketFactory done");
+//        } catch (UnrecoverableKeyException ex) {
+//            Log.d(TAG, ex.getMessage());
+//        } catch (KeyStoreException ex) {
+//            Log.d(TAG, ex.getMessage());
+//        } catch (KeyManagementException ex) {
+//            Log.d(TAG, ex.getMessage());
+//        } catch (NoSuchAlgorithmException ex) {
+//            Log.d(TAG, ex.getMessage());
+//        } catch (IOException ex) {
+//            Log.d(TAG, ex.getMessage());
+//        } catch (Exception ex) {
+//            Log.d(TAG, ex.getMessage());
+//        } finally {
+//            return ret;
+//        }
+//    }
 
     private SSLSocketFactory newSslSocketFactory() {
         try {
@@ -135,12 +137,14 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
                 // Initialize the keystore with the provided trusted certificates.
                 // Also provide the password of the keystore
                 trusted.load(in, getApplicationContext().getString(R.string.store_pass).toCharArray());
+                Log.d(TAG, "Keystore initialized with StoryRoll trusted certificate");
             } finally {
                 in.close();
             }
 
             // Pass the keystore to the SSLSocketFactory. The factory is responsible for the verification of the server certificate.
             SSLSocketFactory sf = new SSLSocketFactory(trusted);
+
 
             // Hostname verification from certificate
             // http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html#d4e506
@@ -149,6 +153,10 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         } catch (Exception e) {
             throw new AssertionError(e);
         }
+    }
+
+    public static SSLSocketFactory getSocketFactory() {
+        return ssf;
     }
 
 }

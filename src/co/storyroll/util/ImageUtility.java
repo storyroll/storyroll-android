@@ -20,15 +20,6 @@ public class ImageUtility {
 		pic = handle.getNetworkUrl(pic);
 		return pic;
 	}
-	
-	public static String getSrProfileTb(FacebookHandle handle, String uuid){
-		
-		if(!handle.authenticated()) return null;
-		
-		String pic = PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+uuid);
-		pic = handle.getNetworkUrl(pic);
-		return pic;
-	}
 
 	public static void sliderAnimateRightToLeft(ImageView v) 
 	{
