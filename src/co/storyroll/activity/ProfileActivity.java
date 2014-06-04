@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+import co.storyroll.MainApplication;
 import co.storyroll.R;
 import co.storyroll.base.MenuActivity;
 import co.storyroll.model.Profile;
@@ -22,11 +23,13 @@ import co.storyroll.util.ImageUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
 import com.androidquery.auth.FacebookHandle;
+import com.androidquery.callback.AbstractAjaxCallback;
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
 import org.apache.http.HttpEntity;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.json.JSONException;
@@ -113,7 +116,7 @@ public class ProfileActivity extends MenuActivity {
     		initAvatar();
     	} else {
     		// edit profile
-    		aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl(ServerUtility.API_PROFILE, "uuid=" + getUuid()),
+    		aq.auth(basicHandle).progress(R.id.progress).ajax(PrefUtility.getApiUrl(ServerUtility.API_PROFILE, "uuid=" + getUuid()),
     				JSONObject.class, this, "getProfileForEditCb");
     	}
 	}
@@ -182,15 +185,27 @@ public class ProfileActivity extends MenuActivity {
 		{
 			// do we have SR avatar?
 			if (!TextUtils.isEmpty(profile.getAvatarUrl())) {
-				Log.v(LOGTAG, "loading avatar");
+				Log.v(LOGTAG, "loading avatar from SR");
+
 				aq.id(R.id.avatar).image(profile.getAvatarUrl(),
 						false, false, 0, R.drawable.ic_avatar_default);
+
 			}
 			// otherwise load avatar from FB
 			else if (profile.isAuthFacebook())
 			{
+                Log.v(LOGTAG, "loading avatar from Facebook");
+
+                // TODO: refactor
+                // hack here
+                AbstractAjaxCallback.setSSF(SSLSocketFactory.getSocketFactory());
+
 				String tb = ImageUtility.getFbProfileTb(handle);
 				aq.id(R.id.avatar).image(tb);
+
+                // TODO: refactor
+                // hack pt2: restore SSL Factory
+                AbstractAjaxCallback.setSSF(MainApplication.getSocketFactory());
 			}
 		}
 		
@@ -238,9 +253,9 @@ public class ProfileActivity extends MenuActivity {
 //		else {
 			persistProfile(profile);
 			profile = getPersistedProfile();
-			aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl(
+			aq.auth(basicHandle).progress(R.id.progress).ajax(PrefUtility.getApiUrl(
 					ServerUtility.API_PROFILE_UPDATE, 
-					profile.toParamString(unameChanged, false)
+					profile.toParamString(unameChanged, false, false)
 				), 
 				JSONObject.class, this, "updateProfileCb");
 //		}		
@@ -253,7 +268,7 @@ public class ProfileActivity extends MenuActivity {
 		if (isAjaxErrorThenReport(status)) return;
 		
 		if(json != null){ 
-			profile = populateProfileFromSrJson(json, true);
+			profile = populateProfileFromSrJson(json, true, null);
 		}
 		else {
 			apiError(LOGTAG, "Error getting profile.", status, true, Log.ERROR);
@@ -307,12 +322,15 @@ public class ProfileActivity extends MenuActivity {
         		// store resized avatar
         		String tb = ImageUtility.getFbProfileTb(handle);
         		File file = aq.makeSharedFile(tb, "avatar.jpg");
-        		File localAvatarFile = new File(AppUtility.getAppWorkingDir(this)+File.separator+"avatar.jpg");
-        		if (localAvatarFile.exists()) {
-        			localAvatarFile.delete();
-        		}
-        		file.renameTo(localAvatarFile);
-        		avatarChangeCompleted = true;
+                if (file!=null)
+                {
+                    File localAvatarFile = new File(AppUtility.getAppWorkingDir(this) + File.separator + "avatar.jpg");
+                    if (localAvatarFile.exists()) {
+                        localAvatarFile.delete();
+                    }
+                    file.renameTo(localAvatarFile);
+                    avatarChangeCompleted = true;
+                }
         	}
         	
         	// upload avatar
@@ -346,7 +364,7 @@ public class ProfileActivity extends MenuActivity {
                 .addTextBody("uuid", email, ContentType.TEXT_PLAIN).build();
 
 
-        aq.progress(R.id.progress).post(PrefUtility.getApiUrl(ServerUtility.API_AVATAR_SET),
+        aq.auth(basicHandle).progress(R.id.progress).post(PrefUtility.getApiUrl(ServerUtility.API_AVATAR_SET),
                 reqEntity, JSONObject.class, new AjaxCallback<JSONObject>() {
 
                     @Override

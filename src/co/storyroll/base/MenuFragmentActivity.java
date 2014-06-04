@@ -17,6 +17,7 @@ import co.storyroll.activity.*;
 import co.storyroll.util.ErrorUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
+import com.androidquery.auth.BasicHandle;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -30,6 +31,7 @@ public class MenuFragmentActivity extends FragmentActivity {
     protected static boolean isTrial=false;
     static int mNotifCount = 0;
     protected PQuery aq;
+    protected BasicHandle basicHandle = null;
 	
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,8 +39,11 @@ public class MenuFragmentActivity extends FragmentActivity {
         if (!isTrial) {
             isTrial = getUuid() == null;
         }
-
+        if (!isTrial){
+           basicHandle = new BasicHandle(getUuid(), getPassword());
+        }
         aq = new PQuery(this);
+
 
         updateInvitesFromServer();
 
@@ -47,7 +52,7 @@ public class MenuFragmentActivity extends FragmentActivity {
 	}
 
     protected void updateInvitesFromServer() {
-        aq.ajax(PrefUtility.getApiUrl(
+        aq.auth(basicHandle).ajax(PrefUtility.getApiUrl(
                 ServerUtility.API_INVITES_PENDING, "uuid=" + getUuid()), JSONArray.class, this, "invitesPendingCb");
     }
 
@@ -283,6 +288,13 @@ public class MenuFragmentActivity extends FragmentActivity {
 		Log.v(LOGTAG, "uuid: " + uuid + ", username: " + username);
 		return uuid;
 	}
+
+    protected String getPassword() {
+        SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+        String password = settings.getString(Constants.PREF_PASSWORD, null);
+        Log.v(LOGTAG, "pass: " + password);
+        return password;
+    }
 
     /*-- lifecycle --*/
 

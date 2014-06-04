@@ -7,6 +7,7 @@ import android.util.Log;
 import co.storyroll.R;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
+import com.androidquery.auth.BasicHandle;
 import com.androidquery.callback.AjaxStatus;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.android.gms.common.ConnectionResult;
@@ -52,7 +53,7 @@ public class GcmActivity extends BaseActivity {
                     // upstream messages to a server that echo back the message using the
                     // 'from' address in the message.
 
-                    // Persist the regID - no need to register again.
+                    // todo: Persist the regID - no need to register again.
 //                    storeRegistrationId(context, regid);
                     // TODO ...
                 } catch (IOException ex) {
@@ -88,7 +89,9 @@ public class GcmActivity extends BaseActivity {
 	protected void sendGcmRegistrationIdToBackend(String regid, String email) {
 		// update profile with new reg id
 		String apiRegUrl = PrefUtility.getApiUrl(ServerUtility.API_PROFILE_UPDATE, "uuid="+email+"&registrationId="+regid);
-		aq.progress(R.id.progress).ajax(apiRegUrl, JSONObject.class, this, "updateProfileGcmRegCb");
+        // update BasicHandle
+        basicHandle = new BasicHandle(getUuid(), getPassword());
+		aq.auth(basicHandle).progress(R.id.progress).ajax(apiRegUrl, JSONObject.class, this, "updateProfileGcmRegCb");
 	}
 	
 	public void updateProfileGcmRegCb(String url, JSONObject json, AjaxStatus status){

@@ -15,6 +15,7 @@ import co.storyroll.util.AppUtility;
 import co.storyroll.util.DataUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
+import com.androidquery.auth.BasicHandle;
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AbstractAjaxCallback;
 import com.androidquery.callback.AjaxStatus;
@@ -69,8 +70,8 @@ public class LoginActivity extends GcmActivity {
 		facebookHandle.sso(ACTIVITY_SSO);
 		Log.d(LOGTAG, "SSO available: " + facebookHandle.isSSOAvailable());
 
-        // TODO: remove
-        // terrible hack here
+        // TODO: refactor
+        // hack here
         AbstractAjaxCallback.setSSF( SSLSocketFactory.getSocketFactory() );
 		aq.auth(facebookHandle).progress(R.id.progress).ajax(facebookGraphUrl, JSONObject.class, this, "facebookProfileCb");
 	}
@@ -81,22 +82,87 @@ public class LoginActivity extends GcmActivity {
 		profile.email = aq.id(R.id.email).getText().toString().trim();
 		profile.password = aq.id(R.id.password).getText().toString().trim();
 		profile.authMethod = Profile.AUTH_EMAIL;
+
+        // update handle
+//        basicHandle = new BasicHandle(profile.email, profile.password);
 		
 		if (TextUtils.isEmpty(profile.password) || TextUtils.isEmpty(profile.email) ) {
             Toast.makeText(aq.getContext(), R.string.msg_password_email_required, Toast.LENGTH_SHORT).show();
 			return;
 		}
-		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_PROFILE, "uuid=" + profile.email);
-		aq.ajax(apiUrl, JSONObject.class, LoginActivity.this, "getSrProfileCb");
+		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_USER_EXISTS, "uuid=" + profile.email);
+		aq.ajax(apiUrl, JSONObject.class, LoginActivity.this, "userExistsCb");
 	}
 
-	// - - - callbacks & helpers 
+	// - - - callbacks & helpers
+
+    //  callback checks if a user is registered with StoryRoll, if so - proceeds
+    public void userExistsCb(String url, JSONObject json, AjaxStatus status) throws JSONException
+    {
+        Log.v(LOGTAG, "userExistsCb");
+        if (isAjaxErrorThenReport(status)) return;
+
+        boolean userExists = false;
+        if(json!=null){
+            userExists = json.getBoolean("result");
+        }
+        Log.i(LOGTAG, "userExistsCb user exists: "+ userExists);
+
+        if (userExists) {
+            // update auth handle
+            Log.v(LOGTAG, "creating handle for "+profile.email+" with: "+profile.password);
+            basicHandle = new BasicHandle(profile.email, profile.password);
+            // now get the profile
+            String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_PROFILE, "uuid=" + profile.email);
+            aq.auth(basicHandle).ajax(apiUrl, JSONObject.class, LoginActivity.this, "getSrProfileCb");
+        }
+        else {
+            // user not in db, go to registration
+            nextActionRegister();
+        }
+    }
+
+    // this callback checks if given user exists and then checks its login
+    public void getSrProfileCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
+        Log.v(LOGTAG, "getSrProfileCb");
+        if (status.getCode()==401)
+        {
+            // Existing user, auth error, means password incorrect
+            fireGAnalyticsEvent("login", "valid", "false", null);
+            Toast.makeText(aq.getContext(), "Password incorrect, review and try again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (isAjaxErrorThenReport(status)) return;
+
+        fireGAnalyticsEvent("login", "valid", "true", null);
+        if(json != null)
+        { // everything ok
+            Log.v(LOGTAG, "user exists");
+            // check login
+            String md5 = DataUtility.md5(profile.password);
+            Log.d(LOGTAG, "md5: "+md5);
+
+            // update profile
+            profile = populateProfileFromSrJson(json, true, profile.password);
+            profile.loggedIn = true;
+            persistProfile(profile);
+
+            // double checking the gcm reg id, and update if necessary
+            checkAndUpdateGcmReg();
+
+            nextActionHome();
+        }else{
+            // shouldn't really happen
+            apiError(LOGTAG, "Error logging in", status, true, Log.ERROR);
+        }
+    }
+
     public void facebookProfileCb(String url, JSONObject json, AjaxStatus status) {
 		Log.v(LOGTAG, "facebookProfileCb");
 		fireGAnalyticsEvent("facebook", "login", json==null?"fail":"success", null);
 
-        // TODO: remove
-        // terrible hack pt2: restore SSL Factory
+        // TODO: refactor
+        // hack pt2: restore SSL Factory
         AbstractAjaxCallback.setSSF(MainApplication.getSocketFactory());
 
     	if (isAjaxErrorThenReport(status)) return;
@@ -133,11 +199,13 @@ public class LoginActivity extends GcmActivity {
 		if(json!=null){
 			userExists = json.getBoolean("result");
 		}
-		Log.i(LOGTAG, "checkUserExistsBooleanCb user exists: "+ userExists);
+		Log.i(LOGTAG, "hasFbUserInSrCb user exists: "+ userExists);
 
 		if (userExists) {
 			// ...
 			profile.loggedIn = true;
+            // regenerate password
+            profile.password = DataUtility.getMD5Hex(profile.email);
 			persistProfile(profile);
 			
 			// TODO: double check the gcm reg id, and update if necessary
@@ -150,58 +218,8 @@ public class LoginActivity extends GcmActivity {
 			nextActionRegister();
 		}
     }
-	
-	// this callback checks if given user exists and then checks its login
-	public void getSrProfileCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
-		Log.v(LOGTAG, "getSrProfileCb");
-		if (isAjaxErrorThenReport(status)) return;
-		
-		if(json != null){ // user exists
-			Log.v(LOGTAG, "user exists");
-			// check login
-			String md5 = DataUtility.md5(profile.password);
-			Log.d(LOGTAG, "md5: "+md5);
-			
-			// update profile
-			profile = populateProfileFromSrJson(json, true);
-			
-			String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_LOGIN_VALID, "uuid="+profile.email+"&password="+md5);
-			aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, LoginActivity.this, "loginValidCb");
-		
-		}else{
-			Log.v(LOGTAG, "json null");
-			// user not in db, go to registration
-			nextActionRegister();
-	  }
-	}
-	
-	public void loginValidCb(String url, JSONObject json, AjaxStatus status) throws JSONException
-	{
-		Log.v(LOGTAG, "loginValidCb");
-		if (isAjaxErrorThenReport(status)) return;
 
-		boolean loginValid = false;
-		if(json != null)
-		{ // user exists
-			loginValid = json.getBoolean("result");
-			fireGAnalyticsEvent("login", "valid", loginValid+"", null);
-			if (!loginValid) {
-				Toast.makeText(aq.getContext(), "Password incorrect, review and try again.", Toast.LENGTH_SHORT).show();
-				return;
-			} else {
-				Log.d(LOGTAG, "login successfull");
-				profile.loggedIn = loginValid;
-				persistProfile(profile);
-				
-				// TODO: double check the gcm reg id, and update if necessary
-				checkAndUpdateGcmReg();
-				
-				nextActionHome();
-			}
-		}else{
-			apiError(LOGTAG, "Error logging in", status, true, Log.ERROR);
-		}
-	}
+
 	
 	private void nextActionRegister() {
 		if (connectedViaFacebook) {
@@ -237,6 +255,7 @@ public class LoginActivity extends GcmActivity {
             profile.location = location.getString("name");
         }
 		// TODO: age, gender
+        // ...
 	}
 	
 	private void checkAndUpdateGcmReg() {

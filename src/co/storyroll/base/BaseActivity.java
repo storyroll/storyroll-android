@@ -14,6 +14,7 @@ import co.storyroll.shake.ShakeService;
 import co.storyroll.util.ActionBarUtility;
 import co.storyroll.util.AppUtility;
 import co.storyroll.util.ErrorUtility;
+import com.androidquery.auth.BasicHandle;
 import com.androidquery.callback.AjaxStatus;
 import com.androidquery.util.AQUtility;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -28,6 +29,7 @@ public class BaseActivity extends Activity {
     protected static boolean isTrial=false;
 	
 	public PQuery aq;
+    protected BasicHandle basicHandle = null;
 
 	private static final boolean FORCE_SHAKE_SERVICE_ALIVE = false;
 	protected boolean isHomeEnabled = true;
@@ -40,6 +42,9 @@ public class BaseActivity extends Activity {
 	    	ActionBarUtility.initCustomActionBar(this, isHomeEnabled);
 //	    }
 	    isTrial = getIntent().getBooleanExtra("TRIAL", false);
+        if (!isTrial) {
+            basicHandle = new BasicHandle(getUuid(), getPassword());
+        }
 		
 	    // start shake check service if it's not running
 		if ( FORCE_SHAKE_SERVICE_ALIVE &&
@@ -132,6 +137,13 @@ public class BaseActivity extends Activity {
 		Log.i(LOGTAG, "uuid: " + uuid + ", username: " + username);
 		return uuid;
 	}
+
+    protected String getPassword() {
+        SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+        String password = settings.getString(Constants.PREF_PASSWORD, null);
+        Log.v(LOGTAG, "pass: " + password);
+        return password;
+    }
 	
 	protected Profile getPersistedProfile() {
 		Profile p = new Profile();
@@ -148,9 +160,9 @@ public class BaseActivity extends Activity {
 	}
 	
 	protected void persistProfile(Profile profile) {
-		persistProfile(profile.email, profile.username, profile.getAvatarUrl(), profile.authMethod, profile.location, profile.loggedIn, profile.gcmRegistrationId);
+		persistProfile(profile.email, profile.username, profile.getAvatarUrl(), profile.authMethod, profile.location, profile.loggedIn, profile.gcmRegistrationId, profile.password);
 	}
-	protected void persistProfile(String email, String username, String avatarUrl, Integer authMethod, String location, Boolean isLoggedIn, String GCMRegId) {
+	protected void persistProfile(String email, String username, String avatarUrl, Integer authMethod, String location, Boolean isLoggedIn, String GCMRegId, String password) {
 		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString(Constants.PREF_EMAIL, email);
@@ -159,6 +171,10 @@ public class BaseActivity extends Activity {
 		editor.putBoolean(Constants.PREF_IS_LOGGED_IN, isLoggedIn);
 		editor.putString(Constants.PREF_LOCATION, location);
 		editor.putString(Constants.PREF_GCM_REG_ID, GCMRegId);
+        // ignore empty password, but don't delete it - it will be used for authentication
+        if (!TextUtils.isEmpty(password)) {
+            editor.putString(Constants.PREF_PASSWORD, password);
+        }
 		if (TextUtils.isEmpty(avatarUrl)) {
 			editor.remove(Constants.PREF_AVATAR_URL);
 		}
@@ -170,11 +186,14 @@ public class BaseActivity extends Activity {
 	}
 	
     // populate profile from StoryRoll API response
-	public Profile populateProfileFromSrJson(JSONObject json, boolean addAuthMethod) throws JSONException
+	public Profile populateProfileFromSrJson(JSONObject json, boolean addAuthMethod, String keepPassword) throws JSONException
 	{
 		// TODO: more sensible, null-proof field reading
 		Profile	profile = new Profile();
 		profile.email = json.getString("uuid");
+        if (keepPassword!=null) {
+            profile.password = keepPassword;
+        }
 		profile.username = json.getString("username");
 		profile.setAvatarUrl(json.getString("avatarUrl"));
 		// TODO

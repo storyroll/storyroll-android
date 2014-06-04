@@ -721,7 +721,7 @@ public class VideoCaptureActivity extends BaseActivity implements
         String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CLIP_ADD);
 
         fireGAnalyticsEvent("fragment_workflow", "addFragmentStart", "", null);
-        aq.post(apiUrl, reqEntity, JSONObject.class, new AjaxCallback<JSONObject>() {
+        aq.auth(basicHandle).post(apiUrl, reqEntity, JSONObject.class, new AjaxCallback<JSONObject>() {
 
             @Override
             public void callback(String url, JSONObject json, AjaxStatus status) {

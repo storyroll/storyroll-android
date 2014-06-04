@@ -16,6 +16,7 @@ import co.storyroll.MainApplication;
 import co.storyroll.R;
 import co.storyroll.activity.TabbedChannelsActivity;
 import co.storyroll.base.Constants;
+import com.androidquery.auth.BasicHandle;
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.util.AQUtility;
 import com.flurry.android.FlurryAgent;
@@ -51,8 +52,29 @@ public class AppUtility {
 		return handle;
 		
 	}
-	
-	public static void logout(Activity act){
+
+    public static BasicHandle makeBasicHandle(Activity act) {
+        BasicHandle handle = new BasicHandle(getUuid(act), getPassword(act));
+
+        return handle;
+    }
+
+    public static String getUuid(Activity act) {
+        SharedPreferences settings = act.getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+        String uuid = settings.getString(Constants.PREF_EMAIL, null);
+        String username = settings.getString(Constants.PREF_USERNAME, null);
+//        Log.i(LOGTAG, "uuid: " + uuid + ", username: " + username);
+        return uuid;
+    }
+
+    public static String getPassword(Activity act) {
+        SharedPreferences settings = act.getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+        String password = settings.getString(Constants.PREF_PASSWORD, null);
+//        Log.v(LOGTAG, "pass: " + password);
+        return password;
+    }
+
+    public static void logout(Activity act){
 		
 		makeHandle(act).unauth();		
 		//handle = null;
@@ -195,7 +217,9 @@ public class AppUtility {
         Log.v(LOGTAG, "ShakeService not running");
         return false;
     }
-    
+
+
+
 //	public static FeedMode getDefaultMode(){
 //    	return PrefUtility.getEnum(FeedMode.class, FeedMode.NEWS);
 //    }

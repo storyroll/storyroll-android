@@ -2,6 +2,7 @@ package co.storyroll.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,11 +15,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import co.storyroll.PQuery;
 import co.storyroll.R;
+import co.storyroll.base.Constants;
 import co.storyroll.model.Invite;
 import co.storyroll.model.Profile;
 import co.storyroll.util.ErrorUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
+import com.androidquery.auth.BasicHandle;
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Fields;
@@ -36,7 +39,9 @@ public final class InvitesManager extends Activity {
 	private InviteAdapter inviteAdapter = null;
 	private ListView lv;
 	ImageView doneSelect;
-    PQuery aq;     // todo remove
+    PQuery aq;     // todo remove?
+
+    BasicHandle basicHandle = null;
     String mUuid;
 
 	@Override
@@ -50,8 +55,8 @@ public final class InvitesManager extends Activity {
         EasyTracker.getInstance(this).set(Fields.SCREEN_NAME, SCREEN_NAME);
 
         mUuid = getIntent().getStringExtra("UUID");
-
         aq = new PQuery(this);
+        basicHandle = new BasicHandle(getUuid(), getPassword());
 
 		// Init UI elements
 		lv = (ListView) findViewById(R.id.inviteList);
@@ -173,7 +178,7 @@ public final class InvitesManager extends Activity {
             public void onClick(View view) {
                 Log.v(LOGTAG, "accept.onClick for id: "+view.getTag());
                 String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_INVITES_ACCEPT, "uuid=" + mUuid+"&i="+view.getTag());
-                aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "invitesAcceptCb");
+                aq.auth(basicHandle).progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "invitesAcceptCb");
                 removeInvitationById((Long) view.getTag());
             }
         };
@@ -182,7 +187,7 @@ public final class InvitesManager extends Activity {
             public void onClick(View view) {
                 Log.v(LOGTAG, "reject.onClick for id: "+view.getTag());
                 String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_INVITES_DECLINE, "uuid=" + mUuid+"&i="+view.getTag());
-                aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "invitesDeclineCb");
+                aq.auth(basicHandle).progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "invitesDeclineCb");
                 removeInvitationById((Long)view.getTag());
             }
         };
@@ -208,7 +213,7 @@ public final class InvitesManager extends Activity {
 
     private void doLoadInvites(){
         String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_INVITES_PENDING, "uuid=" + mUuid);
-        aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "invitesPendingCb");
+        aq.auth(basicHandle).progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "invitesPendingCb");
     }
 
     public void invitesPendingCb(String url, JSONArray jarr, AjaxStatus status)  {
@@ -237,6 +242,20 @@ public final class InvitesManager extends Activity {
     }
 
 
+    protected String getUuid() {
+        SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+        String uuid = settings.getString(Constants.PREF_EMAIL, null);
+        String username = settings.getString(Constants.PREF_USERNAME, null);
+        Log.v(LOGTAG, "uuid: " + uuid + ", username: " + username);
+        return uuid;
+    }
+
+    protected String getPassword() {
+        SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
+        String password = settings.getString(Constants.PREF_PASSWORD, null);
+        Log.v(LOGTAG, "pass: " + password);
+        return password;
+    }
     /*-- lifecycle --*/
     @Override
     public void onDestroy(){

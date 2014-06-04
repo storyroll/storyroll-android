@@ -169,7 +169,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
     }
 	
 	private void chanListAjaxCall(){
-        aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS, mUuid==null?null:("uuid=" + mUuid)), JSONArray.class, this, "chanListCb");
+        aq.auth(basicHandle).ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS, mUuid==null?null:("uuid=" + mUuid)), JSONArray.class, this, "chanListCb");
 	}
 
     public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
@@ -614,7 +614,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 
         try {
             StringEntity entity = new StringEntity(emailsJson.toString());
-            aq.post(apiUrl, "application/json", entity, JSONObject.class, ac);
+            aq.auth(basicHandle).post(apiUrl, "application/json", entity, JSONObject.class, ac);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

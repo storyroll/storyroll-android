@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import co.storyroll.R;
+import co.storyroll.util.DataUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
 import com.androidquery.callback.AjaxStatus;
@@ -52,17 +53,25 @@ public class RegistrationActivity extends ProfileActivity {
 				Toast.makeText(aq.getContext(), R.string.msg_password_email_required, Toast.LENGTH_SHORT).show();
 				return;
 			}
-			Log.d(LOGTAG, "profile: "+profile.toString()+", params: "+profile.toParamString(false, true));	
+            if (profile.isAuthFacebook()) {
+                // todo: hack
+                // fix in the future to use Facebook Auth
+                // generates "recoverable" password, so that a user is able to pass base-authentication
+                profile.password = DataUtility.getMD5Hex(profile.email);
+                Log.v(LOGTAG, "pass: "+profile.password);
+            }
+			Log.d(LOGTAG, "profile: "+profile.toString()+", params: "+profile.toParamString(false, true, true));
 			aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl(
-                            ServerUtility.API_PROFILE_ADD, profile.toParamString(false, true)),
+                            ServerUtility.API_PROFILE_ADD, profile.toParamString(false, true, true)),
 					JSONObject.class, this, "createProfileCb");						
 		}
 		else 
 		{
 			persistProfile(profile);
 			profile = getPersistedProfile();
-			aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl(
-					ServerUtility.API_PROFILE_UPDATE, profile.toParamString(unameChanged, false)), 
+            // this should pass, becuase the BasicAuth data (u:p) was stored in context erlier
+			aq.auth(basicHandle).progress(R.id.progress).ajax(PrefUtility.getApiUrl(
+					ServerUtility.API_PROFILE_UPDATE, profile.toParamString(unameChanged, false, false)),
 					JSONObject.class, this, "updateProfileCb");
 		}		
 	}

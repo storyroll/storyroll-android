@@ -25,6 +25,7 @@ import co.storyroll.base.Constants;
 import co.storyroll.enums.AutostartMode;
 import co.storyroll.enums.ServerPreference;
 import co.storyroll.util.*;
+import com.androidquery.auth.BasicHandle;
 import com.androidquery.callback.AjaxStatus;
 import com.androidquery.util.AQUtility;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -49,6 +50,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 	
 //	protected FacebookHandle handle;
 	protected PQuery aq;
+    protected BasicHandle basicHandle = null;
 	
 //	http://stackoverflow.com/questions/2240326/remove-hide-a-preference-from-the-screen
 //	@Override
@@ -95,6 +97,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         
         aq = new PQuery(this);
 //        handle = AppUtility.makeHandle(this);
+        basicHandle = AppUtility.makeBasicHandle(this);
         
         initView();
     }
@@ -339,7 +342,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         	
     		// first of all, remove associated GCM reg id from the db record
     		String apiRegUrl = PrefUtility.getApiUrl(ServerUtility.API_PROFILE_UPDATE, "uuid=" + getUuid() + "&registrationId= ");
-    		aq.progress(R.id.progress).ajax(apiRegUrl, JSONObject.class, this, "removeProfileGcmRegCb");
+    		aq.auth(basicHandle).progress(R.id.progress).ajax(apiRegUrl, JSONObject.class, this, "removeProfileGcmRegCb");
     		
         	AppUtility.purgeProfile(this);
     		

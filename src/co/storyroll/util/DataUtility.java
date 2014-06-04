@@ -177,7 +177,7 @@ public class DataUtility {
 		String hash = getMD5Hex(url);
 		return hash;
 	}
-	private static String getMD5Hex(String str){
+	public static String getMD5Hex(String str){
 		byte[] data = getMD5(str.getBytes());
 		
 		BigInteger bi = new BigInteger(data).abs();

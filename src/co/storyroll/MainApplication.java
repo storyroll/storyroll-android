@@ -155,6 +155,7 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         }
     }
 
+
     public static SSLSocketFactory getSocketFactory() {
         return ssf;
     }

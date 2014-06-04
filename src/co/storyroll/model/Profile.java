@@ -57,14 +57,19 @@ public class Profile implements Serializable {
     	return AUTH_EMAIL.equals(authMethod);
     }
     
-    public String toParamString(boolean addUsername, boolean forceAllFields) {
+    public String toParamString(boolean addUsername, boolean addPassword, boolean forceAllFields) {
     	String s = "uuid="+email;
     	if (addUsername && username!=null) {
     		s+="&username="+username;
     	} else if (forceAllFields) {
     		s+="&username="+(username==null?"":username);
     	};
-    	
+        if (addPassword && password!=null) {
+            s+="&password="+password;
+        } else if (forceAllFields) {
+            s+="&password="+(password==null?"":password);
+        };
+
     	if (location!=null) {
     		s+="&location="+location;
     	}
@@ -74,7 +79,6 @@ public class Profile implements Serializable {
     	
     	if (forceAllFields) {
     		s+="&auth_method="+(authMethod==null?AUTH_UNKNOWN:authMethod);
-    		s+="&password="+(password==null?"":password);
     		s+="&regid="+(gcmRegistrationId==null?"":gcmRegistrationId);
     	}
     	return s;

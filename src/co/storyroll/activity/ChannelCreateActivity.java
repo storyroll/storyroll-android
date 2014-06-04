@@ -46,7 +46,7 @@ public class ChannelCreateActivity extends LeftActionActivity {
             return;
         }
         String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHANNEL_CREATE, "uuid=" + getUuid() + "&t=" + chName);
-        aq.progress(R.id.progress_circular).ajax(apiUrl, JSONObject.class, this, "channelCreateCb");
+        aq.auth(basicHandle).progress(R.id.progress_circular).ajax(apiUrl, JSONObject.class, this, "channelCreateCb");
     }
 
     public void channelCreateCb(String url, JSONObject json, AjaxStatus status)

@@ -20,6 +20,7 @@ import co.storyroll.ui.ControlledMovieView;
 import co.storyroll.ui.MovieItemView;
 import co.storyroll.ui.RoundedImageView;
 import co.storyroll.util.*;
+import com.androidquery.auth.BasicHandle;
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -58,10 +59,11 @@ public class ArrayMoviesFragment extends ListFragment {
 	public static Set<String> userLikes = null;
 	private Calendar c = Calendar.getInstance();
 
-	private static int unseenMoviesCount=0; 
-	
+	private static int unseenMoviesCount=0;
+    private BasicHandle basicHandle;
 
-	/**
+
+    /**
 	 * Create a new instance of CountingFragment, providing "num" as an
 	 * argument.
 	 * @param chanId TODO
@@ -93,7 +95,8 @@ public class ArrayMoviesFragment extends ListFragment {
 		isTrial = getArguments() != null ? getArguments().getBoolean("trial") : false;
 		
 		aq = ((TabbedChannelsActivity) getActivity()).getPQuery();
-		
+        basicHandle = AppUtility.makeBasicHandle(getActivity());
+
 		// get user likes only once
 		if (isTrial) {
 			userLikes = new HashSet<String>();
@@ -104,7 +107,7 @@ public class ArrayMoviesFragment extends ListFragment {
 				userLikes = new HashSet<String>();
 			}
 			String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_STORIES_LIKED_BY_USER, "uuid=" + mUuid + "&limit=" + LIMIT_ITEMS);
-			aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "userLikesIdsCb");
+			aq.auth(basicHandle).progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "userLikesIdsCb");
 		}
 		// get unseen only once
 		if (!isTrial) {
@@ -128,8 +131,13 @@ public class ArrayMoviesFragment extends ListFragment {
 
 		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHAN_MOVIES,
 				"uuid=" + mUuid +"&channel="+mChanId + "&limit=" + LIMIT_ITEMS);
-		
-		aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "getMovieListCb");
+
+        if (isTrial) {
+            aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "getMovieListCb");
+        }
+        else {
+            aq.auth(basicHandle).progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "getMovieListCb");
+        }
 		
 //		default:
 //			Log.e(LOGTAG, "Unrecognized tabnum: " + mNum);
@@ -592,22 +600,22 @@ public class ArrayMoviesFragment extends ListFragment {
 					}
 					
 	
-					aq.ajax(url, JSONObject.class, new AjaxCallback<JSONObject>() {
-						@Override
-						public void callback(String url, JSONObject json,
-								AjaxStatus status) {
-							if (json != null) {
-								// successful ajax call
-								Log.v(LOGTAG, "likeCb success: " + json.toString());
-								// TODO: update like icon, and increase the count.
-								// TODO: collateral?
-							} else {
-								// ajax error, o change
-								apiError(LOGTAG,
-										"likeCb: Json null " + mUuid, status, false, Log.ERROR);
-							}
-						}
-					});
+					aq.auth(basicHandle).ajax(url, JSONObject.class, new AjaxCallback<JSONObject>() {
+                        @Override
+                        public void callback(String url, JSONObject json,
+                                             AjaxStatus status) {
+                            if (json != null) {
+                                // successful ajax call
+                                Log.v(LOGTAG, "likeCb success: " + json.toString());
+                                // TODO: update like icon, and increase the count.
+                                // TODO: collateral?
+                            } else {
+                                // ajax error, o change
+                                apiError(LOGTAG,
+                                        "likeCb: Json null " + mUuid, status, false, Log.ERROR);
+                            }
+                        }
+                    });
 				}
 			}
 
@@ -803,8 +811,12 @@ public class ArrayMoviesFragment extends ListFragment {
 		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHAN_MOVIES,
 				"uuid=" + mUuid +"&channel="+mChanId + "&limit=" + LIMIT_ITEMS);
 		
-		aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "updateMovieListCb");
-		
+        if (isTrial) {
+            aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "updateMovieListCb");
+        }
+        else {
+            aq.auth(basicHandle).progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "updateMovieListCb");
+        }
 	}
 
 	public void postSelectItem(final int pos) {

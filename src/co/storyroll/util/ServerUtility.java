@@ -16,18 +16,21 @@ public class ServerUtility {
     public static final String API_CHANNELS = "channels";
     public static final String API_CHAN_MOVIES = "videosInChannel";
 
+    @Deprecated
     public static final String API_CLIPS_AVAILABLE = "available"; //
 	public static final String API_CLIP_ADD = "addFragment";
-	public static final String API_CLIP_FILE = "fragmentFile";
-	public static final String API_CLIP_THUMB = "clipThumb";
+    @Deprecated
+	public static final String API_CLIP_FILE = "fragmentFile"; //
+    @Deprecated
+	public static final String API_CLIP_THUMB = "clipThumb"; //
 
     public static final String API_INVITES_ADD = "invites/add";
     public static final String API_INVITES_IN_CHANNEL = "channels/invites"; // params: c=channelId
-    public static final String API_INVITES_PENDING = "/invites/pending"; // params: uuid
-    public static final String API_INVITES_ACCEPT="/invites/accept";
-    public static final String API_INVITES_DECLINE="/invites/decline";
+    public static final String API_INVITES_PENDING = "invites/pending"; // params: uuid
+    public static final String API_INVITES_ACCEPT="invites/accept";
+    public static final String API_INVITES_DECLINE="invites/decline";
 
-    public static final String API_LOGIN_VALID = "loginValid";
+//    public static final String API_LOGIN_VALID = "loginValid";
 
 	public static final String API_MOVIE_THUMB = "movieThumb";
 
