@@ -10,7 +10,6 @@ import org.json.JSONObject;
 public class ServerUtility {
 	private static final String LOGTAG = "ServerUtility";
 
-//	public static final String API_AVATAR = "avatar"; // deprecated
 	public static final String API_AVATAR_SET = "setAvatar";
 
     public static final String API_CHANNEL_CREATE = "channel/create";
