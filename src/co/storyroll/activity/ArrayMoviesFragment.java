@@ -18,7 +18,6 @@ import co.storyroll.enums.AutostartMode;
 import co.storyroll.model.Movie;
 import co.storyroll.ui.ControlledMovieView;
 import co.storyroll.ui.MovieItemView;
-import co.storyroll.ui.PlaylistItemView;
 import co.storyroll.ui.RoundedImageView;
 import co.storyroll.util.*;
 import com.androidquery.callback.AjaxCallback;
@@ -461,12 +460,10 @@ public class ArrayMoviesFragment extends ListFragment {
 			likesNum.setText(shortLikesString(movie.getLikeCount()));
 			
 			if (movie.getCast()!=null) {
-				for (int i=0; i<movie.getCast().length && i< PlaylistItemView.castIds.length; i++) {
+				for (int i=0; i<movie.getCast().length && i< MovieItemView.castIds.length; i++) {
 					RoundedImageView castImage = (RoundedImageView)
-							rowView.findViewById(PlaylistItemView.castIds[i]);
-					aq.id(castImage).image(PrefUtility.getApiUrl(
-							ServerUtility.API_AVATAR, "uuid="+movie.getCast()[i]), 
-							true, false, 0, R.drawable.ic_avatar_default);
+							rowView.findViewById(MovieItemView.castIds[i]);
+					aq.id(castImage).image(movie.getCast()[i], true, false, 0, R.drawable.ic_avatar_default);
 					aq.id(castImage).clicked(this, "onCastClickedCb");
 				}
 			}
@@ -528,8 +525,8 @@ public class ArrayMoviesFragment extends ListFragment {
                     intent.putExtra(VideoCaptureActivity.RESPOND_TO_CLIP_URL, movie.getLastClipUrl());
                     intent.putExtra(VideoCaptureActivity.CURRENT_CHANNEL, mChanId);
                     intent.putExtra(VideoCaptureActivity.MOVIE, movie.getId());
-//				    Log.v(LOGTAG, "movie.getLastUserId()="+movie.getLastUserId());
                     intent.putExtra(VideoCaptureActivity.LAST_USER_UUID, movie.getLastUserId());
+                    intent.putExtra(VideoCaptureActivity.LAST_USER_AVATAR, movie.getLastUserAvatar());
                     startActivity(intent);
                 }
 			}

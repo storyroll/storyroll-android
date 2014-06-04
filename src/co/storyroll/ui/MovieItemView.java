@@ -61,18 +61,18 @@ public class MovieItemView extends LinearLayout {
       	// make cast avatars visible
   		try {
   			// TODO: sloppy
-  			String[] cast = new String[jarr.length()];
+  			String[] castAvatars = new String[jarr.length()];
   			int i = 0;
         	for (; i < jarr.length(); i++) {
 				JSONObject userObj = jarr.getJSONObject(i);
-				String uuid = userObj.getString("uuid");
-				cast[i] = uuid;
+				String avatarUrl = userObj.getString("avatarUrl");
+				castAvatars[i] = avatarUrl;
 				if (i<castIds.length) {
 					ImageView castImage = (ImageView) findViewById(castIds[i]);
-					aq.id(castImage).image(PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+uuid), true, false, 0, R.drawable.ic_avatar_default);
+					aq.id(castImage).image(avatarUrl, true, false, 0, R.drawable.ic_avatar_default);
 				}
         	}
-        	movie.setCast(cast);
+        	movie.setCast(castAvatars);
         	// indicate that there's more fragments
         	if (i>=castIds.length) {
         		TextView castMore = (TextView) findViewById(R.id.cast_more);

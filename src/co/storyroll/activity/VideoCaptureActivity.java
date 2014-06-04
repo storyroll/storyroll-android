@@ -43,17 +43,20 @@ import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
 public class VideoCaptureActivity extends BaseActivity implements
 		SurfaceHolder.Callback, OnVideoTaskCompleted,  OnInfoListener {
 
-	public static final String LOGTAG = "VIDEOCAPTURE";
+	public static final String LOGTAG = "VideoCapture";
+    private static final String SCREEN_NAME = "VideoCapture";
 
 	static final String LAST_USER_UUID = "LAST_USER";
-	private static final String MODE_NEW = "MODE_NEW";
+    static final String LAST_USER_AVATAR = "LAST_USER_AVATAR";
+
+    private static final String MODE_NEW = "MODE_NEW";
 	static final String CURRENT_CHANNEL = "CURRENT_CHANNEL";
 	static final String RESPOND_TO_CLIP = "RESPOND_TO_CLIP";
     static final String RESPOND_TO_CLIP_URL = "RESPOND_TO_CLIP_URL";
     static final String MOVIE = "MOVIE";
 	private static final String CURRENT_CAMERA = "CURRENT_CAMERA";
 	private static final String LAST_STATE = "LAST_STATE";
-	private static final String SCREEN_NAME = "VideoCapture";
+
 
 	
 	//fires once a half/second
@@ -110,12 +113,13 @@ public class VideoCaptureActivity extends BaseActivity implements
 	private long mRespondToClipId = NULL_RESPONSE_CLIP;
     private String mRespondToClipUrl = null;
 	private boolean isFragmentCarousel = false;
-	
+    private String mLastUserAvatar = null;
+
 	private long mCurrentChanlId = NULL_CHAN;
 	private long mMovieId = -1L;
 	private String mLastUserUuid = null;
 	private String recordingCompletedTsAsISO = null;
-    
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.v(LOGTAG, "onCreate");
@@ -176,15 +180,15 @@ public class VideoCaptureActivity extends BaseActivity implements
 			// initialize fresh
 			mMovieId = getIntent().getLongExtra(MOVIE, -1L);
 			mLastUserUuid = getIntent().getStringExtra(LAST_USER_UUID);
+            mLastUserAvatar = getIntent().getStringExtra(LAST_USER_AVATAR);
 			mRespondToClipId = getIntent().getLongExtra(RESPOND_TO_CLIP, NULL_RESPONSE_CLIP);
             mRespondToClipUrl = getIntent().getStringExtra(RESPOND_TO_CLIP_URL);
 
             mCurrentChanlId  = getIntent().getLongExtra(CURRENT_CHANNEL, NULL_CHAN);
 			
 			Log.v(LOGTAG, "lastUserId="+mLastUserUuid);
-			if (mLastUserUuid!=null) {
-				Log.v(LOGTAG, "url="+ PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid=" + mLastUserUuid));
-				aq.id(avatar).image(PrefUtility.getApiUrl(ServerUtility.API_AVATAR, "uuid="+mLastUserUuid), true, true, 0, R.drawable.ic_avatar_default);
+			if (mLastUserAvatar!=null) {
+				aq.id(avatar).image(mLastUserAvatar, true, true, 0, R.drawable.ic_avatar_default);
 			}
 			
 			Log.v("LOGTAG", "onCreate - savedInstanceState: "+savedInstanceState);
@@ -212,6 +216,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		else {
 			mMovieId = savedInstanceState.getLong(MOVIE);
 			mLastUserUuid = savedInstanceState.getString(LAST_USER_UUID);
+            mLastUserAvatar = savedInstanceState.getString(LAST_USER_AVATAR);
 			mStartNewMode = savedInstanceState.getBoolean(MODE_NEW);
 			mCurrentChanlId = savedInstanceState.getLong(CURRENT_CHANNEL);
 			mRespondToClipId = savedInstanceState.getLong(RESPOND_TO_CLIP);
@@ -1202,6 +1207,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		outState.putInt(CURRENT_CAMERA, mCurrentCameraId);
 		outState.putInt(LAST_STATE, mLastState);
 		outState.putString(LAST_USER_UUID, mLastUserUuid);
+        outState.putString(LAST_USER_AVATAR, mLastUserAvatar);
 		
 	}
 	

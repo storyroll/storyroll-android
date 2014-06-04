@@ -1,16 +1,19 @@
 package co.storyroll.model;
 
+import co.storyroll.util.PrefUtility;
+import co.storyroll.util.ServerUtility;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Movie extends Clip {
 	private static final String LOGTAG = "Movie";
-	long lastClipId = -1L;
-    String lastClipUrl = null;
-	String lastUserUuid = null;
-	String[] cast = null;
-	long publishedOn = 0;
-	boolean seen = false;
+    private long lastClipId = -1L;
+    private String lastClipUrl = null;
+    private String lastUserUuid = null;
+	private String[] cast = null;
+    private long publishedOn = 0;
+    private boolean seen = false;
+    private String lastUserAvatar = null;
 	
 	public Movie(long id){
 		super(id);
@@ -64,6 +67,14 @@ public class Movie extends Clip {
         this.lastClipUrl = lastClipUrl;
     }
 
+    public String getLastUserAvatar() {
+        return lastUserAvatar;
+    }
+
+    public void setLastUserAvatar(String lastUserAvatar) {
+        this.lastUserAvatar = lastUserAvatar;
+    }
+
     public Movie(JSONObject obj) throws JSONException {
 		super(obj);
 		lastClipId = obj.has("lastClipId")?obj.getLong("lastClipId"):-1L;
@@ -72,6 +83,8 @@ public class Movie extends Clip {
 //		Log.v(LOGTAG, "lastUserUid: "+lastUserUuid);
 		publishedOn = obj.getLong("publishedOn");
 		seen = obj.getBoolean("seen");
+        // todo: replace with real field
+        lastUserAvatar = PrefUtility.getApiUrl_old(ServerUtility.API_AVATAR, "uuid=" + lastUserUuid);
 	}
 	
 	@Override

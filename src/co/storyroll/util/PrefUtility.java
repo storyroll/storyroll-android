@@ -191,6 +191,7 @@ public class PrefUtility {
     public static String getApiUrl(String subj) {
         return getApiUrl(subj, null);
     }
+
 	public static String getApiUrl(String subj, String params) {
 		ServerPreference sp = PrefUtility.getEnum(ServerPreference.class, ServerPreference.AWS);
 		String s = Constants.API_URL_AWS;
@@ -207,7 +208,24 @@ public class PrefUtility {
 		}
 		return s;
 	}
-	
+
+    @Deprecated
+    public static String getApiUrl_old(String subj, String params) {
+        ServerPreference sp = PrefUtility.getEnum(ServerPreference.class, ServerPreference.AWS);
+        String s = Constants.API_URL_AWS;
+        if (sp.equals(ServerPreference.STAGING)) {
+            s = Constants.API_URL_STAGING;
+        } else if (sp.equals(ServerPreference.DEV)) {
+            s = Constants.API_URL_DEV;
+        }
+        if (subj!=null && subj.length()>0) {
+            s+=subj;
+        }
+        if (params!=null && params.length()>0) {
+            s+="?"+params;
+        }
+        return s;
+    }
 	public static String getUuid() {
 		Context context = MainApplication.getContext();
 		SharedPreferences settings = context.getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
