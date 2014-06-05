@@ -1,6 +1,7 @@
 package co.storyroll.activity;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -14,7 +15,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-import co.storyroll.MainApplication;
 import co.storyroll.R;
 import co.storyroll.base.MenuActivity;
 import co.storyroll.model.Profile;
@@ -23,13 +23,12 @@ import co.storyroll.util.ImageUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
 import com.androidquery.auth.FacebookHandle;
-import com.androidquery.callback.AbstractAjaxCallback;
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
+import com.androidquery.util.AQUtility;
 import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
 import org.apache.http.HttpEntity;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.json.JSONException;
@@ -76,7 +75,6 @@ public class ProfileActivity extends MenuActivity {
 		
 		Log.v(LOGTAG, "onCreate");
 		setContentView(R.layout.activity_profile);
-		
 		// Fields set on a tracker persist for all hits, until they are
 	    // overridden or cleared by assignment to null.
 	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
@@ -184,9 +182,9 @@ public class ProfileActivity extends MenuActivity {
 		if (!avatarChangeStarted && !avatarChangeCompleted) 
 		{
 			// do we have SR avatar?
-			if (!TextUtils.isEmpty(profile.getAvatarUrl())) {
+			if (!TextUtils.isEmpty(profile.getAvatarUrl()))
+            {
 				Log.v(LOGTAG, "loading avatar from SR");
-
 				aq.id(R.id.avatar).image(profile.getAvatarUrl(),
 						false, false, 0, R.drawable.ic_avatar_default);
 
@@ -198,14 +196,15 @@ public class ProfileActivity extends MenuActivity {
 
                 // TODO: refactor
                 // hack here
-                AbstractAjaxCallback.setSSF(SSLSocketFactory.getSocketFactory());
+//                AbstractAjaxCallback.setSSF(SSLSocketFactory.getSocketFactory());
 
 				String tb = ImageUtility.getFbProfileTb(handle);
+                // todo: clear cached image, which is sometimes picked up here
 				aq.id(R.id.avatar).image(tb);
 
                 // TODO: refactor
                 // hack pt2: restore SSL Factory
-                AbstractAjaxCallback.setSSF(MainApplication.getSocketFactory());
+//                AbstractAjaxCallback.setSSF(MainApplication.getSocketFactory());
 			}
 		}
 		
@@ -336,8 +335,9 @@ public class ProfileActivity extends MenuActivity {
         	// upload avatar
     		if (avatarChangeCompleted) 
     		{
-                doUploadAvatar(profile.email);
-    	        
+                // delay to avoid race conditions, see https://github.com/storyroll/storyroll-android/issues/209
+                Log.v(LOGTAG, "postDelayed:AvatarUpdater");
+                AQUtility.postDelayed(new AvatarUpdater(getApplicationContext()), 2000);
     		}
     		else {
     			nextActivity();
@@ -349,28 +349,37 @@ public class ProfileActivity extends MenuActivity {
         return true;
 	}
 
-    private void doUploadAvatar(String email){
-        File file = new File(AppUtility.getAppWorkingDir(this)+File.separator+"avatar.jpg");
+    private class AvatarUpdater implements Runnable {
+        Context ctx;
+        public AvatarUpdater(Context c) {
+            ctx = c;
+        }
+        @Override
+        public void run() {
+            doUploadAvatar(ctx, profile.email);
+        }
+    }
 
-//        Map params = new HashMap();
-//        params.put("file", file);
-//        params.put("uuid", email);
-//        aq.progress(R.id.progress).ajax(
-//                PrefUtility.getApiUrl(ServerUtility.API_AVATAR_SET, null),
-//                params, JSONObject.class, this, "setAvatarCb");
+    private void doUploadAvatar(Context ctx, String email){
+        File file = new File(AppUtility.getAppWorkingDir(ctx)+File.separator+"avatar.jpg");
 
         HttpEntity reqEntity = MultipartEntityBuilder.create()
                 .addBinaryBody("file", file, APPLICATION_OCTET_STREAM, "avatar.jpg")
                 .addTextBody("uuid", email, ContentType.TEXT_PLAIN).build();
-
 
         aq.auth(basicHandle).progress(R.id.progress).post(PrefUtility.getApiUrl(ServerUtility.API_AVATAR_SET),
                 reqEntity, JSONObject.class, new AjaxCallback<JSONObject>() {
 
                     @Override
                     public void callback(String url, JSONObject json, AjaxStatus status) {
-                        Log.v(LOGTAG, "callback: json=" + json == null ? "null" : json.toString());
-                        setAvatarCb(url, json, status);
+                        Log.v(LOGTAG, "API_AVATAR_SET callback: json=" + (json == null ? "null" : json.toString()));
+                        if (json!=null)
+                        {
+                            setAvatarCb(url, json, status);
+                        }
+                        else {
+                            apiError(LOGTAG, "Error uploading avatar image on registration: "+registration, status, false, Log.ERROR);
+                        }
                     }
                 });
     }

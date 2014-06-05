@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
-import co.storyroll.MainApplication;
 import co.storyroll.R;
 import co.storyroll.base.GcmActivity;
 import co.storyroll.model.Profile;
@@ -17,11 +16,9 @@ import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
 import com.androidquery.auth.BasicHandle;
 import com.androidquery.auth.FacebookHandle;
-import com.androidquery.callback.AbstractAjaxCallback;
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -72,7 +69,7 @@ public class LoginActivity extends GcmActivity {
 
         // TODO: refactor
         // hack here
-        AbstractAjaxCallback.setSSF( SSLSocketFactory.getSocketFactory() );
+//        AbstractAjaxCallback.setSSF( SSLSocketFactory.getSocketFactory() );
 		aq.auth(facebookHandle).progress(R.id.progress).ajax(facebookGraphUrl, JSONObject.class, this, "facebookProfileCb");
 	}
 	
@@ -163,7 +160,7 @@ public class LoginActivity extends GcmActivity {
 
         // TODO: refactor
         // hack pt2: restore SSL Factory
-        AbstractAjaxCallback.setSSF(MainApplication.getSocketFactory());
+//        AbstractAjaxCallback.setSSF(MainApplication.getSocketFactory());
 
     	if (isAjaxErrorThenReport(status)) return;
             
