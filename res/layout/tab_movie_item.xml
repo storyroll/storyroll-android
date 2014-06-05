@@ -18,7 +18,8 @@
         android:layout_alignParentTop="true"
         android:src="@drawable/trailer_indication"
         />
-    <FrameLayout
+
+    <RelativeLayout
          android:layout_width="match_parent"
          android:layout_height="wrap_content"
 	     android:paddingBottom="10dp"
@@ -65,8 +66,20 @@
             android:alpha="0.5"
             android:layout_alignParentTop="true"
             android:layout_centerInParent="true"
-        />
-
+                />
+        <ImageView
+            android:id="@+id/removeControl"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_movie_delete"
+            android:visibility="visible"
+            android:contentDescription="Remove"
+            android:alpha="0.2"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            />
 	    <ProgressBar 
 			android:id="@+id/progress"	
 			android:layout_width="wrap_content" 
@@ -74,9 +87,8 @@
 			android:visibility="gone"
 			android:layout_gravity="center"
 			android:layout_centerInParent="true"
-			android:layout_alignParentTop="true"
 		/>
-  	</FrameLayout>
+  	</RelativeLayout>
 
     <RelativeLayout
         android:layout_width="wrap_content"

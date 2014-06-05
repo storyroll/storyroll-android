@@ -17,6 +17,7 @@ import co.storyroll.R;
 import co.storyroll.enums.AutostartMode;
 import co.storyroll.model.Movie;
 import co.storyroll.ui.ControlledMovieView;
+import co.storyroll.ui.HideMovieDialog;
 import co.storyroll.ui.MovieItemView;
 import co.storyroll.ui.RoundedImageView;
 import co.storyroll.util.*;
@@ -390,10 +391,10 @@ public class ArrayMoviesFragment extends ListFragment {
 		private int autoRangeTop;
 		private int autoRangeBottom;
 		private boolean isTrial;
-		
-		
+		private ImageButton.OnClickListener onMoviehideClick;
 
-		public MovieListAdapter(Context context, ArrayList<Movie> movies,
+
+        public MovieListAdapter(Context context, ArrayList<Movie> movies,
 				PQuery aq, String uuid, boolean trial) {
 
 			super(context, R.layout.tab_movie_item, movies);
@@ -414,6 +415,13 @@ public class ArrayMoviesFragment extends ListFragment {
 			// calculate active range
 			autoRangeTop = Math.round(AUTO_RANGE_TOP*screenHeight);
 			autoRangeBottom = Math.round(AUTO_RANGE_BOTTOM*screenHeight);
+            onMoviehideClick = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    fireGAnalyticsEvent("ui_action", "touch", "action_roll_movie", null);
+                    new HideMovieDialog().show(getActivity().getSupportFragmentManager(), "HideMovieDialog");
+                }
+            };
 			
 			Log.d(LOGTAG, "display metrix: "+screenWidth+" x "+screenHeight+", autoRange: "+autoRangeTop+" - "+autoRangeBottom);
 
@@ -433,6 +441,9 @@ public class ArrayMoviesFragment extends ListFragment {
 			// 3. Get the views from the rowView
 			ImageView videoThumb = (ImageView) rowView.findViewById(R.id.videoThumb);
 			ImageView playControl = (ImageView) rowView.findViewById(R.id.playControl);
+            ImageView removeControl = (ImageView) rowView.findViewById(R.id.removeControl);
+            removeControl.setOnClickListener(onMoviehideClick);
+
             ImageView trailerIndicator = (ImageView) rowView.findViewById(R.id.trailerIndicator);
 			TextView likesNum = (TextView) rowView.findViewById(R.id.numLikes);
 			ImageView likeControl = (ImageView) rowView.findViewById(R.id.likeImage);
@@ -512,7 +523,7 @@ public class ArrayMoviesFragment extends ListFragment {
 				pv.startVideoPreloading(true);
 			}
 		}
-		
+
 		// reply listener
 		class ReplyClickListener implements ImageButton.OnClickListener {
 			Movie movie;

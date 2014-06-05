@@ -165,5 +165,8 @@
     <string name="btn_interested">Interested!</string>
     <string name="action_add_group">Invite people</string>
     <string name="action_chan_new">New story</string>
+    <string name="dialog_remove_movie">In future versions, this control will alow you to hide the video from your
+        list.
+    </string>
 
 </resources>
