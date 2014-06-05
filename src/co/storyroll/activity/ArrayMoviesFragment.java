@@ -433,6 +433,7 @@ public class ArrayMoviesFragment extends ListFragment {
 			// 3. Get the views from the rowView
 			ImageView videoThumb = (ImageView) rowView.findViewById(R.id.videoThumb);
 			ImageView playControl = (ImageView) rowView.findViewById(R.id.playControl);
+            ImageView trailerIndicator = (ImageView) rowView.findViewById(R.id.trailerIndicator);
 			TextView likesNum = (TextView) rowView.findViewById(R.id.numLikes);
 			ImageView likeControl = (ImageView) rowView.findViewById(R.id.likeImage);
 			ControlledMovieView videoView = (ControlledMovieView) rowView.findViewById(R.id.videoPlayerView);
@@ -453,6 +454,8 @@ public class ArrayMoviesFragment extends ListFragment {
 			
 			ViewUtility.setViewSquare(videoThumb, calculcatedVideoWidth);
 			ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
+            ViewUtility.setViewWidth(trailerIndicator, calculcatedVideoWidth);
+
 			
 			videoView.init(ArrayMoviesFragment.this, videoThumb, calculcatedVideoWidth, position, 
 					movie, mUuid, progressBar, unseenIndicator, playControl);

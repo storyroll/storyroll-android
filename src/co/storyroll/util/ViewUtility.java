@@ -10,4 +10,11 @@ public class ViewUtility {
 		lp.height = calculatedWidth;
 		v.setLayoutParams(lp);
 	}
+    public static void setViewWidth(View v, int calculatedWidth) {
+        // set preview window to square
+        android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
+        lp.width = calculatedWidth;
+//        lp.height = calculatedWidth;
+        v.setLayoutParams(lp);
+    }
 }

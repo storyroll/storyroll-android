@@ -74,7 +74,7 @@ public class MovieItemView extends LinearLayout {
         	}
         	movie.setCast(castAvatars);
         	// indicate that there's more fragments
-        	if (i>=castIds.length) {
+        	if (i>=castIds.length && false) { // currently disabled 06/03/2014
         		TextView castMore = (TextView) findViewById(R.id.cast_more);
         		aq.id(castMore).text("+"+(i-castIds.length+1)).visible();
         	}

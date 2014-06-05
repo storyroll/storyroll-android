@@ -159,5 +159,9 @@
     <string name="dialog_signup_title">Welcome to StoryRoll</string>
 
     <string name="store_pass">storyroll123</string>
+    <string name="dialog_roll_movie">In future, we will add a feature here to generate a movie from your video clips.
+    </string>
+    <string name="btn_not_interested">Meh</string>
+    <string name="btn_interested">Interested!</string>
 
 </resources>

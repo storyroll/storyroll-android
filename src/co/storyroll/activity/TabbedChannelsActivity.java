@@ -14,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import co.storyroll.R;
 import co.storyroll.base.MenuFragmentActivity;
 import co.storyroll.model.Channel;
 import co.storyroll.model.Contact;
+import co.storyroll.ui.RollMovieDialog;
 import co.storyroll.ui.SignupDialog;
 import co.storyroll.util.*;
 import com.androidquery.callback.AjaxCallback;
@@ -485,7 +487,19 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
             return getChannels().get(position % getChannels().size()).getTitle();
         }
     }
-    
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean ret = super.onPrepareOptionsMenu(menu);
+        MenuItem item = menu.findItem(R.id.action_roll_movie);
+        item.getIcon().setAlpha(112);
+//        Drawable resIcon = getResources().getDrawable(R.drawable.ic_action_roll_movie);
+//        // grey down the icon
+//        resIcon.mutate().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+//        item.setIcon(resIcon);
+        return ret;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) 
     {
@@ -514,12 +528,19 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 			 
 		}
 		else if (item.getItemId() == R.id.action_refresh) {
+            fireGAnalyticsEvent("ui_action", "touch", "action_refresh", null);
             updateInvitesFromServer();
             onRefreshChannel();
 			return true;
 		}
         else if (item.getItemId() == R.id.action_add_group) {
+            fireGAnalyticsEvent("ui_action", "touch", "action_add_group", null);
             onAddGroup();
+            return true;
+        }
+        else if (item.getItemId() == R.id.action_roll_movie) {
+            fireGAnalyticsEvent("ui_action", "touch", "action_roll_movie", null);
+            new RollMovieDialog().show(getSupportFragmentManager(), "RollMovieDialog");
             return true;
         }
 

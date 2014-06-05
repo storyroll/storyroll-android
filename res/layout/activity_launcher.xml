@@ -26,7 +26,19 @@
 	        android:gravity="center"
 	        android:src="@drawable/sr_logo"
 	        android:contentDescription="@string/app_name"
-	        android:paddingBottom="30dp" />
+	        android:paddingBottom="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:textSize="12pt"
+            android:text="share 2 sec,\nget full story"
+            android:textColor="#ffffff"
+            android:paddingBottom="30dp"
+            />
 	    
 	    <!-- ProgressBar
 		    android:id="@+id/progress"
@@ -51,7 +63,7 @@
          	        android:paddingRight="25dp"
 		         	android:textSize="8pt"
 		         	android:text="Loading ..."
-		         	android:textColor="#ebe8c9"
+		         	android:textColor="#363f4e"
 		        />
          	</LinearLayout>
 	    
@@ -91,14 +103,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Test GCM" />
+                android:text="T_GCM" />
            <Button
                 android:id="@+id/push_button"
                 style="?buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Test Push" />
+                android:text="T_Push" />
             <Button
                 android:id="@+id/proceed_button"
                 style="?buttonBarButtonStyle"
