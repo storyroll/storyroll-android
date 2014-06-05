@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 import co.storyroll.base.Constants;
+import co.storyroll.https.AdditionalKeyStoresSSLSocketFactory;
 import co.storyroll.util.AppUtility;
 import co.storyroll.util.ErrorReporter;
 import co.storyroll.util.PrefUtility;
@@ -47,7 +48,7 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         
         AQUtility.setCacheDir(null);
 
-        ssf = newSslSocketFactory();
+        ssf = createAdditionalCertsSSLSocketFactory();
         AbstractAjaxCallback.setSSF(ssf);
 
         AjaxCallback.setNetworkLimit(8);
@@ -142,6 +143,8 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
                 in.close();
             }
 
+
+
             // Pass the keystore to the SSLSocketFactory. The factory is responsible for the verification of the server certificate.
             SSLSocketFactory sf = new SSLSocketFactory(trusted);
 
@@ -155,9 +158,35 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         }
     }
 
+    private SSLSocketFactory createAdditionalCertsSSLSocketFactory() {
+        try {
+            // Get an instance of the Bouncy Castle KeyStore format
+            KeyStore trusted = KeyStore.getInstance("BKS");
 
-    public static SSLSocketFactory getSocketFactory() {
-        return ssf;
+            // Get the raw resource, which contains the keystore with your trusted certificates (root and any intermediate certs)
+            InputStream in = getApplicationContext().getResources().openRawResource(R.raw.cert_storyroll_lb);
+            try {
+                // Initialize the keystore with the provided trusted certificates.
+                // Also provide the password of the keystore
+                trusted.load(in, getApplicationContext().getString(R.string.store_pass).toCharArray());
+                Log.d(TAG, "Keystore initialized with StoryRoll trusted certificate");
+            } finally {
+                in.close();
+            }
+
+
+
+            // Pass the keystore to the SSLSocketFactory. The factory is responsible for the verification of the server certificate.
+//            SSLSocketFactory sf = new SSLSocketFactory(trusted);
+            SSLSocketFactory sf = new AdditionalKeyStoresSSLSocketFactory(trusted);
+
+            // Hostname verification from certificate
+            // http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html#d4e506
+            sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            return sf;
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
     }
 
 }
