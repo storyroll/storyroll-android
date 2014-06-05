@@ -163,5 +163,7 @@
     </string>
     <string name="btn_not_interested">Meh</string>
     <string name="btn_interested">Interested!</string>
+    <string name="action_add_group">Invite people</string>
+    <string name="action_chan_new">New story</string>
 
 </resources>
