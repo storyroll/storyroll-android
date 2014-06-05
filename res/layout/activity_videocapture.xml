@@ -115,7 +115,7 @@
 	        android:id="@+id/videoUploadedMessage"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:textSize="26sp"
+	        android:textSize="32sp"
 	        android:paddingLeft="40dp"
 	        android:paddingRight="40dp"
 	        android:text="@string/video_uploaded_message"

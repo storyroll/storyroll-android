@@ -18,7 +18,7 @@
  	<color name="sr_cast_text">#464646</color>
  	<color name="sr_bg_separator">#C6C6C6</color>
 	
-	<color name="sr_bg_vidcap">#303030</color>
+	<color name="sr_bg_vidcap">#1e2834</color>
 	<color name="sr_vidcap_ctrl_text">#ebe8c9</color>
 	<color name="sr_vidcap_capture_text">#ffffff</color>
 	<color name="sr_bg_vidcap_capture_text">#569bb8</color>
