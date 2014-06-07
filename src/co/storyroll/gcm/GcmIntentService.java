@@ -151,20 +151,20 @@ public class GcmIntentService extends IntentService {
         	msg = extras.getString("message");
         }
         else if (STORY_PUBLISHED.equalsIgnoreCase(collapseKey)) {
-        	contentTitle = "Your video is on!";
+        	contentTitle = getResources().getString(R.string.notif_video_published);
         	msg = "Published in "+channelName.toUpperCase()+"!";
         	
         }
         else if (REPLY_PUBLISHED.equalsIgnoreCase(collapseKey)) {
-        	contentTitle = "You got response!";
+        	contentTitle = getResources().getString(R.string.notif_you_got_response);
         	msg = lastUserame+" replied in "+channelName.toUpperCase()+"!";
         }
     	else if (NEW_MOVIE_IN_CHANNEL.equalsIgnoreCase(collapseKey)) {
-    		contentTitle = "New video";
+    		contentTitle = getResources().getString(R.string.notif_new_video);
         	msg = lastUserame+" posted new video in "+channelName.toUpperCase()+"!";
     	}
     	else if (NEW_REPLY_IN_CHANNEL.equalsIgnoreCase(collapseKey)) {
-    		contentTitle = "New response";
+    		contentTitle = getResources().getString(R.string.notif_response_channel);
     		msg = lastUserame+" posted a response in "+channelName.toUpperCase()+"!";
     	}
         int countNewStories = Integer.valueOf(countNewStoriesStr);

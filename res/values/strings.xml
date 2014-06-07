@@ -168,5 +168,9 @@
     <string name="dialog_remove_movie">In future versions, this control will alow you to hide the video from your
         list.
     </string>
+    <string name="notif_video_published">Your video was published</string>
+    <string name="notif_you_got_response">You got response!</string>
+    <string name="notif_new_video">New video</string>
+    <string name="notif_response_channel">Response in channel</string>
 
 </resources>

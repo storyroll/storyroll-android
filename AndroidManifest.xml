@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="co.storyroll"
-    android:versionCode="48"
-    android:versionName="0.57a" >
+    android:versionCode="49"
+    android:versionName="0.58a" >
 
     <!-- You can control the behaviors and visibility of the action bar with the ActionBar APIs, which were added in Android 3.0 (API level 11) -->
     <uses-sdk
