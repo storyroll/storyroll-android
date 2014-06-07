@@ -12,6 +12,7 @@ public class Movie extends Clip {
     private long publishedOn = 0;
     private boolean seen = false;
     private String lastUserAvatar = null;
+    private int clipCount = 0;
 	
 	public Movie(long id){
 		super(id);
@@ -73,6 +74,14 @@ public class Movie extends Clip {
         this.lastUserAvatar = lastUserAvatar;
     }
 
+    public int getClipCount() {
+        return clipCount;
+    }
+
+    public void setClipCount(int clipCount) {
+        this.clipCount = clipCount;
+    }
+
     public Movie(JSONObject obj) throws JSONException {
 		super(obj);
 		lastClipId = obj.has("lastClipId")?obj.getLong("lastClipId"):-1L;
@@ -83,6 +92,7 @@ public class Movie extends Clip {
 		seen = obj.getBoolean("seen");
         // todo: replace with real field
         lastUserAvatar = obj.getString("lastUserAvatarUrl");
+        clipCount = obj.getInt("clipCount");
 	}
 	
 	@Override

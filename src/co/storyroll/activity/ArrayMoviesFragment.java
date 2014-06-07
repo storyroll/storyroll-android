@@ -462,10 +462,16 @@ public class ArrayMoviesFragment extends ListFragment {
 			if (!movie.isSeen()) {
 	            playControl.setImageResource(R.drawable.ic_play_roll_new);
 			}
+            if (movie.getClipCount()<2) {
+                // hide multiple movie indicator
+                trailerIndicator.setVisibility(View.GONE);
+            }
+            else {
+                ViewUtility.setViewWidth(trailerIndicator, calculcatedVideoWidth);
+            }
 			
 			ViewUtility.setViewSquare(videoThumb, calculcatedVideoWidth);
 			ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
-            ViewUtility.setViewWidth(trailerIndicator, calculcatedVideoWidth);
 
 			
 			videoView.init(ArrayMoviesFragment.this, videoThumb, calculcatedVideoWidth, position, 
