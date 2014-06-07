@@ -33,21 +33,28 @@ public class LoginActivity extends GcmActivity {
 	private Profile profile = null;
 	private boolean connectedViaFacebook = false;
     private boolean isOverrideBackPress = true;
+    private boolean isRecreatedAfterFacebookSuccess = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		isHomeEnabled = !getIntent().getBooleanExtra("logout", false);
         isOverrideBackPress = getIntent().getBooleanExtra("overrideBackPress", true);
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_login);
-		
-//		ActionBarUtility.adjustActionBarLogoCentering(this);
-		
-		facebookHandle = AppUtility.makeHandle(this);
-		
-		aq.id(R.id.facebook_button).clicked(this, "facebookButtonClicked");
-		aq.id(R.id.done_button).clicked(this, "doneButtonClicked");
-		
+        super.onCreate(savedInstanceState);
+
+        Log.v(LOGTAG, "isRecreatedAfterFacebookSuccess: "+isRecreatedAfterFacebookSuccess);
+        if (isRecreatedAfterFacebookSuccess)
+        {
+            setContentView(R.layout.activity_login_facebook);
+        }
+        else {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_login);
+
+            aq.id(R.id.facebook_button).clicked(this, "facebookButtonClicked");
+            aq.id(R.id.done_button).clicked(this, "doneButtonClicked");
+        }
+        facebookHandle = AppUtility.makeHandle(this);
+
 		// Fields set on a tracker persist for all hits, until they are
 	    // overridden or cleared by assignment to null.
 		getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
@@ -67,9 +74,6 @@ public class LoginActivity extends GcmActivity {
 		facebookHandle.sso(ACTIVITY_SSO);
 		Log.d(LOGTAG, "SSO available: " + facebookHandle.isSSOAvailable());
 
-        // TODO: refactor
-        // hack here
-//        AbstractAjaxCallback.setSSF( SSLSocketFactory.getSocketFactory() );
 		aq.auth(facebookHandle).progress(R.id.progress).ajax(facebookGraphUrl, JSONObject.class, this, "facebookProfileCb");
 	}
 	
@@ -157,10 +161,6 @@ public class LoginActivity extends GcmActivity {
     public void facebookProfileCb(String url, JSONObject json, AjaxStatus status) {
 		Log.v(LOGTAG, "facebookProfileCb");
 		fireGAnalyticsEvent("facebook", "login", json==null?"fail":"success", null);
-
-        // TODO: refactor
-        // hack pt2: restore SSL Factory
-//        AbstractAjaxCallback.setSSF(MainApplication.getSocketFactory());
 
     	if (isAjaxErrorThenReport(status)) return;
             
@@ -289,11 +289,13 @@ public class LoginActivity extends GcmActivity {
 	                if(facebookHandle != null){
 	                	facebookHandle.onActivityResult(requestCode, resultCode, data);   
 	                }
-	        		
-	        		Log.v(LOGTAG, "facebook authenticated: "+facebookHandle.authenticated());
+
+                    isRecreatedAfterFacebookSuccess = facebookHandle.authenticated();
         			fireGAnalyticsEvent("facebook", "authenticated", facebookHandle.authenticated()+"", null);
 
-	        		if (facebookHandle.authenticated()) {
+	        		if (facebookHandle.authenticated())
+                    {
+                        setContentView(R.layout.activity_login_facebook);
 	        			aq.auth(facebookHandle).progress(R.id.progress).ajax(facebookGraphUrl, JSONObject.class, this, "facebookProfileCb");
 	        		}
 	        		else {

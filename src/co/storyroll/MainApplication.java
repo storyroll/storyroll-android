@@ -25,7 +25,7 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
 	public static final String MOBILE_AGENT = "Mozilla/5.0 (Linux; U; Android 2.2) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533";
     private static final String TAG = "Application";
 
-    private static SSLSocketFactory ssf = null;
+    private SSLSocketFactory ssf = null;
 
     @Override
     public void onCreate() {     

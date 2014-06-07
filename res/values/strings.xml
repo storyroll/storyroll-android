@@ -172,5 +172,6 @@
     <string name="notif_you_got_response">You got response!</string>
     <string name="notif_new_video">New video</string>
     <string name="notif_response_channel">Response in channel</string>
+    <string name="msg_facebook_connected">Facebook connected, wait a moment...</string>
 
 </resources>
