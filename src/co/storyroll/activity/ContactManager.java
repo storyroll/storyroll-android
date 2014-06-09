@@ -130,20 +130,22 @@ public final class ContactManager extends Activity {
 		ArrayList<Contact> selectedList = new ArrayList<Contact>();
 
 		Intent intent = new Intent();
-
-		ArrayList<Contact> contactList = contactAdapter.originalList;
-		for (int i = 0; i < contactList.size(); i++) {
-			Contact contact = contactList.get(i);
-			if (contact.isSelected()) {
-				selectedList.add(contact);
-			}
-			if (selectedList.size() > 0) {
-				intent.putParcelableArrayListExtra("SELECTED_CONTACTS", selectedList);
-				setResult(RESULT_OK, intent);
-			} else {
-				setResult(RESULT_CANCELED, intent);
-			}
-		}
+        if (contactAdapter!=null && contactAdapter.originalList!=null)
+        {
+            ArrayList<Contact> contactList = contactAdapter.originalList;
+            for (int i = 0; i < contactList.size(); i++) {
+                Contact contact = contactList.get(i);
+                if (contact.isSelected()) {
+                    selectedList.add(contact);
+                }
+            }
+        }
+        if (selectedList.size() > 0) {
+            intent.putParcelableArrayListExtra("SELECTED_CONTACTS", selectedList);
+            setResult(RESULT_OK, intent);
+        } else {
+            setResult(RESULT_CANCELED, intent);
+        }
 		// Tip: Here you can finish this activity and on the Activty result of the calling activity you fetch the Selected contacts
         finish();
 	}
@@ -181,6 +183,7 @@ public final class ContactManager extends Activity {
 	};
 
     private void clearAllSelected() {
+        if (contactAdapter==null || contactAdapter.originalList==null) return;
         ArrayList<Contact> contactList = contactAdapter.originalList;
         for (int i = 0; i < contactList.size(); i++) {
             contactList.get(i).setSelected(false);
