@@ -88,6 +88,7 @@ public final class ContactManager extends Activity {
                 Log.v(LOGTAG, "doneSelect.onClick");
 				ContactUtil.hideSoftKeyboard(ContactManager.this);
 				setSelctedContacts();
+                clearAllSelected();
 			}
 
 		});
@@ -152,6 +153,7 @@ public final class ContactManager extends Activity {
 	public void onBackPressed()
     {
         stopLoadingContacts();
+        clearAllSelected();
         Intent intent = new Intent();
         setResult(RESULT_CANCELED, intent);
         finish();
@@ -177,6 +179,13 @@ public final class ContactManager extends Activity {
 		finish();
 */
 	};
+
+    private void clearAllSelected() {
+        ArrayList<Contact> contactList = contactAdapter.originalList;
+        for (int i = 0; i < contactList.size(); i++) {
+            contactList.get(i).setSelected(false);
+       }
+    }
 
 	@SuppressLint("InlinedApi")
 	private void getContacts(AsyncTask task) {
@@ -407,8 +416,11 @@ public final class ContactManager extends Activity {
 
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if ((nameCheckBox.isChecked() && numSelected>MAX_INVITES_ALLOWED)) {
+                        if ((nameCheckBox.isChecked() && numSelected>=MAX_INVITES_ALLOWED))
+                        {
                             Toast.makeText(ContactManager.this, R.string.contacts_too_many, Toast.LENGTH_SHORT).show();
+                            contact.setSelected(false);
+                            nameCheckBox.setChecked(false);
                         }
                         else {
                             numSelected += (nameCheckBox.isChecked() ? 1 : -1);
