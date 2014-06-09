@@ -87,7 +87,7 @@ public final class ContactManager extends Activity {
 			public void onClick(View v) {
                 Log.v(LOGTAG, "doneSelect.onClick");
 				ContactUtil.hideSoftKeyboard(ContactManager.this);
-				setSelctedContacts();
+				setSelectedContacts();
                 clearAllSelected();
 			}
 
@@ -125,8 +125,8 @@ public final class ContactManager extends Activity {
 	}
 
 	// set selected contacts on DONE button press
-	private void setSelctedContacts() {
-        Log.v(LOGTAG, "setSelctedContacts");
+	private void setSelectedContacts() {
+        Log.v(LOGTAG, "setSelectedContacts");
 		ArrayList<Contact> selectedList = new ArrayList<Contact>();
 
 		Intent intent = new Intent();
