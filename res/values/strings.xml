@@ -17,7 +17,7 @@
     <string name="dummy_button">Proceed</string>
     <string name="dummy_content">STORYROLL\nCollaborative storytelling</string>
     <string name="login_text">Want to join the story? Please signup or login.</string>
-    <string name="channel_text">Create new private Story</string>
+    <string name="channel_text">Create new private Channel</string>
     <string name="channel_name">Name</string>
 
     <string name="user_name">User name</string>
@@ -43,7 +43,7 @@
     <string name="msg_password_email_required">Please enter both email and password</string>
     <string name="msg_uname_required">Please provide valid username</string>
     <string name="msg_uname_not_unique">Such username already registered, edit and try again</string>
-    <string name="msg_channel_name_required">Please enter Story name</string>
+    <string name="msg_channel_name_required">Please enter Channel name</string>
 
     <string name="play_roll_info">To see next roll, swipe left</string>
 
@@ -162,21 +162,21 @@
     <string name="btn_not_interested">Meh</string>
     <string name="btn_interested">Interested!</string>
     <string name="action_add_group">Invite people</string>
-    <string name="action_chan_new">New Story</string>
+    <string name="action_chan_new">New Channel</string>
     <string name="dialog_remove_movie">In future versions, this control will alow you to hide the video from your
         list.
     </string>
     <string name="notif_video_published">Your video was published</string>
     <string name="notif_you_got_response">You got response!</string>
     <string name="notif_new_video">New video</string>
-    <string name="notif_response_channel">Response in Story</string>
+    <string name="notif_response_channel">Response in Channel</string>
     <string name="msg_facebook_connected">Facebook connected, wait a moment...</string>
-    <string name="entity_channel">Story</string>
+    <string name="entity_channel">Channel</string>
     <string name="clear_cache">Clear cache</string>
     <string name="contacts_too_many">Only 5 contacts can be invited. Please unselect and reselect some of your
         contacts.
     </string>
-    <string name="action_leave_channel">Leave Story</string>
+    <string name="action_leave_channel">Leave Channel</string>
     <string name="pick_answer_share">Pick the way you would like to share in the future versions</string>
     <string name="pick_answer_roll">In future, we will add a feature here to generate a movie from your video clips.</string>
 
