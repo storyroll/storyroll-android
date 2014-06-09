@@ -18,8 +18,10 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.*;
-import android.view.View.OnTouchListener;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import co.storyroll.R;
@@ -39,14 +41,18 @@ public final class ContactManager extends Activity {
 	private ContactAdapter contactAdapter = null;
 	private ListView lv;
 	ImageView doneSelect;
-	RelativeLayout progressLayout;
+//	RelativeLayout progressLayout;
+    ProgressBar progress;
 	EditText myFilter;
 
 	// Indexing fo the list
 	HashMap<String, Integer> alphaIndexer;
 	String[] sections;
 
-	@Override
+    private AsyncLoadContacts contactLoaderTask = null;
+
+
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -54,6 +60,7 @@ public final class ContactManager extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.contact_manager);
 
+        /*
 		// /////////// Custom progress Layout //////////////////////
 		progressLayout = (RelativeLayout) findViewById(R.id.progress_layout);
 
@@ -65,8 +72,11 @@ public final class ContactManager extends Activity {
 		});
 		progressLayout.setVisibility(View.GONE); // by default progress view to GONE
 		// /////////////////////////////////////
+		*/
+        progress = (ProgressBar) findViewById(R.id.progress);
 
-		// Init UI elements
+
+        // Init UI elements
 		lv = (ListView) findViewById(R.id.contactList);
 		doneSelect = (ImageView) findViewById(R.id.doneSelect);
 		myFilter = (EditText) findViewById(R.id.search_txt);
@@ -103,7 +113,8 @@ public final class ContactManager extends Activity {
 		if (contacts == null) {
 			contacts = new ArrayList<Contact>();
 			// Asynchronously load all contacts
-			new AsyncLoadContacts().execute();
+            contactLoaderTask = new AsyncLoadContacts();
+            contactLoaderTask.execute();
 		} else {
 			contactAdapter = new ContactAdapter(this, R.id.contactList, contacts);
 			lv.setAdapter(contactAdapter);
@@ -138,8 +149,13 @@ public final class ContactManager extends Activity {
 
 	// Also on back pressed set the selected list, if nothing selected set Intent result to canceled
 	@Override
-	public void onBackPressed() {
-
+	public void onBackPressed()
+    {
+        stopLoadingContacts();
+        Intent intent = new Intent();
+        setResult(RESULT_CANCELED, intent);
+        finish();
+/*
 		ArrayList<Contact> selectedList = new ArrayList<Contact>();
 
 		Intent intent = new Intent();
@@ -159,11 +175,11 @@ public final class ContactManager extends Activity {
 		}
 
 		finish();
-
+*/
 	};
 
 	@SuppressLint("InlinedApi")
-	private void getContacts() {
+	private void getContacts(AsyncTask task) {
 
 		ContentResolver cr = getContentResolver();
 
@@ -175,7 +191,9 @@ public final class ContactManager extends Activity {
 
 		if (cur.getCount() > 0) {
 
-			while (cur.moveToNext()) {
+			while (cur.moveToNext()
+//                    && !task.isCancelled()
+                    ) {
 
 				String id = cur.getString(cur.getColumnIndex(Data.CONTACT_ID));
 
@@ -208,31 +226,34 @@ public final class ContactManager extends Activity {
 		}
 
 		cur.close();
-		// get contacts from hashmap
-		contacts.clear();
-		contacts.addAll(allContacts.values());
 
-		for (Contact _contact : allContacts.values()) {
+        if (true
+//            && !task.isCancelled()
+                ) {
+            // get contacts from hashmap
+            contacts.clear();
+            contacts.addAll(allContacts.values());
 
-            // remove self contact
-			if (_contact.getContactName() == null && _contact.getContactNumber() == null
-					&& _contact.getContactEmail() == null) {
-				contacts.remove(_contact);
-				break;
-			}
-            else
-                // remove non-email or unnamed contacts
-                if (TextUtils.isEmpty(_contact.getContactName())
-                        || TextUtils.isEmpty(_contact.getContactEmail())
-                        || _contact.getContactName().equals(_contact.getContactEmail())) {
-                contacts.remove(_contact);
+            for (Contact _contact : allContacts.values()) {
+
+                // remove self contact
+                if (_contact.getContactName() == null && _contact.getContactNumber() == null
+                        && _contact.getContactEmail() == null) {
+                    contacts.remove(_contact);
+                    break;
+                } else
+                    // remove non-email or unnamed contacts
+                    if (TextUtils.isEmpty(_contact.getContactName())
+                            || TextUtils.isEmpty(_contact.getContactEmail())
+                            || _contact.getContactName().equals(_contact.getContactEmail())) {
+                        contacts.remove(_contact);
+                    }
+
             }
 
-		}
-
-		contactAdapter = new ContactAdapter(this, R.id.contactList, contacts);
-		contactAdapter.notifyDataSetChanged();
-
+            contactAdapter = new ContactAdapter(this, R.id.contactList, contacts);
+            contactAdapter.notifyDataSetChanged();
+        }
 	}
 
 	// Get contact photo URI for contactId
@@ -247,14 +268,16 @@ public final class ContactManager extends Activity {
 		@Override
 		protected void onPreExecute() {
 
-			progressLayout.setVisibility(View.VISIBLE);
+//			progressLayout.setVisibility(View.VISIBLE);
+            progress.setVisibility(View.VISIBLE);
+
 		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
 
 			// Obtain contacts
-			getContacts();
+			getContacts(this);
 			return null;
 
 		}
@@ -263,12 +286,22 @@ public final class ContactManager extends Activity {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 
-			// set contact adapter
-			lv.setAdapter(contactAdapter);
-
+            if (!isCancelled())
+            {
+                // set contact adapter
+                lv.setAdapter(contactAdapter);
+            }
 			// set the progress to GONE
-			progressLayout.setVisibility(View.GONE);
-		}
+//			progressLayout.setVisibility(View.GONE);
+            progress.setVisibility(View.GONE);
+
+        }
+
+        @Override
+        protected void onCancelled() {
+            Log.v(LOGTAG, "onCancelled");
+            super.onCancelled();
+        }
 
 	}
 
@@ -449,5 +482,22 @@ public final class ContactManager extends Activity {
 		}
 
 	}
+
+    @Override
+    protected void onDestroy() {
+        Log.v(LOGTAG, "onDestroy");
+        super.onDestroy();
+        stopLoadingContacts();
+    }
+
+    private void stopLoadingContacts() {
+        if (contactLoaderTask!=null && contactLoaderTask.getStatus() == AsyncTask.Status.RUNNING)
+        {
+            Log.v(LOGTAG, "stopping contact loading task...");
+            contactLoaderTask.cancel(true);
+            contactLoaderTask = null;
+        }
+    }
+
 
 }

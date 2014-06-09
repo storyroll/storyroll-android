@@ -57,6 +57,26 @@
         android:dividerHeight="1dp"
         android:fastScrollEnabled="true" />
 
-    <include layout="@layout/progress_dialog_custom" />
+    <!--<TextView android:id="@android:id/empty"-->
+              <!--android:layout_width="match_parent"-->
+              <!--android:layout_height="match_parent"-->
+              <!--android:layout_toEndOf="@id/contactList"-->
+              <!--android:text="No contacts loaded (yet)..."/>-->
+
+
+    <!--style="@android:style/Widget.ProgressBar.Large"-->
+
+    <ProgressBar
+            android:id="@+id/progress"
+
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="4dp"
+            android:padding="10dp"
+            android:visibility="gone"/>
+
+    <!--<include layout="@layout/progress_dialog_custom" />-->
 
 </RelativeLayout>
