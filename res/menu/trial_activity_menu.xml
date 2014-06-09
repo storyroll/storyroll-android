@@ -19,12 +19,12 @@
           android:icon="@drawable/ic_action_join"
           android:showAsAction="always"/>
 
-    <item android:id="@+id/action_add_group"
-          android:title="@string/action_add_group_trial"
-          android:enabled="false"/>
-
     <item android:id="@+id/action_chan"
           android:title="@string/action_chan_new_trial"
+          android:enabled="false"/>
+
+    <item android:id="@+id/action_add_group"
+          android:title="@string/action_add_group_trial"
           android:enabled="false"/>
 
     <item android:id="@+id/action_login"

@@ -69,7 +69,12 @@ public class MovieItemView extends LinearLayout {
 				castAvatars[i] = avatarUrl;
 				if (i<castIds.length) {
 					ImageView castImage = (ImageView) findViewById(castIds[i]);
-					aq.id(castImage).image(avatarUrl, true, false, 0, R.drawable.ic_avatar_default);
+                    if (avatarUrl!=null && !"null".equals(avatarUrl)) {
+                        aq.id(castImage).image(avatarUrl, true, false, 0, R.drawable.ic_avatar_default);
+                    }
+                    else {
+                        aq.id(castImage).image(R.drawable.ic_avatar_default);
+                    }
 				}
         	}
         	movie.setCast(castAvatars);
@@ -86,7 +91,7 @@ public class MovieItemView extends LinearLayout {
   		
       }else{          
           //ajax error
-      	Log.e(LOGTAG, "getStoryCastCb: null Json, cast not received for clipId="+movie.getId());
+      	Log.e(LOGTAG, "getStoryCastCb: null Json, cast not received for clipId=" + movie.getId());
       }
 	}
 	

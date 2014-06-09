@@ -164,7 +164,7 @@
     <string name="btn_not_interested">Meh</string>
     <string name="btn_interested">Interested!</string>
     <string name="action_add_group">Invite people</string>
-    <string name="action_chan_new">New story</string>
+    <string name="action_chan_new">New Story</string>
     <string name="dialog_remove_movie">In future versions, this control will alow you to hide the video from your
         list.
     </string>
@@ -175,5 +175,9 @@
     <string name="msg_facebook_connected">Facebook connected, wait a moment...</string>
     <string name="entity_channel">Story</string>
     <string name="clear_cache">Clear cache</string>
+    <string name="contacts_too_many">Only 5 contacts can be invited. Please unselect and reselect some of your
+        contacts.
+    </string>
+    <string name="action_leave_channel">Leave Story</string>
 
 </resources>

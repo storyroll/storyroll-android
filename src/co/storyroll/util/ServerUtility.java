@@ -15,6 +15,7 @@ public class ServerUtility {
     public static final String API_CHANNEL_CREATE = "channel/create";
     public static final String API_CHANNELS = "channels";
     public static final String API_CHAN_MOVIES = "videosInChannel";
+    public static final String API_CHANNEL_LEAVE = "channel/{channelId}/leave/{uuid}/"; // has to end with /
 
     @Deprecated
     public static final String API_CLIPS_AVAILABLE = "available"; //

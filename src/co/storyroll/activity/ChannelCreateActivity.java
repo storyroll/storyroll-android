@@ -65,7 +65,7 @@ public class ChannelCreateActivity extends MenuActivity {
         channelUpdateGeneral(url, json, status);
     }
 
-    Long chanId = null;
+    private Long chanId = null;
 
     protected boolean channelUpdateGeneral(String url, JSONObject json, AjaxStatus status)
     {

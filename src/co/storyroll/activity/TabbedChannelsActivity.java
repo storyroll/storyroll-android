@@ -33,6 +33,7 @@ import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -44,7 +45,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 	private static final String LOGTAG = "TabbedChannelsActivity";
 	private static final String SCREEN_NAME = "TabbedChannels";
     public static final String EXTRA_CHANNEL_ID = "channelId" ;
-    public static final String BUNDLE_CHANNEL_ID = "channelId" ;
+    public static final String STORED_BUNDLE_CHANNEL_ID = "channelId" ;
 
     static final int PICK_CONTACTS_REQUEST = 1111;  // The request code
     static final int VIDEOCAPTURE_REQUEST = 1112;  // The request code
@@ -166,15 +167,12 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
         // restore the visible channel id
         if ( savedInstanceState!=null //&& !getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false)
                 ) {
-            initialChannelId = savedInstanceState.getLong(BUNDLE_CHANNEL_ID);
+            initialChannelId = savedInstanceState.getLong(STORED_BUNDLE_CHANNEL_ID);
         }
-
-
         // comes from notification? switch to indicated tab and then scroll to indicated item on list
-        boolean isComingFromNotif = getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false);
-        Log.v(LOGTAG, "isComingFromNotification: "+isComingFromNotif);
-        if (isComingFromNotif)
+        else if (getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false))
         {
+            Log.v(LOGTAG, "coming from notification: "+true);
             isCallFromNotificationProcessing = true;
             // TODO crappy hack / set properties for each channels badges
 //			ArrayMoviesFragment.resetUnseenMoviesNumber( getIntent().getInt("clips") );
@@ -213,6 +211,11 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
         else {
             // update unseenStories
 //			updateUnseenVideosFromServer();
+            if (getIntent().getExtras()!=null && getIntent().getExtras().containsKey(EXTRA_CHANNEL_ID))
+            {
+                initialChannelId = getIntent().getExtras().getLong(EXTRA_CHANNEL_ID);
+                Log.v(LOGTAG, "initial channel id from Intent: "+initialChannelId);
+            }
         }
 
         // get chan list 
@@ -489,14 +492,18 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
         	count = chans.size();
         }
 
+        public void updateCount(int count){
+            this.count = count;
+        }
+
         @Override
         public int getCount() {
-        	return count;
+        	return (getChannels()==null?0:mChannels.size());
         }
 
         @Override
         public Fragment getItem(int position) {
-            return ArrayMoviesFragment.newInstance(position, mChannels.get(position).getId(), mUuid, isTrial);
+            return ArrayMoviesFragment.newInstance(position, getChannels().get(position).getId(), mUuid, isTrial);
         }
         
         @Override
@@ -504,6 +511,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
             return getChannels().get(position % getChannels().size()).getTitle();
         }
     }
+
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -560,9 +568,15 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
             new RollMovieDialog().show(getSupportFragmentManager(), "RollMovieDialog");
             return true;
         }
+        else if (item.getItemId() == R.id.action_leave_channel) {
+            fireGAnalyticsEvent("ui_action", "touch", "action_leave_channel", null);
+            onLeaveChannel();
+            return true;
+        }
 
 		return super.onOptionsItemSelected(item);
     }
+
     /*-- helper --*/
     
     private void onRefreshChannel() {
@@ -590,6 +604,46 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
         else {
             // try updating channels
             chanListAjaxCall();
+        }
+    }
+
+
+    private void onLeaveChannel() {
+        long chanId = getCurrentChannelId();
+        if (chanId!=1) {
+            String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHANNEL_LEAVE);
+            apiUrl = apiUrl.replaceFirst("\\{uuid\\}", getUuid());
+            apiUrl = apiUrl.replaceFirst("\\{channelId\\}", getCurrentChannelId()+"");
+            Log.v(LOGTAG, "apiUrl: "+apiUrl);
+            aq.auth(basicHandle).ajax(apiUrl, JSONObject.class, TabbedChannelsActivity.this, "apiChannelLeaveCb");
+        }
+    }
+
+    public void apiChannelLeaveCb(String url, JSONObject json, AjaxStatus status) throws JSONException
+    {
+        Log.v(LOGTAG, "apiChannelLeaveCb: "+(json==null?"null":json.toString()));
+        if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, TabbedChannelsActivity.this)) return;
+        Log.v(LOGTAG, json.toString());
+        Log.v(LOGTAG, "removing idx "+getActionBar().getSelectedNavigationIndex() + "chan: "+mChannels.get(getActionBar().getSelectedNavigationIndex()).toString());
+        if (json.getBoolean("result"))
+        {
+            Log.v(LOGTAG, "channels before: "+mAdapter.getCount());
+
+            // remove tab
+            final ActionBar bar = getActionBar();
+            int selectedIdx = bar.getSelectedNavigationIndex();
+            if (bar.getTabCount() > 0)
+            bar.removeTabAt(selectedIdx);
+
+            mChannels.remove(selectedIdx);
+            mAdapter.updateCount(mChannels.size());
+
+            Log.v(LOGTAG, "channels after: "+mAdapter.getCount());
+
+            mAdapter.notifyDataSetChanged();
+        }
+        else {
+            Log.e(LOGTAG, "Could not remove channel: "+url);
         }
     }
 
@@ -627,7 +681,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong(BUNDLE_CHANNEL_ID, getCurrentChannelId());
+        outState.putLong(STORED_BUNDLE_CHANNEL_ID, getCurrentChannelId());
         Log.v(LOGTAG, "onSaveInstanceState, current chanId: "+getCurrentChannelId());
     }
 
@@ -670,7 +724,8 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
         return k;
     }
 
-    private long getCurrentChannelId() {
+    private long getCurrentChannelId()
+    {
         int channelIdx = getActionBar().getSelectedNavigationIndex();
         if (channelIdx<0) channelIdx=0;
         return getChannels().get(channelIdx).getId();
@@ -701,6 +756,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 
 	public static List<Channel> getChannels() {
 		if (mChannels==null) {
+            mChannels = new ArrayList<Channel>();
 			Log.e(ArrayMoviesFragment.LOGTAG, "trying to access null channel list!");
 		}
 		return mChannels;

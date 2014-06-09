@@ -32,7 +32,8 @@ import java.util.*;
 
 public final class ContactManager extends Activity {
 
-    private static final String LOGTAG = "ContactManager";
+    private static final String LOGTAG = "CONTACTS";
+    private static final int MAX_INVITES_ALLOWED = 5 ;
     private static ArrayList<Contact> contacts = null;
 	private LinkedHashMap<String, Contact> allContacts = new LinkedHashMap<String, Contact>();
 	private ContactAdapter contactAdapter = null;
@@ -293,7 +294,9 @@ public final class ContactManager extends Activity {
 
 			for (int x = 0; x < size; x++) {
 				String s = contactList.get(x).getContactName();
-
+                if (s==null) {
+                    s=" ";
+                }
 				// get the first letter of the store
 				String ch = s.substring(0, 1);
 				// convert to uppercase otherwise lowercase a -z will be sorted
@@ -336,7 +339,7 @@ public final class ContactManager extends Activity {
 			if (contact != null) {
 				TextView name = (TextView) view.findViewById(R.id.name);
 				ImageView thumb = (ImageView) view.findViewById(R.id.thumb);
-				TextView number = (TextView) view.findViewById(R.id.number);
+				final TextView number = (TextView) view.findViewById(R.id.number);
 				TextView email = (TextView) view.findViewById(R.id.email);
 
 				// labels
@@ -371,8 +374,14 @@ public final class ContactManager extends Activity {
 
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-						contact.setSelected(nameCheckBox.isChecked());
+                        if ((nameCheckBox.isChecked() && numSelected>MAX_INVITES_ALLOWED)) {
+                            Toast.makeText(ContactManager.this, R.string.contacts_too_many, Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            numSelected += (nameCheckBox.isChecked() ? 1 : -1);
+                            contact.setSelected(nameCheckBox.isChecked());
+                            Log.v(LOGTAG, "numSelected: "+numSelected);
+                        }
 					}
 				});
 
@@ -381,6 +390,8 @@ public final class ContactManager extends Activity {
 
 			return view;
 		}
+
+        private int numSelected = 0;
 
 		@Override
 		public int getPositionForSection(int section) {
