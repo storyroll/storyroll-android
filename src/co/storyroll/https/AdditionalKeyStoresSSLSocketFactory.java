@@ -54,16 +54,18 @@ public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
             final ArrayList<TrustManagerFactory> factories = new ArrayList<TrustManagerFactory>();
 
             try {
-                // The default TrustManager with default keystore
-                final TrustManagerFactory original = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                original.init((KeyStore) null);
-                factories.add(original);
 
+                // first the additional keystores - this is intentional with hope that those will be tried first
                 for( KeyStore keyStore : additionalkeyStores ) {
                     final TrustManagerFactory additionalCerts = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                     additionalCerts.init(keyStore);
                     factories.add(additionalCerts);
                 }
+
+                // The default TrustManager with default keystore
+                final TrustManagerFactory original = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                original.init((KeyStore) null);
+                factories.add(original);
 
             } catch (Exception e) {
                 throw new RuntimeException(e);

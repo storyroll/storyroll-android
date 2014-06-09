@@ -145,6 +145,8 @@ public class VideoSendActivity extends MenuActivity {
         		intent.addCategory(Intent.CATEGORY_HOME);
 //        		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                intent.putExtra(TabbedChannelsActivity.EXTRA_CHANNEL_ID, mChanId);
         		startActivity(intent);
 	        	
 	        	

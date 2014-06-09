@@ -376,10 +376,14 @@ public class VideoCaptureActivity extends BaseActivity implements
         	File f = new File(fileName);
         	f.renameTo(newFile);
 			// go to "video sent" activity
-			Intent sendActivity = new Intent(this, VideoSendActivity.class);
-			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			sendActivity.putExtra(MODE_NEW, mStartNewMode);
-			startActivity(sendActivity);
+            // todo
+            setResult(RESULT_OK);
+            finish();
+//			Intent sendActivity = new Intent(this, VideoSendActivity.class);
+//			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//			sendActivity.putExtra(MODE_NEW, mStartNewMode);
+//			startActivity(sendActivity);
+
         }else
         {          
             //ajax error
@@ -840,12 +844,17 @@ public class VideoCaptureActivity extends BaseActivity implements
 			if (mStartNewMode) {
 //	    		fireGAnalyticsEvent("ui_action", "click", "SystemBack", null);
 //	    		fireGAnalyticsEvent("fragment_workflow", "videoUpload", "SystemBack", null);
-	        	
+
+                setResult(RESULT_CANCELED);
+                finish();
+
+                /*
         		intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
         		intent.addCategory(Intent.CATEGORY_HOME);
 //        		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         		startActivity(intent);
+        		*/
 			}
 			else {
 				mLastState = processAndSwitchToState(STATE_PREV_LAST);

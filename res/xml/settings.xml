@@ -109,6 +109,12 @@
                 android:defaultValue="en"
                 android:dialogTitle="Language" />  
         -->
+
+        <Preference
+                android:key="cache"
+                android:title="@string/clear_cache"
+                android:summary="Erase video cache"
+                />
         
     </PreferenceCategory>
 

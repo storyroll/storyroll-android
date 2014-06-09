@@ -26,7 +26,7 @@ import org.json.JSONArray;
 
 public class MenuFragmentActivity extends FragmentActivity {
 	
-	private static final String LOGTAG = "MenuFragment";
+	private static final String LOGTAG = "MENU_FRAGMENT";
     protected static final int MANAGE_INVITES_REQUEST = 1019;
     protected static boolean isTrial=false;
     static int mNotifCount = 0;
@@ -276,8 +276,12 @@ public class MenuFragmentActivity extends FragmentActivity {
 		
 		startActivity(intent);
 	}
-    
-	protected EasyTracker getGTracker() {
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    protected EasyTracker getGTracker() {
     	return EasyTracker.getInstance(this);
     }
     

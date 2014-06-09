@@ -49,12 +49,19 @@
         <item name="android:actionBarTabTextStyle">@style/Widget.MyTabText</item> -->
     </style>
 
-    <style name="SRActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+    <style name="SRActionBar_bak" parent="@android:style/Widget.Holo.Light.ActionBar">
         <item name="android:background">@color/sr_bg_actionbar</item>
         <item name="android:actionMenuTextAppearance">@style/SRActionBar.MenuTextStyle</item>
         <item name="android:titleTextStyle">@style/SRActionBar.TitleTextStyle</item>
         <!--  item name="android:icon">@drawable/ic_icon_custom</item -->
         <item name="android:displayOptions">showHome|useLogo|showCustom</item>
+    </style>
+
+    <style name="SRActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">@color/sr_bg_actionbar</item>
+        <item name="android:actionMenuTextAppearance">@style/SRActionBar.MenuTextStyle</item>
+        <item name="android:titleTextStyle">@style/SRActionBar.TitleTextStyle</item>
+        <!--  item name="android:icon">@drawable/ic_icon_custom</item -->
     </style>
     
     <style name="SRActionBar.MenuTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Menu">

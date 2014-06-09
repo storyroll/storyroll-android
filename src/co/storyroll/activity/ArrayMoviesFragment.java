@@ -49,7 +49,7 @@ public class ArrayMoviesFragment extends ListFragment {
 	private static final float AUTO_RANGE_BOTTOM = 0.75f;
 
 
-	private int mNum;
+    private int mNum;
 	private String mUuid;
 	private long mChanId;
 
@@ -155,6 +155,14 @@ public class ArrayMoviesFragment extends ListFragment {
 		
 
 	}
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        //never gets here :(
+        Log.v(LOGTAG, "onActivityResult: "+requestCode+", "+resultCode);
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
 	// @Override
 	// public void onListItemClick(ListView l, View v, int position, long id) {
@@ -393,6 +401,8 @@ public class ArrayMoviesFragment extends ListFragment {
 		private boolean isTrial;
 		private ImageButton.OnClickListener onMoviehideClick;
 
+        public String LOGTAG = "ARR_M_FRG.MOVIE_LST_FRG";
+
 
         public MovieListAdapter(Context context, ArrayList<Movie> movies,
 				PQuery aq, String uuid, boolean trial) {
@@ -548,13 +558,15 @@ public class ArrayMoviesFragment extends ListFragment {
                 }
                 else {
                     fireGAnalyticsEvent("ui_action", "touch", "replyButton", null);
-                    Intent intent = new Intent(ctx, VideoCaptureActivity.class);
+                    Intent intent = new Intent(getActivity(), VideoCaptureActivity.class);
                     intent.putExtra(VideoCaptureActivity.RESPOND_TO_CLIP, movie.getLastClipId());
                     intent.putExtra(VideoCaptureActivity.RESPOND_TO_CLIP_URL, movie.getLastClipUrl());
                     intent.putExtra(VideoCaptureActivity.CURRENT_CHANNEL, mChanId);
                     intent.putExtra(VideoCaptureActivity.MOVIE, movie.getId());
                     intent.putExtra(VideoCaptureActivity.LAST_USER_UUID, movie.getLastUserId());
                     intent.putExtra(VideoCaptureActivity.LAST_USER_AVATAR, movie.getLastUserAvatar());
+//                    getActivity().
+//                            startActivityForResult(intent, TabbedChannelsActivity.VIDEOCAPTURE_REQUEST);
                     startActivity(intent);
                 }
 			}

@@ -2,9 +2,7 @@ package co.storyroll.util;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.util.Log;
 import android.view.ViewConfiguration;
-import co.storyroll.R;
 
 import java.lang.reflect.Field;
 
@@ -16,14 +14,14 @@ public class ActionBarUtility {
 
 		/* Show the custom action bar view and hide the normal Home icon and title */
 		final ActionBar actionBar = activity.getActionBar();
-		actionBar.setIcon(R.drawable.ic_icon_custom);
+//		actionBar.setIcon(R.drawable.ic_icon_custom); // 06-07-2014
 		actionBar.setHomeButtonEnabled(true);
 		actionBar.setDisplayHomeAsUpEnabled(homeButtonEnabled);
 //		actionBar.setIcon(R.drawable.ic_ab_som);
 //		actionBar.setCustomView(customActionBarView);
 		
 //		actionBar.setCustomView(R.layout.actionbar_custom);
-		actionBar.setDisplayShowTitleEnabled(false);
+//		actionBar.setDisplayShowTitleEnabled(false); // 06-07-2014
 //        actionBar
 //                .setDisplayShowCustomEnabled(true);
         actionBar.setDisplayUseLogoEnabled(true);
@@ -33,8 +31,7 @@ public class ActionBarUtility {
         try {
         	  ViewConfiguration config = ViewConfiguration.get(activity);
         	  Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-        	  Log.v(LOGTAG, "sHasPermanentMenuKey: "+menuKeyField);
-        	  if (menuKeyField != null) 
+        	  if (menuKeyField != null)
         	  {
         	    menuKeyField.setAccessible(true);
         	    menuKeyField.setBoolean(config, false);

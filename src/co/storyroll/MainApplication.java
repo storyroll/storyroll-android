@@ -98,35 +98,7 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
 		ErrorReporter.report(ex, true);
 	}
 
-//    private SSLSocketFactory StoryRollSSLSocketFactory() {
-//        SSLSocketFactory ret = null;
-//        try {
-//            final KeyStore ks = KeyStore.getInstance("BKS");
-//
-//            final InputStream inputStream = getApplicationContext().getResources().openRawResource(R.raw.cert_storyroll_lb);
-//
-//            ks.load(inputStream, getApplicationContext().getString(R.string.store_pass).toCharArray());
-//            inputStream.close();
-//
-//            ret = new SSLSocketFactory(ks);
-//            Log.d(TAG, "SSLSocketFactory done");
-//        } catch (UnrecoverableKeyException ex) {
-//            Log.d(TAG, ex.getMessage());
-//        } catch (KeyStoreException ex) {
-//            Log.d(TAG, ex.getMessage());
-//        } catch (KeyManagementException ex) {
-//            Log.d(TAG, ex.getMessage());
-//        } catch (NoSuchAlgorithmException ex) {
-//            Log.d(TAG, ex.getMessage());
-//        } catch (IOException ex) {
-//            Log.d(TAG, ex.getMessage());
-//        } catch (Exception ex) {
-//            Log.d(TAG, ex.getMessage());
-//        } finally {
-//            return ret;
-//        }
-//    }
-
+    // todo remove
     private SSLSocketFactory newSslSocketFactory() {
         try {
             // Get an instance of the Bouncy Castle KeyStore format
@@ -143,8 +115,6 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
                 in.close();
             }
 
-
-
             // Pass the keystore to the SSLSocketFactory. The factory is responsible for the verification of the server certificate.
             SSLSocketFactory sf = new SSLSocketFactory(trusted);
 
@@ -158,7 +128,8 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         }
     }
 
-    private SSLSocketFactory createAdditionalCertsSSLSocketFactory() {
+    private SSLSocketFactory createAdditionalCertsSSLSocketFactory()
+    {
         try {
             // Get an instance of the Bouncy Castle KeyStore format
             KeyStore trusted = KeyStore.getInstance("BKS");
@@ -173,8 +144,6 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
             } finally {
                 in.close();
             }
-
-
 
             // Pass the keystore to the SSLSocketFactory. The factory is responsible for the verification of the server certificate.
 //            SSLSocketFactory sf = new SSLSocketFactory(trusted);

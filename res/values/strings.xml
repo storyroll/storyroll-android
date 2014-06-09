@@ -17,7 +17,7 @@
     <string name="dummy_button">Proceed</string>
     <string name="dummy_content">STORYROLL\nCollaborative storytelling</string>
     <string name="login_text">Want to join the story? Please signup or login.</string>
-    <string name="channel_text">Create new private channel</string>
+    <string name="channel_text">Create new private Story</string>
     <string name="channel_name">Name</string>
 
     <string name="user_name">User name</string>
@@ -43,7 +43,7 @@
     <string name="msg_password_email_required">Please enter both email and password</string>
     <string name="msg_uname_required">Please provide valid username</string>
     <string name="msg_uname_not_unique">Such username already registered, edit and try again</string>
-    <string name="msg_channel_name_required">Please enter channel name</string>
+    <string name="msg_channel_name_required">Please enter Story name</string>
 
     <string name="play_roll_info">To see next roll, swipe left</string>
 
@@ -171,7 +171,9 @@
     <string name="notif_video_published">Your video was published</string>
     <string name="notif_you_got_response">You got response!</string>
     <string name="notif_new_video">New video</string>
-    <string name="notif_response_channel">Response in channel</string>
+    <string name="notif_response_channel">Response in Story</string>
     <string name="msg_facebook_connected">Facebook connected, wait a moment...</string>
+    <string name="entity_channel">Story</string>
+    <string name="clear_cache">Clear cache</string>
 
 </resources>

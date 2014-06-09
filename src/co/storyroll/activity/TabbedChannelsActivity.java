@@ -22,6 +22,7 @@ import android.widget.Toast;
 import co.storyroll.PQuery;
 import co.storyroll.R;
 import co.storyroll.base.MenuFragmentActivity;
+import co.storyroll.gcm.GcmIntentService;
 import co.storyroll.model.Channel;
 import co.storyroll.model.Contact;
 import co.storyroll.ui.RollMovieDialog;
@@ -43,7 +44,10 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 	private static final String LOGTAG = "TabbedChannelsActivity";
 	private static final String SCREEN_NAME = "TabbedChannels";
     public static final String EXTRA_CHANNEL_ID = "channelId" ;
+    public static final String BUNDLE_CHANNEL_ID = "channelId" ;
+
     static final int PICK_CONTACTS_REQUEST = 1111;  // The request code
+    static final int VIDEOCAPTURE_REQUEST = 1112;  // The request code
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the object collection.
@@ -54,13 +58,13 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 //    FragmentPagerAdapter tAdapter;
 //    private static Set<String> newStories = null;
     private static String mUuid;
-    private int unseenStoriesCount = 0;
+    private long unseenStoriesCount = 0;
 
 	private TextView tabUnseenBadgeText = null;
 	static List<Channel> mChannels = null;
 	
 	private boolean isCallFromNotificationProcessing = false;
-	private long initialChannelid = -1L;
+	private long initialChannelId = -1L;
 	private int lastUpdatedMovieIdx = 0;
 	private boolean channelsLoaded = false;
     
@@ -130,8 +134,11 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 //
 //      		}
       		tab = tab.setText(chan.getTitle());
-	            actionBar.addTab(tab.setTabListener(tabListener), initialChannelid==chan.getId()); // TODO select default here
-      	}
+            Log.v(LOGTAG, "chanel id, default: "+chan.getId()+", "+(initialChannelId==chan.getId()));
+	            actionBar.addTab(tab.setTabListener(tabListener), initialChannelId==chan.getId()); // TODO select default here
+//            actionBar.addTab(tab.setTabListener(tabListener), i==1); // TODO select default here
+
+        }
       }
 
 	}
@@ -155,7 +162,59 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 //        if (isTrial) {
 //        	mUuid = "test@test.com";
 //        }
-        
+
+        // restore the visible channel id
+        if ( savedInstanceState!=null //&& !getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false)
+                ) {
+            initialChannelId = savedInstanceState.getLong(BUNDLE_CHANNEL_ID);
+        }
+
+
+        // comes from notification? switch to indicated tab and then scroll to indicated item on list
+        boolean isComingFromNotif = getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false);
+        Log.v(LOGTAG, "isComingFromNotification: "+isComingFromNotif);
+        if (isComingFromNotif)
+        {
+            isCallFromNotificationProcessing = true;
+            // TODO crappy hack / set properties for each channels badges
+//			ArrayMoviesFragment.resetUnseenMoviesNumber( getIntent().getInt("clips") );
+            Bundle extras = getIntent().getExtras();
+            String chIdStr = extras.getString(GcmIntentService.EXTRA_CHANNEL_ID_STR);
+            Log.v(LOGTAG, "from notification, EXTRA_CHANNEL_ID_STR: "+chIdStr);
+            if (!TextUtils.isEmpty(chIdStr)){
+                initialChannelId = Long.valueOf(chIdStr);
+            }
+            Log.d(LOGTAG, "initial channel id Long from notification: "+initialChannelId);
+            // find which position is that
+//			int initialPosition = 0;
+//			for (int i=0; i<channels.size(); i++) {
+//				if (channels.get(i).getId()==initialChannelid) {
+//					initialPosition = i;
+//				}
+//			}
+//			Log.v(LOGTAG, "initial channel idx: "+initialPosition);
+
+            String lumIdStr = extras.getString(GcmIntentService.EXTRA_LAST_UPDATED_MOVIE);
+            Log.v(LOGTAG, "from notification, EXTRA_LAST_UPDATED_MOVIE: "+lumIdStr);
+            long lastUpdatedMovieId = TextUtils.isEmpty(lumIdStr)?-1L:Long.valueOf(chIdStr);
+            lastUpdatedMovieIdx = movieIdToIdx(lastUpdatedMovieId);
+
+//			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
+//			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
+
+
+            // TODO is this correct place to select tab? and what is better way?
+//			mViewPager.setCurrentItem(tab.getPosition());
+//			if (initialPosition!=0 && isCallFromNotificationProcessing) {
+//				Log.v(LOGTAG, "CallFromNotificationProcessing=true, selecting Nav Item "+initialPosition);
+//				actionBar.setSelectedNavigationItem(initialPosition);
+//			}
+        }
+        else {
+            // update unseenStories
+//			updateUnseenVideosFromServer();
+        }
+
         // get chan list 
         chanListAjaxCall();
         
@@ -210,11 +269,6 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 
         initializeActionBar();
 
-        // comes from notification? switch to indicated tab and then scroll to indicated item on list
-        boolean comesFromNotif = getIntent().getBooleanExtra("NOTIFICATION", false);
-        Log.v(LOGTAG, "comesFromNotif: "+comesFromNotif);
-
-
         mViewPager.setOnPageChangeListener(
                 new ViewPager.SimpleOnPageChangeListener() {
                     @Override
@@ -245,43 +299,6 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
                     }
                 });
 
-
-        if (comesFromNotif)
-        {
-            isCallFromNotificationProcessing = true;
-            // TODO crappy hack / set properties for each channels badges
-//			ArrayMoviesFragment.resetUnseenMoviesNumber( getIntent().getInt("clips") );
-
-            String chIdStr = getIntent().getStringExtra(EXTRA_CHANNEL_ID);
-            initialChannelid = TextUtils.isEmpty(chIdStr)?0:Integer.valueOf(chIdStr);
-            // find which position is that
-//			int initialPosition = 0;
-//			for (int i=0; i<channels.size(); i++) {
-//				if (channels.get(i).getId()==initialChannelid) {
-//					initialPosition = i;
-//				}
-//			}
-//			Log.v(LOGTAG, "initial channel idx: "+initialPosition);
-
-            String lumIdStr = getIntent().getStringExtra("lastUpdatedMovie");
-            long lastUpdatedMovieId = TextUtils.isEmpty(lumIdStr)?-1L:Long.valueOf(chIdStr);
-            lastUpdatedMovieIdx = movieIdToIdx(lastUpdatedMovieId);
-
-//			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
-//			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
-
-
-            // TODO is this correct place to select tab? and what is better way?
-//			mViewPager.setCurrentItem(tab.getPosition());
-//			if (initialPosition!=0 && isCallFromNotificationProcessing) {
-//				Log.v(LOGTAG, "CallFromNotificationProcessing=true, selecting Nav Item "+initialPosition);
-//				actionBar.setSelectedNavigationItem(initialPosition);
-//			}
-        }
-        else {
-            // update unseenStories
-//			updateUnseenVideosFromServer();
-        }
     }
 
     @Override
@@ -578,29 +595,40 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        Log.v(LOGTAG, "onActivityResult: "+resultCode);
+        Log.v(LOGTAG, "onActivityResult, requestCode: "+requestCode+", resultCode"+resultCode);
         // Check which request we're responding to
-        if (requestCode == PICK_CONTACTS_REQUEST) {
+        if (requestCode == PICK_CONTACTS_REQUEST)
+        {
             // Make sure the request was successful
             if (resultCode == RESULT_OK)
             {
                 Log.v(LOGTAG, "onActivityResult: RESULT_OK");
                 // The user picked a contact.
                 ArrayList<Contact> cons = intent.getParcelableArrayListExtra("SELECTED_CONTACTS");
-                int k = sendInvites(cons);
-                Toast.makeText(this, "Invitations sent", Toast.LENGTH_SHORT).show(); // TODO - show to how many people it was sent?
+                if (cons.size()>0) {
+                    int k = sendInvites(cons);
+                    Toast.makeText(this, "Invitations sent", Toast.LENGTH_SHORT).show(); // TODO - show to how many people it was sent?
+                }
             }
             else if (resultCode == RESULT_CANCELED) {
                 Log.v(LOGTAG, "onActivityResult: RESULT_CANCELED");
             }
         }
-        else if (requestCode == MANAGE_INVITES_REQUEST) {
+        else if (requestCode == MANAGE_INVITES_REQUEST)
+        {
             updateInvitesFromServer();
             chanListAjaxCall();
         }
         else {
             super.onActivityResult(requestCode, resultCode, intent);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(BUNDLE_CHANNEL_ID, getCurrentChannelId());
+        Log.v(LOGTAG, "onSaveInstanceState, current chanId: "+getCurrentChannelId());
     }
 
     // todo crappy hack
@@ -677,6 +705,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 		}
 		return mChannels;
 	}
+
 
 }
 

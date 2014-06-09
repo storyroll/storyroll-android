@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import co.storyroll.R;
-import co.storyroll.base.LeftActionActivity;
+import co.storyroll.base.MenuActivity;
 import co.storyroll.util.AppUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
@@ -20,7 +20,7 @@ import org.json.JSONObject;
 /**
  * Created by martynas on 28/05/14.
  */
-public class ChannelCreateActivity extends LeftActionActivity {
+public class ChannelCreateActivity extends MenuActivity {
     private final static String SCREEN_NAME = "Channel";
     protected static final String LOGTAG = "ChannelCreate";
 

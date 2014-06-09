@@ -24,6 +24,7 @@ import co.storyroll.R;
 import co.storyroll.base.Constants;
 import co.storyroll.enums.AutostartMode;
 import co.storyroll.enums.ServerPreference;
+import co.storyroll.tasks.ClearCacheTask;
 import co.storyroll.util.*;
 import com.androidquery.auth.BasicHandle;
 import com.androidquery.callback.AjaxStatus;
@@ -43,7 +44,7 @@ import java.io.File;
 
 
 
-public class SettingsActivity extends PreferenceActivity implements OnPreferenceClickListener, OnPreferenceChangeListener {
+public class SettingsActivity extends PreferenceActivity implements OnPreferenceClickListener, OnPreferenceChangeListener, ClearCacheTask.OnClearCacheCompleted {
 
 	private static final String LOGTAG = "SETTINGS";
 	private static final String SCREEN_NAME = "Settings";
@@ -123,8 +124,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
             p = findPreference("logout");
             prefCategory.removePreference(p);
     	}
-    	
-        
+
         
 //        p = findPreference("share");
 //        p.setOnPreferenceClickListener(this);
@@ -144,7 +144,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         String version = getVersion();
         p.setSummary(version);
         
-        // todo not yet implemented?
+        // todo feedback not yet implemented?
 
 //        p = findPreference("feedback");
 //        p.setOnPreferenceClickListener(this);
@@ -154,6 +154,9 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         
         p = findPreference("co.storyroll.enums.ServerPreference");
         p.setOnPreferenceChangeListener(this);
+
+        p = findPreference("cache");
+        p.setOnPreferenceClickListener(this);
     }
     
     public boolean onPreferenceClick(Preference preference){
@@ -179,7 +182,9 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 	    		feedback();
 	    	}else if("report".equals(name)){
 	    		report();
-	    	}
+	    	} else if ("cache".equals(name)){
+                clear_cache();
+            }
     	}
     	catch(Exception e){
     		AQUtility.report(e);
@@ -188,7 +193,13 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     	return false;
     	
     }
-    
+
+    private void clear_cache() {
+        Log.v(LOGTAG, "clearing cache");
+        ClearCacheTask task = new ClearCacheTask(this.getApplicationContext(), this);
+        task.execute();
+    }
+
     private void share2(){
     	
     	String title = getString(R.string.share_app_message);
@@ -469,4 +480,10 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 		return uuid;
 	}
 
-}    
+    @Override
+    public void onClearCacheCompleted(boolean success, Exception e) {
+        if (success) {
+            Toast.makeText(this, "Cache cleared", Toast.LENGTH_SHORT).show();
+        }
+    }
+}
