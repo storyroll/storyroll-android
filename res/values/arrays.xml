@@ -94,7 +94,22 @@
         <item>da</item>
         <item>fi</item>
     </string-array>
-    
-  	      
-  
+
+    <string-array name="share_scene_values">
+        <item>share to other apps</item>
+        <item>share via email</item>
+        <item>share via SMS</item>
+        <item>share to Social</item>
+        <item>share to other channels</item>
+        <item>share to your friends in StoryRoll</item>
+        <item>not interested</item>
+
+    </string-array>
+
+    <string-array name="roll_movie_dialog_values">
+        <item>Meh</item>
+        <item>Interested!</item>
+        <item>No opinion</item>
+
+    </string-array>
 </resources>

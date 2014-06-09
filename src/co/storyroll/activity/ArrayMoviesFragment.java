@@ -16,10 +16,7 @@ import co.storyroll.PQuery;
 import co.storyroll.R;
 import co.storyroll.enums.AutostartMode;
 import co.storyroll.model.Movie;
-import co.storyroll.ui.ControlledMovieView;
-import co.storyroll.ui.HideMovieDialog;
-import co.storyroll.ui.MovieItemView;
-import co.storyroll.ui.RoundedImageView;
+import co.storyroll.ui.*;
 import co.storyroll.util.*;
 import com.androidquery.auth.BasicHandle;
 import com.androidquery.callback.AjaxCallback;
@@ -488,6 +485,7 @@ public class ArrayMoviesFragment extends ListFragment {
 					movie, mUuid, progressBar, unseenIndicator, playControl);
 			videoThumb.setOnClickListener(new ThumbClickListener(videoView));
 			replyButton.setOnClickListener(new ReplyClickListener(movie, context));
+            aq.id(rowView.findViewById(R.id.shareImage)).clicked(this, "onShareClicked");
 			
 			String ageText = DateUtils.getRelativeTimeSpanString(
 					movie.getPublishedOn(), c.getTimeInMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE).toString();
@@ -660,6 +658,11 @@ public class ArrayMoviesFragment extends ListFragment {
 			fireGAnalyticsEvent("ui_action", "touch", "cast", null);
 		}
 
+        public void onShareClicked()
+        {
+            fireGAnalyticsEvent("ui_action", "touch", "share", null);
+            new ShareDialog().show(getActivity().getSupportFragmentManager(), "ShareDialog");
+        }
 
 		
 		// TODO: improve to show like 1.5m

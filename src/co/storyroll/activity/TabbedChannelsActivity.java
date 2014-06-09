@@ -42,7 +42,7 @@ import java.util.List;
 
 public class TabbedChannelsActivity extends MenuFragmentActivity implements SignupDialog.SigninDialogListener {
 
-	private static final String LOGTAG = "TabbedChannelsActivity";
+	private static final String LOGTAG = "TABBED_CHANS";
 	private static final String SCREEN_NAME = "TabbedChannels";
     public static final String EXTRA_CHANNEL_ID = "channelId" ;
     public static final String STORED_BUNDLE_CHANNEL_ID = "channelId" ;
@@ -260,9 +260,11 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
         }
     }
 
-    public void init(List<Channel> channels)  {
+    public void init(List<Channel> newChannels)  {
 
-        this.mChannels = channels;
+        List<Channel> chans = getChannels();
+        chans.clear();
+        chans.addAll(newChannels);
 
         mAdapter = new ChannelTabAdapter(getSupportFragmentManager());
 
@@ -298,7 +300,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
 
                         // Also update tracker field to persist for all subsequent hits,
                         // until they are overridden or cleared by assignment to null.
-                        getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME+"_"+getChannels().get(position));
+                        getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME+"_"+getChannels().get(position).getId());
                     }
                 });
 
