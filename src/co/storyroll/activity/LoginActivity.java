@@ -64,8 +64,11 @@ public class LoginActivity extends GcmActivity {
 	  
 	// - - - callbacks
 	
-	public void facebookButtonClicked(View button){
-		authFacebookSSO();
+	public void facebookButtonClicked(View button)
+    {
+        // disable facebook button
+        aq.id(R.id.facebook_button).enabled(false);
+        authFacebookSSO();
     }
 
     public void authFacebookSSO(){
@@ -162,7 +165,10 @@ public class LoginActivity extends GcmActivity {
 		Log.v(LOGTAG, "facebookProfileCb");
 		fireGAnalyticsEvent("facebook", "login", json==null?"fail":"success", null);
 
-    	if (isAjaxErrorThenReport(status)) return;
+    	if (isAjaxErrorThenReport(status)) {
+            aq.id(R.id.facebook_button).enabled(true);
+            return;
+        }
             
         if(json != null){
 			try {
@@ -180,9 +186,11 @@ public class LoginActivity extends GcmActivity {
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+                    aq.id(R.id.facebook_button).enabled(true);
 				}
         }else{
         	apiError(LOGTAG, "Facebook Error: "+status.getMessage(), status, true, Log.ERROR);
+            aq.id(R.id.facebook_button).enabled(true);
         }
     }
     
@@ -190,6 +198,7 @@ public class LoginActivity extends GcmActivity {
 	public void hasFbUserInSrCb(String url, JSONObject json, AjaxStatus status) throws JSONException
 	{
 		Log.v(LOGTAG, "hasFbUserInSrCb");
+        aq.id(R.id.facebook_button).enabled(true);
 		if (isAjaxErrorThenReport(status)) return;
 		
 		boolean userExists = false;

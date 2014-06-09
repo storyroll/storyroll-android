@@ -40,7 +40,8 @@ import java.util.List;
 
 import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
 
-public class ProfileActivity extends MenuActivity {
+public class ProfileActivity extends MenuActivity
+{
 	private final String LOGTAG = "PROFILE";
 	private static final String SCREEN_NAME = "Profile";
 
@@ -70,7 +71,8 @@ public class ProfileActivity extends MenuActivity {
 	private Bundle storedState = null;
 	
 	@Override
-	protected void onCreate(Bundle state) {
+	protected void onCreate(Bundle state)
+    {
 		super.onCreate(state);
 		
 		Log.v(LOGTAG, "onCreate");
@@ -135,7 +137,7 @@ public class ProfileActivity extends MenuActivity {
 
 	
 	private void initForm() {
-		aq.id(R.id.done_button).clicked(this, "doneButtonClicked");
+		aq.id(R.id.done_button).enabled(true).clicked(this, "doneButtonClicked");
 		aq.id(R.id.avatar).clicked(this, "avatarImageClicked");
 		
 		aq.id(R.id.user_name).text(profile.username);
@@ -218,17 +220,20 @@ public class ProfileActivity extends MenuActivity {
 	
 	// - - - callbacks
 	
-	public void doneButtonClicked(View button){
+	public void doneButtonClicked(View button)
+    {
 		Log.v(LOGTAG, "doneButtonClicked");
-		
-		fireGAnalyticsEvent("ui_activity", "click", "doneButton", null);
+        aq.id(R.id.done_button).enabled(false);
+
+        fireGAnalyticsEvent("ui_activity", "click", "doneButton", null);
 		
 		String formUsername = aq.id(R.id.user_name).getText().toString().trim();
 		
 		// TODO validate form
 		if (TextUtils.isEmpty(formUsername) ) {
 			Toast.makeText(aq.getContext(), R.string.msg_uname_required, Toast.LENGTH_SHORT).show();
-			return;
+            aq.id(R.id.done_button).enabled(true);
+            return;
 		}
 		
 		boolean unameChanged = !formUsername.equals(profile.username);
@@ -300,15 +305,17 @@ public class ProfileActivity extends MenuActivity {
 			if (status.getError().contains("already present")) {
 				Log.w(LOGTAG, "Username already present");
 				Toast.makeText(this, R.string.msg_uname_not_unique, Toast.LENGTH_SHORT).show();
-				return false;
+                aq.id(R.id.done_button).enabled(true);
+                return false;
 			}
 		}
 		if (isAjaxErrorThenReport(status)) {
-			
-			return false;
+            aq.id(R.id.done_button).enabled(false);
+            return false;
 		}
 		
-        if(json != null){
+        if(json != null)
+        {
             //successful ajax call
         	Log.v(LOGTAG, "updateProfileGeneral success");
         	// persist profile
@@ -337,14 +344,15 @@ public class ProfileActivity extends MenuActivity {
     		{
                 // delay to avoid race conditions, see https://github.com/storyroll/storyroll-android/issues/209
                 Log.v(LOGTAG, "postDelayed:AvatarUpdater");
-                AQUtility.postDelayed(new AvatarUpdater(getApplicationContext()), 2000);
+                AQUtility.postDelayed(new AvatarUpdater(getApplicationContext()), 3000);
     		}
     		else {
     			nextActivity();
     		}
         }else{          
         	apiError(LOGTAG, "Could not update profile", status, true, Log.ERROR);
-        	return false;
+            aq.id(R.id.done_button).enabled(false);
+            return false;
         }
         return true;
 	}
@@ -406,7 +414,8 @@ public class ProfileActivity extends MenuActivity {
 	}
 	
 	private void nextActivity() {
-		Intent intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
+        aq.id(R.id.done_button).enabled(false);
+        Intent intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 	}

@@ -31,7 +31,7 @@ public class ChannelCreateActivity extends MenuActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_channel);
 
-        aq.id(R.id.done_button).clicked(this, "doneButtonClicked");
+        aq.id(R.id.done_button).enabled(true).clicked(this, "doneButtonClicked");
 
         // Fields set on a tracker persist for all hits, until they are
         // overridden or cleared by assignment to null.
@@ -39,10 +39,14 @@ public class ChannelCreateActivity extends MenuActivity {
 
     }
 
-    public void doneButtonClicked(View button){
+    public void doneButtonClicked(View button)
+    {
+        aq.id(R.id.done_button).enabled(false);
+
         String chName = aq.id(R.id.channel_name).getText().toString();
         if (TextUtils.isEmpty(chName)) {
             Toast.makeText(aq.getContext(), R.string.msg_channel_name_required, Toast.LENGTH_SHORT).show();
+            aq.id(R.id.done_button).enabled(true);
             return;
         }
         String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHANNEL_CREATE, "uuid=" + getUuid() + "&t=" + chName);
@@ -74,10 +78,12 @@ public class ChannelCreateActivity extends MenuActivity {
             if (status.getError().contains("already present")) {
                 Log.w(LOGTAG, "Channel already present");
                 Toast.makeText(this, R.string.msg_uname_not_unique, Toast.LENGTH_SHORT).show();
+                aq.id(R.id.done_button).enabled(true);
                 return false;
             }
         }
         if (isAjaxErrorThenReport(status)) {
+            aq.id(R.id.done_button).enabled(true);
             return false;
         }
 
@@ -96,6 +102,7 @@ public class ChannelCreateActivity extends MenuActivity {
 
         }else{
             apiError(LOGTAG, "Could not update channel", status, true, Log.ERROR);
+            aq.id(R.id.done_button).enabled(true);
             return false;
         }
         return true;
@@ -106,6 +113,7 @@ public class ChannelCreateActivity extends MenuActivity {
         Intent intent = new Intent(this, AppUtility.ACTIVITY_HOME);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(TabbedChannelsActivity.EXTRA_CHANNEL_ID, chanId);
+        aq.id(R.id.done_button).enabled(true);
         startActivity(intent);
     }
 

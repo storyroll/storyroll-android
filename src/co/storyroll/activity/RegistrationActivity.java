@@ -31,8 +31,10 @@ public class RegistrationActivity extends ProfileActivity {
 	// - - - callbacks
 	
 	@Override
-	public void doneButtonClicked(View button){
+	public void doneButtonClicked(View button)
+    {
 		Log.v(LOGTAG, "doneButtonClicked");
+        aq.id(R.id.done_button).enabled(false);
 		
 		fireGAnalyticsEvent("ui_activity", "click", "doneButton", null);
 		
@@ -51,7 +53,8 @@ public class RegistrationActivity extends ProfileActivity {
 			if (profile.isAuthEmail() && (TextUtils.isEmpty(profile.password) || TextUtils.isEmpty(profile.email)) ) 
 			{
 				Toast.makeText(aq.getContext(), R.string.msg_password_email_required, Toast.LENGTH_SHORT).show();
-				return;
+                aq.id(R.id.done_button).enabled(true);
+                return;
 			}
             if (profile.isAuthFacebook()) {
                 // todo: hack
@@ -78,34 +81,31 @@ public class RegistrationActivity extends ProfileActivity {
 	
     
 	@Override
-	public void createProfileCb(String url, JSONObject json, AjaxStatus status)
-	{
-		Log.v(LOGTAG, "createProfileCb");
-		// profile register successfull or fail?
-		
-		
-		fireGAnalyticsEvent("profile", "create", json != null?"success":"fail", null);
-		
-		if (updateProfileGeneral(url, json, status)) 
-		{
-			
-			// registered successfull, now register with GCM and update required field
-			Log.v(LOGTAG, "register success, now register with GCM");
-			
-	        // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
-	        if (checkPlayServices()) {
-	            gcm = GoogleCloudMessaging.getInstance(this);
-	//            regid = getRegistrationId(context);
-	//
-	//            if (regid.isEmpty()) {
-	                gcmRegisterInBackground();
-	//            }
-	        } else {
-	            Log.w(LOGTAG, "No valid Google Play Services APK found.");
-	        }
-	        
-		}
-	}
+	public void createProfileCb(String url, JSONObject json, AjaxStatus status) {
+        Log.v(LOGTAG, "createProfileCb");
+        // profile register successfull or fail?
+
+        fireGAnalyticsEvent("profile", "create", json != null ? "success" : "fail", null);
+
+        if (updateProfileGeneral(url, json, status)) {
+
+            // registered successfull, now register with GCM and update required field
+            Log.v(LOGTAG, "register success, now register with GCM");
+
+            // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
+            if (checkPlayServices()) {
+                gcm = GoogleCloudMessaging.getInstance(this);
+                //            regid = getRegistrationId(context);
+                //
+                //            if (regid.isEmpty()) {
+                gcmRegisterInBackground();
+                //            }
+            } else {
+                Log.w(LOGTAG, "No valid Google Play Services APK found.");
+            }
+        }
+        aq.id(R.id.done_button).enabled(true);
+    }
 	
 
 }
