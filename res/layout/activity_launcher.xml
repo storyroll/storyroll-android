@@ -40,13 +40,12 @@
             android:paddingBottom="30dp"
             />
 	    
-	    <!-- ProgressBar
+	    <ProgressBar
 		    android:id="@+id/progress"
-	         android:layout_width="match_parent"
-	         android:layout_height="20pt"
-	         style="@android:style/Widget.ProgressBar.Small"
-         	android:layout_marginLeft="5dp"
-         	android:visibility="invisible" /-->
+	         android:layout_width="wrap_content"
+	         android:layout_height="wrap_content"
+         	android:visibility="visible"/>
+        <!--
          	<LinearLayout
          	    android:id="@+id/progressMarker"
          	    android:visibility="visible"
@@ -66,6 +65,7 @@
 		         	android:textColor="#363f4e"
 		        />
          	</LinearLayout>
+        -->
 	    
     </LinearLayout>
 

@@ -87,7 +87,7 @@ public class LaunchActivity extends BaseActivity {
 		// update loggedIn flag - in case user was deleted
 		if (isLoggedIn()) {
 			String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_USER_EXISTS, "uuid=" + getUuid());
-			aq.progress(R.id.progressMarker).ajax(apiUrl, JSONObject.class, this, "hasUserCb");
+			aq.progress(R.id.progress).ajax(apiUrl, JSONObject.class, this, "hasUserCb");
 		}
 		else {
 			nextAction();
@@ -242,7 +242,7 @@ public class LaunchActivity extends BaseActivity {
 	public void hasUserCb(String url, JSONObject json, AjaxStatus status) throws JSONException{
 		Log.v(LOGTAG, "hasUserCb");
 		if (isAjaxErrorThenReport(status)) {
-            aq.id(R.id.progressMarker).invisible();
+            aq.id(R.id.progress).invisible();
             return;
         }
 		
@@ -259,7 +259,7 @@ public class LaunchActivity extends BaseActivity {
 			// user not found, purge profile
 			apiError(LOGTAG, "hasUserCb bad (json null) response", status, false, Log.ERROR);			
         }
-		aq.id(R.id.progressMarker).invisible();
+		aq.id(R.id.progress).invisible();
 		bt.setEnabled(true);
 		loginChecked = true;
 	}
