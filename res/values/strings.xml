@@ -179,6 +179,10 @@
     <string name="action_leave_channel">Leave Channel</string>
     <string name="pick_answer_share">Pick the way you would like to share in the future versions</string>
     <string name="pick_answer_roll">In future, we will add a feature here to generate a movie from your video clips.</string>
+    <string name="dialog_leave_channel">Leave channel? Currently it\'s not yet possible to re-discover left channels.
+    </string>
+    <string name="button_yes">Yes</string>
+    <string name="button_no">No</string>
 
 
 </resources>

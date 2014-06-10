@@ -66,8 +66,7 @@ public class LoginActivity extends GcmActivity {
 	
 	public void facebookButtonClicked(View button)
     {
-        // disable facebook button
-        aq.id(R.id.facebook_button).enabled(false);
+        enableButtons(false);
         authFacebookSSO();
     }
 
@@ -99,6 +98,11 @@ public class LoginActivity extends GcmActivity {
 	}
 
 	// - - - callbacks & helpers
+
+    private void enableButtons(boolean enable) {
+        aq.id(R.id.facebook_button).enabled(enable);
+        aq.id(R.id.done_button).enabled(enable);
+    }
 
     //  callback checks if a user is registered with StoryRoll, if so - proceeds
     public void userExistsCb(String url, JSONObject json, AjaxStatus status) throws JSONException
@@ -166,7 +170,7 @@ public class LoginActivity extends GcmActivity {
 		fireGAnalyticsEvent("facebook", "login", json==null?"fail":"success", null);
 
     	if (isAjaxErrorThenReport(status)) {
-            aq.id(R.id.facebook_button).enabled(true);
+            enableButtons(true);
             return;
         }
             
@@ -186,11 +190,11 @@ public class LoginActivity extends GcmActivity {
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-                    aq.id(R.id.facebook_button).enabled(true);
+                    enableButtons(true);
 				}
         }else{
         	apiError(LOGTAG, "Facebook Error: "+status.getMessage(), status, true, Log.ERROR);
-            aq.id(R.id.facebook_button).enabled(true);
+            enableButtons(true);
         }
     }
     
@@ -198,7 +202,7 @@ public class LoginActivity extends GcmActivity {
 	public void hasFbUserInSrCb(String url, JSONObject json, AjaxStatus status) throws JSONException
 	{
 		Log.v(LOGTAG, "hasFbUserInSrCb");
-        aq.id(R.id.facebook_button).enabled(true);
+        enableButtons(true);
 		if (isAjaxErrorThenReport(status)) return;
 		
 		boolean userExists = false;

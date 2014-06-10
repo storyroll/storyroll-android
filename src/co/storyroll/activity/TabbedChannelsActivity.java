@@ -25,6 +25,7 @@ import co.storyroll.base.MenuFragmentActivity;
 import co.storyroll.gcm.GcmIntentService;
 import co.storyroll.model.Channel;
 import co.storyroll.model.Contact;
+import co.storyroll.ui.LeaveChanDialog;
 import co.storyroll.ui.RollMovieDialog;
 import co.storyroll.ui.SignupDialog;
 import co.storyroll.util.*;
@@ -40,7 +41,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TabbedChannelsActivity extends MenuFragmentActivity implements SignupDialog.SigninDialogListener {
+public class TabbedChannelsActivity extends MenuFragmentActivity
+        implements SignupDialog.SigninDialogListener, LeaveChanDialog.LeaveChanDialogListener {
 
 	private static final String LOGTAG = "TABBED_CHANS";
 	private static final String SCREEN_NAME = "TabbedChannels";
@@ -397,6 +399,16 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
         startActivity(intent);
     }
 
+    @Override
+    public void onDialogLeaveChannelConfirm(DialogFragment dialog)
+    {
+        String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHANNEL_LEAVE);
+        apiUrl = apiUrl.replaceFirst("\\{uuid\\}", getUuid());
+        apiUrl = apiUrl.replaceFirst("\\{channelId\\}", getCurrentChannelId()+"");
+        Log.v(LOGTAG, "apiUrl: "+apiUrl);
+        aq.auth(basicHandle).ajax(apiUrl, JSONObject.class, TabbedChannelsActivity.this, "apiChannelLeaveCb");
+    }
+
 
 //    @Override
 //    public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -572,7 +584,7 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
         }
         else if (item.getItemId() == R.id.action_leave_channel) {
             fireGAnalyticsEvent("ui_action", "touch", "action_leave_channel", null);
-            onLeaveChannel();
+            onLeaveChannelDialog();
             return true;
         }
 
@@ -610,14 +622,13 @@ public class TabbedChannelsActivity extends MenuFragmentActivity implements Sign
     }
 
 
-    private void onLeaveChannel() {
+    private void onLeaveChannelDialog()
+    {
+        fireGAnalyticsEvent("ui_action", "touch", "leaveChannel", null);
+
         long chanId = getCurrentChannelId();
         if (chanId!=1) {
-            String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHANNEL_LEAVE);
-            apiUrl = apiUrl.replaceFirst("\\{uuid\\}", getUuid());
-            apiUrl = apiUrl.replaceFirst("\\{channelId\\}", getCurrentChannelId()+"");
-            Log.v(LOGTAG, "apiUrl: "+apiUrl);
-            aq.auth(basicHandle).ajax(apiUrl, JSONObject.class, TabbedChannelsActivity.this, "apiChannelLeaveCb");
+            new LeaveChanDialog().show(getSupportFragmentManager(), "LeaveChanDialog");
         }
     }
 
