@@ -134,14 +134,13 @@ public class BaseActivity extends Activity {
 		SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
 		String uuid = settings.getString(Constants.PREF_EMAIL, null);
 		String username = settings.getString(Constants.PREF_USERNAME, null);
-		Log.i(LOGTAG, "uuid: " + uuid + ", username: " + username);
+//		Log.i(LOGTAG, "uuid: " + uuid + ", username: " + username);
 		return uuid;
 	}
 
     protected String getPassword() {
         SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
         String password = settings.getString(Constants.PREF_PASSWORD, null);
-        Log.v(LOGTAG, "pass: " + password);
         return password;
     }
 	
@@ -155,7 +154,7 @@ public class BaseActivity extends Activity {
 		p.location = settings.getString(Constants.PREF_LOCATION, "");
 		p.gcmRegistrationId = settings.getString(Constants.PREF_GCM_REG_ID, "");
 		p.setAvatarUrl( settings.getString(Constants.PREF_AVATAR_URL, null) );
-		Log.v(LOGTAG, "profile: "+p.toString());
+//		Log.v(LOGTAG, "profile: "+p.toString());
 		return p;
 	}
 	

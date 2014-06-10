@@ -21,10 +21,9 @@ public class ModelUtility {
 				chanObj = jarr.getJSONObject(i);
 				Channel channel = new Channel(chanObj);
 				channels.add(channel);
-                Log.v(LOGTAG, "channel "+channel.getTitle()+" ("+channel.getId()+")");
+//                Log.v(LOGTAG, "channel "+channel.getTitle()+" ("+channel.getId()+")");
 			}
 			catch (JSONException e) {
-				// TODO Auto-generated catch block
 				Log.e(LOGTAG, "Error parsing channels", e);
 				e.printStackTrace();
 			}

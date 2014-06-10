@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import co.storyroll.MainApplication;
 import co.storyroll.base.Constants;
 import co.storyroll.enums.AutostartMode;
@@ -200,10 +201,10 @@ public class PrefUtility {
 		} else if (sp.equals(ServerPreference.DEV)) {
 			s = Constants.API_URL_DEV;
 		} 
-		if (subj!=null && subj.length()>0) {
+		if (!TextUtils.isEmpty(subj)) {
 			s+=subj;
 		}
-		if (params!=null && params.length()>0) {
+		if (!TextUtils.isEmpty(params)) {
 			s+="?"+params;
 		}
 		return s;

@@ -2,6 +2,7 @@ package co.storyroll.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ImageView;
@@ -69,7 +70,7 @@ public class MovieItemView extends LinearLayout {
 				castAvatars[i] = avatarUrl;
 				if (i<castIds.length) {
 					ImageView castImage = (ImageView) findViewById(castIds[i]);
-                    if (avatarUrl!=null && !"null".equals(avatarUrl)) {
+                    if (!TextUtils.isEmpty(avatarUrl) && !"null".equals(avatarUrl)) {
                         aq.id(castImage).image(avatarUrl, true, false, 0, R.drawable.ic_avatar_default);
                     }
                     else {

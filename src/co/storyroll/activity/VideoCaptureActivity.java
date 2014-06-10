@@ -186,12 +186,11 @@ public class VideoCaptureActivity extends BaseActivity implements
             mRespondToClipUrl = getIntent().getStringExtra(RESPOND_TO_CLIP_URL);
             mCurrentChanlId  = getIntent().getLongExtra(CURRENT_CHANNEL, NULL_CHAN);
 			
-			Log.v(LOGTAG, "lastUserId="+mLastUserUuid);
 			if (mLastUserAvatar!=null) {
 				aq.id(avatar).image(mLastUserAvatar, true, true, 0, R.drawable.ic_avatar_default);
 			}
 			
-			Log.v("LOGTAG", "onCreate - savedInstanceState: "+savedInstanceState);
+//			Log.v("LOGTAG", "onCreate - savedInstanceState: "+savedInstanceState);
 	
 			// implicit instruction to start new fragment?
 			mStartNewMode = getIntent().getBooleanExtra(MODE_NEW, false);
@@ -257,7 +256,7 @@ public class VideoCaptureActivity extends BaseActivity implements
     	
         if(jarr != null){               
             //successful ajax call
-        	Log.i(LOGTAG, "availableCb success: got "+jarr.length()+" items");
+        	Log.d(LOGTAG, "availableCb success: got "+jarr.length()+" items");
         	fragmentIds = new long[jarr.length()];
         	for (int i = 0; i < jarr.length(); i++) {
 				JSONObject fragObj;
@@ -375,10 +374,9 @@ public class VideoCaptureActivity extends BaseActivity implements
         	}
         	File f = new File(fileName);
         	f.renameTo(newFile);
-			// go to "video sent" activity
-            // todo
-//            setResult(RESULT_OK);
-//            finish();
+
+			// go to "video sent, got it!" activity
+
 			Intent sendActivity = new Intent(this, VideoSendActivity.class);
 			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			sendActivity.putExtra(MODE_NEW, mStartNewMode);
@@ -544,7 +542,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 			showBack();
 			break;
 		default:
-			Log.w(LOGTAG, "change state not implemented: "+newState);
+			Log.w(LOGTAG, "processAndSwitchToState to state not implemented: "+newState);
 			break;
 		}
 		return newState;
@@ -625,7 +623,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 
 			@Override
 			public void onTick(long millisUntilFinished) {
-				Log.v("Log_tag", "Tick " + millisUntilFinished);
+				Log.v(LOGTAG, "Tick " + millisUntilFinished);
 				customRecProgress.setProgress(customRecProgress.getProgress()
 						+ PROG_REFRESH);
 			}
@@ -709,7 +707,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 
         File file = new File(filePath);
 
-        Log.v(LOGTAG, "timestamp as ISO: "+timeStampAsISO+", fileName: "+file.getName());
+//        Log.v(LOGTAG, "timestamp as ISO: "+timeStampAsISO+", fileName: "+file.getName());
 
         MultipartEntityBuilder mpeb = MultipartEntityBuilder.create()
                 .addBinaryBody("file", file, APPLICATION_OCTET_STREAM, file.getName())
@@ -730,7 +728,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 
             @Override
             public void callback(String url, JSONObject json, AjaxStatus status) {
-                Log.v(LOGTAG, "callback: json="+(json==null?"null":json.toString()));
+//                Log.v(LOGTAG, "callback: json="+(json==null?"null":json.toString()));
                 addFragmentCb(url, json, status);
             }
         } );
@@ -748,7 +746,6 @@ public class VideoCaptureActivity extends BaseActivity implements
 
 	public void workflowClickedMessageCb()
 	{
-		Log.v(LOGTAG, "workflowClickedMessageCb");
 		fireGAnalyticsEvent("ui_action", "controll_message_from_state", DataUtility.stateStr(mLastState), null);
 		workflowClicked() ;
 	}
@@ -760,7 +757,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		case STATE_NO_STORY:
 			// not creating new stories any more
 //			aq.ajax(PrefUtility.getApiUrl()+"startStory?uuid="+getUuid(), JSONObject.class, this, "startStoryCb").progress(progress);
-			Log.e(LOGTAG, "workflowClickedCb "+STATE_NO_STORY);
+			Log.e(LOGTAG, "workflowClickedCb STATE_NO_STORY");
 			break;
 		case STATE_PREV_LAST:
 			// stop previewing last fragment
@@ -791,7 +788,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 
 		default:
 			BugSenseHandler.sendException(new RuntimeException("Undefined state for Controll "+mLastState));
-			Log.e(LOGTAG, "control switch in undefined state "+mLastState);
+			Log.e(LOGTAG, "control switch in undefined state: "+mLastState);
 			break;
 			}
 	}
@@ -904,7 +901,6 @@ public class VideoCaptureActivity extends BaseActivity implements
 		fireGAnalyticsEvent("ui_action", "touch", "switchCamera", null);
 
 		if (mLastState==STATE_PREV_CAM) {
-			Log.d(LOGTAG, "change camera");
 			// todo: rotate
 			if (mLastState == STATE_PREV_CAM) {
 		        camera.stopPreview();

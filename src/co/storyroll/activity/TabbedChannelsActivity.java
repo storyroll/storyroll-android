@@ -136,10 +136,9 @@ public class TabbedChannelsActivity
             if (!TextUtils.isEmpty(chIdStr)){
                 initialChannelId = Long.valueOf(chIdStr);
             }
-            Log.d(LOGTAG, "initial channel id Long from notification: "+initialChannelId);
 
             String lumIdStr = extras.getString(GcmIntentService.EXTRA_LAST_UPDATED_MOVIE);
-            Log.v(LOGTAG, "from notification, EXTRA_LAST_UPDATED_MOVIE: "+lumIdStr);
+//            Log.v(LOGTAG, "from notification, EXTRA_LAST_UPDATED_MOVIE: "+lumIdStr);
             long lastUpdatedMovieId = TextUtils.isEmpty(lumIdStr)?-1L:Long.valueOf(chIdStr);
             lastUpdatedMovieIdx = movieIdToIdx(lastUpdatedMovieId);
 
@@ -195,7 +194,6 @@ public class TabbedChannelsActivity
 			@Override
 			public void onTabReselected(Tab tab, FragmentTransaction ft) {
 				// TODO Auto-generated method stub
-				Log.v(LOGTAG, "onTabReselected stub");
 			}
 
             public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
@@ -205,7 +203,7 @@ public class TabbedChannelsActivity
             	if (mViewPager!=null) {
 	            	fireGAnalyticsEvent("ui_action", "onTabSelected", getChannels().get(tab.getPosition()).getTitle(), null);
 	            	
-	            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition()+" - "+getChannels().get(tab.getPosition()).getTitle());
+//	            	Log.v(LOGTAG, "onTabSelected "+tab.getPosition()+" - "+getChannels().get(tab.getPosition()).getTitle());
 	                mViewPager.setCurrentItem(tab.getPosition());
             	}
             }
@@ -237,8 +235,8 @@ public class TabbedChannelsActivity
 //
 //      		}
       		tab = tab.setText(chan.getTitle());
-            Log.v(LOGTAG, "chanel id, default: "+chan.getId()+", "+(initialChannelId==chan.getId()));
-	            actionBar.addTab(tab.setTabListener(tabListener), initialChannelId==chan.getId()); // TODO select default here
+//            Log.v(LOGTAG, "chanel id, default: "+chan.getId()+", "+(initialChannelId==chan.getId()));
+	        actionBar.addTab(tab.setTabListener(tabListener), initialChannelId==chan.getId());
 
         }
       }
@@ -255,7 +253,6 @@ public class TabbedChannelsActivity
 	}
 
     public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
-        Log.v(LOGTAG, "chanListCb");
         showProgress(false);
         if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
             channelsLoaded = false;
@@ -302,7 +299,7 @@ public class TabbedChannelsActivity
                     {
                         // When swiping between pages, select the
                         // corresponding tab.
-                        Log.v(LOGTAG, "OnPageChangeListener:onPageSelected, pos="+position);
+//                        Log.v(LOGTAG, "OnPageChangeListener:onPageSelected, pos="+position);
                         getActionBar().setSelectedNavigationItem(position);
 
                         // TODO is this called when 1st (0) tab selected?
@@ -428,7 +425,6 @@ public class TabbedChannelsActivity
         String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHANNEL_LEAVE);
         apiUrl = apiUrl.replaceFirst("\\{uuid\\}", getUuid());
         apiUrl = apiUrl.replaceFirst("\\{channelId\\}", getCurrentChannelId()+"");
-        Log.v(LOGTAG, "apiUrl: "+apiUrl);
         aq.auth(basicHandle).ajax(apiUrl, JSONObject.class, TabbedChannelsActivity.this, "apiChannelLeaveCb");
     }
 
@@ -565,15 +561,7 @@ public class TabbedChannelsActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) 
     {
-        Log.v(LOGTAG, "onOptionsItemSelected: "+item.getItemId()+"");
-
-//    	if (item.getItemId() == R.id.action_join) 
-//		{
-//			onJoinPressed(null, mChannels.get(idx).getId());
-//			return true;
-//			 
-//		} else 
-		if (item.getItemId() == R.id.action_new) 
+		if (item.getItemId() == R.id.action_new)
 		{
             if (isTrial) {
                 fireGAnalyticsEvent("ui_action", "touch", "newVidepButton_trial", null);
@@ -583,7 +571,7 @@ public class TabbedChannelsActivity
                 fireGAnalyticsEvent("ui_action", "touch", "newVideoButton_trial", null);
                 int tabIdx = getActionBar().getSelectedNavigationIndex();
                 if (tabIdx < 0) tabIdx = 0;
-                Log.v(LOGTAG, "New item in channel idx=" + tabIdx + ", channels = " + mChannels);
+//                Log.v(LOGTAG, "New item in channel idx=" + tabIdx + ", channels = " + mChannels);
                 onNewPressed(mChannels.get(tabIdx).getId());
             }
 			 return true;
@@ -632,7 +620,6 @@ public class TabbedChannelsActivity
 
 
     private void onAddGroup() {
-        Log.v(LOGTAG, "onAddGroup");
         if (channelsLoaded) {
             // call address picker
             Intent pickContactsIntent = new Intent(getApplicationContext(), ContactManager.class);
@@ -657,14 +644,11 @@ public class TabbedChannelsActivity
 
     public void apiChannelLeaveCb(String url, JSONObject json, AjaxStatus status) throws JSONException
     {
-        Log.v(LOGTAG, "apiChannelLeaveCb: "+(json==null?"null":json.toString()));
+//        Log.v(LOGTAG, "apiChannelLeaveCb: "+(json==null?"null":json.toString()));
         if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, TabbedChannelsActivity.this)) return;
-        Log.v(LOGTAG, json.toString());
-        Log.v(LOGTAG, "removing idx "+getActionBar().getSelectedNavigationIndex() + "chan: "+mChannels.get(getActionBar().getSelectedNavigationIndex()).toString());
+//        Log.v(LOGTAG, "removing idx "+getActionBar().getSelectedNavigationIndex() + "chan: "+mChannels.get(getActionBar().getSelectedNavigationIndex()).toString());
         if (json.getBoolean("result"))
         {
-            Log.v(LOGTAG, "channels before: "+mAdapter.getCount());
-
             // remove tab
             final ActionBar bar = getActionBar();
             int selectedIdx = bar.getSelectedNavigationIndex();
@@ -674,11 +658,10 @@ public class TabbedChannelsActivity
             mChannels.remove(selectedIdx);
             mAdapter.updateCount(mChannels.size());
 
-            Log.v(LOGTAG, "channels after: "+mAdapter.getCount());
-
             mAdapter.notifyDataSetChanged();
         }
         else {
+            ErrorUtility.apiError(LOGTAG, "Could not remove channel", status, this, false, Log.WARN);
             Log.e(LOGTAG, "Could not remove channel: "+url);
         }
     }
@@ -784,7 +767,7 @@ public class TabbedChannelsActivity
     
     private void postSelectItem(int idx) {
 		// TODO Auto-generated method stub
-		Log.v(LOGTAG, "postSelectItem: "+idx);
+//		Log.v(LOGTAG, "postSelectItem: "+idx);
 		int channelIdx = getActionBar().getSelectedNavigationIndex();
 		if (channelIdx<0) channelIdx=0;
 		ArrayMoviesFragment amf = (ArrayMoviesFragment)findFragmentByPosition(channelIdx);
@@ -808,7 +791,7 @@ public class TabbedChannelsActivity
 	public static List<Channel> getChannels() {
 		if (mChannels==null) {
             mChannels = new ArrayList<Channel>();
-			Log.e(ArrayMoviesFragment.LOGTAG, "trying to access null channel list!");
+			Log.w(ArrayMoviesFragment.LOGTAG, "trying to access null channel list!");
 		}
 		return mChannels;
 	}

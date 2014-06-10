@@ -71,7 +71,6 @@ public class LaunchActivity extends BaseActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.v(LOGTAG, "onCreate");
 		super.onCreate(savedInstanceState);
 		
 		// Fields set on a tracker persist for all hits, until they are
@@ -281,7 +280,6 @@ public class LaunchActivity extends BaseActivity {
 	
 	private static boolean isGone = false;
 	private void nextAction() {
-		Log.d(LOGTAG, "proceed to next action");
 		isGone = true;
 		Intent intent = null;
 		if (START_WITH_TUTORIAL) {

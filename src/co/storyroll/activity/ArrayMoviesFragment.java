@@ -170,7 +170,7 @@ public class ArrayMoviesFragment extends ListFragment {
     // get initial, centralized (static) user "liked" video ids
 	public void userLikesIdsCb(String url, JSONArray jarr, AjaxStatus status) 
 	{
-		Log.v(LOGTAG, "userLikesIdsCb");
+//		Log.v(LOGTAG, "userLikesIdsCb");
 		if (isAjaxErrorThenReport(status)) {
 			aq.id(R.id.emptyMessage).gone();
 			return;
@@ -186,7 +186,7 @@ public class ArrayMoviesFragment extends ListFragment {
 					JSONObject videoObj = (JSONObject) likeObj.get("movie"); // TODO
 					userLikes.add(videoObj.getLong("id")+"");
 				}
-				Log.v(LOGTAG, "user liked videos:" + userLikes.size()+", "+userLikes.toString());
+//				Log.v(LOGTAG, "user liked videos:" + userLikes.size()+", "+userLikes.toString());
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -219,10 +219,8 @@ public class ArrayMoviesFragment extends ListFragment {
 			return;
 		}
 			
-		Log.v(LOGTAG, "mergeMovieListSorted for tab no " + mNum);
 		if (jarr != null) {
 			// successful ajax call
-			Log.i(LOGTAG, "mergeMovieListSorted success: " + jarr.length());
 			// do something with the jsonarray
 			try {
 				ArrayAdapter<Movie> aa = (ArrayAdapter<Movie>)getListAdapter();
@@ -254,7 +252,7 @@ public class ArrayMoviesFragment extends ListFragment {
                         updates++;
                     }
 				}
-				Log.v(LOGTAG, "movies:" + movies.size()+ ", ArrayAdapter: "+aa.getCount()+", updated items: "+updates);
+				Log.v(LOGTAG, "mergeMovieListSorted - movies:" + movies.size()+ ", Adapter: "+aa.getCount()+", updated items: "+updates);
 
 				// refresh the adapter now
 				((BaseAdapter) getListAdapter()).notifyDataSetChanged();
@@ -383,7 +381,7 @@ public class ArrayMoviesFragment extends ListFragment {
 	        }
 	    }
 	    isTabVisible = isVisibleToUser;
-	    Log.d(LOGTAG, "Tab num "+mNum +" set to visible "+isTabVisible);
+//	    Log.d(LOGTAG, "Tab num "+mNum +" set to visible "+isTabVisible);
 	}
 	
 	public class MovieListAdapter extends ArrayAdapter<Movie> implements OnScrollListener {
@@ -432,7 +430,7 @@ public class ArrayMoviesFragment extends ListFragment {
                 }
             };
 			
-			Log.d(LOGTAG, "display metrix: "+screenWidth+" x "+screenHeight+", autoRange: "+autoRangeTop+" - "+autoRangeBottom);
+//			Log.d(LOGTAG, "display metrix: "+screenWidth+" x "+screenHeight+", autoRange: "+autoRangeTop+" - "+autoRangeBottom);
 
 		}
 
@@ -709,10 +707,10 @@ public class ArrayMoviesFragment extends ListFragment {
 				// TODO: if it's currently selected fragment, autoplay, if not, schedule
 				
 				MovieItemView pv = (MovieItemView) ((ViewGroup)view).getChildAt(0);
-				Log.v(LOGTAG, "onScroll: pv!=null, visible " + (pv!=null) + " " + isTabVisible);
+//				Log.v(LOGTAG, "onScroll: pv!=null, visible " + (pv!=null) + " " + isTabVisible);
 				if (pv!=null && isTabVisible) 
 				{
-					Log.v(LOGTAG, "onScroll: starting freshly shown tab's first video");
+//					Log.v(LOGTAG, "onScroll: starting freshly shown tab's first video");
 					
 					lastTrackedPos = firstVisibleItem;
 					if (currentlyPlayed!=null) {
@@ -734,7 +732,7 @@ public class ArrayMoviesFragment extends ListFragment {
 			{
 				int first = view.getFirstVisiblePosition();
 				int last = view.getLastVisiblePosition();
-				Log.v(LOGTAG, "onScrollStateChanged: first " +first+" last "+last + " lastTrackedPos "+lastTrackedPos);
+//				Log.v(LOGTAG, "onScrollStateChanged: first " +first+" last "+last + " lastTrackedPos "+lastTrackedPos);
 
 				// find the first VideoView that falls in the "active" range
 				boolean found = false;
@@ -745,13 +743,13 @@ public class ArrayMoviesFragment extends ListFragment {
 					int[] location = new int[2];
 					videoView.getLocationOnScreen(location);
 					int viewCenterY = location[1] + calculcatedVideoWidth/2;
-					Log.d(LOGTAG, "onScrollStateChanged: "+current+" videoView's center y location: "+viewCenterY);
+//					Log.d(LOGTAG, "onScrollStateChanged: "+current+" videoView's center y location: "+viewCenterY);
 					
 					if (viewCenterY>autoRangeTop && viewCenterY<autoRangeBottom) {
 						// that's the one
 						found = true;
 						if (lastTrackedPos!=current) {
-							Log.d(LOGTAG, "onScrollStateChanged: new roll in active range: "+current);
+//							Log.d(LOGTAG, "onScrollStateChanged: new roll in active range: "+current);
 							lastTrackedPos = current;
 							handleAutostart(pv, videoView);
 						}
@@ -766,9 +764,9 @@ public class ArrayMoviesFragment extends ListFragment {
 		private void handleAutostart(MovieItemView pv, ControlledMovieView videoView) {
 
 
-			Log.v(LOGTAG, "handleAutostart: first visible item's position in list: "+videoView.getItemPosition());
+//			Log.v(LOGTAG, "handleAutostart: first visible item's position in list: "+videoView.getItemPosition());
 			AutostartMode am = PrefUtility.getAutostartMode();
-			Log.v(LOGTAG, "autostartMode = "+am.toString());
+//			Log.v(LOGTAG, "autostartMode = "+am.toString());
 			
 			boolean autoStart = false;
 			switch (am) {
@@ -777,7 +775,7 @@ public class ArrayMoviesFragment extends ListFragment {
 				break;
 			case WIFI:
 				autoStart = NetworkUtility.isWifiConnected(getActivity().getApplicationContext());
-				Log.v(LOGTAG, "wificonnected: "+autoStart);
+//				Log.v(LOGTAG, "wificonnected: "+autoStart);
 				break;
 			default:
 				break;
@@ -833,7 +831,7 @@ public class ArrayMoviesFragment extends ListFragment {
 			for (int i = 0; i < jarr.length(); i++) {
 				unseenMoviesCount++;
 			}
-			Log.v(LOGTAG, "unseen movie:" + jarr.length()+", set: "+unseenMoviesCount);
+//			Log.v(LOGTAG, "unseen movies:" + jarr.length()+", set: "+unseenMoviesCount);
 //				refreshUnseenBadge(unseenStories);
 		} else {
 			// ajax error
@@ -857,7 +855,7 @@ public class ArrayMoviesFragment extends ListFragment {
 	}
 
 	public void postSelectItem(final int pos) {
-		Log.v(LOGTAG, "postSelectItem: "+pos);
+//		Log.v(LOGTAG, "postSelectItem: "+pos);
 //		getListView().setSelection(pos);
 		getListView().post(new Runnable() {
 	        @Override
