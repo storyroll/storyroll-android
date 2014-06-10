@@ -48,6 +48,10 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
     protected Result doInBackground(String... params) {
         final String paramUrl = params[0];
 
+        InputStream is = null;
+        BufferedInputStream inStream = null;
+        FileOutputStream outStream = null;
+
 		try {
 	        URL url = new URL(paramUrl);
 
@@ -57,7 +61,7 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 
 	        Log.v(TAG, "filename: "+fileName);
 			file = new File(AppUtility.getVideoCacheDir(mContext.getApplicationContext()), fileName);
-			
+
 			if (!file.exists()) {
 	        
 		        long startTime = System.currentTimeMillis();
@@ -70,12 +74,11 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 		        ucon.setReadTimeout(TIMEOUT_CONNECTION);
 		        ucon.setConnectTimeout(TIMEOUT_SOCKET);
 	
-	
 		        //Define InputStreams to read from the URLConnection.
 		        // uses 3KB download buffer
-		        InputStream is = ucon.getInputStream();
-		        BufferedInputStream inStream = new BufferedInputStream(is, 1024 * 5);
-		        FileOutputStream outStream = new FileOutputStream(file);
+		        is = ucon.getInputStream();
+		        inStream = new BufferedInputStream(is, 1024 * 5);
+		        outStream = new FileOutputStream(file);
 		        byte[] buff = new byte[5 * 1024];
 	
 		        //Read bytes (and store them) until there is nothing more to read(-1)
@@ -109,8 +112,21 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
 		} catch (IOException e) {
 			Log.e(LOGTAG, "Error writing file "+file.getAbsolutePath(), e);
 			BugSenseHandler.sendException(e);
+
+            // do your best trying to clean up but don't complain if it fails
+            Log.i(LOGTAG, "Removing a corrupt download");
+            try {
+                if (outStream!=null) {
+                    outStream.flush();
+                    outStream.close();
+                }
+                if (inStream!=null) {inStream.close();}
+                if (file.exists()) {
+                    file.delete();
+                }
+            } catch (IOException e1) {}
+
 		}
-        
 
         return null;
     }
