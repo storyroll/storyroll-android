@@ -32,8 +32,8 @@ public class MenuFragmentActivity extends FragmentActivity
     static int mNotifCount = 0;
     protected PQuery aq;
     protected BasicHandle basicHandle = null;
-	
-	public void onCreate(Bundle savedInstanceState)
+
+    public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
@@ -230,17 +230,18 @@ public class MenuFragmentActivity extends FragmentActivity
             fireGAnalyticsEvent("ui_action", "touch", "joinRoll_trial", null);
 			intent = new Intent(this, LoginActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		}
+            startActivity(intent);
+        }
 		else {
 			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_regged", null);
 			intent = new Intent(this, VideoCaptureActivity.class);
 			intent.putExtra("MODE_NEW", true);
-			if (chanId!=null && chanId!=-1L) {
-				intent.putExtra("CURRENT_CHANNEL", chanId);
+            if (chanId!=null && chanId!=-1L) {
+				intent.putExtra(VideoCaptureActivity.CURRENT_CHANNEL, chanId);
 			}
+            startActivityForResult(intent, TabbedChannelsActivity.VIDEOCAPTURE_REQUEST);
 		}
 		
-		startActivity(intent);
 	}
 
     protected void onNewChanPressed(Long chanId) {
@@ -282,6 +283,7 @@ public class MenuFragmentActivity extends FragmentActivity
 	}
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.v(LOGTAG, "onActivityResult");
         super.onActivityResult(requestCode, resultCode, intent);
     }
 

@@ -564,9 +564,9 @@ public class ArrayMoviesFragment extends ListFragment {
                     intent.putExtra(VideoCaptureActivity.MOVIE, movie.getId());
                     intent.putExtra(VideoCaptureActivity.LAST_USER_UUID, movie.getLastUserId());
                     intent.putExtra(VideoCaptureActivity.LAST_USER_AVATAR, movie.getLastUserAvatar());
-//                    getActivity().
-//                            startActivityForResult(intent, TabbedChannelsActivity.VIDEOCAPTURE_REQUEST);
-                    startActivity(intent);
+                    ((TabbedChannelsActivity)getActivity()).
+                            startActivityForResult(intent, TabbedChannelsActivity.VIDEOCAPTURE_REQUEST);
+//                    startActivity(intent);
                 }
 			}
 		}

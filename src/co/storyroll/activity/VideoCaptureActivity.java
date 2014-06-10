@@ -43,14 +43,14 @@ import static org.apache.http.entity.ContentType.APPLICATION_OCTET_STREAM;
 public class VideoCaptureActivity extends BaseActivity implements
 		SurfaceHolder.Callback, OnVideoTaskCompleted,  OnInfoListener {
 
-	public static final String LOGTAG = "VideoCapture";
+	public static final String LOGTAG = "VIDEOCAPTURE";
     private static final String SCREEN_NAME = "VideoCapture";
 
 	static final String LAST_USER_UUID = "LAST_USER";
     static final String LAST_USER_AVATAR = "LAST_USER_AVATAR";
 
     private static final String MODE_NEW = "MODE_NEW";
-	static final String CURRENT_CHANNEL = "CURRENT_CHANNEL";
+	public static final String CURRENT_CHANNEL = "CURRENT_CHANNEL";
 	static final String RESPOND_TO_CLIP = "RESPOND_TO_CLIP";
     static final String RESPOND_TO_CLIP_URL = "RESPOND_TO_CLIP_URL";
     static final String MOVIE = "MOVIE";
@@ -66,6 +66,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 	private static final int VIDEO_BITRATE = 1300000;
 	private static final int VIDEO_FRAMERATE = 30;
 	private static final int NUM_PREVIEW_FRAGMENTS = 20;
+    private static final int REQUEST_VIDEO_SENT = 1459;
 
     private static int DEFAULT_CAMERA_ID = Camera.CameraInfo.CAMERA_FACING_BACK;
 
@@ -183,7 +184,6 @@ public class VideoCaptureActivity extends BaseActivity implements
             mLastUserAvatar = getIntent().getStringExtra(LAST_USER_AVATAR);
 			mRespondToClipId = getIntent().getLongExtra(RESPOND_TO_CLIP, NULL_RESPONSE_CLIP);
             mRespondToClipUrl = getIntent().getStringExtra(RESPOND_TO_CLIP_URL);
-
             mCurrentChanlId  = getIntent().getLongExtra(CURRENT_CHANNEL, NULL_CHAN);
 			
 			Log.v(LOGTAG, "lastUserId="+mLastUserUuid);
@@ -377,12 +377,13 @@ public class VideoCaptureActivity extends BaseActivity implements
         	f.renameTo(newFile);
 			// go to "video sent" activity
             // todo
-            setResult(RESULT_OK);
-            finish();
-//			Intent sendActivity = new Intent(this, VideoSendActivity.class);
-//			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//			sendActivity.putExtra(MODE_NEW, mStartNewMode);
-//			startActivity(sendActivity);
+//            setResult(RESULT_OK);
+//            finish();
+			Intent sendActivity = new Intent(this, VideoSendActivity.class);
+			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			sendActivity.putExtra(MODE_NEW, mStartNewMode);
+            sendActivity.putExtra(CURRENT_CHANNEL, mCurrentChanlId);
+			startActivityForResult(sendActivity, REQUEST_VIDEO_SENT);
 
         }else
         {          
@@ -729,7 +730,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 
             @Override
             public void callback(String url, JSONObject json, AjaxStatus status) {
-                Log.v(LOGTAG, "callback: json="+json==null?"null":json.toString());
+                Log.v(LOGTAG, "callback: json="+(json==null?"null":json.toString()));
                 addFragmentCb(url, json, status);
             }
         } );
@@ -822,15 +823,18 @@ public class VideoCaptureActivity extends BaseActivity implements
 		case STATE_NO_STORY:
 		case STATE_PREV_LAST:
 		case STATE_INITIAL:
+            // todo: obsolete
 			// return to the last used playlist
-			intent = new Intent(VideoCaptureActivity.this, AppUtility.ACTIVITY_HOME);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			intent.putExtra(RESPOND_TO_CLIP, mRespondToClipId);
-            intent.putExtra(RESPOND_TO_CLIP_URL, mRespondToClipUrl);
-			intent.putExtra(CURRENT_CHANNEL, mCurrentChanlId);			
-			intent.putExtra(MOVIE, mMovieId);			
-			startActivity(intent);
-			
+//			intent = new Intent(VideoCaptureActivity.this, AppUtility.ACTIVITY_HOME);
+//			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//			intent.putExtra(RESPOND_TO_CLIP, mRespondToClipId);
+//            intent.putExtra(RESPOND_TO_CLIP_URL, mRespondToClipUrl);
+//			intent.putExtra(CURRENT_CHANNEL, mCurrentChanlId);
+//			intent.putExtra(MOVIE, mMovieId);
+//			startActivity(intent);
+			setResult(RESULT_CANCELED);
+            finish();
+
 			break;
 		case STATE_PREV_CAM:
 			// restore button color
@@ -1091,11 +1095,11 @@ public class VideoCaptureActivity extends BaseActivity implements
 		} catch (IllegalStateException e) {
 			Log.e(LOGTAG, "State Error preparing MediaRecorder", e);
 			BugSenseHandler.sendException(e);
-			finish();
+			finish(); // todo
 		} catch (IOException e) {
 			Log.e(LOGTAG, "I/O Error preparing MediaRecorder", e);
 			BugSenseHandler.sendException(e);
-			finish();
+			finish(); // todo
 		}
 	}
 
@@ -1247,4 +1251,18 @@ public class VideoCaptureActivity extends BaseActivity implements
 		Log.v(LOGTAG, "onStart");
 		super.onStop();
 	}
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.v(LOGTAG, "onActivityResult, requestCode: "+requestCode+", resultCode"+resultCode);
+        // Back from confirmation
+        if (requestCode == REQUEST_VIDEO_SENT)
+        {
+            setResult(RESULT_OK);
+            finish();
+        }
+        else {
+            super.onActivityResult(requestCode, resultCode, intent);
+        }
+    }
 }

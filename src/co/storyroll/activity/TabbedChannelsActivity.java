@@ -51,7 +51,7 @@ public class TabbedChannelsActivity
     public static final String STORED_BUNDLE_CHANNEL_ID = "channelId" ;
 
     static final int PICK_CONTACTS_REQUEST = 1111;  // The request code
-    static final int VIDEOCAPTURE_REQUEST = 1112;  // The request code
+    public static final int VIDEOCAPTURE_REQUEST = 1112;  // The request code
 
     /**
      * The {@link android.support.v4.view.ViewPager} that will display the object collection.
@@ -74,7 +74,8 @@ public class TabbedChannelsActivity
     public static ProgressBar mLoadingProgressBar = null;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clip_playlist);
         // Fields set on a tracker persist for all hits, until they are
@@ -119,12 +120,13 @@ public class TabbedChannelsActivity
         // restore the visible channel id
         if ( savedInstanceState!=null //&& !getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false)
                 ) {
+            Log.v(LOGTAG, "1a: Restoring from savedInstanceState");
             initialChannelId = savedInstanceState.getLong(STORED_BUNDLE_CHANNEL_ID);
         }
         // comes from notification? switch to indicated tab and then scroll to indicated item on list
         else if (getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false))
         {
-            Log.v(LOGTAG, "coming from notification: "+true);
+            Log.v(LOGTAG, "1b: coming from notification: "+true);
             isCallFromNotificationProcessing = true;
             // TODO crappy hack / set properties for each channels badges
 //			ArrayMoviesFragment.resetUnseenMoviesNumber( getIntent().getInt("clips") );
@@ -148,6 +150,7 @@ public class TabbedChannelsActivity
         else {
             // update unseenStories
 //			updateUnseenVideosFromServer();
+            Log.v(LOGTAG, "1c: new activity");
             if (getIntent().getExtras()!=null && getIntent().getExtras().containsKey(EXTRA_CHANNEL_ID))
             {
                 initialChannelId = getIntent().getExtras().getLong(EXTRA_CHANNEL_ID);
@@ -646,8 +649,8 @@ public class TabbedChannelsActivity
     {
         fireGAnalyticsEvent("ui_action", "touch", "leaveChannel", null);
 
-        long chanId = getCurrentChannelId();
-        if (chanId!=1) {
+        Long chanId = getCurrentChannelId();
+        if (chanId!=null && chanId!=1) {
             new LeaveChanDialog().show(getSupportFragmentManager(), "LeaveChanDialog");
         }
     }
@@ -689,7 +692,7 @@ public class TabbedChannelsActivity
             // Make sure the request was successful
             if (resultCode == RESULT_OK)
             {
-                Log.v(LOGTAG, "onActivityResult: RESULT_OK");
+                Log.v(LOGTAG, "PICK_CONTACTS_REQUEST: RESULT_OK");
                 // The user picked a contact.
                 ArrayList<Contact> cons = intent.getParcelableArrayListExtra("SELECTED_CONTACTS");
                 if (cons.size()>0) {
@@ -698,13 +701,23 @@ public class TabbedChannelsActivity
                 }
             }
             else if (resultCode == RESULT_CANCELED) {
-                Log.v(LOGTAG, "onActivityResult: RESULT_CANCELED");
+                Log.v(LOGTAG, "PICK_CONTACTS_REQUEST: RESULT_CANCELED");
             }
         }
         else if (requestCode == MANAGE_INVITES_REQUEST)
         {
             updateInvitesFromServer();
             chanListAjaxCall();
+        }
+        else if (requestCode == VIDEOCAPTURE_REQUEST)
+        {
+            if (resultCode == RESULT_OK)
+            {
+                Log.v(LOGTAG, "VIDEOCAPTURE_REQUEST: RESULT_OK");
+            }
+            else if (resultCode == RESULT_CANCELED) {
+                Log.v(LOGTAG, "VIDEOCAPTURE_REQUEST: RESULT_CANCELED");
+            }
         }
         else {
             super.onActivityResult(requestCode, resultCode, intent);
@@ -757,11 +770,16 @@ public class TabbedChannelsActivity
         return k;
     }
 
-    private long getCurrentChannelId()
+    private Long getCurrentChannelId()
     {
         int channelIdx = getActionBar().getSelectedNavigationIndex();
         if (channelIdx<0) channelIdx=0;
-        return getChannels().get(channelIdx).getId();
+        if (getChannels().size()>0) {
+            return getChannels().get(channelIdx).getId();
+        }
+        else {
+            return null;
+        }
     }
     
     private void postSelectItem(int idx) {

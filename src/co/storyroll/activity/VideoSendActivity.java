@@ -95,16 +95,16 @@ public class VideoSendActivity extends MenuActivity {
 //			startActivity(intent);
 //		}
 //		else {
-			returnHomeActivity();
+//			returnHomeActivity();
 //		}
-		
+        nextStep();
 	}
-	
-	public void closeClickedCb(View view)
+
+	private void closeClickedCb(View view)
 	{
 		fireGAnalyticsEvent("ui_action", "touch", "closeButton", null);
 		// return to the last used playlist
-		returnHomeActivity();
+        nextStep();
 	}
 
 	
@@ -140,18 +140,18 @@ public class VideoSendActivity extends MenuActivity {
 	        	
 	    		fireGAnalyticsEvent("ui_action", "click", "SystemBack", null);
 	    		fireGAnalyticsEvent("fragment_workflow", "videoUpload", "SystemBack", null);
-	        	
-        		Intent intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
-        		intent.addCategory(Intent.CATEGORY_HOME);
-//        		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-                intent.putExtra(TabbedChannelsActivity.EXTRA_CHANNEL_ID, mChanId);
-        		startActivity(intent);
-	        	
+                nextStep();
 	        	
 	            return true;
 	        }
 	        return super.onKeyUp(keyCode, event);
 	    }
+
+    private void nextStep() {
+        Intent data = new Intent();
+        data.putExtra("CURRENT_CHANNEL", mChanId);
+        setResult(RESULT_OK, data);
+        finish();
+    }
 }
