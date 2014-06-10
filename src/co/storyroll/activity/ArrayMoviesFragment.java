@@ -447,7 +447,10 @@ public class ArrayMoviesFragment extends ListFragment {
 
 			// 3. Get the views from the rowView
 			ImageView videoThumb = (ImageView) rowView.findViewById(R.id.videoThumb);
-			ImageView playControl = (ImageView) rowView.findViewById(R.id.playControl);
+            Movie movie = (Movie)getListAdapter().getItem(position);
+            aq.id(videoThumb).image(movie.getThumbUrl()); // first things first, this takes time to load
+
+            ImageView playControl = (ImageView) rowView.findViewById(R.id.playControl);
             ImageView removeControl = (ImageView) rowView.findViewById(R.id.removeControl);
             removeControl.setOnClickListener(onMoviehideClick);
 
@@ -460,12 +463,8 @@ public class ArrayMoviesFragment extends ListFragment {
 			ImageButton replyButton = (ImageButton)rowView.findViewById(R.id.replyButton);
 
 			// 4. set data & callbacks
-//			Movie movie = movies.get(position);
-			Movie movie = (Movie)getListAdapter().getItem(position);
 			rowView.initAndLoadCast(movie, aq, ArrayMoviesFragment.this);
 
-			// TODO:
-			aq.id(videoThumb).image(movie.getThumbUrl());
 			if (!movie.isSeen()) {
 	            playControl.setImageResource(R.drawable.ic_play_roll_new);
 			}
@@ -483,8 +482,10 @@ public class ArrayMoviesFragment extends ListFragment {
 			
 			videoView.init(ArrayMoviesFragment.this, videoThumb, calculcatedVideoWidth, position, 
 					movie, mUuid, progressBar, unseenIndicator, playControl);
+            // todo: optimize to not create a listener for each, but reuse one listener
 			videoThumb.setOnClickListener(new ThumbClickListener(videoView));
-			replyButton.setOnClickListener(new ReplyClickListener(movie, context));
+			replyButton.setOnClickListener(new ReplyClickListener(movie));
+
             aq.id(rowView.findViewById(R.id.shareImage)).clicked(this, "onShareClicked");
 			
 			String ageText = DateUtils.getRelativeTimeSpanString(
@@ -541,11 +542,9 @@ public class ArrayMoviesFragment extends ListFragment {
 		// reply listener
 		class ReplyClickListener implements ImageButton.OnClickListener {
 			Movie movie;
-			Context ctx;
-			
-			public ReplyClickListener(Movie movie, Context ctx){
+
+			public ReplyClickListener(Movie movie){
 				this.movie = movie;
-				this.ctx = ctx;
 			}
 			
 			@Override

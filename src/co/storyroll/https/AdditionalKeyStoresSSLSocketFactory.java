@@ -55,7 +55,7 @@ public class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
 
             try {
 
-                // first the additional keystores - this is intentional with hope that those will be tried first
+                // first the "additional" keystore(s) - this is intentional with hope that those will be tried first
                 for( KeyStore keyStore : additionalkeyStores ) {
                     final TrustManagerFactory additionalCerts = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                     additionalCerts.init(keyStore);

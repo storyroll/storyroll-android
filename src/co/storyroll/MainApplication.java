@@ -25,8 +25,6 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
 	public static final String MOBILE_AGENT = "Mozilla/5.0 (Linux; U; Android 2.2) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533";
     private static final String TAG = "Application";
 
-    private SSLSocketFactory ssf = null;
-
     @Override
     public void onCreate() {     
         
@@ -48,11 +46,12 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
         
         AQUtility.setCacheDir(null);
 
-        ssf = createAdditionalCertsSSLSocketFactory();
+        SSLSocketFactory ssf = createAdditionalCertsSSLSocketFactory();
         AbstractAjaxCallback.setSSF(ssf);
 
-        AjaxCallback.setNetworkLimit(8);
+        AjaxCallback.setNetworkLimit(16);
         //AjaxCallback.setAgent(MOBILE_AGENT);
+        AjaxCallback.setTimeout(20000); // 20 sec
 
         BitmapAjaxCallback.setIconCacheLimit(200);
         BitmapAjaxCallback.setCacheLimit(80);
