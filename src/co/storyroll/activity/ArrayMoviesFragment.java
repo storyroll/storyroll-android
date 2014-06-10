@@ -60,11 +60,10 @@ public class ArrayMoviesFragment extends ListFragment {
 	private static int unseenMoviesCount=0;
     private BasicHandle basicHandle;
 
-
     /**
 	 * Create a new instance of CountingFragment, providing "num" as an
 	 * argument.
-	 * @param chanId TODO
+	 * @param chanId channel id
 	 */
 	static ArrayMoviesFragment newInstance(int num, long chanId, String uuid, boolean isTrial) {
 		ArrayMoviesFragment f = new ArrayMoviesFragment();
@@ -130,11 +129,12 @@ public class ArrayMoviesFragment extends ListFragment {
 		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHAN_MOVIES,
 				"uuid=" + mUuid +"&channel="+mChanId + "&limit=" + LIMIT_ITEMS);
 
+        showMainProgress(true);
         if (isTrial) {
-            aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "getMovieListCb");
+            aq.ajax(apiUrl, JSONArray.class, this, "getMovieListCb");
         }
         else {
-            aq.auth(basicHandle).progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "getMovieListCb");
+            aq.auth(basicHandle).ajax(apiUrl, JSONArray.class, this, "getMovieListCb");
         }
 		
 //		default:
@@ -202,11 +202,13 @@ public class ArrayMoviesFragment extends ListFragment {
 
 	public void getMovieListCb(String url, JSONArray jarr, AjaxStatus status) 
 	{
+        showMainProgress(false);
 		getMovieListSorted(url, jarr, status, true);
 	}
 
 	public void updateMovieListCb(String url, JSONArray jarr, AjaxStatus status) 
 	{
+        showMainProgress(false);
 		refreshMovieListSorted(url, jarr, status, true);
 	}
 
@@ -844,12 +846,13 @@ public class ArrayMoviesFragment extends ListFragment {
 		Log.v(LOGTAG, "updateMovieList on chan: "+mChanId);
 		String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHAN_MOVIES,
 				"uuid=" + mUuid +"&channel="+mChanId + "&limit=" + LIMIT_ITEMS);
-		
+
+        showMainProgress(true);
         if (isTrial) {
-            aq.progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "updateMovieListCb");
+            aq.ajax(apiUrl, JSONArray.class, this, "updateMovieListCb");
         }
         else {
-            aq.auth(basicHandle).progress(R.id.progress).ajax(apiUrl, JSONArray.class, this, "updateMovieListCb");
+            aq.auth(basicHandle).ajax(apiUrl, JSONArray.class, this, "updateMovieListCb");
         }
 	}
 
@@ -864,5 +867,8 @@ public class ArrayMoviesFragment extends ListFragment {
 	    });
 	}
 
+    private void showMainProgress(boolean show) {
+        ((TabbedChannelsActivity)getActivity()).showProgress(show);
+    }
 
 }

@@ -9,7 +9,7 @@
 
     <ImageView
             android:layout_width="1px"
-            android:layout_height="10dp"
+            android:layout_height="12dp"
         />
     <ImageView
         android:id="@+id/trailerIndicator"

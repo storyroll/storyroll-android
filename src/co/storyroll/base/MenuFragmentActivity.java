@@ -24,8 +24,8 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
 import org.json.JSONArray;
 
-public class MenuFragmentActivity extends FragmentActivity {
-	
+public class MenuFragmentActivity extends FragmentActivity
+{
 	private static final String LOGTAG = "MENU_FRAGMENT";
     protected static final int MANAGE_INVITES_REQUEST = 1019;
     protected static boolean isTrial=false;
@@ -33,8 +33,14 @@ public class MenuFragmentActivity extends FragmentActivity {
     protected PQuery aq;
     protected BasicHandle basicHandle = null;
 	
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
+
+        // setup progress indicator
+//        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+//        requestWindowFeature(Window.FEATURE_PROGRESS);
+
         isTrial = getIntent().getBooleanExtra("TRIAL", false);
         if (!isTrial) {
             isTrial = getUuid() == null;
@@ -43,8 +49,6 @@ public class MenuFragmentActivity extends FragmentActivity {
            basicHandle = new BasicHandle(getUuid(), getPassword());
         }
         aq = new PQuery(this);
-
-
         updateInvitesFromServer();
 
         // Setup search by username on Android

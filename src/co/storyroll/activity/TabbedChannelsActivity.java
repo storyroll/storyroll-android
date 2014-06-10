@@ -4,6 +4,8 @@ import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -13,10 +15,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import co.storyroll.PQuery;
@@ -41,7 +41,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TabbedChannelsActivity extends MenuFragmentActivity
+public class TabbedChannelsActivity
+        extends MenuFragmentActivity
         implements SignupDialog.SigninDialogListener, LeaveChanDialog.LeaveChanDialogListener {
 
 	private static final String LOGTAG = "TABBED_CHANS";
@@ -70,15 +71,111 @@ public class TabbedChannelsActivity extends MenuFragmentActivity
 	private long initialChannelId = -1L;
 	private int lastUpdatedMovieIdx = 0;
 	private boolean channelsLoaded = false;
-    
-    
+    public static ProgressBar mLoadingProgressBar = null;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_clip_playlist);
+        // Fields set on a tracker persist for all hits, until they are
+        // overridden or cleared by assignment to null.
+        getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
+
+        // Initial set up for action bar.
+        ActionBarUtility.initCustomActionBar(this, false);
+
+        // Custom indefinite ProgressBar
+        final ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 20); //Use dp resources
+        mLoadingProgressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        mLoadingProgressBar.setIndeterminate(true);
+        mLoadingProgressBar.setLayoutParams(lp);
+        mLoadingProgressBar.getIndeterminateDrawable().setColorFilter(Color.parseColor("#FF5E48"), PorterDuff.Mode.SRC_IN);
+        mLoadingProgressBar.setVisibility(View.VISIBLE);
+        final ViewGroup decor = (ViewGroup) getWindow().getDecorView();
+        decor.addView(mLoadingProgressBar);
+        final ViewTreeObserver vto = decor.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            final View content = findViewById(android.R.id.content);
+            @Override
+            public void onGlobalLayout() {
+                int top = content.getTop();
+                //Dont do anything until getTop has a value above 0.
+                if (top == 0)
+                    return;
+//                ViewTreeObserver observer = mLoadingProgressBar.getViewTreeObserver();
+//                observer.removeGlobalOnLayoutListener(this);
+                mLoadingProgressBar.setY(top-12);
+            }
+        });
+
+        // continue initialization
+        mUuid = getUuid();
+
+//        // TODO this is temp hack
+//        if (isTrial) {
+//        	mUuid = "test@test.com";
+//        }
+
+        // restore the visible channel id
+        if ( savedInstanceState!=null //&& !getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false)
+                ) {
+            initialChannelId = savedInstanceState.getLong(STORED_BUNDLE_CHANNEL_ID);
+        }
+        // comes from notification? switch to indicated tab and then scroll to indicated item on list
+        else if (getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false))
+        {
+            Log.v(LOGTAG, "coming from notification: "+true);
+            isCallFromNotificationProcessing = true;
+            // TODO crappy hack / set properties for each channels badges
+//			ArrayMoviesFragment.resetUnseenMoviesNumber( getIntent().getInt("clips") );
+            Bundle extras = getIntent().getExtras();
+            String chIdStr = extras.getString(GcmIntentService.EXTRA_CHANNEL_ID_STR);
+            Log.v(LOGTAG, "from notification, EXTRA_CHANNEL_ID_STR: "+chIdStr);
+            if (!TextUtils.isEmpty(chIdStr)){
+                initialChannelId = Long.valueOf(chIdStr);
+            }
+            Log.d(LOGTAG, "initial channel id Long from notification: "+initialChannelId);
+
+            String lumIdStr = extras.getString(GcmIntentService.EXTRA_LAST_UPDATED_MOVIE);
+            Log.v(LOGTAG, "from notification, EXTRA_LAST_UPDATED_MOVIE: "+lumIdStr);
+            long lastUpdatedMovieId = TextUtils.isEmpty(lumIdStr)?-1L:Long.valueOf(chIdStr);
+            lastUpdatedMovieIdx = movieIdToIdx(lastUpdatedMovieId);
+
+//			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
+//			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
+
+        }
+        else {
+            // update unseenStories
+//			updateUnseenVideosFromServer();
+            if (getIntent().getExtras()!=null && getIntent().getExtras().containsKey(EXTRA_CHANNEL_ID))
+            {
+                initialChannelId = getIntent().getExtras().getLong(EXTRA_CHANNEL_ID);
+                Log.v(LOGTAG, "initial channel id from Intent: "+initialChannelId);
+            }
+        }
+
+        // get chan list
+        chanListAjaxCall();
+
+//        mAdapter = new ClipPlaylistTabAdapter(getSupportFragmentManager());
+//
+//        // Set up the ViewPager, attaching the adapter.
+//        mViewPager = (ViewPager) findViewById(R.id.pager);
+//        mViewPager.setAdapter(mAdapter);
+
+        // update notification counter
+        updateInvitesFromServer();
+
+    }
+
     public PQuery getPQuery(){
     	return aq;
     }
 
     private void initializeActionBar() {
-        // Set up action bar.
-    	ActionBarUtility.initCustomActionBar(this, false);
+//        // Set up action bar.
+//    	ActionBarUtility.initCustomActionBar(this, false);
     	final ActionBar actionBar = getActionBar();
     	
 //    	actionBar.setHomeButtonEnabled(true);
@@ -139,7 +236,6 @@ public class TabbedChannelsActivity extends MenuFragmentActivity
       		tab = tab.setText(chan.getTitle());
             Log.v(LOGTAG, "chanel id, default: "+chan.getId()+", "+(initialChannelId==chan.getId()));
 	            actionBar.addTab(tab.setTabListener(tabListener), initialChannelId==chan.getId()); // TODO select default here
-//            actionBar.addTab(tab.setTabListener(tabListener), i==1); // TODO select default here
 
         }
       }
@@ -150,97 +246,14 @@ public class TabbedChannelsActivity extends MenuFragmentActivity
 		return 1;
 	}
 
-	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_clip_playlist);
-        
-		// Fields set on a tracker persist for all hits, until they are
-	    // overridden or cleared by assignment to null.
-	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
-
-        mUuid = getUuid();
-        
-//        // TODO this is temp hack
-//        if (isTrial) {
-//        	mUuid = "test@test.com";
-//        }
-
-        // restore the visible channel id
-        if ( savedInstanceState!=null //&& !getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false)
-                ) {
-            initialChannelId = savedInstanceState.getLong(STORED_BUNDLE_CHANNEL_ID);
-        }
-        // comes from notification? switch to indicated tab and then scroll to indicated item on list
-        else if (getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false))
-        {
-            Log.v(LOGTAG, "coming from notification: "+true);
-            isCallFromNotificationProcessing = true;
-            // TODO crappy hack / set properties for each channels badges
-//			ArrayMoviesFragment.resetUnseenMoviesNumber( getIntent().getInt("clips") );
-            Bundle extras = getIntent().getExtras();
-            String chIdStr = extras.getString(GcmIntentService.EXTRA_CHANNEL_ID_STR);
-            Log.v(LOGTAG, "from notification, EXTRA_CHANNEL_ID_STR: "+chIdStr);
-            if (!TextUtils.isEmpty(chIdStr)){
-                initialChannelId = Long.valueOf(chIdStr);
-            }
-            Log.d(LOGTAG, "initial channel id Long from notification: "+initialChannelId);
-            // find which position is that
-//			int initialPosition = 0;
-//			for (int i=0; i<channels.size(); i++) {
-//				if (channels.get(i).getId()==initialChannelid) {
-//					initialPosition = i;
-//				}
-//			}
-//			Log.v(LOGTAG, "initial channel idx: "+initialPosition);
-
-            String lumIdStr = extras.getString(GcmIntentService.EXTRA_LAST_UPDATED_MOVIE);
-            Log.v(LOGTAG, "from notification, EXTRA_LAST_UPDATED_MOVIE: "+lumIdStr);
-            long lastUpdatedMovieId = TextUtils.isEmpty(lumIdStr)?-1L:Long.valueOf(chIdStr);
-            lastUpdatedMovieIdx = movieIdToIdx(lastUpdatedMovieId);
-
-//			refreshUnseenBadge( getIntent().getIntExtra("count", 0) );
-//			actionBar.setSelectedNavigationItem(ArrayClipsFragment.TAB_TWO);
-
-
-            // TODO is this correct place to select tab? and what is better way?
-//			mViewPager.setCurrentItem(tab.getPosition());
-//			if (initialPosition!=0 && isCallFromNotificationProcessing) {
-//				Log.v(LOGTAG, "CallFromNotificationProcessing=true, selecting Nav Item "+initialPosition);
-//				actionBar.setSelectedNavigationItem(initialPosition);
-//			}
-        }
-        else {
-            // update unseenStories
-//			updateUnseenVideosFromServer();
-            if (getIntent().getExtras()!=null && getIntent().getExtras().containsKey(EXTRA_CHANNEL_ID))
-            {
-                initialChannelId = getIntent().getExtras().getLong(EXTRA_CHANNEL_ID);
-                Log.v(LOGTAG, "initial channel id from Intent: "+initialChannelId);
-            }
-        }
-
-        // get chan list 
-        chanListAjaxCall();
-        
-//        mAdapter = new ClipPlaylistTabAdapter(getSupportFragmentManager());
-//        
-//        // Set up the ViewPager, attaching the adapter.
-//        mViewPager = (ViewPager) findViewById(R.id.pager);
-//        mViewPager.setAdapter(mAdapter);
-
-        // update notification counter
-        updateInvitesFromServer();
-
-    }
-	
 	private void chanListAjaxCall(){
-        aq.auth(basicHandle).ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS, mUuid==null?null:("uuid=" + mUuid)), JSONArray.class, this, "chanListCb");
+        showProgress(true);
+        aq.auth(basicHandle).ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS, mUuid == null ? null : ("uuid=" + mUuid)), JSONArray.class, this, "chanListCb");
 	}
 
     public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
         Log.v(LOGTAG, "chanListCb");
-
+        showProgress(false);
         if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
             channelsLoaded = false;
             return;
@@ -253,13 +266,16 @@ public class TabbedChannelsActivity extends MenuFragmentActivity
             channels = ModelUtility.channels(jarr);
             channelsLoaded = true;
             // get the list of channels
-            init(channels);
         } else {
             // ajax error
             ErrorUtility.apiError(LOGTAG,
                     "userLikesCb: null Json, could not get channels for uuid " + mUuid, status, this, false, Log.ERROR);
             channelsLoaded = false;
+            if (channels==null) {
+                channels = new ArrayList<Channel>();
+            }
         }
+        init(channels);
     }
 
     public void init(List<Channel> newChannels)  {
@@ -352,7 +368,11 @@ public class TabbedChannelsActivity extends MenuFragmentActivity
 	}
     
 
-
+    public void showProgress(boolean show) {
+        if (mLoadingProgressBar!=null) {
+            mLoadingProgressBar.setVisibility(show?View.VISIBLE:View.INVISIBLE);
+        }
+    }
 
     private void refreshUnseenBadge(int num) {
     	unseenStoriesCount = num;
