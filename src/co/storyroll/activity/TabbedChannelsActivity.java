@@ -697,6 +697,7 @@ public class TabbedChannelsActivity
             if (resultCode == RESULT_OK)
             {
                 Log.v(LOGTAG, "VIDEOCAPTURE_REQUEST: RESULT_OK");
+                Toast.makeText(this, R.string.video_uploaded, Toast.LENGTH_SHORT).show();
             }
             else if (resultCode == RESULT_CANCELED) {
                 Log.v(LOGTAG, "VIDEOCAPTURE_REQUEST: RESULT_CANCELED");

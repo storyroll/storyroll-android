@@ -183,6 +183,7 @@
     </string>
     <string name="button_yes">Yes</string>
     <string name="button_no">No</string>
+    <string name="video_uploaded">Got it! Video uploaded.</string>
 
 
 </resources>

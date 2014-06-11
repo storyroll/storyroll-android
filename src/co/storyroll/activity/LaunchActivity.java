@@ -15,6 +15,7 @@ import co.storyroll.base.BaseActivity;
 import co.storyroll.util.*;
 import com.androidquery.auth.FacebookHandle;
 import com.androidquery.callback.AjaxStatus;
+import com.androidquery.util.AQUtility;
 import com.google.analytics.tracking.android.Fields;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -174,6 +175,9 @@ public class LaunchActivity extends BaseActivity {
 		
 		Button bt3 = (Button) findViewById(R.id.log_button);
 		bt3.setOnTouchListener(mDelayHideTouchListener);
+        if (AQUtility.isDebug()) {
+            bt3.setVisibility(View.VISIBLE);
+        }
 
 		bt3.setOnClickListener(new Button.OnClickListener() {
 			@Override

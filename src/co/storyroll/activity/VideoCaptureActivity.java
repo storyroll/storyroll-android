@@ -377,11 +377,13 @@ public class VideoCaptureActivity extends BaseActivity implements
 
 			// go to "video sent, got it!" activity
 
-			Intent sendActivity = new Intent(this, VideoSendActivity.class);
-			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			sendActivity.putExtra(MODE_NEW, mStartNewMode);
-            sendActivity.putExtra(CURRENT_CHANNEL, mCurrentChanlId);
-			startActivityForResult(sendActivity, REQUEST_VIDEO_SENT);
+//			Intent sendActivity = new Intent(this, VideoSendActivity.class);
+//			sendActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//			sendActivity.putExtra(MODE_NEW, mStartNewMode);
+//            sendActivity.putExtra(CURRENT_CHANNEL, mCurrentChanlId);
+//			startActivityForResult(sendActivity, REQUEST_VIDEO_SENT);
+            setResult(RESULT_OK);
+            finish();
 
         }else
         {          
@@ -843,19 +845,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 			}
 			hide(rotateButton);
 			if (mStartNewMode) {
-//	    		fireGAnalyticsEvent("ui_action", "click", "SystemBack", null);
-//	    		fireGAnalyticsEvent("fragment_workflow", "videoUpload", "SystemBack", null);
-
                 setResult(RESULT_CANCELED);
                 finish();
-
-                /*
-        		intent = new Intent(getApplicationContext(), AppUtility.ACTIVITY_HOME);
-        		intent.addCategory(Intent.CATEGORY_HOME);
-//        		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        		startActivity(intent);
-        		*/
 			}
 			else {
 				mLastState = processAndSwitchToState(STATE_PREV_LAST);
@@ -1248,17 +1239,4 @@ public class VideoCaptureActivity extends BaseActivity implements
 		super.onStop();
 	}
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        Log.v(LOGTAG, "onActivityResult, requestCode: "+requestCode+", resultCode"+resultCode);
-        // Back from confirmation
-        if (requestCode == REQUEST_VIDEO_SENT)
-        {
-            setResult(RESULT_OK);
-            finish();
-        }
-        else {
-            super.onActivityResult(requestCode, resultCode, intent);
-        }
-    }
 }
