@@ -8,6 +8,7 @@ public class Channel {
 	private long id = -1L;
 	private long createdOn = -1L;
 	private String thumbnailFile = null;
+    private boolean publicChannel = false;
 	
 	public Channel() {
 	}
@@ -22,6 +23,7 @@ public class Channel {
 		createdOn = chanObj.getLong("createdOn");
 		title = chanObj.getString("title");
 		thumbnailFile = chanObj.getString("thumbnailFile");
+        publicChannel = chanObj.getBoolean("publicChannel");
 	}
 	
 	public String getTitle() {
@@ -47,5 +49,12 @@ public class Channel {
 	public void setCreatedOn(long createdOn) {
 		this.createdOn = createdOn;
 	}
-	
+
+    public boolean isPublic() {
+        return publicChannel;
+    }
+
+    public void setPublic(boolean publicChannel) {
+        this.publicChannel = publicChannel;
+    }
 }

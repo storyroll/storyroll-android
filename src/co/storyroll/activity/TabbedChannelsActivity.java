@@ -222,20 +222,21 @@ public class TabbedChannelsActivity
       	Channel chan = getChannels().get(i);
       	if (chan!=null) {
       		Tab tab = actionBar.newTab();
-//      		if (i==ArrayClipsFragment.TAB_TWO) 
-//      		{
-//      			tab = tab.setText(tabHeads[i]);
-//      			
-//      			tab.setCustomView(R.layout.custom_actionbar_tab);
-//      			View tabView = tab.getCustomView();
-//      			TextView tabText  = (TextView) tabView.findViewById(R.id.tabText);
-//      			tabText.setText(tabHeads[i]);
-//      			
+
+            if (chan.isPublic())
+      		{
+      			tab.setCustomView(R.layout.custom_actionbar_tab);
+      			View tabView = tab.getCustomView();
+      			TextView tabText  = (TextView) tabView.findViewById(R.id.tabText);
+      			tabText.setText(chan.getTitle());
 //      			tabUnseenBadgeText  = (TextView) tabView.findViewById(R.id.badgeTextt);
-//
-//      		}
-      		tab = tab.setText(chan.getTitle());
+                ((TextView) tabView.findViewById(R.id.badgeTextt)).setText("P");
+
+            } else {
+                tab = tab.setText(chan.getTitle());
+            }
 //            Log.v(LOGTAG, "chanel id, default: "+chan.getId()+", "+(initialChannelId==chan.getId()));
+            Log.v(LOGTAG, "chanel id, public: "+chan.isPublic());
 	        actionBar.addTab(tab.setTabListener(tabListener), initialChannelId==chan.getId());
 
         }

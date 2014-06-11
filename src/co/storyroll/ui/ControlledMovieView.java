@@ -170,17 +170,17 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	@Override
 	public void onVideoTaskCompleted(String fileName, boolean success, boolean wasCached, Exception e) 
 	{
-		progressBar.setVisibility(View.GONE);
-		controlView.setVisibility(View.GONE);
-		setVisibility(View.VISIBLE);
-		setViewSquare();
+        String videoFilePath = AppUtility.getVideoCacheDir(getContext().getApplicationContext())+File.separator+fileName;
+        Log.d(LOGTAG, "onVideoTaskCompleted: "+videoFilePath+", success: "+success);
+        progressBar.setVisibility(View.GONE);
 		isLoading = false;
-		
-		String videoFilePath = AppUtility.getVideoCacheDir(getContext().getApplicationContext())+File.separator+fileName;
-		Log.d(LOGTAG, "onVideoTaskCompleted: "+videoFilePath+", success: "+success);
 
 		if (success) {
-			setVideoPath(videoFilePath);
+            controlView.setVisibility(View.GONE);
+            setVisibility(View.VISIBLE);
+            setViewSquare();
+
+            setVideoPath(videoFilePath);
 			isLoaded = true;
 			
 			if (playQueued) {
