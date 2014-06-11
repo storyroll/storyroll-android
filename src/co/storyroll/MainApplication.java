@@ -51,7 +51,7 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
 
         AjaxCallback.setNetworkLimit(16);
         //AjaxCallback.setAgent(MOBILE_AGENT);
-        AjaxCallback.setTimeout(20000); // 20 sec
+        AjaxCallback.setTimeout(60000); // 60 sec
 
         BitmapAjaxCallback.setIconCacheLimit(200);
         BitmapAjaxCallback.setCacheLimit(80);

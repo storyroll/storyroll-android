@@ -55,8 +55,10 @@ public class ServerUtility {
 	public static final String API_UNSEEN_MOVIES = "unseenStories"; 
 
 	public static final String API_USER_EXISTS = "hasUser";
+    public static final String API_USER_FRIENDS = "user/friends";
 
-	public static final String API_VIEW_ADD = "addView";
+
+    public static final String API_VIEW_ADD = "addView";
 
 	// obsolete
 	public static final String API_STORY_FILE = "storyFile"; //

@@ -135,6 +135,8 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
     protected void onPostExecute(Result result){
         //your stuff
     	Log.i(TAG, "onPostExecute, success "+success+", wasCached: "+wasCached);
-        listener.onVideoTaskCompleted(fileName, success, wasCached, e);
+        if (listener!=null) {
+            listener.onVideoTaskCompleted(fileName, success, wasCached, e);
+        }
     }
 }
