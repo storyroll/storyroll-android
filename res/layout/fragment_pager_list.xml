@@ -52,26 +52,32 @@
 
     </FrameLayout>
 
-    <ImageButton
-            android:id="@+id/findFriendsBtn"
+    <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_action_refresh"
             android:layout_gravity="center_horizontal"
-            android:background="@color/sr_bg_actionbar"
-            android:padding="7dp"
-            android:layout_marginBottom="10dp"
-            android:visibility="gone"/>
-    <ProgressBar
-            android:id="@+id/progress"
+            >
+        <ImageButton
+                android:id="@+id/findFriendsBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_action_refresh"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/sr_bg_actionbar"
+                android:padding="7dp"
+                android:layout_marginBottom="10dp"
+                android:visibility="gone"/>
+        <ProgressBar
+                android:id="@+id/progress"
 
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_marginTop="4dp"
-            android:padding="10dp"
-            android:visibility="gone"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="4dp"
+                android:padding="10dp"
+                android:visibility="gone"/>
+    </FrameLayout>
     <!--<TextView-->
             <!--android:id="@+id/tabtextview1"-->
             <!--android:layout_width="wrap_content"-->

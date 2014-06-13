@@ -10,7 +10,10 @@ import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import co.storyroll.R;
 import co.storyroll.activity.LoadContactsListener;
 import co.storyroll.activity.TabListFragment;
 import co.storyroll.model.Contact;
@@ -26,26 +29,33 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void> {
     private int tabNum = 0;
     private LoadContactsListener lcListener;
     private Activity act;
+    private ProgressBar progress = null;
+    private ImageButton button = null;
 
     private LinkedHashMap<String, Contact> allContacts = new LinkedHashMap<String, Contact>();
 //    public static ArrayList<Contact> phoneContacts = new ArrayList<Contact>();
 
 
-    ProgressBar progress;
 
-    public AsyncLoadContacts(int tabNum, LoadContactsListener lcl, Activity act){
+    public AsyncLoadContacts(int tabNum, LoadContactsListener lcl, Activity act, View v){
         super();
         this.tabNum = tabNum;
         this.lcListener = lcl;
         this.act = act;
-//            this.progress = progress;
+        if (v!=null) {
+            this.progress = (ProgressBar) v.findViewById(R.id.progress);
+            this.button = (ImageButton) v.findViewById(R.id.findFriendsBtn);
+        }
     }
 
     @Override
     protected void onPreExecute() {
 
 //			progressLayout.setVisibility(View.VISIBLE);
-//            progress.setVisibility(View.VISIBLE);
+        if (progress!=null) {
+            progress.setVisibility(View.VISIBLE);
+            button.setVisibility(View.GONE);
+        }
 
     }
 
@@ -71,7 +81,10 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void> {
         }
         // set the progress to GONE
 //			progressLayout.setVisibility(View.GONE);
-//            progress.setVisibility(View.GONE);
+        if (progress!=null) {
+            progress.setVisibility(View.GONE);
+            button.setVisibility(View.VISIBLE);
+        }
         lcListener.onContactsLoaded(tabNum);
 
     }

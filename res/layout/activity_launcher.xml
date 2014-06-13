@@ -35,7 +35,7 @@
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
             android:textSize="12pt"
-            android:text="share 2 sec,\nget full story"
+            android:text="@string/msg_storyroll_slogan"
             android:textColor="#ffffff"
             android:paddingBottom="30dp"
             />

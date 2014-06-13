@@ -189,6 +189,7 @@
     <string name="tab_adressbook">Phone Contacts</string>
     <string name="update_friends">Update friends</string>
     <string name="notif_channel_invite">Channel invite</string>
+    <string name="msg_storyroll_slogan">Share your life\nin 2 sec</string>
 
 
 </resources>
