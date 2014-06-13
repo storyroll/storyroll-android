@@ -56,6 +56,7 @@ public class ServerUtility {
 
 	public static final String API_USER_EXISTS = "hasUser";
     public static final String API_USER_FRIENDS = "user/friends";
+    public static final String API_USERS_MATCH = "users/match";
 
 
     public static final String API_VIEW_ADD = "addView";

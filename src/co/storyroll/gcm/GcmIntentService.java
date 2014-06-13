@@ -167,7 +167,10 @@ public class GcmIntentService extends IntentService {
     		contentTitle = getResources().getString(R.string.notif_response_channel);
     		msg = lastUserame+" posted a response in "+channelName.toUpperCase()+"!";
     	}
-        int countNewStories = Integer.valueOf(countNewStoriesStr);
+        int countNewStories = 0;
+        if (!TextUtils.isEmpty(countNewStoriesStr)) {
+            countNewStories = Integer.valueOf(countNewStoriesStr);
+        }
 		if (countNewStories>1) {
 	    	msg=msg+" You have "+countNewStories+" unchecked video(s).";
 	    }

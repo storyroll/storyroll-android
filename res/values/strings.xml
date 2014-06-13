@@ -184,10 +184,9 @@
     <string name="button_yes">Yes</string>
     <string name="button_no">No</string>
     <string name="video_uploaded">Got it! Video uploaded.</string>
-    <string name="msg_friend_check">Press this button to add your friends to your friends list.
-        We will only check your address book emails once, and we will not store your address book on our servers.</string>
+    <string name="dialog_friend_check">Check who from your contacts is using StoryRoll?\nYour address book will only be checked once, and it will not be stored on our server.</string>
     <string name="tab_friends">Friends</string>
-    <string name="tab_adressbook">AddressBook</string>
+    <string name="tab_adressbook">Phone Contacts</string>
     <string name="update_friends">Update friends</string>
 
 

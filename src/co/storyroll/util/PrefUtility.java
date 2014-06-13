@@ -15,6 +15,7 @@ import co.storyroll.MainApplication;
 import co.storyroll.base.Constants;
 import co.storyroll.enums.AutostartMode;
 import co.storyroll.enums.ServerPreference;
+import com.androidquery.auth.BasicHandle;
 import com.androidquery.util.AQUtility;
 
 import java.util.HashMap;
@@ -236,5 +237,9 @@ public class PrefUtility {
         Context context = MainApplication.getContext();
         SharedPreferences settings = context.getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
         return settings.getString(Constants.PREF_PASSWORD, null);
+    }
+
+    public static BasicHandle getBasicHandle(){
+        return new BasicHandle(getUuid(), getPassword());
     }
 }

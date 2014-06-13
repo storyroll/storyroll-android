@@ -4,12 +4,14 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by martynas on 28/05/14.
  */
 
-public class Contact implements Parcelable {
+public class Contact implements Parcelable, Comparable<Contact> {
 
     private String contactName;
     private String contactNumber;
@@ -100,6 +102,14 @@ public class Contact implements Parcelable {
         contactEmail = source.readString();
     }
 
+    public Contact(JSONObject profileJson) throws JSONException {
+        if (profileJson!=null) {
+            contactPhotoUri = Uri.parse(profileJson.getString("avatarUrl"));
+            contactEmail = profileJson.getString("email");
+            contactName = profileJson.getString("username");
+        }
+    }
+
     public static final Parcelable.Creator<Contact> CREATOR = new Parcelable.Creator<Contact>() {
 
         @Override
@@ -114,4 +124,8 @@ public class Contact implements Parcelable {
 
     };
 
+    @Override
+    public int compareTo(Contact contact) {
+        return getContactName().compareToIgnoreCase(contact.getContactName());
+    }
 }

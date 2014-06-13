@@ -1,14 +1,9 @@
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@android:drawable/gallery_thumb">
-
-    <TextView android:id="@+id/text"
-              android:layout_width="match_parent" android:layout_height="wrap_content"
-              android:gravity="center_vertical|center_horizontal"
-              android:textAppearance="?android:attr/textAppearanceMedium"
-              android:text="@string/tab_friends"/>
+              >
 
     <!-- The frame layout is here since we will be showing either
     the empty view or the list view.  -->
@@ -19,33 +14,72 @@
         <!-- Here is the list. Since we are using a ListActivity, we
              have to call it "@android:id/list" so ListActivity will
              find it -->
-        <ListView android:id="@android:id/list"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:drawSelectorOnTop="false"/>
+        <RelativeLayout
+            android:id="@+id/dada"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+            <EditText
+                    android:id="@+id/search_txt"
+                    style="@style/EditTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/header"
+                    android:layout_marginBottom="3dp"
+                    android:layout_marginTop="2dp"
+                    android:drawableRight="@drawable/edit_search"
+                    android:inputType="textNoSuggestions"
+                    android:singleLine="true" />
 
+            <ListView
+                    android:id="@android:id/list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/search_txt"
+                    android:background="@color/transparent"
+                    android:cacheColorHint="@android:color/transparent"
+                    android:divider="@drawable/list_divider"
+                    android:dividerHeight="1dp"
+                    android:fastScrollEnabled="true" />
+        </RelativeLayout>
         <!-- Here is the view to show if the list is emtpy -->
-        <TextView android:id="@android:id/empty"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:textAppearance="?android:attr/textAppearanceMedium"
-                  android:text="No items."/>
+        <!--<TextView android:id="@android:id/empty"-->
+                  <!--android:layout_width="match_parent"-->
+                  <!--android:layout_height="match_parent"-->
+                  <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
+                  <!--android:text="No items."-->
+                <!--/>-->
 
     </FrameLayout>
 
-    <Button
+    <ImageButton
             android:id="@+id/findFriendsBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/update_friends"
-            android:layout_gravity="center_horizontal"/>
-    <TextView
-            android:id="@+id/tabtextview1"
+            android:src="@drawable/ic_action_refresh"
+            android:layout_gravity="center_horizontal"
+            android:background="@color/sr_bg_actionbar"
+            android:padding="7dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"/>
+    <ProgressBar
+            android:id="@+id/progress"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="@string/msg_friend_check"
-            />
+            android:layout_marginTop="4dp"
+            android:padding="10dp"
+            android:visibility="gone"/>
+    <!--<TextView-->
+            <!--android:id="@+id/tabtextview1"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:text="@string/msg_friend_check"-->
+            <!--android:visibility="gone"-->
+            <!--/>-->
 
 </LinearLayout>

@@ -24,7 +24,6 @@ import co.storyroll.R;
 import co.storyroll.base.MenuFragmentActivity;
 import co.storyroll.gcm.GcmIntentService;
 import co.storyroll.model.Channel;
-import co.storyroll.model.Contact;
 import co.storyroll.ui.LeaveChanDialog;
 import co.storyroll.ui.RollMovieDialog;
 import co.storyroll.ui.SignupDialog;
@@ -623,7 +622,7 @@ public class TabbedChannelsActivity
     private void onAddGroup() {
         if (channelsLoaded) {
             // call address picker
-            Intent pickContactsIntent = new Intent(getApplicationContext(), ContactManager.class);
+            Intent pickContactsIntent = new Intent(getApplicationContext(), AddressTabsActivity.class);
             startActivityForResult(pickContactsIntent, PICK_CONTACTS_REQUEST);
         }
         else {
@@ -678,10 +677,12 @@ public class TabbedChannelsActivity
             {
                 Log.v(LOGTAG, "PICK_CONTACTS_REQUEST: RESULT_OK");
                 // The user picked a contact.
-                ArrayList<Contact> cons = intent.getParcelableArrayListExtra("SELECTED_CONTACTS");
-                if (cons.size()>0) {
-                    int k = sendInvites(cons);
-                    Toast.makeText(this, "Invitations sent", Toast.LENGTH_SHORT).show(); // TODO - show to how many people it was sent?
+//                ArrayList<Contact> cons = intent.getParcelableArrayListExtra("SELECTED_CONTACTS");
+                ArrayList<String> emails = intent.getStringArrayListExtra("SELECTED_CONTACTS");
+
+                if (emails.size()>0) {
+                    sendInvites(emails);
+                    Toast.makeText(this, emails.size()+" invitations sent", Toast.LENGTH_SHORT).show(); // TODO - show to how many people it was sent?
                 }
             }
             else if (resultCode == RESULT_CANCELED) {
@@ -718,13 +719,12 @@ public class TabbedChannelsActivity
 
     // todo crappy hack
     static int k = 0;
-    private int sendInvites(ArrayList<Contact> cons){
+    private int sendInvites(ArrayList<String> cons){
         JSONArray emailsJson = new JSONArray();
 
-        for (Contact c: cons)
+        for (String email: cons)
         {
-            Log.e(LOGTAG, "contact: " + c.toString());
-            String email = c.getContactEmail();
+            Log.e(LOGTAG, "contact: " + email);
             emailsJson.put(email);
         }
 
