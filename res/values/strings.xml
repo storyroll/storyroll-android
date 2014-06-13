@@ -188,6 +188,7 @@
     <string name="tab_friends">Friends</string>
     <string name="tab_adressbook">Phone Contacts</string>
     <string name="update_friends">Update friends</string>
+    <string name="notif_channel_invite">Channel invite</string>
 
 
 </resources>

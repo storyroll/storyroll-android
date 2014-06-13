@@ -48,7 +48,9 @@ public class GcmIntentService extends IntentService {
 
 	private static final String KEY_GCM_CHANNEL_ID_STR = "channel";
 	public static final String EXTRA_LAST_USERNAME = "lastUsername";
-	private static final String KEY_GCM_COLLAPSE_KEY = "collapse_key";
+    public static final String EXTRA_INVITER_NAME = "inviter_name";
+
+    private static final String KEY_GCM_COLLAPSE_KEY = "collapse_key";
 	private static final String KEY_GCM_UNSEEN_COUNT = "count";
     public static final String EXTRA_NOTIFICATION = "NOTIFICATION";
     public static final String EXTRA_CHANNEL_NAME = "channelName";
@@ -58,9 +60,11 @@ public class GcmIntentService extends IntentService {
     private static String NEW_MOVIE_IN_CHANNEL = "NEW_MOVIE_IN_CHANNEL";
 	private static String NEW_REPLY_IN_CHANNEL = "NEW_REPLY_IN_CHANNEL";
 	private static String STORY_PUBLISHED = "STORY_PUBLISHED";
-	private static String REPLY_PUBLISHED = "STORY_PUBLISHED";
-	
-	
+	private static String REPLY_PUBLISHED = "REPLY_PUBLISHED";
+    private static String CHANNEL_INVITE = "CHANNEL_INVITE";
+
+
+
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
@@ -143,7 +147,10 @@ public class GcmIntentService extends IntentService {
         String countNewStoriesStr = gcmExtras.getString(KEY_GCM_UNSEEN_COUNT, null);
         String channelName = gcmExtras.getString(EXTRA_CHANNEL_NAME, DEFAULT_UNKNOWN_CHAN_NAME);
         String lastUserame = gcmExtras.getString(EXTRA_LAST_USERNAME, DEFAULT_LAST_USERNAME);
-        
+        String inviterName = gcmExtras.getString(EXTRA_INVITER_NAME, DEFAULT_LAST_USERNAME);
+
+
+        boolean addStoryNum = true;
         if (TextUtils.isEmpty(countNewStoriesStr)) 
         {
         	Log.w(LOGTAG, "No message count in GCM message payload");
@@ -167,11 +174,16 @@ public class GcmIntentService extends IntentService {
     		contentTitle = getResources().getString(R.string.notif_response_channel);
     		msg = lastUserame+" posted a response in "+channelName.toUpperCase()+"!";
     	}
+        else if (CHANNEL_INVITE.equalsIgnoreCase(collapseKey)) {
+            contentTitle = getResources().getString(R.string.notif_channel_invite);
+            msg = inviterName+" invited you to "+channelName.toUpperCase();
+            addStoryNum = false;
+        }
         int countNewStories = 0;
         if (!TextUtils.isEmpty(countNewStoriesStr)) {
             countNewStories = Integer.valueOf(countNewStoriesStr);
         }
-		if (countNewStories>1) {
+		if (countNewStories>1 && addStoryNum) {
 	    	msg=msg+" You have "+countNewStories+" unchecked video(s).";
 	    }
         
