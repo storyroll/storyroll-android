@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import co.storyroll.PQuery;
 import co.storyroll.R;
+import co.storyroll.adapter.ContactAdapter;
 import co.storyroll.model.Contact;
 import co.storyroll.tasks.AsyncLoadContacts;
 import co.storyroll.util.ContactUtil;

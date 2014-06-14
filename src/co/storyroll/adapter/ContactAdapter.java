@@ -1,4 +1,4 @@
-package co.storyroll.activity;
+package co.storyroll.adapter;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 import co.storyroll.PQuery;
 import co.storyroll.R;
+import co.storyroll.activity.ContactManagerActivity;
 import co.storyroll.model.Contact;
 
 import java.util.*;

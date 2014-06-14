@@ -652,6 +652,7 @@ public class TabbedChannelsActivity
             // remove tab
             final ActionBar bar = getActionBar();
             int selectedIdx = bar.getSelectedNavigationIndex();
+            Log.v(LOGTAG, "removing index: "+selectedIdx);
             if (bar.getTabCount() > 0)
             bar.removeTabAt(selectedIdx);
 

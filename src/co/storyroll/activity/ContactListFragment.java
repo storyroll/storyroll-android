@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import co.storyroll.R;
+import co.storyroll.adapter.ContactAdapter;
 import co.storyroll.model.Contact;
 import co.storyroll.tasks.AsyncLoadContacts;
 import co.storyroll.ui.MatchFriendsDialog;
