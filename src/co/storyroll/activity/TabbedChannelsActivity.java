@@ -178,6 +178,7 @@ public class TabbedChannelsActivity
 //        // Set up action bar.
 //    	ActionBarUtility.initCustomActionBar(this, false);
     	final ActionBar actionBar = getActionBar();
+        actionBar.removeAllTabs();
     	
 //    	actionBar.setHomeButtonEnabled(true);
         
@@ -543,6 +544,17 @@ public class TabbedChannelsActivity
         public CharSequence getPageTitle(int position) {
             return getChannels().get(position % getChannels().size()).getTitle();
         }
+
+        // see http://stackoverflow.com/questions/9061325/fragmentpageradapter-is-not-removing-items-fragments-correctly
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            if (position >= getCount()) {
+                FragmentManager manager = ((Fragment) object).getFragmentManager();
+                android.support.v4.app.FragmentTransaction trans = manager.beginTransaction();
+                trans.remove((Fragment) object);
+                trans.commit();
+            }
+        }
     }
 
 
@@ -653,13 +665,20 @@ public class TabbedChannelsActivity
             final ActionBar bar = getActionBar();
             int selectedIdx = bar.getSelectedNavigationIndex();
             Log.v(LOGTAG, "removing index: "+selectedIdx);
-            if (bar.getTabCount() > 0)
-            bar.removeTabAt(selectedIdx);
-
-            mChannels.remove(selectedIdx);
-            mAdapter.updateCount(mChannels.size());
-
-            mAdapter.notifyDataSetChanged();
+            if (mChannels.size() > 0)
+            {
+                if (selectedIdx==0) {
+                    bar.setSelectedNavigationItem(1);
+                }
+                else {
+                    bar.setSelectedNavigationItem(selectedIdx-1);
+                }
+                mChannels.remove(selectedIdx);
+                mAdapter.updateCount(mChannels.size());
+                mAdapter.notifyDataSetChanged();
+                bar.removeTab(bar.getTabAt(selectedIdx));
+//                initializeActionBar();
+            }
         }
         else {
             ErrorUtility.apiError(LOGTAG, "Could not remove channel", status, this, false, Log.WARN);
