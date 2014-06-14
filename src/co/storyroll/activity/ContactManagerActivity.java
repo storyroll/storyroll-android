@@ -166,7 +166,7 @@ public class ContactManagerActivity extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return TabListFragment.newInstance(position);
+            return ContactListFragment.newInstance(position);
         }
     }
 
@@ -178,7 +178,7 @@ public class ContactManagerActivity extends FragmentActivity {
 
         Intent intent = new Intent();
         Log.v(LOGTAG, "current item: "+mTabPager.getCurrentItem());
-        TabListFragment frag = (TabListFragment)getActiveFragment(mTabPager, mTabPager.getCurrentItem());
+        ContactListFragment frag = (ContactListFragment)getActiveFragment(mTabPager, mTabPager.getCurrentItem());
         ContactAdapter contactAdapter = (ContactAdapter)frag.getListAdapter();
         Log.v(LOGTAG, "contactAdapter: "+contactAdapter);
 
@@ -213,7 +213,7 @@ public class ContactManagerActivity extends FragmentActivity {
     };
 
     private void clearAllSelected() {
-        TabListFragment frag = (TabListFragment)getActiveFragment(mTabPager, mTabPager.getCurrentItem());
+        ContactListFragment frag = (ContactListFragment)getActiveFragment(mTabPager, mTabPager.getCurrentItem());
         ContactAdapter contactAdapter = (ContactAdapter)frag.getListAdapter();
         if (contactAdapter==null || contactAdapter.originalList==null) return;
         ArrayList<Contact> contactList = contactAdapter.originalList;

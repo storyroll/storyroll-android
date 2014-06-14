@@ -14,8 +14,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import co.storyroll.R;
-import co.storyroll.activity.LoadContactsListener;
-import co.storyroll.activity.TabListFragment;
+import co.storyroll.activity.ContactListFragment;
 import co.storyroll.model.Contact;
 
 import java.util.Collections;
@@ -24,7 +23,12 @@ import java.util.LinkedHashMap;
 /**
  * Created by martynas on 12/06/14.
  */
-public class AsyncLoadContacts extends AsyncTask<Void, Void, Void> {
+public class AsyncLoadContacts extends AsyncTask<Void, Void, Void>
+{
+    public interface LoadContactsListener {
+        public void onContactsLoaded(int tabNum, View v);
+    }
+
     private static final String LOGTAG = "AsyncLoadContacts";
     private int tabNum = 0;
     private LoadContactsListener lcListener;
@@ -150,26 +154,26 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void> {
 //            && !task.isCancelled()
                 ) {
             // get contacts from hashmap
-            TabListFragment.phoneContacts.clear();
-            TabListFragment.phoneContacts.addAll(allContacts.values());
+            ContactListFragment.phoneContacts.clear();
+            ContactListFragment.phoneContacts.addAll(allContacts.values());
 
             for (Contact _contact : allContacts.values()) {
 
                 // remove self contact
                 if (_contact.getContactName() == null && _contact.getContactNumber() == null
                         && _contact.getContactEmail() == null) {
-                    TabListFragment.phoneContacts.remove(_contact);
+                    ContactListFragment.phoneContacts.remove(_contact);
                     break;
                 } else
                     // remove non-email or unnamed contacts
                     if (TextUtils.isEmpty(_contact.getContactName())
                             || TextUtils.isEmpty(_contact.getContactEmail())
                             || _contact.getContactName().equals(_contact.getContactEmail())) {
-                        TabListFragment.phoneContacts.remove(_contact);
+                        ContactListFragment.phoneContacts.remove(_contact);
                     }
 
             }
-            Collections.sort(TabListFragment.phoneContacts);
+            Collections.sort(ContactListFragment.phoneContacts);
         }
     }
 

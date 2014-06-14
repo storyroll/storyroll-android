@@ -31,7 +31,8 @@ import java.util.LinkedHashMap;
 /**
  * Created by martynas on 12/06/14.
  */
-public class TabListFragment extends ListFragment implements LoadContactsListener, MatchFriendsDialog.MatchFriendsDialogListener{
+public class ContactListFragment extends ListFragment
+        implements AsyncLoadContacts.LoadContactsListener, MatchFriendsDialog.MatchFriendsDialogListener{
     private static final String LOGTAG = "TabListFragment";
     int mNum;
     private ArrayList<Contact> contactList = new ArrayList<Contact>();
@@ -42,8 +43,8 @@ public class TabListFragment extends ListFragment implements LoadContactsListene
      * Create a new instance of CountingFragment, providing "num"
      * as an argument.
      */
-    static TabListFragment newInstance(int num) {
-        TabListFragment f = new TabListFragment();
+    static ContactListFragment newInstance(int num) {
+        ContactListFragment f = new ContactListFragment();
 
         // Supply num input as an argument.
         Bundle args = new Bundle();
@@ -82,7 +83,7 @@ public class TabListFragment extends ListFragment implements LoadContactsListene
             friendMatchBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    new MatchFriendsDialog(TabListFragment.this, v).show(getActivity().getSupportFragmentManager(), "MatchFriendsDialog");
+                    new MatchFriendsDialog(ContactListFragment.this, v).show(getActivity().getSupportFragmentManager(), "MatchFriendsDialog");
 //                    onUsersMatchClicked();
                 }
             });
