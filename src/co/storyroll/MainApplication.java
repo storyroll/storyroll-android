@@ -76,8 +76,7 @@ public class MainApplication extends Application implements Thread.UncaughtExcep
 			AQUtility.debug(e);
 		}
 	}
-	
-	
+
 	
 	@Override
 	public void onLowMemory(){	

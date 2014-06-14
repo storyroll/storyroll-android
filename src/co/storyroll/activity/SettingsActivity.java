@@ -143,6 +143,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         p = findPreference("version");
         String version = getVersion();
         p.setSummary(version);
+        p.setOnPreferenceClickListener(this);
         
         // todo feedback not yet implemented?
 
@@ -153,12 +154,18 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         p.setOnPreferenceChangeListener(this);
         
         p = findPreference("co.storyroll.enums.ServerPreference");
-        p.setOnPreferenceChangeListener(this);
+        if (PrefUtility.isTestDevice()) {
+            p.setOnPreferenceChangeListener(this);
+        }
+        else {
+            prefCategory.removePreference(p);
+        }
 
         p = findPreference("cache");
         p.setOnPreferenceClickListener(this);
     }
-    
+
+
     public boolean onPreferenceClick(Preference preference){
     	
     	String name = preference.getKey();
@@ -184,6 +191,8 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 	    		report();
 	    	} else if ("cache".equals(name)){
                 clear_cache();
+            } else if ("version".equals(name)){
+                versionClick();
             }
     	}
     	catch(Exception e){
@@ -192,6 +201,14 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     	
     	return false;
     	
+    }
+
+    int versionClicks = 0;
+    private void versionClick() {
+        if (++versionClicks%5==0) {
+            PrefUtility.setTestDevice(true);
+            Toast.makeText(this, "Test mode enabled", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void clear_cache() {

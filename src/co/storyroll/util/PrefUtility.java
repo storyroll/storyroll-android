@@ -122,11 +122,11 @@ public class PrefUtility {
 		return result;
 	}
 	
-//	private static String[] deviceIds = {"00000000-64a3-993a-ffff-ffff87b812df", "ffffffff-aa8c-6136-a9de-4e41505adfd9"};
-    private static String[] deviceIds = {};
-	private static Boolean testDevice = true;
-	
-	public static boolean isTestDevice(){
+	private static String[] deviceIds = {"00000000-64a3-993a-ffff-ffff87b812df", "ffffffff-aa8c-6136-a9de-4e41505adfd9"};
+//    private static String[] deviceIds = {};
+	private static Boolean testDevice = false;
+
+    public static boolean isTestDevice(){
 		
 		if(testDevice == null){
 			testDevice = isEmulator() || isTestDevice(getDeviceId());
@@ -134,6 +134,11 @@ public class PrefUtility {
 		
 		return testDevice;
 	}
+
+    public static void setTestDevice(boolean val)
+    {
+        testDevice = val;
+    }
 	
 	public static boolean isEmulator(){
 		return "sdk".equals(Build.PRODUCT);
