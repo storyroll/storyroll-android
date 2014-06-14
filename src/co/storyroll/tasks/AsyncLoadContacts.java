@@ -31,6 +31,7 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void> {
     private Activity act;
     private ProgressBar progress = null;
     private ImageButton button = null;
+    private View view;
 
     private LinkedHashMap<String, Contact> allContacts = new LinkedHashMap<String, Contact>();
 //    public static ArrayList<Contact> phoneContacts = new ArrayList<Contact>();
@@ -45,6 +46,7 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void> {
         if (v!=null) {
             this.progress = (ProgressBar) v.findViewById(R.id.progress);
             this.button = (ImageButton) v.findViewById(R.id.findFriendsBtn);
+            this.view = v;
         }
     }
 
@@ -85,7 +87,7 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void> {
             progress.setVisibility(View.GONE);
             button.setVisibility(View.VISIBLE);
         }
-        lcListener.onContactsLoaded(tabNum);
+        lcListener.onContactsLoaded(tabNum, view);
 
     }
 

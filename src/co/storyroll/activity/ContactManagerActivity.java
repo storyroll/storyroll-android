@@ -28,7 +28,7 @@ import java.util.ArrayList;
 /**
  * Created by martynas on 11/06/14.
  */
-public class AddressTabsActivity extends FragmentActivity {
+public class ContactManagerActivity extends FragmentActivity {
 
     private static final int[] TAB_HEAD = {R.string.tab_friends, R.string.tab_adressbook};
     private static final String LOGTAG = "ADDRESSBOOK";

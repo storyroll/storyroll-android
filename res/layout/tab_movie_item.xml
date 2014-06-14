@@ -134,6 +134,7 @@
 
                 <co.storyroll.ui.RoundedImageView
                     android:id="@+id/cast1"
+                    android:src="@drawable/ic_avatar_default"
                     android:layout_height="40dp"
                     android:layout_width="40dp"
                     android:visibility="gone"
@@ -145,8 +146,8 @@
                     android:alpha="0.6"
                     />
                 <co.storyroll.ui.RoundedImageView
-
                     android:id="@+id/cast2"
+                    android:src="@drawable/ic_avatar_default"
                     android:layout_height="40dp"
                     android:layout_width="40dp"
                     android:visibility="gone"
@@ -158,6 +159,7 @@
                     />
                 <co.storyroll.ui.RoundedImageView
                     android:id="@+id/cast3"
+                    android:src="@drawable/ic_avatar_default"
                     android:layout_height="40dp"
                     android:layout_width="40dp"
                     android:visibility="gone"

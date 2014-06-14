@@ -557,9 +557,11 @@ public class VideoCaptureActivity extends BaseActivity implements
 		int c;
 		Drawable d;
 		public Counter(int c) {
-			int dId = R.drawable.rec_2;
-			if (c==1) dId = R.drawable.rec_1;
-			if (c==0) dId = R.drawable.rec_0;
+            			int dId = 0;
+
+//			int dId = R.drawable.rec_2;
+//			if (c==1) dId = R.drawable.rec_1;
+//			if (c==0) dId = R.drawable.rec_0;
 			this.c = c;
 			d = getResources().getDrawable(dId);
 		}
@@ -641,8 +643,10 @@ public class VideoCaptureActivity extends BaseActivity implements
 	
 	public void countdown() 
 	{
-		counterOverlay.setImageDrawable( getResources().getDrawable(R.drawable.rec_3) );
-		tg.startTone(ToneGenerator.TONE_PROP_BEEP);
+//		counterOverlay.setImageDrawable( getResources().getDrawable(R.drawable.rec_3) );
+        counterOverlay.setImageDrawable( getResources().getDrawable(0) );
+
+        tg.startTone(ToneGenerator.TONE_PROP_BEEP);
 		
 		show(counterOverlay);
 		Handler handler = new Handler();

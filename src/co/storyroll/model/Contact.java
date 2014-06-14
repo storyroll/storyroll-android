@@ -18,6 +18,7 @@ public class Contact implements Parcelable, Comparable<Contact> {
     private Bitmap contactPhoto;
     private Uri contactPhotoUri;
     private String contactEmail;
+    private String contactPhotoUrl;
 
     boolean selected = false;
 
@@ -40,6 +41,8 @@ public class Contact implements Parcelable, Comparable<Contact> {
     public Uri getContactPhotoUri() {
         return contactPhotoUri;
     }
+
+    public String getContactPhotoUrl() { return contactPhotoUrl; }
 
     public void setContactName(String contactName) {
         this.contactName = contactName;
@@ -104,7 +107,8 @@ public class Contact implements Parcelable, Comparable<Contact> {
 
     public Contact(JSONObject profileJson) throws JSONException {
         if (profileJson!=null) {
-            contactPhotoUri = Uri.parse(profileJson.getString("avatarUrl"));
+            contactPhotoUri = null;
+            contactPhotoUrl = profileJson.getString("avatarUrl");
             contactEmail = profileJson.getString("email");
             contactName = profileJson.getString("username");
         }

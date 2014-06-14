@@ -622,7 +622,7 @@ public class TabbedChannelsActivity
     private void onAddGroup() {
         if (channelsLoaded) {
             // call address picker
-            Intent pickContactsIntent = new Intent(getApplicationContext(), AddressTabsActivity.class);
+            Intent pickContactsIntent = new Intent(getApplicationContext(), ContactManagerActivity.class);
             startActivityForResult(pickContactsIntent, PICK_CONTACTS_REQUEST);
         }
         else {

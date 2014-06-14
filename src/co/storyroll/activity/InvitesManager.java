@@ -253,9 +253,11 @@ public final class InvitesManager extends Activity {
     protected String getPassword() {
         SharedPreferences settings = getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
         String password = settings.getString(Constants.PREF_PASSWORD, null);
-        Log.v(LOGTAG, "pass: " + password);
+//        Log.v(LOGTAG, "pass: " + password);
         return password;
     }
+
+
     /*-- lifecycle --*/
     @Override
     public void onDestroy(){

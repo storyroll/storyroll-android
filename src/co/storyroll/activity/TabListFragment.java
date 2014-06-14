@@ -7,10 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
+import android.widget.*;
 import co.storyroll.R;
 import co.storyroll.model.Contact;
 import co.storyroll.tasks.AsyncLoadContacts;
@@ -76,18 +73,16 @@ public class TabListFragment extends ListFragment implements LoadContactsListene
                              Bundle savedInstanceState)
     {
         Log.v(LOGTAG, "creating view for tab num " + mNum);
-        View v = inflater.inflate(R.layout.fragment_pager_list, container, false);
+        final View v = inflater.inflate(R.layout.fragment_pager_list, container, false);
         if (mNum==0)
         {
             getFriendsFromServer();
-
-//            (v.findViewById(R.id.tabtextview1)).setVisibility(View.VISIBLE);
             ImageButton friendMatchBtn = (ImageButton) v.findViewById(R.id.findFriendsBtn);
             friendMatchBtn.setVisibility(View.VISIBLE);
             friendMatchBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    new MatchFriendsDialog(TabListFragment.this).show(getActivity().getSupportFragmentManager(), "MatchFriendsDialog");
+                    new MatchFriendsDialog(TabListFragment.this, v).show(getActivity().getSupportFragmentManager(), "MatchFriendsDialog");
 //                    onUsersMatchClicked();
                 }
             });
@@ -101,9 +96,7 @@ public class TabListFragment extends ListFragment implements LoadContactsListene
 //            lv = (ListView) v.findViewById(R.id.contactList);
         myFilter = (EditText) v.findViewById(R.id.search_txt);
 
-
-
-
+        ProgressBar progress = (ProgressBar)v.findViewById(R.id.progress);
 
         return v;
     }
@@ -131,7 +124,7 @@ public class TabListFragment extends ListFragment implements LoadContactsListene
             {
                 phoneContacts = new ArrayList<Contact>();
                 // Asynchronously load all contacts
-                AsyncLoadContacts contactLoaderTask = new AsyncLoadContacts(1, this, getActivity());
+                AsyncLoadContacts contactLoaderTask = new AsyncLoadContacts(1, this, getActivity(), null);
                 contactLoaderTask.execute(); // will result on interface call onContactsLoaded(), see below
             }
         }
@@ -146,7 +139,7 @@ public class TabListFragment extends ListFragment implements LoadContactsListene
 
     protected void getFriendsFromServer()
     {
-        ((AddressTabsActivity)getActivity()).getAQuery().auth(PrefUtility.getBasicHandle()).ajax(PrefUtility.getApiUrl(
+        ((ContactManagerActivity)getActivity()).getAQuery().auth(PrefUtility.getBasicHandle()).ajax(PrefUtility.getApiUrl(
                 ServerUtility.API_USER_FRIENDS, "uuid=" + PrefUtility.getUuid()), JSONArray.class, this, "userFriendsCb");
     }
 
@@ -179,26 +172,27 @@ public class TabListFragment extends ListFragment implements LoadContactsListene
 
     // ------------------------------------- MATCH workflow
 
-    private void onUsersMatchClicked()
+    private void onUsersMatchClicked(View v)
     {
         Log.v(LOGTAG, "onUsersMatchClicked");
         // addressbook contact loader
-        if (phoneContacts == null || phoneContacts.size()<1) {
+        if (phoneContacts == null || phoneContacts.size()<1)
+        {
             phoneContacts = new ArrayList<Contact>();
             // Asynchronously load all contacts
-            AsyncLoadContacts contactLoaderTask = new AsyncLoadContacts(0, this, getActivity());
+            AsyncLoadContacts contactLoaderTask = new AsyncLoadContacts(0, this, getActivity(), v);
             contactLoaderTask.execute(); // will result on interface call onContactsLoaded(), see below
         }
         else {
-            usersMatchServerCall();
+            usersMatchServerCall(v);
         }
     }
 
     @Override
-    public void onContactsLoaded(int tabNum) {
+    public void onContactsLoaded(int tabNum, View v) {
         if (tabNum==0) {
             // this comes from onUsersMatchClicked, update the list
-            usersMatchServerCall();
+            usersMatchServerCall(v);
         }
         else {
             // this comes from PhoneBook fragment initialization
@@ -207,7 +201,38 @@ public class TabListFragment extends ListFragment implements LoadContactsListene
         }
     }
 
-    private void usersMatchServerCall()
+    class MatchServieCallback extends AjaxCallback<JSONArray>
+    {
+        private View v;
+
+        public MatchServieCallback(View v) {
+            this.v = v;
+        }
+        @Override
+        public void callback(String url, JSONArray jarr, AjaxStatus status)
+        {
+            v.findViewById(R.id.findFriendsBtn).setVisibility(View.VISIBLE);
+            if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, getActivity())) return;
+
+            Log.v(LOGTAG, "callback result: " + jarr.length());
+
+            contactList.clear();
+            for( int i=0; i<jarr.length(); i++ ) {
+                try {
+                    contactList.add(new Contact(jarr.getJSONObject(i)));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            Collections.sort(contactList);
+            Log.v(LOGTAG, "after upload: "+contactList.size());
+//                Collections.sort(friendContacts);
+//                setListAdapter(new ContactAdapter(getActivity(), contactList)); // todo optimizieren
+            ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+        }
+    }
+
+    private void usersMatchServerCall(View v)
     {
         JSONArray emailsJson = new JSONArray();
         int debugI=0;
@@ -220,33 +245,13 @@ public class TabListFragment extends ListFragment implements LoadContactsListene
         String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_USERS_MATCH, "uuid=" + PrefUtility.getUuid());
 
         int k = 0;
-        AjaxCallback ac =  new AjaxCallback<JSONArray>() {
-            @Override
-            public void callback(String url, JSONArray jarr, AjaxStatus status)
-            {
-                if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, getActivity())) return;
-
-                Log.v(LOGTAG, "callback result: " + jarr.length());
-
-                contactList.clear();
-                for( int i=0; i<jarr.length(); i++ ) {
-                    try {
-                        contactList.add(new Contact(jarr.getJSONObject(i)));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-                Collections.sort(contactList);
-                Log.v(LOGTAG, "after upload: "+contactList.size());
-//                Collections.sort(friendContacts);
-//                setListAdapter(new ContactAdapter(getActivity(), contactList)); // todo optimizieren
-                ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
-            }
-        };
+        AjaxCallback ac =  new MatchServieCallback(v);
 
         try {
             StringEntity entity = new StringEntity(emailsJson.toString());
-            ((AddressTabsActivity)getActivity()).getAQuery().auth(PrefUtility.getBasicHandle()).post(apiUrl, "application/json", entity, JSONArray.class, ac);
+            v.findViewById(R.id.findFriendsBtn).setVisibility(View.GONE);
+            ((ContactManagerActivity)getActivity()).getAQuery().auth(PrefUtility.getBasicHandle())
+                    .progress(v.findViewById(R.id.progress)).post(apiUrl, "application/json", entity, JSONArray.class, ac);
         }
         catch (UnsupportedEncodingException e)
         {
@@ -260,8 +265,8 @@ public class TabListFragment extends ListFragment implements LoadContactsListene
 
 
     @Override
-    public void onMachFriendsConfirm(DialogFragment dialog) {
+    public void onMachFriendsConfirm(DialogFragment dialog, View v) {
         Log.v(LOGTAG, "Fragment received Dialog confirmation");
-        onUsersMatchClicked();
+        onUsersMatchClicked(v);
     }
 }

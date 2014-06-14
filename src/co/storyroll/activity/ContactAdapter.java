@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import co.storyroll.PQuery;
 import co.storyroll.R;
 import co.storyroll.model.Contact;
 
@@ -25,10 +26,12 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
     private HashMap<String, Integer> alphaIndexer;
     private String[] sections;
     public Set<String> selected = new HashSet<String>();
+    private PQuery aq;
 
 
     public ContactAdapter(Context context, ArrayList<Contact> items) {
         super(context, android.R.id.list, items);
+        this.aq = ((ContactManagerActivity)context).getAQuery();
         Log.v(LOGTAG, "initializing ContactAdapter with items: "+items.size());
         this.contactList = items;
 //            this.contactList = new ArrayList<Contact>();
@@ -97,7 +100,12 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
             TextView numberLabel = (TextView) view.findViewById(R.id.numberLabel);
             TextView emailLabel = (TextView) view.findViewById(R.id.emailLabel);
 
-            thumb.setImageURI(contact.getContactPhotoUri());
+            if (contact.getContactPhotoUrl()!=null) {
+                aq.id(thumb).image(contact.getContactPhotoUrl(), true, false, 0, R.drawable.def_contact);
+            }
+            else {
+                thumb.setImageURI(contact.getContactPhotoUri());
+            }
 
             if (thumb.getDrawable() == null)
                 thumb.setImageResource(R.drawable.def_contact);
@@ -125,7 +133,7 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
 
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if ((nameCheckBox.isChecked() && numSelected>=AddressTabsActivity.MAX_INVITES_ALLOWED))
+                    if ((nameCheckBox.isChecked() && numSelected>= ContactManagerActivity.MAX_INVITES_ALLOWED))
                     {
                         Toast.makeText(getContext(), R.string.contacts_too_many, Toast.LENGTH_SHORT).show();
                         contact.setSelected(false);

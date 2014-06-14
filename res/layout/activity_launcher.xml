@@ -38,6 +38,8 @@
             android:text="@string/msg_storyroll_slogan"
             android:textColor="#ffffff"
             android:paddingBottom="30dp"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
             />
 	    
 	    <ProgressBar

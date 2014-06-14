@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -497,11 +498,17 @@ public class ArrayMoviesFragment extends ListFragment {
 			likesNum.setText(shortLikesString(movie.getLikeCount()));
 			
 			if (movie.getCast()!=null) {
-				for (int i=0; i<movie.getCast().length && i< MovieItemView.castIds.length; i++) {
-					RoundedImageView castImage = (RoundedImageView)
-							rowView.findViewById(MovieItemView.castIds[i]);
-					aq.id(castImage).image(movie.getCast()[i], true, false, 0, R.drawable.ic_avatar_default);
-					aq.id(castImage).clicked(this, "onCastClickedCb");
+				for (int i=0; i<movie.getCast().length && i< MovieItemView.castIds.length; i++)
+                {
+                    RoundedImageView castImage = (RoundedImageView) rowView.findViewById(MovieItemView.castIds[i]);
+                    if (!TextUtils.isEmpty(movie.getCast()[i]))
+                    {
+                        aq.id(castImage).image(movie.getCast()[i], true, true, 0, R.drawable.ic_avatar_default);
+                    }
+                    else {
+                        castImage.setImageResource(R.drawable.ic_avatar_default);
+                    }
+					aq.id(castImage).visible().clicked(this, "onCastClickedCb");
 				}
 			}
 			

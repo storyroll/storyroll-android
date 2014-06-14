@@ -122,7 +122,8 @@ public class PrefUtility {
 		return result;
 	}
 	
-	private static String[] deviceIds = {"00000000-64a3-993a-ffff-ffff87b812df", "ffffffff-aa8c-6136-a9de-4e41505adfd9"};
+//	private static String[] deviceIds = {"00000000-64a3-993a-ffff-ffff87b812df", "ffffffff-aa8c-6136-a9de-4e41505adfd9"};
+    private static String[] deviceIds = {};
 	private static Boolean testDevice = true;
 	
 	public static boolean isTestDevice(){
@@ -186,7 +187,7 @@ public class PrefUtility {
 	}
 	
 	public static AutostartMode getAutostartMode() {
-		AutostartMode am = PrefUtility.getEnum(AutostartMode.class, AutostartMode.WIFI);
+		AutostartMode am = PrefUtility.getEnum(AutostartMode.class, AutostartMode.NEVER);
 		return am;
 	}
 
@@ -211,23 +212,6 @@ public class PrefUtility {
 		return s;
 	}
 
-    @Deprecated
-    public static String getApiUrl_old(String subj, String params) {
-        ServerPreference sp = PrefUtility.getEnum(ServerPreference.class, ServerPreference.AWS);
-        String s = Constants.API_URL_AWS;
-        if (sp.equals(ServerPreference.STAGING)) {
-            s = Constants.API_URL_STAGING;
-        } else if (sp.equals(ServerPreference.DEV)) {
-            s = Constants.API_URL_DEV;
-        }
-        if (subj!=null && subj.length()>0) {
-            s+=subj;
-        }
-        if (params!=null && params.length()>0) {
-            s+="?"+params;
-        }
-        return s;
-    }
 	public static String getUuid() {
 		Context context = MainApplication.getContext();
 		SharedPreferences settings = context.getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);

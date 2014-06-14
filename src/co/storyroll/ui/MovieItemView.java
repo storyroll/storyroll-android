@@ -68,13 +68,15 @@ public class MovieItemView extends LinearLayout {
 				JSONObject userObj = jarr.getJSONObject(i);
 				String avatarUrl = userObj.getString("avatarUrl");
 				castAvatars[i] = avatarUrl;
-				if (i<castIds.length) {
+				if (i<castIds.length)
+                {
 					ImageView castImage = (ImageView) findViewById(castIds[i]);
-                    if (!TextUtils.isEmpty(avatarUrl) && !"null".equals(avatarUrl)) {
+                    if (!TextUtils.isEmpty(avatarUrl) && !"null".equals(avatarUrl))
+                    {
                         aq.id(castImage).image(avatarUrl, true, false, 0, R.drawable.ic_avatar_default);
                     }
                     else {
-                        aq.id(castImage).image(R.drawable.ic_avatar_default);
+                        aq.id(castImage).image(R.drawable.ic_avatar_default).visible();
                     }
 				}
         	}

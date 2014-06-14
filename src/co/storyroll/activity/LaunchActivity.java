@@ -53,7 +53,7 @@ public class LaunchActivity extends BaseActivity {
 //	protected static final long SPLASH_SCREEN_WAIT = 3000;
 	protected static final long SPLASH_SCREEN_WAIT = 500;
 	
-	private static final boolean START_WITH_TUTORIAL = false;
+	private static final boolean START_WITH_TUTORIAL = true;
 
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
@@ -73,7 +73,7 @@ public class LaunchActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+        setContentView(R.layout.activity_launcher);
 		// Fields set on a tracker persist for all hits, until they are
 	    // overridden or cleared by assignment to null.
 	    getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
@@ -93,7 +93,7 @@ public class LaunchActivity extends BaseActivity {
 			nextAction();
 		}
 
-		setContentView(R.layout.activity_launcher);
+
 		
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
@@ -286,7 +286,8 @@ public class LaunchActivity extends BaseActivity {
 	private void nextAction() {
 		isGone = true;
 		Intent intent = null;
-		if (START_WITH_TUTORIAL) {
+		if (START_WITH_TUTORIAL && AppUtility.isFirstRun()) // updates flag by checking already
+        {
 			intent = new Intent(getApplicationContext(), HelpActivity.class);
 		}
 		else {

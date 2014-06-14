@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_action_refresh"
                 android:layout_gravity="center_horizontal"
-                android:background="@color/sr_bg_actionbar"
+                android:background="#ffa7aba7"
                 android:padding="7dp"
                 android:layout_marginBottom="10dp"
                 android:visibility="gone"/>

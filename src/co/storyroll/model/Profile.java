@@ -113,7 +113,7 @@ public class Profile implements Serializable {
     @Override
 	public String toString() {
 		return "Profile [id=" + id + ", username=" + username + ", password="
-				+ password + ", email=" + email + ", birthday=" + birthday
+				+ password==null?"null":"******" + ", email=" + email + ", birthday=" + birthday
 				+ ", gender=" + gender + ", gcmRegistrationId="
 				+ gcmRegistrationId + ", avatarUrl=" + avatarUrl + ", loggedIn="
 				+ loggedIn + ", authMethod=" + authMethod + ", location="

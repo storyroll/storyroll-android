@@ -51,7 +51,7 @@ public class HelpActivity extends FragmentActivity
 	public class ImageAdapter extends PagerAdapter {
 		Context context;
 		private int[] HepSlideImages = new int[] { R.drawable.help_overlay_1, R.drawable.help_overlay_2,
-				R.drawable.help_overlay_3, R.drawable.help_overlay_4 };
+				R.drawable.help_overlay_3, R.drawable.help_overlay_4, R.drawable.help_overlay_5 };
 
 		ImageAdapter(Context context) {
 			this.context = context;
