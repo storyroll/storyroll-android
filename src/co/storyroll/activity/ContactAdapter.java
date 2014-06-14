@@ -37,7 +37,7 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
 //            this.contactList = new ArrayList<Contact>();
         this.originalList = new ArrayList<Contact>();
 
-        this.contactList.addAll(items);
+//        this.contactList.addAll(items);
         this.originalList.addAll(items);
 
         // indexing

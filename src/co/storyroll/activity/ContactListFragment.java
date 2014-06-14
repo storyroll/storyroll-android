@@ -3,11 +3,16 @@ package co.storyroll.activity;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
 import co.storyroll.R;
 import co.storyroll.model.Contact;
 import co.storyroll.tasks.AsyncLoadContacts;
@@ -35,7 +40,7 @@ public class ContactListFragment extends ListFragment
         implements AsyncLoadContacts.LoadContactsListener, MatchFriendsDialog.MatchFriendsDialogListener{
     private static final String LOGTAG = "TabListFragment";
     int mNum;
-    private ArrayList<Contact> contactList = new ArrayList<Contact>();
+    private static ArrayList<Contact> friendContacts = new ArrayList<Contact>();
     public static ArrayList<Contact> phoneContacts = new ArrayList<Contact>();
 
 
@@ -77,7 +82,6 @@ public class ContactListFragment extends ListFragment
         final View v = inflater.inflate(R.layout.fragment_pager_list, container, false);
         if (mNum==0)
         {
-            getFriendsFromServer();
             ImageButton friendMatchBtn = (ImageButton) v.findViewById(R.id.findFriendsBtn);
             friendMatchBtn.setVisibility(View.VISIBLE);
             friendMatchBtn.setOnClickListener(new View.OnClickListener() {
@@ -91,14 +95,24 @@ public class ContactListFragment extends ListFragment
         else {
 
         }
-//            ListView lv;
-        EditText myFilter;
         // Init UI elements
-//            lv = (ListView) v.findViewById(R.id.contactList);
-        myFilter = (EditText) v.findViewById(R.id.search_txt);
+        EditText myFilter = (EditText) v.findViewById(R.id.search_txt);
+        myFilter.addTextChangedListener(new TextWatcher() {
 
-        ProgressBar progress = (ProgressBar)v.findViewById(R.id.progress);
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
 
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // call the filter with the current text on the editbox
+                ((ContactAdapter) getListAdapter()).getFilter().filter(s.toString());
+            }
+        });
         return v;
     }
 //    ContactAdapter contactAdapter;
@@ -110,9 +124,11 @@ public class ContactListFragment extends ListFragment
         ContactAdapter contactAdapter;
         if (mNum==0)
         {
-            Log.v(LOGTAG, "friendListAdapter");
-            Collections.sort(contactList);
-            contactAdapter = new ContactAdapter(getActivity(), contactList);
+            getFriendsFromServer();
+
+//            Log.v(LOGTAG, "friendListAdapter");
+//            Collections.sort(friendContacts);
+//            contactAdapter = new ContactAdapter(getActivity(), friendContacts);
 
 //            friendListAdapter = new ContactAdapter(AddressTabsActivity.this, friendContacts);
         }
@@ -128,9 +144,23 @@ public class ContactListFragment extends ListFragment
                 AsyncLoadContacts contactLoaderTask = new AsyncLoadContacts(1, this, getActivity(), null);
                 contactLoaderTask.execute(); // will result on interface call onContactsLoaded(), see below
             }
+            else {
+                setListAdapter(contactAdapter);
+            }
         }
-        setListAdapter(contactAdapter);
+    }
 
+    @Override
+    public void onContactsLoaded(int tabNum, View v) {
+        if (tabNum==0) {
+            // this comes from onUsersMatchClicked, update the list
+            usersMatchServerCall(v);
+        }
+        else {
+            // this comes from PhoneBook fragment initialization
+            setListAdapter(new ContactAdapter(getActivity(), phoneContacts));
+            ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -154,19 +184,19 @@ public class ContactListFragment extends ListFragment
         Log.v(LOGTAG, "got friends: "+jarr.length());
 
         // update list
-        contactList.clear();
+        friendContacts.clear();
         for (int i=0;i<jarr.length();i++) { //todo
 
             JSONObject jo = null;
             try {
                 jo = jarr.getJSONObject(i);
-                contactList.add(new Contact(jo));
+                friendContacts.add(new Contact(jo));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-        Collections.sort(contactList);
-//        setListAdapter(new ContactAdapter(getActivity(), contactList));
+        Collections.sort(friendContacts);
+        setListAdapter(new ContactAdapter(getActivity(), friendContacts));
         ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 
     }
@@ -189,18 +219,7 @@ public class ContactListFragment extends ListFragment
         }
     }
 
-    @Override
-    public void onContactsLoaded(int tabNum, View v) {
-        if (tabNum==0) {
-            // this comes from onUsersMatchClicked, update the list
-            usersMatchServerCall(v);
-        }
-        else {
-            // this comes from PhoneBook fragment initialization
-            setListAdapter(new ContactAdapter(getActivity(), phoneContacts));
-            ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
-        }
-    }
+
 
     class MatchServieCallback extends AjaxCallback<JSONArray>
     {
@@ -217,16 +236,16 @@ public class ContactListFragment extends ListFragment
 
             Log.v(LOGTAG, "callback result: " + jarr.length());
 
-            contactList.clear();
+            friendContacts.clear();
             for( int i=0; i<jarr.length(); i++ ) {
                 try {
-                    contactList.add(new Contact(jarr.getJSONObject(i)));
+                    friendContacts.add(new Contact(jarr.getJSONObject(i)));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-            Collections.sort(contactList);
-            Log.v(LOGTAG, "after upload: "+contactList.size());
+            Collections.sort(friendContacts);
+            Log.v(LOGTAG, "after upload: " + friendContacts.size());
 //                Collections.sort(friendContacts);
 //                setListAdapter(new ContactAdapter(getActivity(), contactList)); // todo optimizieren
             ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
