@@ -108,12 +108,17 @@ public class RegistrationActivity extends ProfileActivity {
         TelephonyManager tMgr = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         String phoneNumber = tMgr.getLine1Number();
         Log.d(LOGTAG, "phone num: "+phoneNumber);
-        if (!TextUtils.isEmpty(phoneNumber)) {
+        if (!TextUtils.isEmpty(phoneNumber))
+        {
+            // add the number as it is
             idStrings.add(phoneNumber);
+            String intPhoneNumber = DataUtility.getInternationalPhoneNumber(phoneNumber, tMgr);
+            if (intPhoneNumber!=null && !phoneNumber.equals(intPhoneNumber)){
+                idStrings.add(intPhoneNumber);
+            }
         }
 
         // account emails
-
         AccountManager manager = (AccountManager) getSystemService(ACCOUNT_SERVICE);
         Account[] list = manager.getAccounts();
         for (Account account:list) {

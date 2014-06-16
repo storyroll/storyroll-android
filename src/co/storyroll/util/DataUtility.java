@@ -19,9 +19,14 @@
  ******************************************************************************/
 package co.storyroll.util;
 
+import android.telephony.TelephonyManager;
 import android.util.Base64;
+import android.util.Log;
 import co.storyroll.activity.VideoCaptureActivity;
 import com.androidquery.util.AQUtility;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -29,8 +34,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 public class DataUtility {
+
+    private static final String LOGTAG = "DataUtility";
 
     public static byte[] toBytes(Serializable obj){
     	
@@ -203,5 +211,25 @@ public class DataUtility {
 
     public static boolean isEmailValid(CharSequence email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    public static String getInternationalPhoneNumber(String phoneNumber, TelephonyManager tMgr)
+    {
+        String intPhoneNumber = null;
+        //            phoneNumber = PhoneNumberUtils.formatNumber(phoneNumber); // won't work, we have to use libphonenumber for Android API <= v.16
+        PhoneNumberUtil p = PhoneNumberUtil.getInstance();
+
+        // get default locale
+        Locale loc = Locale.getDefault();
+        try {
+            Log.v(LOGTAG, "country: " + loc.getCountry());
+            String countryCode = tMgr.getNetworkCountryIso().toUpperCase();
+            Phonenumber.PhoneNumber phoneNumberProto = p.parse(phoneNumber, countryCode);
+            intPhoneNumber = p.format(phoneNumberProto, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+        }
+        catch (NumberParseException e) {
+            Log.e(LOGTAG, "NumberParseException was thrown: " + e.toString());
+        }
+        return intPhoneNumber;
     }
 }
