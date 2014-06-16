@@ -34,96 +34,95 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Locale;
 
 public class DataUtility {
 
     private static final String LOGTAG = "DataUtility";
 
-    public static byte[] toBytes(Serializable obj){
-    	
-    	byte[] result = null;
-    	
-    	try {
-    		
-    		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        	ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject(obj);
-			close(oos);
-			close(baos);
-			result = baos.toByteArray();
-		} catch (IOException e){
-			AQUtility.report(e);
-		}
-    	
- 	
-    	return result;
-    	
+    public static byte[] toBytes(Serializable obj) {
+
+        byte[] result = null;
+
+        try {
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(obj);
+            close(oos);
+            close(baos);
+            result = baos.toByteArray();
+        } catch (IOException e) {
+            AQUtility.report(e);
+        }
+
+
+        return result;
+
     }
-    
-    public static int[] stringToIntArray(String arr)
-    {
-    	if (arr==null || arr.isEmpty()) {
-    		return null;
-    	}
-	    String[] items = arr.replaceAll("\\[", "").replaceAll("\\]", "").split(",");
-	
-	    int[] results = new int[items.length];
-	
-	    for (int i = 0; i < items.length; i++) {
-	        try {
-	            results[i] = Integer.parseInt(items[i]);
-	        } catch (NumberFormatException nfe) {};
-	    }
-	    return results;
+
+    public static int[] stringToIntArray(String arr) {
+        if (arr == null || arr.isEmpty()) {
+            return null;
+        }
+        String[] items = arr.replaceAll("\\[", "").replaceAll("\\]", "").split(",");
+
+        int[] results = new int[items.length];
+
+        for (int i = 0; i < items.length; i++) {
+            try {
+                results[i] = Integer.parseInt(items[i]);
+            } catch (NumberFormatException nfe) {
+            }
+            ;
+        }
+        return results;
     }
-    
+
     @SuppressWarnings("unchecked")
-	public static <T> T toObject(Class<T> cls, InputStream is){
-    	
-    	T result = null;
-    	
-    	try {
-    		ObjectInputStream ois = new ObjectInputStream(is);
-			result = (T) ois.readObject();
-			close(is);
-		}catch(Exception e){
-			AQUtility.report(e);
-		}
-    	
- 	
-    	return result;
-    	
+    public static <T> T toObject(Class<T> cls, InputStream is) {
+
+        T result = null;
+
+        try {
+            ObjectInputStream ois = new ObjectInputStream(is);
+            result = (T) ois.readObject();
+            close(is);
+        } catch (Exception e) {
+            AQUtility.report(e);
+        }
+
+
+        return result;
+
     }
-    
-    public static void close(InputStream is){
-    	try{
-    		if(is != null){
-    			is.close();
-    		}
-    	}catch(Exception e){   		
-    	}
+
+    public static void close(InputStream is) {
+        try {
+            if (is != null) {
+                is.close();
+            }
+        } catch (Exception e) {
+        }
     }
-    
-    public static void close(OutputStream os){
-    	try{
-    		if(os != null){
-    			os.close();
-    		}
-    	}catch(Exception e){   		
-    	}
+
+    public static void close(OutputStream os) {
+        try {
+            if (os != null) {
+                os.close();
+            }
+        } catch (Exception e) {
+        }
     }
-    
-    public static String getBase64Filename(String urlString) throws MalformedURLException 
-    {
-    	URL url = new URL(urlString);
+
+    public static String getBase64Filename(String urlString) throws MalformedURLException {
+        URL url = new URL(urlString);
         String extension = url.getQuery().replaceFirst("^.*/[^/]*(\\.[^\\./]*|)$", "$1");
         extension = ".mp4";
-        return Base64.encodeToString(urlString.getBytes(), Base64.URL_SAFE)+extension;
+        return Base64.encodeToString(urlString.getBytes(), Base64.URL_SAFE) + extension;
     }
-    
+
     public static String md5(String s) {
-    	if (s==null) return null;
+        if (s == null) return null;
         try {
             // Create MD5 Hash
             MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -133,81 +132,83 @@ public class DataUtility {
 
             // Create Hex String
             StringBuffer hexString = new StringBuffer();
-            for (int i=0; i<messageDigest.length; i++) {
-            	String hex = Integer.toHexString(0xFF & messageDigest[i]);
-            	// append leading zeros
-            	if (hex.length() == 1) {
-            	    // could use a for loop, but we're only dealing with a single byte
-            	    hexString.append('0');
-            	}
-            	hexString.append(hex);
+            for (int i = 0; i < messageDigest.length; i++) {
+                String hex = Integer.toHexString(0xFF & messageDigest[i]);
+                // append leading zeros
+                if (hex.length() == 1) {
+                    // could use a for loop, but we're only dealing with a single byte
+                    hexString.append('0');
+                }
+                hexString.append(hex);
             }
             return hexString.toString();
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+            e.printStackTrace();
+        }
         return "";
     }
-    
+
     public static String stateStr(int state) {
-    	String stateStr = "_UNKNOWN_";
-		switch (state) {
-		case VideoCaptureActivity.STATE_NO_STORY:
-			stateStr = "STATE_NO_STORY";
-			break;
-		case VideoCaptureActivity.STATE_PREV_LAST:
-			stateStr = "STATE_PREV_LAST";
-			break;
-		case VideoCaptureActivity.STATE_INITIAL:
-			stateStr = "STATE_INITIAL";
-			break;
-		case VideoCaptureActivity.STATE_PREV_CAM:
-			stateStr = "STATE_PREV_CAM";
-			break;
-		case VideoCaptureActivity.STATE_REC:
-			stateStr = "STATE_REC";
-			break;
-		case VideoCaptureActivity.STATE_PREV_NEW:
-			stateStr = "STATE_PREV_NEW";
-			break;
-		default:
-			stateStr = "_UNKNOWN_";
-			break;
-		}
-		return stateStr;
+        String stateStr = "_UNKNOWN_";
+        switch (state) {
+            case VideoCaptureActivity.STATE_NO_STORY:
+                stateStr = "STATE_NO_STORY";
+                break;
+            case VideoCaptureActivity.STATE_PREV_LAST:
+                stateStr = "STATE_PREV_LAST";
+                break;
+            case VideoCaptureActivity.STATE_INITIAL:
+                stateStr = "STATE_INITIAL";
+                break;
+            case VideoCaptureActivity.STATE_PREV_CAM:
+                stateStr = "STATE_PREV_CAM";
+                break;
+            case VideoCaptureActivity.STATE_REC:
+                stateStr = "STATE_REC";
+                break;
+            case VideoCaptureActivity.STATE_PREV_NEW:
+                stateStr = "STATE_PREV_NEW";
+                break;
+            default:
+                stateStr = "_UNKNOWN_";
+                break;
+        }
+        return stateStr;
     }
-    
-	public static String getCacheFileName(String url){
-		
-		String hash = getMD5Hex(url);
-		return hash;
-	}
-	public static String getMD5Hex(String str){
-		byte[] data = getMD5(str.getBytes());
-		
-		BigInteger bi = new BigInteger(data).abs();
-	
-		String result = bi.toString(36);
-		return result;
-	}
-	private static byte[] getMD5(byte[] data){
 
-		MessageDigest digest;
-		try {
-			digest = java.security.MessageDigest.getInstance("MD5");
-			digest.update(data);
-		    byte[] hash = digest.digest();
-		    return hash;
-		} catch (NoSuchAlgorithmException e) {
-			AQUtility.report(e);
-		}
-	    
-		return null;
+    public static String getCacheFileName(String url) {
 
-	}
+        String hash = getMD5Hex(url);
+        return hash;
+    }
+
+    public static String getMD5Hex(String str) {
+        byte[] data = getMD5(str.getBytes());
+
+        BigInteger bi = new BigInteger(data).abs();
+
+        String result = bi.toString(36);
+        return result;
+    }
+
+    private static byte[] getMD5(byte[] data) {
+
+        MessageDigest digest;
+        try {
+            digest = java.security.MessageDigest.getInstance("MD5");
+            digest.update(data);
+            byte[] hash = digest.digest();
+            return hash;
+        } catch (NoSuchAlgorithmException e) {
+            AQUtility.report(e);
+        }
+
+        return null;
+
+    }
 
     public static boolean isEmailValid(CharSequence email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
@@ -215,18 +216,23 @@ public class DataUtility {
 
     public static String getInternationalPhoneNumber(String phoneNumber, TelephonyManager tMgr)
     {
+        String countryCode = tMgr.getNetworkCountryIso().toUpperCase(); // more reliable than locale, as many phones have US or GB locales
+        Log.v(LOGTAG, "TelephonyManager country: " + countryCode);
+
+        return getInternationalPhoneNumber(phoneNumber, countryCode);
+    }
+
+    private static PhoneNumberUtil pUtil = null;
+
+    public static String getInternationalPhoneNumber(String phoneNumber, String countryCode)
+    {
         String intPhoneNumber = null;
         //            phoneNumber = PhoneNumberUtils.formatNumber(phoneNumber); // won't work, we have to use libphonenumber for Android API <= v.16
-        PhoneNumberUtil p = PhoneNumberUtil.getInstance();
-
-        // get default locale
-        Locale loc = Locale.getDefault();
-        try {
-            String countryCode = tMgr.getNetworkCountryIso().toUpperCase(); // more reliable than locale, as many phones have US or GB locales
-            Log.v(LOGTAG, "TelephonyManager country: " + countryCode);
-
-            Phonenumber.PhoneNumber phoneNumberProto = p.parse(phoneNumber, countryCode);
-            intPhoneNumber = p.format(phoneNumberProto, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+        if (pUtil==null) pUtil = PhoneNumberUtil.getInstance();
+        try
+        {
+            Phonenumber.PhoneNumber phoneNumberProto = pUtil.parse(phoneNumber, countryCode);
+            intPhoneNumber = pUtil.format(phoneNumberProto, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
         }
         catch (NumberParseException e) {
             Log.e(LOGTAG, "NumberParseException was thrown: " + e.toString());

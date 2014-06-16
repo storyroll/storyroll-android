@@ -94,11 +94,11 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
         if (contact != null) {
             TextView name = (TextView) view.findViewById(R.id.name);
             ImageView thumb = (ImageView) view.findViewById(R.id.thumb);
-            final TextView number = (TextView) view.findViewById(R.id.number);
+//            final TextView number = (TextView) view.findViewById(R.id.number);
             TextView email = (TextView) view.findViewById(R.id.email);
 
             // labels
-            TextView numberLabel = (TextView) view.findViewById(R.id.numberLabel);
+//            TextView numberLabel = (TextView) view.findViewById(R.id.numberLabel);
             TextView emailLabel = (TextView) view.findViewById(R.id.emailLabel);
 
             if (contact.getContactPhotoUrl()!=null) {
@@ -115,13 +115,13 @@ public class ContactAdapter extends ArrayAdapter<Contact> implements SectionInde
 
             name.setText(contact.getContactName());
 
-            // set number label
-            if (contact.getContactNumber() == null)
-                numberLabel.setText("");
-            else
-                numberLabel.setText("P: ");
-
-            number.setText(contact.getContactNumber());
+//            // set number label
+//            if (contact.getContactNumber() == null)
+//                numberLabel.setText("");
+//            else
+//                numberLabel.setText("P: ");
+//
+//            number.setText(contact.getContactNumber());
 
             if (contact.getContactEmail() == null)
                 emailLabel.setText("");

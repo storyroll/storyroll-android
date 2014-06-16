@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.ContactsContract;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -102,6 +103,7 @@ public class Contact implements Parcelable, Comparable<Contact> {
         contactName = source.readString();
         contactNumber = source.readString();
         contactPhotoUri = Uri.parse(source.readString());
+        contactPhotoUri = Uri.withAppendedPath(contactPhotoUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY);
         contactEmail = source.readString();
     }
 

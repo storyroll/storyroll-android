@@ -1,9 +1,12 @@
 package co.storyroll.activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +21,7 @@ import co.storyroll.adapter.ContactAdapter;
 import co.storyroll.model.Contact;
 import co.storyroll.tasks.AsyncLoadContacts;
 import co.storyroll.ui.MatchFriendsDialog;
+import co.storyroll.util.DataUtility;
 import co.storyroll.util.ErrorUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
@@ -255,21 +259,32 @@ public class ContactListFragment extends ListFragment
 
     private void doServerUsersMatchCall(View v)
     {
-        JSONArray emailsJson = new JSONArray();
-        int debugI=0;
-        for(Contact c:phoneContacts) {
-//            if (++debugI<30) {
-                emailsJson.put(c.getContactEmail());
-//            }
+        JSONArray idsJson = new JSONArray();
+        TelephonyManager tMgr = (TelephonyManager)getActivity().getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        String defaultCountryCode = tMgr.getNetworkCountryIso().toUpperCase();
+//        for(Contact c:phoneContacts) {
+        for(Contact c:AsyncLoadContacts.allContacts.values()) // todo remove dep on static refs
+        {
+            if ( !TextUtils.isEmpty(c.getContactEmail()) )
+                idsJson.put( DataUtility.md5(c.getContactEmail()) );
+
+            String num =  c.getContactNumber();
+            if ( !TextUtils.isEmpty(num) )
+            {
+                idsJson.put( DataUtility.md5(num) );
+                String intNum = DataUtility.getInternationalPhoneNumber(num, defaultCountryCode);
+                if (!num.equals(intNum))
+                    idsJson.put( DataUtility.md5(intNum) );
+            }
         }
-        Log.v(LOGTAG, "uploading "+emailsJson.length()+ " emails");
+        Log.v(LOGTAG, "uploading "+idsJson.length()+ " strings");
         String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_USERS_MATCH, "uuid=" + PrefUtility.getUuid());
 
         int k = 0;
         AjaxCallback ac =  new MatchServieCallback(v);
 
         try {
-            StringEntity entity = new StringEntity(emailsJson.toString());
+            StringEntity entity = new StringEntity(idsJson.toString());
             v.findViewById(R.id.findFriendsBtn).setVisibility(View.GONE);
             ((ContactManagerActivity)getActivity()).getAQuery().auth(PrefUtility.getBasicHandle())
                     .progress(v.findViewById(R.id.progress)).post(apiUrl, "application/json", entity, JSONArray.class, ac);

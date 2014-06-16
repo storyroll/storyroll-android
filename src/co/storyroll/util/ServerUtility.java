@@ -20,10 +20,6 @@ public class ServerUtility {
     @Deprecated
     public static final String API_CLIPS_AVAILABLE = "available"; //
 	public static final String API_CLIP_ADD = "addFragment";
-    @Deprecated
-	public static final String API_CLIP_FILE = "fragmentFile"; //
-    @Deprecated
-	public static final String API_CLIP_THUMB = "clipThumb"; //
 
     public static final String API_INVITES_ADD = "invites/add";
     public static final String API_INVITES_IN_CHANNEL = "channels/invites"; // params: c=channelId

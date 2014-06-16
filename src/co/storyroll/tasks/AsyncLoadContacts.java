@@ -8,6 +8,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -37,7 +40,7 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void>
     private ImageButton button = null;
     private View view;
 
-    private LinkedHashMap<String, Contact> allContacts = new LinkedHashMap<String, Contact>();
+    public static LinkedHashMap<String, Contact> allContacts = new LinkedHashMap<String, Contact>();
 //    public static ArrayList<Contact> phoneContacts = new ArrayList<Contact>();
 
 
@@ -108,10 +111,11 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void>
 
 //		Cursor cur = cr.query(Data.CONTENT_URI, new String[] { Data.CONTACT_ID, Data.MIMETYPE, Email.ADDRESS,
 //				Contacts.DISPLAY_NAME, Phone.NUMBER }, null, null, Contacts.DISPLAY_NAME);
-        Cursor cur = cr.query(ContactsContract.Data.CONTENT_URI, new String[] { ContactsContract.Data.CONTACT_ID, ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.Contacts.DISPLAY_NAME }, null, null, ContactsContract.Contacts.DISPLAY_NAME);
+        String[] projection = new String[] { ContactsContract.Data.CONTACT_ID, ContactsContract.Data.MIMETYPE, Email.ADDRESS,
+                ContactsContract.Contacts.DISPLAY_NAME, Phone.NUMBER };
+        Cursor cur = cr.query(ContactsContract.Data.CONTENT_URI, projection, null, null, ContactsContract.Contacts.DISPLAY_NAME);
         Contact contact;
-
+        Log.v(LOGTAG, "contacts: "+cur.getCount());
         if (cur.getCount() > 0) {
 
             while (cur.moveToNext()
@@ -127,23 +131,26 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void>
                     contact = allContacts.get(id);
                 } else {
                     contact = new Contact();
-                    // only add if it's not a phone-only contact
                     allContacts.put(id, contact);
                     // set photoUri
                     contact.setContactPhotoUri(getContactPhotoUri(Long.parseLong(id)));
                 }
 
-                if (mimeType.equals(ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE))
+                if (mimeType.equals(StructuredName.CONTENT_ITEM_TYPE))
                     // set name
                     contact.setContactName(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
 
-//				if (mimeType.equals(Phone.CONTENT_ITEM_TYPE))
-//					// set phone munber
-//					contact.setContactNumber(cur.getString(cur.getColumnIndex(Phone.NUMBER)));
+				if (mimeType.equals(Phone.CONTENT_ITEM_TYPE))
+					// set phone munber
+					contact.setContactNumber(cur.getString(cur.getColumnIndex(Phone.NUMBER)));
 
-                if (mimeType.equals(ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE))
-                    // set email
-                    contact.setContactEmail(cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS)));
+                if (mimeType.equals(Email.CONTENT_ITEM_TYPE)) {
+                    String email = cur.getString(cur.getColumnIndex(Email.ADDRESS));
+                    if (!TextUtils.isEmpty(email)) {
+                        // set email
+                        contact.setContactEmail(email.toLowerCase());
+                    }
+                }
 
             }
         }
@@ -161,14 +168,18 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void>
 
                 // remove self contact
                 if (_contact.getContactName() == null && _contact.getContactNumber() == null
-                        && _contact.getContactEmail() == null) {
+                        && _contact.getContactEmail() == null)
+                {
+                    Log.v(LOGTAG, "found self contact! "+_contact.toString());
                     ContactListFragment.phoneContacts.remove(_contact);
                     break;
-                } else
+                }
+                else
                     // remove non-email or unnamed contacts
                     if (TextUtils.isEmpty(_contact.getContactName())
                             || TextUtils.isEmpty(_contact.getContactEmail())
-                            || _contact.getContactName().equals(_contact.getContactEmail())) {
+                            )
+                    {
                         ContactListFragment.phoneContacts.remove(_contact);
                     }
 
