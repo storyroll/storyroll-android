@@ -21,25 +21,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LogReadActivity extends ListActivity{
+    private static final String LOGTAG = "LOGREAD";
     private LogStringAdaptor adaptor = null;
     private ArrayList<String> logarray = null;
     private LogReaderTask logReaderTask = null;
     
     private static final String processId = Integer.toString(android.os.Process.myPid());
     
-public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_log);
-    
-    logarray = new ArrayList<String>();
-    adaptor = new LogStringAdaptor(this, R.id.txtLogString, logarray);
-    
-    setListAdapter(adaptor);
-    
-    logReaderTask = new LogReaderTask();
-    
-    logReaderTask.execute();
-}
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_log);
+
+        logarray = new ArrayList<String>();
+        adaptor = new LogStringAdaptor(this, R.id.txtLogString, logarray);
+
+        setListAdapter(adaptor);
+
+        logReaderTask = new LogReaderTask();
+
+        logReaderTask.execute();
+    }
 
     @Override
     protected void onDestroy() {

@@ -108,6 +108,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     private void initView(){
     	Preference p;
         PreferenceCategory prefCategory = (PreferenceCategory) findPreference("category_settings");
+        PreferenceCategory prefCategory1 = (PreferenceCategory) findPreference("category_settings1");
 
     	if (AppUtility.isLoggedIn()) {
     		p = findPreference("logout");
@@ -154,11 +155,13 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         p.setOnPreferenceChangeListener(this);
         
         p = findPreference("co.storyroll.enums.ServerPreference");
-        if (PrefUtility.isTestDevice()) {
+        if (PrefUtility.isTestDevice())
+        {
             p.setOnPreferenceChangeListener(this);
         }
         else {
-            prefCategory.removePreference(p);
+            Log.v(LOGTAG, "hiding pref");
+            prefCategory1.removePreference(p);
         }
 
         p = findPreference("cache");
@@ -170,7 +173,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     	
     	String name = preference.getKey();
     	
-    	AQUtility.debug("pred", name);
+    	AQUtility.debug("pref", name);
     	
     	try{
     		fireGAnalyticsEvent("ui_activity", "pref", name, null);
@@ -205,7 +208,8 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 
     int versionClicks = 0;
     private void versionClick() {
-        if (++versionClicks%5==0) {
+        Log.v(LOGTAG, "versionClicks: "+versionClicks);
+        if (++versionClicks>5) {
             PrefUtility.setTestDevice(true);
             Toast.makeText(this, "Test mode enabled", Toast.LENGTH_SHORT).show();
         }

@@ -1,18 +1,31 @@
 package co.storyroll.activity;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.Context;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import co.storyroll.R;
+import co.storyroll.model.Profile;
 import co.storyroll.util.DataUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
+import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.Fields;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class RegistrationActivity extends ProfileActivity {
 	private final String LOGTAG = "REGISTER";
@@ -56,7 +69,8 @@ public class RegistrationActivity extends ProfileActivity {
                 aq.id(R.id.done_button).enabled(true);
                 return;
 			}
-            if (profile.isAuthFacebook()) {
+            if (profile.isAuthFacebook())
+            {
                 // todo: hack
                 // fix in the future to use Facebook Auth
                 // generates "recoverable" password, so that a user is able to pass base-authentication
@@ -64,21 +78,77 @@ public class RegistrationActivity extends ProfileActivity {
                 Log.v(LOGTAG, "pass: "+profile.password);
             }
 			Log.d(LOGTAG, "profile: "+profile.toString()+", params: "+profile.toParamString(false, true, true));
-			aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl(
-                            ServerUtility.API_PROFILE_ADD, profile.toParamString(false, true, true)),
-					JSONObject.class, this, "createProfileCb");						
+			doServerProfileAdd(profile);
 		}
 		else 
 		{
 			persistProfile(profile);
 			profile = getPersistedProfile();
-            // this should pass, becuase the BasicAuth data (u:p) was stored in context erlier
+            // this should pass, because the BasicAuth data (u:p) was stored in context erlier
 			aq.auth(basicHandle).progress(R.id.progress).ajax(PrefUtility.getApiUrl(
 					ServerUtility.API_PROFILE_UPDATE, profile.toParamString(unameChanged, false, false)),
 					JSONObject.class, this, "updateProfileCb");
 		}		
 	}
-	
+
+//    private void doServerProfileAdd() {
+//
+//        aq.progress(R.id.progress).ajax(PrefUtility.getApiUrl(
+//                        ServerUtility.API_PROFILE_ADD, profile.toParamString(false, true, true)),
+//                JSONObject.class, this, "createProfileCb");
+//    }
+
+    // collect additional id information and send everything to server
+    private void doServerProfileAdd(Profile profile)
+    {
+        // collect id strings
+        Set<String> idStrings = new HashSet<String>();
+
+        // Returns the phone number string for line 1, for example, the MSISDN for a GSM phone. Return null if it is unavailable.
+        TelephonyManager tMgr = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        String phoneNumber = tMgr.getLine1Number();
+        Log.d(LOGTAG, "phone num: "+phoneNumber);
+        if (!TextUtils.isEmpty(phoneNumber)) {
+            idStrings.add(phoneNumber);
+        }
+
+        // account emails
+
+        AccountManager manager = (AccountManager) getSystemService(ACCOUNT_SERVICE);
+        Account[] list = manager.getAccounts();
+        for (Account account:list) {
+            if (DataUtility.isEmailValid(account.name)
+                    && !account.name.equals(profile.email)) // ignore uuid from the account list
+            {
+                idStrings.add(account.name.toLowerCase());
+            }
+        }
+
+        try {
+            // put them in request body
+            JSONArray idsJson = new JSONArray();
+            for (String s : idStrings) idsJson.put(DataUtility.md5(s));
+
+            Log.v(LOGTAG, "uploading " + idsJson.length() + " id strings");
+            StringEntity entity = new StringEntity(idsJson.toString());
+            String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_PROFILE_ADD, profile.toParamString(false, true, true));
+
+            // perform server call
+            aq.progress(R.id.progress).post(apiUrl, "application/json", entity, JSONObject.class,
+                    new  AjaxCallback<JSONObject>() {
+                        @Override
+                        public void callback(String url, JSONObject json, AjaxStatus status) {
+                            createProfileCb(url, json, status);
+                        }
+                    }
+                );
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            BugSenseHandler.sendException(e);
+            e.printStackTrace();
+        }
+    }
     
 	@Override
 	public void createProfileCb(String url, JSONObject json, AjaxStatus status) {

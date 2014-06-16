@@ -23,13 +23,23 @@
              android:title="@string/n_sso"
              android:summary="@string/p_sso_sum"
              android:defaultValue="true"
-              /> 	        
-              
+              />
+
+        <co.storyroll.ui.SummaryListPreference
+                android:key="co.storyroll.enums.AutostartMode"
+                android:title="Video Autostart"
+                android:summary="Automatically start videos: %s"
+                android:entries="@array/autostart_pref_items"
+                android:entryValues="@array/autostart_pref_values"
+                android:defaultValue="NEVER"
+                android:dialogTitle="Autostart Options" />
     </PreferenceCategory>
 
 
     
-    <PreferenceCategory android:title="@string/app_name">
+    <PreferenceCategory
+            android:key="category_settings1"
+            android:title="@string/app_name">
              
         <!--        
 		<ListPreference
@@ -42,14 +52,7 @@
                 android:dialogTitle="Image Options" />  
         -->
 
-		<co.storyroll.ui.SummaryListPreference
-		    android:key="co.storyroll.enums.AutostartMode"
-		    android:title="Video Autostart"
-            android:summary="Automatically start videos: %s"
-		    android:entries="@array/autostart_pref_items"
-		    android:entryValues="@array/autostart_pref_values"
-		    android:defaultValue="NEVER"
-            android:dialogTitle="Autostart Options" />
+
            
         <!--<Preference-->
 	        <!--android:key="share"-->

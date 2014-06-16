@@ -652,6 +652,9 @@ public class TabbedChannelsActivity
         if (chanId!=null && chanId!=1) {
             new LeaveChanDialog().show(getSupportFragmentManager(), "LeaveChanDialog");
         }
+        else {
+            Toast.makeText(this, "Currently we'd like you to keep at least one channel running.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void apiChannelLeaveCb(String url, JSONObject json, AjaxStatus status) throws JSONException
@@ -733,8 +736,11 @@ public class TabbedChannelsActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong(STORED_BUNDLE_CHANNEL_ID, getCurrentChannelId());
-        Log.v(LOGTAG, "onSaveInstanceState, current chanId: "+getCurrentChannelId());
+        if (getCurrentChannelId()!=null)
+        {
+            outState.putLong(STORED_BUNDLE_CHANNEL_ID, getCurrentChannelId());
+            Log.v(LOGTAG, "onSaveInstanceState, current chanId: " + getCurrentChannelId());
+        }
     }
 
     // todo crappy hack

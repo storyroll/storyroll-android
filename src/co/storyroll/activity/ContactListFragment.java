@@ -155,7 +155,7 @@ public class ContactListFragment extends ListFragment
     public void onContactsLoaded(int tabNum, View v) {
         if (tabNum==0) {
             // this comes from onUsersMatchClicked, update the list
-            usersMatchServerCall(v);
+            doServerUsersMatchCall(v);
         }
         else {
             // this comes from PhoneBook fragment initialization
@@ -216,7 +216,7 @@ public class ContactListFragment extends ListFragment
             contactLoaderTask.execute(); // will result on interface call onContactsLoaded(), see below
         }
         else {
-            usersMatchServerCall(v);
+            doServerUsersMatchCall(v);
         }
     }
 
@@ -253,7 +253,7 @@ public class ContactListFragment extends ListFragment
         }
     }
 
-    private void usersMatchServerCall(View v)
+    private void doServerUsersMatchCall(View v)
     {
         JSONArray emailsJson = new JSONArray();
         int debugI=0;

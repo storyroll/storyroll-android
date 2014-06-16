@@ -11,6 +11,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import co.storyroll.MainApplication;
 import co.storyroll.base.Constants;
 import co.storyroll.enums.AutostartMode;
@@ -122,9 +123,9 @@ public class PrefUtility {
 		return result;
 	}
 	
-	private static String[] deviceIds = {"00000000-64a3-993a-ffff-ffff87b812df", "ffffffff-aa8c-6136-a9de-4e41505adfd9"};
+	private static String[] deviceIds = {"00000000-64a3-993a-ffff-ffff87b812df", "ffffffff-aa8c-6136-a9de-4e41505adfd9", "00000000-64a3-993a-0bd0-f48a0e6c6d00"};
 //    private static String[] deviceIds = {};
-	private static Boolean testDevice = false;
+	private static Boolean testDevice = null;
 
     public static boolean isTestDevice(){
 		
@@ -173,7 +174,7 @@ public class PrefUtility {
 		    
 		}
 		
-		System.err.println("device:" + deviceId);
+		Log.d(LOGTAG, "device:" + deviceId);
 		
 	    return deviceId;
 	}
