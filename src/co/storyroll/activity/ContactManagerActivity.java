@@ -48,7 +48,7 @@ public class ContactManagerActivity extends FragmentActivity {
 
 //    private static ListAdapter friendListAdapter;
 
-    private AsyncLoadContacts contactLoaderTask = null;
+    public static AsyncLoadContacts contactLoaderTask = null;
     private ProgressBar progress;
     private ImageView doneSelect;
 

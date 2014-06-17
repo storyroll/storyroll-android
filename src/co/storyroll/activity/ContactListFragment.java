@@ -1,6 +1,7 @@
 package co.storyroll.activity;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
@@ -37,6 +38,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by martynas on 12/06/14.
@@ -212,16 +216,39 @@ public class ContactListFragment extends ListFragment
     {
         Log.v(LOGTAG, "onUsersMatchClicked");
         // addressbook contact loader
-        if (phoneContacts == null || phoneContacts.size()<1)
+        if (ContactManagerActivity.contactLoaderTask==null || ContactManagerActivity.contactLoaderTask.getStatus()!= AsyncTask.Status.RUNNING)
         {
-            phoneContacts = new ArrayList<Contact>();
-            // Asynchronously load all contacts
-            AsyncLoadContacts contactLoaderTask = new AsyncLoadContacts(0, this, getActivity(), v);
-            contactLoaderTask.execute(); // will result on interface call onContactsLoaded(), see below
+            Log.v(LOGTAG, "ContactLoadTask not running");
+
+            if ((phoneContacts == null || phoneContacts.size()<1))
+            {
+                phoneContacts = new ArrayList<Contact>();
+                // Asynchronously load all contacts
+                ContactManagerActivity.contactLoaderTask = new AsyncLoadContacts(0, this, getActivity(), v);
+                ContactManagerActivity.contactLoaderTask.execute(); // will result on interface call onContactsLoaded(), see below
+            }
+            else {
+                doServerUsersMatchCall(v);
+            }
         }
         else {
-            doServerUsersMatchCall(v);
+            // Load task is running, wait to complete
+            Log.v(LOGTAG, "waiting for ContactLoadTask to complete");
+            // wait for the task to complete for at most 10 sec
+            try {
+                ContactManagerActivity.contactLoaderTask.get(10, TimeUnit.SECONDS);
+                doServerUsersMatchCall(v);
+            }
+            catch (InterruptedException e) {
+                Log.w(LOGTAG, "InterruptedException", e);
+            } catch (ExecutionException e) {
+                Log.w(LOGTAG, "ExecutionException", e);
+            } catch (TimeoutException e) {
+                Log.e(LOGTAG, "TimeoutException", e);
+                BugSenseHandler.sendException(e);
+            }
         }
+
     }
 
 
@@ -284,6 +311,7 @@ public class ContactListFragment extends ListFragment
         AjaxCallback ac =  new MatchServieCallback(v);
 
         try {
+            Log.v(LOGTAG, "strings: "+idsJson.toString());
             StringEntity entity = new StringEntity(idsJson.toString());
             v.findViewById(R.id.findFriendsBtn).setVisibility(View.GONE);
             ((ContactManagerActivity)getActivity()).getAQuery().auth(PrefUtility.getBasicHandle())
