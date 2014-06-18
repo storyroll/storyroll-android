@@ -10,7 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import co.storyroll.PQuery;
 import co.storyroll.R;
-import co.storyroll.activity.ArrayMoviesFragment;
 import co.storyroll.model.Movie;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
@@ -25,7 +24,7 @@ public class MovieItemView extends LinearLayout {
 
 	Movie movie;
 	PQuery aq;
-	ArrayMoviesFragment parent;
+//	ArrayMoviesFragment parent;
 	
 	public MovieItemView(Context context) {
 		super(context);
@@ -42,11 +41,11 @@ public class MovieItemView extends LinearLayout {
 	}
 	
 	// this all pretty sloppy, needs better design
-	public void initAndLoadCast(Movie movie, PQuery aq, ArrayMoviesFragment parent) {
+	public void initAndLoadCast(Movie movie, PQuery aq){ //}, ArrayMoviesFragment parent) {
 		Log.v(LOGTAG, "initAndLoadCast");
 		this.movie = movie;
 		this.aq = aq;
-		this.parent = parent;
+//		this.parent = parent;
 		if (movie.getCast() == null) {
 			// try to load cast
 			this.aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CAST, "story=" + movie.getId()), JSONArray.class, this, "getMovieCastCb");

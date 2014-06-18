@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="4dp"
+        android:paddingBottom="4dp">
+
+    <ImageView
+        android:id="@+id/thumb"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:background="@drawable/def_contact"
+        android:contentDescription="@string/app_name" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="6dp"
+        android:layout_marginRight="3dp"
+        android:layout_toLeftOf="@+id/age"
+        android:layout_toRightOf="@+id/thumb"
+        android:layout_alignTop="@+id/thumb"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="Channel Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="7dp"/>
+
+        <LinearLayout
+                android:id="@+id/lv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_below="@+id/name">
+
+            <co.storyroll.ui.RoundedImageView
+                    android:id="@+id/cast1"
+                    android:src="@drawable/ic_avatar_default"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp"
+                    android:visibility="visible"
+                    app:corner_radius="15dp"
+                    app:round_background="false"
+                    app:is_oval="true"
+                    android:layout_marginRight="3dp"
+                    android:alpha="0.6"
+                    />
+            <co.storyroll.ui.RoundedImageView
+                    android:id="@+id/cast2"
+                    android:src="@drawable/ic_avatar_default"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp"
+                    android:visibility="visible"
+                    app:corner_radius="15dp"
+                    app:round_background="false"
+                    app:is_oval="true"
+                    android:layout_marginRight="3dp"
+                    android:alpha="0.6"
+                    />
+            <co.storyroll.ui.RoundedImageView
+                    android:id="@+id/cast3"
+                    android:src="@drawable/ic_avatar_default"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp"
+                    android:visibility="gone"
+                    app:corner_radius="15dp"
+                    app:round_background="false"
+                    app:is_oval="true"
+                    android:layout_marginRight="3dp"
+                    android:alpha="0.6"
+                    />
+            <co.storyroll.ui.RoundedImageView
+                    android:id="@+id/cast4"
+                    android:src="@drawable/ic_avatar_default"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp"
+                    android:visibility="gone"
+                    app:corner_radius="15dp"
+                    app:round_background="false"
+                    app:is_oval="true"
+                    android:layout_marginRight="3dp"
+                    android:alpha="0.6"
+                    />
+            <co.storyroll.ui.RoundedImageView
+                    android:id="@+id/cast5"
+                    android:src="@drawable/ic_avatar_default"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp"
+                    android:visibility="gone"
+                    app:corner_radius="15dp"
+                    app:round_background="false"
+                    app:is_oval="true"
+                    android:layout_marginRight="3dp"
+                    android:alpha="0.6"
+                    />
+        </LinearLayout>
+
+        <!--<TextView-->
+            <!--android:id="@+id/number"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignBaseline="@+id/numberLabel"-->
+            <!--android:layout_toRightOf="@+id/numberLabel"-->
+            <!--android:padding="2dp"-->
+            <!--android:textColor="#7F7F7F"-->
+            <!--android:textSize="12sp"-->
+            <!--android:visibility="invisible" />-->
+
+    </RelativeLayout>
+
+    <TextView
+            android:id="@+id/age"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:paddingRight="3dp"/>
+
+</RelativeLayout>

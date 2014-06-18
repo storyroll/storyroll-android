@@ -2,6 +2,7 @@ package co.storyroll.util;
 
 import android.util.Log;
 import co.storyroll.model.Channel;
+import co.storyroll.model.ChannelInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +31,25 @@ public class ModelUtility {
 		}
 		return channels;
 	}
+
+    public static List<ChannelInfo> channelInfos(JSONArray jarr) {
+        ArrayList<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        for (int i = 0; i < jarr.length(); i++)
+        {
+            JSONObject chanInfoObj;
+            try {
+                chanInfoObj = jarr.getJSONObject(i);
+                ChannelInfo channelInfo = new ChannelInfo(chanInfoObj);
+                channelInfos.add(channelInfo);
+//                Log.v(LOGTAG, "channel "+channel.getTitle()+" ("+channel.getId()+")");
+            }
+            catch (JSONException e) {
+                Log.e(LOGTAG, "Error parsing channels", e);
+                e.printStackTrace();
+            }
+        }
+        return channelInfos;
+    }
 	
 //	public List<Story> stories(JSONArray jarr) {
 //		for (int i = 0; i < jarr.length(); i++) {

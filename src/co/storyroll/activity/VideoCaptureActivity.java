@@ -46,14 +46,14 @@ public class VideoCaptureActivity extends BaseActivity implements
 	public static final String LOGTAG = "VIDEOCAPTURE";
     private static final String SCREEN_NAME = "VideoCapture";
 
-	static final String LAST_USER_UUID = "LAST_USER";
-    static final String LAST_USER_AVATAR = "LAST_USER_AVATAR";
+	public static final String LAST_USER_UUID = "LAST_USER";
+    public static final String LAST_USER_AVATAR = "LAST_USER_AVATAR";
 
     private static final String MODE_NEW = "MODE_NEW";
 	public static final String CURRENT_CHANNEL = "CURRENT_CHANNEL";
-	static final String RESPOND_TO_CLIP = "RESPOND_TO_CLIP";
-    static final String RESPOND_TO_CLIP_URL = "RESPOND_TO_CLIP_URL";
-    static final String MOVIE = "MOVIE";
+	public static final String RESPOND_TO_CLIP = "RESPOND_TO_CLIP";
+    public static final String RESPOND_TO_CLIP_URL = "RESPOND_TO_CLIP_URL";
+    public static final String MOVIE = "MOVIE";
 	private static final String CURRENT_CAMERA = "CURRENT_CAMERA";
 	private static final String LAST_STATE = "LAST_STATE";
 

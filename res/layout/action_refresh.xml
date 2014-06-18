@@ -9,7 +9,7 @@
         android:id="@+id/button_action_refresh"
         android:layout_width="32dip"
     	android:layout_height="32dip"
-        android:src="@drawable/ic_menu_refresh"
+        android:src="@drawable/ic_action_refresh"
         />
     
     <ProgressBar 

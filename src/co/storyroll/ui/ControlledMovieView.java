@@ -11,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.VideoView;
 import co.storyroll.R;
 import co.storyroll.activity.ArrayMoviesFragment;
+import co.storyroll.adapter.MovieAdapter;
 import co.storyroll.model.Movie;
 import co.storyroll.tasks.VideoDownloadTask;
 import co.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
@@ -28,7 +29,8 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	boolean playQueued = true;
 	private View controlView, unseenIndicator;
 	private ImageView playControl;
-	private ArrayMoviesFragment parent;
+	private ArrayMoviesFragment parentFragment = null;
+    private MovieAdapter parentAdapter = null;
 	int screenWidth;
 	private int itemPosition;
 	private long mMovieId;
@@ -97,7 +99,12 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	public void startVideo() {
 		Log.v(LOGTAG, "will start video playback");
 
-		parent.switchCurrentlyPlayedMovie(this);
+        if (parentAdapter!=null) {
+            parentAdapter.switchCurrentlyPlayedMovie(this);
+        }
+        else if (parentFragment!=null) {
+            parentFragment.switchCurrentlyPlayedMovie(this);
+        }
 		markPlayable(false);
 		Log.v(LOGTAG, "starting video playback");
 		start();
@@ -109,13 +116,20 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 		markPlayable(true);
 		pause();
 	}
+
+    public void adapterInit(MovieAdapter parentAdapter, View controlView, int screenWidth, int itemPosition, Movie movie, String uuid,
+                     ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
+        init(null, controlView, screenWidth, itemPosition, movie, uuid, progressBar, unseenIndicator, playControl);
+        this.parentAdapter = parentAdapter;
+
+    }
 	
-	public void init(ArrayMoviesFragment parent, View controlView, int screenWidth, int itemPosition, Movie movie, String uuid, 
+	public void init(ArrayMoviesFragment parentFragment, View controlView, int screenWidth, int itemPosition, Movie movie, String uuid,
 			ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
-		this.parent = parent;
+		this.parentFragment = parentFragment;
 		this.mMovieId = movie.getId();
 		this.mMovie = movie;
 		this.mUuid = uuid;

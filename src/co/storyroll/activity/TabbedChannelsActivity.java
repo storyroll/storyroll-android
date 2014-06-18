@@ -680,7 +680,6 @@ public class TabbedChannelsActivity
                 mAdapter.updateCount(mChannels.size());
                 mAdapter.notifyDataSetChanged();
                 bar.removeTab(bar.getTabAt(selectedIdx));
-//                initializeActionBar();
             }
         }
         else {

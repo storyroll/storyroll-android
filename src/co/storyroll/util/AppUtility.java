@@ -14,7 +14,7 @@ import android.os.Environment;
 import android.util.Log;
 import co.storyroll.MainApplication;
 import co.storyroll.R;
-import co.storyroll.activity.TabbedChannelsActivity;
+import co.storyroll.activity.ListChannelsActivity;
 import co.storyroll.base.Constants;
 import com.androidquery.auth.BasicHandle;
 import com.androidquery.auth.FacebookHandle;
@@ -40,8 +40,8 @@ public class AppUtility {
 	
 //	public final static String API_URL="http://192.168.1.64:8080/storyroll/api/";
 	
-//	public final static Class ACTIVITY_HOME = TabbedPlaylistActivity.class;
-	public final static Class ACTIVITY_HOME = TabbedChannelsActivity.class;
+	public final static Class ACTIVITY_HOME = ListChannelsActivity.class;
+//	public final static Class ACTIVITY_HOME = TabbedChannelsActivity.class;
 	private static final String LOGTAG = "AppUtility";
 
 	public static FacebookHandle makeHandle(Activity act){

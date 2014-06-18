@@ -464,7 +464,7 @@ public class ArrayMoviesFragment extends ListFragment {
 			ImageButton replyButton = (ImageButton)rowView.findViewById(R.id.replyButton);
 
 			// 4. set data & callbacks
-			rowView.initAndLoadCast(movie, aq, ArrayMoviesFragment.this);
+			rowView.initAndLoadCast(movie, aq);
 
 			if (!movie.isSeen()) {
 	            playControl.setImageResource(R.drawable.ic_play_roll_new);
