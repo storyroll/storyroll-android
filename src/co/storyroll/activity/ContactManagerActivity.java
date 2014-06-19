@@ -130,6 +130,15 @@ public class ContactManagerActivity extends FragmentActivity implements AsyncLoa
                 mTabPager.setCurrentItem(tab.getPosition());
                 Log.v(LOGTAG, "onTabSelected=="+tab.getPosition());
 
+                // switch the progress on?
+                if (tab.getPosition()==1) {
+                    if (contactLoaderTask != null && contactLoaderTask.getStatus() == AsyncTask.Status.RUNNING) {
+                        swipeContainer.setRefreshing(true);
+                    }
+                    else {
+                        swipeContainer.setRefreshing(false);
+                    }
+                }
             }
 
             @Override
@@ -164,8 +173,11 @@ public class ContactManagerActivity extends FragmentActivity implements AsyncLoa
                     }
                 });
 
-//        swipeContainer = (SwipeRefreshLayout)findViewById(R.id.swipe_container);
-
+        swipeContainer = (SwipeRefreshLayout)findViewById(R.id.swipe_container);
+        swipeContainer.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
     }
 
     @Override
@@ -341,6 +353,8 @@ public class ContactManagerActivity extends FragmentActivity implements AsyncLoa
             doServerUsersMatchCall();
         }
         else {
+            swipeContainer.setRefreshing(false);
+
 //            // this comes from PhoneBook fragment initialization
 //            setListAdapter(new ContactAdapter(this, phoneContacts));
 //            ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
@@ -352,7 +366,10 @@ public class ContactManagerActivity extends FragmentActivity implements AsyncLoa
         @Override
         public void callback(String url, JSONArray jarr, AjaxStatus status)
         {
-            if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, ContactManagerActivity.this)) return;
+            if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, ContactManagerActivity.this)) {
+                swipeContainer.setRefreshing(false);
+                return;
+            }
 
             Log.v(LOGTAG, "callback result: " + jarr.length());
 
@@ -373,11 +390,14 @@ public class ContactManagerActivity extends FragmentActivity implements AsyncLoa
             Log.d(LOGTAG, "yes, trying to refresh adapter for tab "+mTabPager.getCurrentItem());
             Fragment fr = getActiveFragment(mTabPager, mTabPager.getCurrentItem());
             ((BaseAdapter)((ContactListFragment)fr).getListAdapter()).notifyDataSetChanged();
+            swipeContainer.setRefreshing(false);
+
         }
     }
 
     private void doServerUsersMatchCall()
     {
+        swipeContainer.setRefreshing(true);
         JSONArray idsJson = new JSONArray();
         TelephonyManager tMgr = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         String defaultCountryCode = tMgr.getNetworkCountryIso().toUpperCase();

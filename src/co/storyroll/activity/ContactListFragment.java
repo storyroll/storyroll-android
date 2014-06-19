@@ -155,6 +155,7 @@ public class ContactListFragment extends ListFragment
             {
                 phoneContacts = new ArrayList<Contact>();
                 // Asynchronously load all contacts
+                ContactManagerActivity.swipeContainer.setRefreshing(true);
                 AsyncLoadContacts contactLoaderTask = new AsyncLoadContacts(1, this, getActivity());
                 contactLoaderTask.execute(); // will result on interface call onContactsLoaded(), see below
             }
@@ -174,6 +175,8 @@ public class ContactListFragment extends ListFragment
             // this comes from PhoneBook fragment initialization
             setListAdapter(new ContactAdapter(getActivity(), phoneContacts));
             ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+
+            ContactManagerActivity.swipeContainer.setRefreshing(false);
         }
     }
 
