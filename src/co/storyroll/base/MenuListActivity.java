@@ -1,10 +1,11 @@
 package co.storyroll.base;
 
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import co.storyroll.PQuery;
 import co.storyroll.R;
 import co.storyroll.activity.*;
+import co.storyroll.ui.dialog.SignupDialog;
 import co.storyroll.util.AppUtility;
 import co.storyroll.util.ErrorUtility;
 import co.storyroll.util.PrefUtility;
@@ -24,7 +26,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
 import org.json.JSONArray;
 
-public abstract class MenuListActivity extends ListActivity
+public abstract class MenuListActivity extends FragmentActivity implements SignupDialog.SigninDialogListener
 {
 	private static final String LOGTAG = "MenuListAct";
     protected static final int MANAGE_INVITES_REQUEST = 1019;
@@ -163,12 +165,7 @@ public abstract class MenuListActivity extends ListActivity
 //		{
 //			 onJoinPressed(null, null);
 //			 return true;
-//			 
-		} else if (item.getItemId() == R.id.action_new) 
-		{
-			 onNewPressed(null);
-			 return true;
-
+//
         } else if (item.getItemId() == R.id.action_chan)
         {
             onNewChanPressed(null);
@@ -224,40 +221,16 @@ public abstract class MenuListActivity extends ListActivity
     }
 
 
-	protected void onNewPressed(Long chanId) {
-		Intent intent;
-		if (isTrial) {
-            Log.w(LOGTAG, "new video should not be allowd in Trial");
-            fireGAnalyticsEvent("ui_action", "touch", "joinRoll_trial", null);
-			intent = new Intent(this, LoginActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        }
-		else {
-			fireGAnalyticsEvent("ui_action", "touch", "joinRoll_regged", null);
-			intent = new Intent(this, VideoCaptureActivity.class);
-			intent.putExtra("MODE_NEW", true);
-            if (chanId!=null && chanId!=-1L) {
-				intent.putExtra(VideoCaptureActivity.CURRENT_CHANNEL, chanId);
-			}
-            startActivityForResult(intent, TabbedChannelsActivity.VIDEOCAPTURE_REQUEST);
-		}
-		
-	}
-
     protected void onNewChanPressed(Long chanId) {
-        Intent intent;
         if (isTrial) {
-            Log.w(LOGTAG, "new channel should not be allowd in Trial");
             fireGAnalyticsEvent("ui_action", "touch", "createChan_trial", null);
-            intent = new Intent(this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            new SignupDialog().show(getSupportFragmentManager(), "SignupDialog");
         }
         else {
             fireGAnalyticsEvent("ui_action", "touch", "createChan_regged", null);
-            intent = new Intent(this, ChannelCreateActivity.class);
+            Intent intent = new Intent(this, ChannelCreateActivity.class);
+            startActivity(intent);
         }
-        startActivity(intent);
     }
 
 	
@@ -313,5 +286,14 @@ public abstract class MenuListActivity extends ListActivity
         super.onDestroy();
         aq.dismiss();
     }
-	
+
+    @Override
+    public void onDialogSigninClick(DialogFragment dialog)
+    {
+        // User touched the dialog's Sign-in button
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.putExtra(LoginActivity.EXTRA_OVERRIDE_BACKPRESS, false);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
 }

@@ -25,8 +25,10 @@ import org.json.JSONObject;
 public class LoginActivity extends GcmActivity {
 	private final static String LOGTAG = "LOGIN";
 	private final static String SCREEN_NAME = "Login";
+    public final static String EXTRA_OVERRIDE_BACKPRESS = "overrideBackPress";
+    public final static String EXTRA_LOGOUT = "logout";
 
-	private final static String facebookGraphUrl = "https://graph.facebook.com/me?fields=first_name,last_name,name,email,location,birthday,gender";
+    private final static String facebookGraphUrl = "https://graph.facebook.com/me?fields=first_name,last_name,name,email,location,birthday,gender";
 	private final int ACTIVITY_SSO = 1000;
 
 	private FacebookHandle facebookHandle;
@@ -37,8 +39,8 @@ public class LoginActivity extends GcmActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		isHomeEnabled = !getIntent().getBooleanExtra("logout", false);
-        isOverrideBackPress = getIntent().getBooleanExtra("overrideBackPress", true);
+		isHomeEnabled = !getIntent().getBooleanExtra(EXTRA_LOGOUT, false);
+        isOverrideBackPress = getIntent().getBooleanExtra(EXTRA_OVERRIDE_BACKPRESS, true);
         super.onCreate(savedInstanceState);
 
         Log.v(LOGTAG, "isRecreatedAfterFacebookSuccess: "+isRecreatedAfterFacebookSuccess);
@@ -58,9 +60,8 @@ public class LoginActivity extends GcmActivity {
 		// Fields set on a tracker persist for all hits, until they are
 	    // overridden or cleared by assignment to null.
 		getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
-
 	}
-    
+
 	  
 	// - - - callbacks
 	
@@ -169,6 +170,9 @@ public class LoginActivity extends GcmActivity {
 		Log.v(LOGTAG, "facebookProfileCb");
 		fireGAnalyticsEvent("facebook", "login", json==null?"fail":"success", null);
 
+        if (status.getCode()==AjaxStatus.AUTH_ERROR) {
+            Toast.makeText(this, "Facebook error. It's either Facebook misbehaving, or you have entered your login information incorrectly. We'll be investigating the error immediately, please try again later.", Toast.LENGTH_LONG).show();
+        }
     	if (isAjaxErrorThenReport(status)) {
             enableButtons(true);
             return;

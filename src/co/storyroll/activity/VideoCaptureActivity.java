@@ -722,6 +722,7 @@ public class VideoCaptureActivity extends BaseActivity implements
         if (mMovieId!=-1L) {
             mpeb.addTextBody("l", mMovieId + "", ContentType.TEXT_PLAIN);
         }
+        Log.d(LOGTAG, "uploading to channel with id: "+mCurrentChanlId);
 		if (mCurrentChanlId!=NULL_CHAN)
         {
             mpeb.addTextBody("c", mCurrentChanlId + "", ContentType.TEXT_PLAIN);

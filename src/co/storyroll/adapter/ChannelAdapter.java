@@ -63,9 +63,14 @@ public class ChannelAdapter extends ArrayAdapter<ChannelInfo> {
                 aq.id(view.findViewById(R.id.age)).text(ageText);
             }
             // show user thumbs
-            for ( int i=0;i< castIds.length && i<channelInfo.getUserAvatars().size(); i++ ) {
+            for ( int i=0;i< castIds.length; i++ ) {
                 int cid = castIds[i];
-                aq.id(view.findViewById(cid)).visible().image(channelInfo.getUserAvatars().get(i), true, false, 0, R.drawable.def_contact);
+                if  (i<channelInfo.getUserAvatars().size()) {
+                    aq.id(view.findViewById(cid)).visible().image(channelInfo.getUserAvatars().get(i), true, false, 0, R.drawable.def_contact);
+                }
+                else {
+                    view.findViewById(cid).setVisibility(View.GONE);
+                }
             }
 
             ImageView thumb = (ImageView) view.findViewById(R.id.thumb);

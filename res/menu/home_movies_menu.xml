@@ -13,10 +13,20 @@
           <!--android:title="Refresh"-->
             <!--/>-->
 
+    <item android:id="@+id/action_add_group"
+          android:icon="@drawable/ic_action_add_group"
+          android:title="@string/action_add_group"
+          android:showAsAction="ifRoom"/>
+
     <item android:id="@+id/action_new"
           android:icon="@drawable/ic_action_join"
           android:title="New Movie"
           android:showAsAction="always"/>
+
+    <item android:id="@+id/action_leave_channel"
+          android:title="@string/action_leave_channel"/>
+
+
 
     <item android:id="@+id/action_profile"
           android:title="@string/action_profile" />

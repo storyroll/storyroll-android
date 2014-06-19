@@ -24,7 +24,8 @@ import java.util.List;
 /**
  * Created by martynas on 17/06/14.
  */
-public class MainChannelsActivity extends MenuChannelListActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainChannelsActivity extends MenuChannelListActivity
+        implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String LOGTAG = "CHAN_LIST";
     private static final String SCREEN_NAME = "TabbedChannels";
@@ -46,6 +47,9 @@ public class MainChannelsActivity extends MenuChannelListActivity implements Swi
     private int lastUpdatedMovieIdx = 0;
     private boolean channelsLoaded = false;
 
+    private ChannelAdapter channelAdapter;
+    private ListView listView;
+
     private SwipeRefreshLayout swipeContainer;
 
     @Override
@@ -56,16 +60,15 @@ public class MainChannelsActivity extends MenuChannelListActivity implements Swi
         // We'll define a custom screen layout here (the one shown above), but
         // typically, you could just use the standard ListActivity layout.
         setContentView(R.layout.activity_channel_list);
-
-        mChannels = new ArrayList<ChannelInfo>();
         mUuid = getUuid();
 
-        // Now create a new list adapter bound to the cursor.
-        // SimpleListAdapter is designed for binding to a Cursor.
-        ListAdapter adapter = new ChannelAdapter(this, mChannels);
+        mChannels = new ArrayList<ChannelInfo>();
+        channelAdapter = new ChannelAdapter(this, mChannels);
 
         // Bind to our new adapter.
-        setListAdapter(adapter);
+        listView = (ListView)findViewById(android.R.id.list);
+        listView.setAdapter(channelAdapter);
+        listView.setOnItemClickListener(new ChannelClickListener());
 
         // restore the visible channel id
         if ( savedInstanceState!=null //&& !getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false)
@@ -107,35 +110,34 @@ public class MainChannelsActivity extends MenuChannelListActivity implements Swi
             }
         }
 
-        swipeContainer = SwipeUtil.initSwiping(this, getListView(), this);
+        swipeContainer = SwipeUtil.initSwiping(this, listView, this);
     }
+
 
     @Override
     public void onStart() {
         super.onStart();
         // get chan list
         chanListAjaxCall();
-
-//        mAdapter = new ClipPlaylistTabAdapter(getSupportFragmentManager());
-//
-//        // Set up the ViewPager, attaching the adapter.
-//        mViewPager = (ViewPager) findViewById(R.id.pager);
-//        mViewPager.setAdapter(mAdapter);
-
-        // update notification counter
-        updateInvitesFromServer();
     }
 
-    @Override
+    private class ChannelClickListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> av, View view,int position, long id)
+        {
+            onListItemClick ((ListView)av, view, position, id);
+        }
+    };
+
+    //    @Override
     protected void onListItemClick (ListView l, View v, int position, long id) {
         Toast.makeText(this, "Clicked row " + position, Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, ChannelActivity.class);
-        ChannelInfo channelInfo = (ChannelInfo)getListAdapter().getItem(position);
+        ChannelInfo channelInfo = channelAdapter.getItem(position);
         intent.putExtra(ChannelActivity.EXTRA_CHANNEL_ID, channelInfo.getChannel().getId());
         intent.putExtra(ChannelActivity.EXTRA_CHANNEL_TITLE, channelInfo.getChannel().getTitle());
         startActivityForResult(intent, MOVIELIST_REQUEST);
     }
-
 
     /* -------------------- -------------------- -------------------- -------------------- */
 
@@ -154,6 +156,7 @@ public class MainChannelsActivity extends MenuChannelListActivity implements Swi
     }
 
     public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
+        Log.v(LOGTAG, "chanListCb");
         swipeContainer.setRefreshing(false);
         if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
             channelsLoaded = false;
@@ -165,6 +168,7 @@ public class MainChannelsActivity extends MenuChannelListActivity implements Swi
         if (jarr != null) {
             // successful ajax call
             channels = ModelUtility.channelInfos(jarr);
+            Log.d(LOGTAG, "chanListCb success, channels loaded: "+channels.size());
             channelsLoaded = true;
             // get the list of channels
         } else {
@@ -178,10 +182,13 @@ public class MainChannelsActivity extends MenuChannelListActivity implements Swi
         {
             mChannels.clear();
             mChannels.addAll(channels);
-            ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+//            channelAdapter = new ChannelAdapter(this, mChannels);
+//            listView.setAdapter(channelAdapter);
+            ((BaseAdapter)channelAdapter).notifyDataSetChanged();
+            aq.id(android.R.id.empty).gone();
         }
         else {
-            Toast.makeText(this, "Can't load channels right now. Try agai later.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Can't load channels right now. Try again later.", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -57,6 +57,7 @@ public class GcmIntentService extends IntentService {
     public static final String EXTRA_CHANNEL_ID_STR = "channelId";
     public static final String EXTRA_LAST_UPDATED_MOVIE = "lastUpdatedMovie";
     public static final String EXTRA_STORIES = "stories";
+    public static final String EXTRA_CHANNEL_TITLE = "channelTitle";
     private static String NEW_MOVIE_IN_CHANNEL = "NEW_MOVIE_IN_CHANNEL";
 	private static String NEW_REPLY_IN_CHANNEL = "NEW_REPLY_IN_CHANNEL";
 	private static String STORY_PUBLISHED = "STORY_PUBLISHED";
@@ -193,6 +194,8 @@ public class GcmIntentService extends IntentService {
         String chanIdStr = gcmExtras.getString(KEY_GCM_CHANNEL_ID_STR);
         Log.v(LOGTAG, "gcm chanId: "+chanIdStr);
         notificationIntent.putExtra(EXTRA_CHANNEL_ID_STR, chanIdStr);
+        notificationIntent.putExtra(EXTRA_CHANNEL_TITLE, channelName);
+
         // see http://stackoverflow.com/questions/3127957/why-the-pendingintent-doesnt-send-back-my-custom-extras-setup-for-the-intent
         notificationIntent.setAction(new Date().toString());
 

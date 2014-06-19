@@ -28,7 +28,9 @@ public class ErrorUtility {
 	
 	public static void apiError(String logtag, String s, AjaxStatus status, Context c, boolean showToast, int logLevel) {
 		String errstr = "";
+        Integer code = null;
 		if (status!=null) {
+            code = status.getCode();
 			switch (status.getCode()) {
 			case -101:
 				errstr = "NETWORK_ERROR";
@@ -45,7 +47,7 @@ public class ErrorUtility {
 			}
 		}
 
-		String logStr = "API Error: " + errstr + " ("+status.getCode()+")";
+		String logStr = "API Error: " + errstr + (code==null?"":(" ("+code+")"));
 		
 		// only send WARN and above to BugSense
 		if (logLevel>=Log.WARN) {
@@ -54,7 +56,7 @@ public class ErrorUtility {
 		
 		if (logLevel>=Log.ERROR)
 		{
-			Log.e(logtag, logStr+". HTTP response: "+status.getMessage()+", "+status.getError());
+			Log.e(logtag, logStr+". HTTP response: "+errstr+(code==null?"":(", ("+code+")")));
 		} else if (logLevel==Log.WARN) 
 		{
 			Log.w(logtag, logStr);			

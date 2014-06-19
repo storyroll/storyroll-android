@@ -39,7 +39,7 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="20pt"
-        android:text="or use an email/password"
+        android:text="@string/login_alternative_login"
         android:visibility="visible" />
 
     <EditText

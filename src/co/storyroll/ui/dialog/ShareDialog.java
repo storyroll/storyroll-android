@@ -1,4 +1,4 @@
-package co.storyroll.ui;
+package co.storyroll.ui.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

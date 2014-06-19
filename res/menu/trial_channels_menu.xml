@@ -15,6 +15,11 @@
 
     <item android:id="@+id/action_chan"
           android:icon="@drawable/ic_action_new"
+          android:title="New Channel"
+          android:showAsAction="always"/>
+
+    <item android:id="@+id/action_chan1"
+          android:icon="@drawable/ic_action_new"
           android:title="@string/action_chan_new_trial"
           android:enabled="false"/>
 

@@ -21,7 +21,7 @@ import co.storyroll.R;
 import co.storyroll.adapter.ContactAdapter;
 import co.storyroll.model.Contact;
 import co.storyroll.tasks.AsyncLoadContacts;
-import co.storyroll.ui.MatchFriendsDialog;
+import co.storyroll.ui.dialog.MatchFriendsDialog;
 import co.storyroll.util.DataUtility;
 import co.storyroll.util.ErrorUtility;
 import co.storyroll.util.PrefUtility;

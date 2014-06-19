@@ -3,9 +3,15 @@ package co.storyroll.activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +23,8 @@ import co.storyroll.R;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +32,7 @@ public class LogReadActivity extends ListActivity{
     private static final String LOGTAG = "LOGREAD";
     private LogStringAdaptor adaptor = null;
     private ArrayList<String> logarray = null;
-    private LogReaderTask logReaderTask = null;
+    private static LogReaderTask logReaderTask = null;
     
     private static final String processId = Integer.toString(android.os.Process.myPid());
     
@@ -36,10 +44,37 @@ public class LogReadActivity extends ListActivity{
         adaptor = new LogStringAdaptor(this, R.id.txtLogString, logarray);
 
         setListAdapter(adaptor);
+    }
 
-        logReaderTask = new LogReaderTask();
+    @Override
+    protected void onStart() {
+        super.onStart();
 
-        logReaderTask.execute();
+        if (logReaderTask==null) {
+            logReaderTask = new LogReaderTask();
+            logReaderTask.execute();
+        }
+
+        printKey();
+    }
+
+    private void printKey() {
+        try {
+
+            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+
+            for (Signature signature : info.signatures)
+            {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+            }
+
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("name not found", e.toString());
+        } catch (NoSuchAlgorithmException e) {
+            Log.e("no such an algorithm", e.toString());
+        }
     }
 
     @Override
@@ -54,11 +89,9 @@ public class LogReadActivity extends ListActivity{
             super.onListItemClick(l, v, position, id);
             
             final AlertDialog.Builder builder = new AlertDialog.Builder(LogReadActivity.this);
-            String text = ((String) ((TextView)v).getText());
-            
-    builder.setMessage(text);
-    
-    builder.show();
+            SpannableString text = ((SpannableString) ((TextView)v).getText());
+            builder.setMessage(text);
+            builder.show();
     }
 
     private int getLogColor(String type) {
