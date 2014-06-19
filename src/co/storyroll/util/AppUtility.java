@@ -41,7 +41,6 @@ public class AppUtility {
 //	public final static String API_URL="http://192.168.1.64:8080/storyroll/api/";
 	
 	public final static Class ACTIVITY_HOME = MainChannelsActivity.class;
-//	public final static Class ACTIVITY_HOME = TabbedChannelsActivity.class;
 	private static final String LOGTAG = "AppUtility";
 
 	public static FacebookHandle makeHandle(Activity act){

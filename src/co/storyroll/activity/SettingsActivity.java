@@ -369,7 +369,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     private void loginLogout(boolean isLogout)
     {
     	if (isLogout){
-    		AppUtility.logout(this);
+    		AppUtility.logout(this); // todo: this call - only for Facebook-registered
         	Log.w(LOGTAG, "logout");
         	
     		// first of all, remove associated GCM reg id from the db record
@@ -387,11 +387,10 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
     		// TODO: empty cache
     	}
     	
-		// go to Login
-    	Intent intent = new Intent(this, LoginActivity.class);
+		// go to Home activity
+    	Intent intent = new Intent(this, AppUtility.ACTIVITY_HOME);
     	intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     	intent.putExtra("logout", true);
-    	
     	startActivity(intent);
     }
     
