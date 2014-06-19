@@ -35,6 +35,7 @@ public class ChannelActivity extends MenuChannelActivity implements SwipeRefresh
     private static final String SCREEN_NAME = "ListMovies";
     public static final String EXTRA_CHANNEL_ID = "channelId" ;
     public static final String STORED_BUNDLE_CHANNEL_ID = "channelId" ;
+    public static final String EXTRA_CHANNEL_TITLE = "channelTitle";
 
     static final int PICK_CONTACTS_REQUEST = 1111;  // The request code
     public static final int VIDEOCAPTURE_REQUEST = 1112;  // The request code
@@ -55,7 +56,9 @@ public class ChannelActivity extends MenuChannelActivity implements SwipeRefresh
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
-//        ActionBarUtility.initCustomActionBar(this, true);
+
+        String title = getIntent().getExtras().getString(EXTRA_CHANNEL_TITLE);
+        setTitle(title);
 
         // We'll define a custom screen layout here (the one shown above), but
         // typically, you could just use the standard ListActivity layout.

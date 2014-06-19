@@ -22,6 +22,12 @@ public class MenuChannelActivity extends MenuListActivity {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        getGTracker().activityStart(this);  // Add this method. // todo is this needed here?
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         Log.v(LOGTAG, "onCreateOptionsMenu");
         // Inflate the menu items for use in the action bar

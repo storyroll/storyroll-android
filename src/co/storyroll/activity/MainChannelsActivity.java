@@ -130,7 +130,9 @@ public class MainChannelsActivity extends MenuChannelListActivity implements Swi
     protected void onListItemClick (ListView l, View v, int position, long id) {
         Toast.makeText(this, "Clicked row " + position, Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, ChannelActivity.class);
-        intent.putExtra(ChannelActivity.EXTRA_CHANNEL_ID, ((ChannelInfo)getListAdapter().getItem(position)).getChannel().getId());
+        ChannelInfo channelInfo = (ChannelInfo)getListAdapter().getItem(position);
+        intent.putExtra(ChannelActivity.EXTRA_CHANNEL_ID, channelInfo.getChannel().getId());
+        intent.putExtra(ChannelActivity.EXTRA_CHANNEL_TITLE, channelInfo.getChannel().getTitle());
         startActivityForResult(intent, MOVIELIST_REQUEST);
     }
 

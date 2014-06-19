@@ -7,8 +7,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import co.storyroll.R;
 import co.storyroll.util.ActionBarUtility;
-import com.google.analytics.tracking.android.MapBuilder;
 
+/*
+ * This activity adds Main Home (Channel List) menu
+ */
 public class MenuChannelListActivity extends MenuListActivity
 {
 	private static final String LOGTAG = "MenuChanListAct";
@@ -23,14 +25,7 @@ public class MenuChannelListActivity extends MenuListActivity
     @Override
     public void onStart() {
         super.onStart();
-        // The rest of your onStart() code.
-        getGTracker().activityStart(this);  // Add this method.
-
-        // check for invites and update badge accordingly
-        updateInvitesFromServer();
-
-        // Send a screen view when the Activity is displayed to the user.
-        getGTracker().send(MapBuilder.createAppView().build());
+        getGTracker().activityStart(this);  // Add this method. // todo is this needed here?
     }
 
     // ------- menus
