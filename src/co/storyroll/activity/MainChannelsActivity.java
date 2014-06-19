@@ -57,9 +57,6 @@ public class MainChannelsActivity extends MenuChannelListActivity implements Swi
         // typically, you could just use the standard ListActivity layout.
         setContentView(R.layout.activity_channel_list);
 
-        // Initial set up for action bar.
-        ActionBarUtility.initCustomActionBar(this, false);
-
         mChannels = new ArrayList<ChannelInfo>();
         mUuid = getUuid();
 
@@ -132,8 +129,8 @@ public class MainChannelsActivity extends MenuChannelListActivity implements Swi
     @Override
     protected void onListItemClick (ListView l, View v, int position, long id) {
         Toast.makeText(this, "Clicked row " + position, Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, MainMoviesActivity.class);
-        intent.putExtra(MainMoviesActivity.EXTRA_CHANNEL_ID, ((ChannelInfo)getListAdapter().getItem(position)).getChannel().getId());
+        Intent intent = new Intent(this, ChannelActivity.class);
+        intent.putExtra(ChannelActivity.EXTRA_CHANNEL_ID, ((ChannelInfo)getListAdapter().getItem(position)).getChannel().getId());
         startActivityForResult(intent, MOVIELIST_REQUEST);
     }
 
@@ -146,7 +143,12 @@ public class MainChannelsActivity extends MenuChannelListActivity implements Swi
 
     private void chanListAjaxCall(){
         swipeContainer.setRefreshing(true);
-        aq.auth(basicHandle).ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS2, mUuid == null ? null : ("uuid=" + mUuid)), JSONArray.class, this, "chanListCb");
+        if (!isTrial) {
+            aq.auth(basicHandle).ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS2, mUuid == null ? null : ("uuid=" + mUuid)), JSONArray.class, this, "chanListCb");
+        }
+        else {
+            aq.ajax(PrefUtility.getApiUrl(ServerUtility.API_CHANNELS2, mUuid == null ? null : ("uuid=" + mUuid)), JSONArray.class, this, "chanListCb");
+        }
     }
 
     public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {

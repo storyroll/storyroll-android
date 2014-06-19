@@ -28,21 +28,7 @@ public class ActionBarUtility {
         actionBar.setDisplayShowHomeEnabled(true);
         
         // force overflow menu key?
-        try {
-        	  ViewConfiguration config = ViewConfiguration.get(activity);
-        	  Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-        	  if (menuKeyField != null)
-        	  {
-        	    menuKeyField.setAccessible(true);
-        	    menuKeyField.setBoolean(config, false);
-        	  }
-        	}
-        	catch (Exception e) 
-        	{
-        	  // presumably, not relevant
-        	}
-        }
-
+        forceOverflowMenu(activity);
 //	public static void adjustActionBarLogoCentering(Activity activity) {
 //		// set margin to center
 //		View actionBarLogoHolder = activity.findViewById(R.id.actionBarLogoHolder);
@@ -57,4 +43,22 @@ public class ActionBarUtility {
 //	}
 
 	
+}
+
+    public static void forceOverflowMenu(Activity activity) {
+        try {
+            ViewConfiguration config = ViewConfiguration.get(activity);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if (menuKeyField != null)
+            {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        }
+        catch (Exception e)
+        {
+            // presumably, not relevant
+        }
+    }
+
 }

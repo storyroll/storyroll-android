@@ -13,6 +13,7 @@ import android.widget.Button;
 import co.storyroll.PQuery;
 import co.storyroll.R;
 import co.storyroll.activity.*;
+import co.storyroll.util.AppUtility;
 import co.storyroll.util.ErrorUtility;
 import co.storyroll.util.PrefUtility;
 import co.storyroll.util.ServerUtility;
@@ -36,7 +37,8 @@ public abstract class MenuListActivity extends ListActivity
     {
         super.onCreate(savedInstanceState);
 
-        isTrial = getIntent().getBooleanExtra("TRIAL", false);
+        isTrial = !AppUtility.isLoggedIn();
+        Log.d(LOGTAG, "isTrial: "+isTrial);
         if (!isTrial) {
             isTrial = getUuid() == null;
         }
@@ -55,11 +57,14 @@ public abstract class MenuListActivity extends ListActivity
         // The rest of your onStart() code.
         getGTracker().activityStart(this);  // Add this method.
 
-        // check for invites and update badge accordingly
-        updateInvitesFromServer();
-
         // Send a screen view when the Activity is displayed to the user.
         getGTracker().send(MapBuilder.createAppView().build());
+
+        // check for invites and update badge accordingly
+        if (!isTrial) {
+            updateInvitesFromServer();
+        }
+
     }
 
     /* ------------- -------------- Helper classes -------------- ------------ */

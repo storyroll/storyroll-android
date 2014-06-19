@@ -223,6 +223,7 @@ public class PrefUtility {
 		SharedPreferences settings = context.getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);
 		return settings.getString(Constants.PREF_EMAIL, null);
 	}
+
     public static String getPassword() {
         Context context = MainApplication.getContext();
         SharedPreferences settings = context.getSharedPreferences(Constants.PREF_PROFILE_FILE, 0);

@@ -10,10 +10,13 @@ import android.widget.ListAdapter;
 import co.storyroll.PQuery;
 import co.storyroll.R;
 import co.storyroll.adapter.MovieAdapter;
-import co.storyroll.base.MenuMovieListActivity;
+import co.storyroll.base.MenuChannelActivity;
 import co.storyroll.gcm.GcmIntentService;
 import co.storyroll.model.Movie;
-import co.storyroll.util.*;
+import co.storyroll.util.ErrorUtility;
+import co.storyroll.util.PrefUtility;
+import co.storyroll.util.ServerUtility;
+import co.storyroll.util.SwipeUtil;
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
 import org.json.JSONArray;
@@ -26,7 +29,7 @@ import java.util.Collections;
 /**
  * Created by martynas on 17/06/14.
  */
-public class MainMoviesActivity extends MenuMovieListActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class ChannelActivity extends MenuChannelActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String LOGTAG = "MOVIE_LIST";
     private static final String SCREEN_NAME = "ListMovies";
@@ -52,19 +55,15 @@ public class MainMoviesActivity extends MenuMovieListActivity implements SwipeRe
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
+//        ActionBarUtility.initCustomActionBar(this, true);
 
         // We'll define a custom screen layout here (the one shown above), but
         // typically, you could just use the standard ListActivity layout.
         setContentView(R.layout.activity_channel_list);
         aq.id(android.R.id.empty).text("Loading clips...");
 
-        // Initial set up for action bar.
-        ActionBarUtility.initCustomActionBar(this, false);
-
         movies = new ArrayList<Movie>();
         mUuid = getUuid();
-
-
 
         // restore the visible channel id
         if ( savedInstanceState!=null //&& !getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false)
