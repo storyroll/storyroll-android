@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_id">556141531146952</string>
+    <string name="home_activity">co.storyroll.activity.MainChannelsActivity</string>
+    <string name="channel_activity">co.storyroll.activity.ChannelActivity</string>
+
     <string name="selectAccountLabel">Select</string>
     <string name="selectLabel">Select label</string>
     <string name="targetAccountLabel">Target Account</string>
@@ -47,8 +51,6 @@
 
     <string name="play_roll_info">To see next roll, swipe left</string>
 
-    <string name="app_id">556141531146952</string>
-    
     <string name="me">Me</string>
     
     <string name="connecting_facebook">Connecting Facebook</string>
