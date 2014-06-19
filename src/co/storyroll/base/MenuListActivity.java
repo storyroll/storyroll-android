@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -24,7 +23,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
 import org.json.JSONArray;
 
-public class MenuListActivity extends ListActivity
+public abstract class MenuListActivity extends ListActivity
 {
 	private static final String LOGTAG = "MenuListAct";
     protected static final int MANAGE_INVITES_REQUEST = 1019;
@@ -45,11 +44,25 @@ public class MenuListActivity extends ListActivity
            basicHandle = new BasicHandle(getUuid(), getPassword());
         }
         aq = new PQuery(this);
-        updateInvitesFromServer();
 
         // Setup search by username on Android
 		BugSenseHandler.setUserIdentifier(getUuid());
 	}
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // The rest of your onStart() code.
+        getGTracker().activityStart(this);  // Add this method.
+
+        // check for invites and update badge accordingly
+        updateInvitesFromServer();
+
+        // Send a screen view when the Activity is displayed to the user.
+        getGTracker().send(MapBuilder.createAppView().build());
+    }
+
+    /* ------------- -------------- Helper classes -------------- ------------ */
 
     protected void updateInvitesFromServer() {
         aq.auth(basicHandle).ajax(PrefUtility.getApiUrl(
@@ -70,15 +83,7 @@ public class MenuListActivity extends ListActivity
         invalidateOptionsMenu();
     }
 
-    @Override
-    public void onStart() {
-      super.onStart();
-      // The rest of your onStart() code.
-      getGTracker().activityStart(this);  // Add this method.
-      
-      // Send a screen view when the Activity is displayed to the user.
-      getGTracker().send(MapBuilder.createAppView().build());
-    }
+
     
     @Override
     public void onStop() {
@@ -101,35 +106,36 @@ public class MenuListActivity extends ListActivity
     static Button notifCountButton = null;
     static MenuItem countMenuItem = null;
 
+    protected void initInviteNotificationsBadge(final Menu menu) {
+        countMenuItem = menu.findItem(R.id.action_invitations_badge);
+        notifCountButton = (Button) countMenuItem.getActionView().findViewById(R.id.invites_notif_count);
+        countMenuItem.getActionView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu.performIdentifierAction(countMenuItem.getItemId(), 0);
+            }
+        });
+
+        if (mNotifCount<1){
+            countMenuItem.setVisible(false);
+        } else {
+            countMenuItem.setVisible(true);
+        }
+        notifCountButton.setText(String.valueOf(mNotifCount));
+    }
+
+    protected void updateInvitesBadge(){
+        if (notifCountButton!=null) {
+            notifCountButton.setText(String.valueOf(mNotifCount));
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         Log.v(LOGTAG, "onCreateOptionsMenu");
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        if (isTrial)
+        if (!isTrial)
         {
-            Log.v(LOGTAG, "initializing trial menu");
-//        	inflater.inflate(R.menu.home_activity_menu, menu);
-           	inflater.inflate(R.menu.trial_activity_menu, menu);
-        }
-        else {
-        	inflater.inflate(R.menu.home_activity_menu, menu);
-
-            countMenuItem = menu.findItem(R.id.action_invitations_badge);
-            notifCountButton = (Button) countMenuItem.getActionView().findViewById(R.id.invites_notif_count);
-            countMenuItem.getActionView().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    menu.performIdentifierAction(countMenuItem.getItemId(), 0);
-                }
-            });
-
-            if (mNotifCount<1){
-                countMenuItem.setVisible(false);
-            } else {
-                countMenuItem.setVisible(true);
-            }
-            notifCountButton.setText(String.valueOf(mNotifCount));
+            initInviteNotificationsBadge(menu);
         }
         // hide LogCat menu item
         if (!PrefUtility.isTestDevice()) {
@@ -139,12 +145,6 @@ public class MenuListActivity extends ListActivity
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void updateInvitesBadge(){
-        if (notifCountButton!=null) {
-            notifCountButton.setText(String.valueOf(mNotifCount));
-        }
-    }
-    
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection

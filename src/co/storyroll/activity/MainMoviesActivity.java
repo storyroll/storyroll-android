@@ -1,6 +1,7 @@
 package co.storyroll.activity;
 
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -9,13 +10,10 @@ import android.widget.ListAdapter;
 import co.storyroll.PQuery;
 import co.storyroll.R;
 import co.storyroll.adapter.MovieAdapter;
-import co.storyroll.base.ProgressListActivity;
+import co.storyroll.base.MenuMovieListActivity;
 import co.storyroll.gcm.GcmIntentService;
 import co.storyroll.model.Movie;
-import co.storyroll.util.ActionBarUtility;
-import co.storyroll.util.ErrorUtility;
-import co.storyroll.util.PrefUtility;
-import co.storyroll.util.ServerUtility;
+import co.storyroll.util.*;
 import com.androidquery.callback.AjaxStatus;
 import com.google.analytics.tracking.android.Fields;
 import org.json.JSONArray;
@@ -28,7 +26,7 @@ import java.util.Collections;
 /**
  * Created by martynas on 17/06/14.
  */
-public class ListMoviesActivity extends ProgressListActivity {
+public class MainMoviesActivity extends MenuMovieListActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String LOGTAG = "MOVIE_LIST";
     private static final String SCREEN_NAME = "ListMovies";
@@ -39,7 +37,6 @@ public class ListMoviesActivity extends ProgressListActivity {
     public static final int VIDEOCAPTURE_REQUEST = 1112;  // The request code
     private static final int LIMIT_ITEMS = 40;
 
-    //    private static List<Channel> mChannels;
     private ArrayList<Movie> movies;
 
     private String mUuid;
@@ -47,7 +44,9 @@ public class ListMoviesActivity extends ProgressListActivity {
     private boolean isCallFromNotificationProcessing = false;
     private long mChannelId = -1L;
     private int lastUpdatedMovieIdx = 0;
-    private boolean channelsLoaded = false;
+
+    private SwipeRefreshLayout swipeContainer;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -57,6 +56,7 @@ public class ListMoviesActivity extends ProgressListActivity {
         // We'll define a custom screen layout here (the one shown above), but
         // typically, you could just use the standard ListActivity layout.
         setContentView(R.layout.activity_channel_list);
+        aq.id(android.R.id.empty).text("Loading clips...");
 
         // Initial set up for action bar.
         ActionBarUtility.initCustomActionBar(this, false);
@@ -113,19 +113,20 @@ public class ListMoviesActivity extends ProgressListActivity {
         // Bind to our new adapter.
         setListAdapter(adapter);
 
+        swipeContainer = SwipeUtil.initSwiping(this, getListView(), this);
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
         // get chan list
         movieListAjaxCall();
 
         // update notification counter
         updateInvitesFromServer();
     }
-
-
-
-    private void showMainProgress(boolean b) {
-        Log.e(LOGTAG, "no main progress defined yet");
-    }
-
 
     /* -------------------- -------------------- -------------------- -------------------- */
 
@@ -137,7 +138,7 @@ public class ListMoviesActivity extends ProgressListActivity {
         String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHAN_MOVIES,
                 "uuid=" + mUuid +"&channel="+mChannelId + "&limit=" + LIMIT_ITEMS);
 
-        showMainProgress(true);
+        swipeContainer.setRefreshing(true);
         if (isTrial) {
             aq.ajax(apiUrl, JSONArray.class, this, "getMovieListCb");
         }
@@ -148,13 +149,13 @@ public class ListMoviesActivity extends ProgressListActivity {
 
     public void getMovieListCb(String url, JSONArray jarr, AjaxStatus status)
     {
-        showMainProgress(false);
+        swipeContainer.setRefreshing(false);
         getMovieListSorted(url, jarr, status, true);
     }
 
     public void updateMovieListCb(String url, JSONArray jarr, AjaxStatus status)
     {
-        showMainProgress(false);
+        swipeContainer.setRefreshing(false);
         refreshMovieListSorted(url, jarr, status, true);
     }
 
@@ -230,6 +231,7 @@ public class ListMoviesActivity extends ProgressListActivity {
     {
         if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
             aq.id(R.id.emptyMessage).gone();
+            aq.id(android.R.id.empty).text("Something broke while loading videos. Please try refreshing later.");
             return;
         }
 
@@ -252,6 +254,9 @@ public class ListMoviesActivity extends ProgressListActivity {
                     Collections.sort(movies);
                 }
                 Log.v(LOGTAG, "movies:" + movies.size());
+                if (movies.size()<1) {
+                    aq.id(android.R.id.empty).text("No videos yet. You can post first!");
+                }
 
                 // refresh the adapter now
                 ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
@@ -263,6 +268,7 @@ public class ListMoviesActivity extends ProgressListActivity {
 
         } else {
             // ajax error
+            aq.id(android.R.id.empty).text("Something broke while loading videos. Please try refreshing later.");
             ErrorUtility.apiError(LOGTAG,
 //					"getMovieListSorted: null Json, could not get blink list for uuid " + mUuid, status, false, Log.ERROR);
                     "Error getting movies", status, this, true, Log.ERROR);
@@ -272,37 +278,11 @@ public class ListMoviesActivity extends ProgressListActivity {
         }
     }
 
-//    public void chanListCb(String url, JSONArray jarr, AjaxStatus status)  {
-//        showProgress(false);
-//        if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
-//            channelsLoaded = false;
-//            return;
-//        }
-//
-//        List<Channel> channels = null;
-//
-//        if (jarr != null) {
-//            // successful ajax call
-//            channels = ModelUtility.channels(jarr);
-//            channelsLoaded = true;
-//            // get the list of channels
-//        } else {
-//            // ajax error
-//            ErrorUtility.apiError(LOGTAG,
-//                    "userLikesCb: null Json, could not get channels for uuid " + mUuid, status, this, false, Log.ERROR);
-//            channelsLoaded = false;
-//        }
-////        init(channels);
-//        if (channels!=null)
-//        {
-//            mChannels.clear();
-//            mChannels.addAll(channels);
-//            ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
-//        }
-//        else {
-//            Toast.makeText(this, "Can't load channels right now. Try agai later.", Toast.LENGTH_SHORT).show();
-//        }
-//    }
+    @Override
+    public void onRefresh() {
+        Log.v(LOGTAG, "refresh");
+        movieListAjaxCall();
+    }
 
 
     public PQuery getAQuery() {

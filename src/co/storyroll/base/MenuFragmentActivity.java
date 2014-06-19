@@ -114,10 +114,10 @@ public class MenuFragmentActivity extends FragmentActivity
         {
             Log.v(LOGTAG, "initializing trial menu");
 //        	inflater.inflate(R.menu.home_activity_menu, menu);
-           	inflater.inflate(R.menu.trial_activity_menu, menu);
+           	inflater.inflate(R.menu.trial_channels_menu, menu);
         }
         else {
-        	inflater.inflate(R.menu.home_activity_menu, menu);
+        	inflater.inflate(R.menu.home_activity_menu_, menu);
 
             countMenuItem = menu.findItem(R.id.action_invitations_badge);
             notifCountButton = (Button) countMenuItem.getActionView().findViewById(R.id.invites_notif_count);

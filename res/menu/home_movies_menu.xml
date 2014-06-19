@@ -5,30 +5,21 @@
         android:actionLayout="@layout/chan_invitations_count"
         android:icon="@drawable/shape_invites_notification"
         android:showAsAction="always"
-        android:visible="false"/>
+        android:title="Invitations"/>
 
-    <item android:id="@+id/action_refresh"
-          android:icon="@drawable/ic_action_refresh"
-          android:showAsAction="always"/>
-
-    <item android:id="@+id/action_roll_movie"
-          android:icon="@drawable/ic_action_roll_movie"
-          android:showAsAction="always"/>
+    <!--<item android:id="@+id/action_refresh"-->
+          <!--android:icon="@drawable/ic_action_refresh"-->
+          <!--android:showAsAction="always"-->
+          <!--android:title="Refresh"-->
+            <!--/>-->
 
     <item android:id="@+id/action_new"
           android:icon="@drawable/ic_action_join"
+          android:title="New Movie"
           android:showAsAction="always"/>
 
-    <item android:id="@+id/action_chan"
-          android:title="@string/action_chan_new_trial"
-          android:enabled="false"/>
-
-    <item android:id="@+id/action_add_group"
-          android:title="@string/action_add_group_trial"
-          android:enabled="false"/>
-
-    <item android:id="@+id/action_login"
-          android:title="@string/action_login"/>
+    <item android:id="@+id/action_profile"
+          android:title="@string/action_profile" />
 
     <item android:id="@+id/action_settings"
           android:title="@string/action_settings" />

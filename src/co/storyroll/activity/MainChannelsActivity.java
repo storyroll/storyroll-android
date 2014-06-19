@@ -10,7 +10,7 @@ import android.widget.*;
 import co.storyroll.PQuery;
 import co.storyroll.R;
 import co.storyroll.adapter.ChannelAdapter;
-import co.storyroll.base.MenuListActivity;
+import co.storyroll.base.MenuChannelListActivity;
 import co.storyroll.gcm.GcmIntentService;
 import co.storyroll.model.ChannelInfo;
 import co.storyroll.util.*;
@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Created by martynas on 17/06/14.
  */
-public class ListChannelsActivity extends MenuListActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainChannelsActivity extends MenuChannelListActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String LOGTAG = "CHAN_LIST";
     private static final String SCREEN_NAME = "TabbedChannels";
@@ -110,28 +110,7 @@ public class ListChannelsActivity extends MenuListActivity implements SwipeRefre
             }
         }
 
-        final ListView chanListView = getListView();
-        swipeContainer = (SwipeRefreshLayout)findViewById(R.id.swipe_container);
-        swipeContainer.setOnRefreshListener(this);
-        swipeContainer.setColorScheme(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
-
-        chanListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                int topRowVerticalPosition =
-                        (chanListView == null || chanListView.getChildCount() == 0) ?
-                                0 : chanListView.getChildAt(0).getTop();
-                swipeContainer.setEnabled(topRowVerticalPosition >= 0);
-            }
-        });
+        swipeContainer = SwipeUtil.initSwiping(this, getListView(), this);
     }
 
     @Override
@@ -153,8 +132,8 @@ public class ListChannelsActivity extends MenuListActivity implements SwipeRefre
     @Override
     protected void onListItemClick (ListView l, View v, int position, long id) {
         Toast.makeText(this, "Clicked row " + position, Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, ListMoviesActivity.class);
-        intent.putExtra(ListMoviesActivity.EXTRA_CHANNEL_ID, ((ChannelInfo)getListAdapter().getItem(position)).getChannel().getId());
+        Intent intent = new Intent(this, MainMoviesActivity.class);
+        intent.putExtra(MainMoviesActivity.EXTRA_CHANNEL_ID, ((ChannelInfo)getListAdapter().getItem(position)).getChannel().getId());
         startActivityForResult(intent, MOVIELIST_REQUEST);
     }
 

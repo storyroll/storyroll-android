@@ -23,7 +23,7 @@
                   android:layout_height="match_parent"
                   android:layout_gravity="center"
                   android:gravity="center"
-                  android:textColor="#666666"
+                  android:textColor="#ff777777"
                   android:text="Channels not yet loaded"/>
 
     </LinearLayout>
