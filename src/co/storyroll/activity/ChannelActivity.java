@@ -57,7 +57,7 @@ public class ChannelActivity extends MenuChannelActivity
 
     private boolean isCallFromNotificationProcessing = false;
     private long mChannelId = -1L;
-    private String mChannelTitle = "<Unnamed>";
+    private String mTitle = "<Unnamed>";
     private int lastUpdatedMovieIdx = 0;
     private MovieAdapter movieAdapter;
 
@@ -68,9 +68,6 @@ public class ChannelActivity extends MenuChannelActivity
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         getGTracker().set(Fields.SCREEN_NAME, SCREEN_NAME);
-
-        mChannelTitle = getIntent().getExtras().getString(EXTRA_CHANNEL_TITLE);
-        mChannelId = getIntent().getExtras().getLong(EXTRA_CHANNEL_ID, -1L);
 
         // We'll define a custom screen layout here (the one shown above), but
         // typically, you could just use the standard ListActivity layout.
@@ -85,7 +82,7 @@ public class ChannelActivity extends MenuChannelActivity
                 ) {
             Log.v(LOGTAG, "1a: Restoring from savedInstanceState");
             mChannelId = savedInstanceState.getLong(STORED_BUNDLE_CHANNEL_ID);
-            mChannelTitle = savedInstanceState.getString(STORED_BUNDLE_CHANNEL_TITLE);
+            mTitle = savedInstanceState.getString(STORED_BUNDLE_CHANNEL_TITLE);
         }
         // comes from notification? switch to indicated tab and then scroll to indicated item on list
         else if (getIntent().getBooleanExtra(GcmIntentService.EXTRA_NOTIFICATION, false))
@@ -100,7 +97,7 @@ public class ChannelActivity extends MenuChannelActivity
             if (!TextUtils.isEmpty(chIdStr)){
                 mChannelId = Long.valueOf(chIdStr);
             }
-            mChannelTitle = extras.getString(GcmIntentService.EXTRA_CHANNEL_TITLE);
+            mTitle = extras.getString(GcmIntentService.EXTRA_CHANNEL_TITLE);
 
 
             String lumIdStr = extras.getString(GcmIntentService.EXTRA_LAST_UPDATED_MOVIE);
@@ -119,11 +116,11 @@ public class ChannelActivity extends MenuChannelActivity
             {
                 mChannelId = getIntent().getExtras().getLong(EXTRA_CHANNEL_ID);
                 Log.v(LOGTAG, "initial channel id from Intent: "+ mChannelId);
-                mChannelTitle = getIntent().getExtras().getString(EXTRA_CHANNEL_TITLE);
+                mTitle = getIntent().getExtras().getString(EXTRA_CHANNEL_TITLE);
 
             }
         }
-        setTitle(mChannelTitle);
+        setTitle(mTitle);
         Log.v(LOGTAG, "channelId: "+mChannelId);
 
         // set adapter
@@ -146,6 +143,15 @@ public class ChannelActivity extends MenuChannelActivity
 
         // update notification counter
         updateInvitesFromServer();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(STORED_BUNDLE_CHANNEL_ID, mChannelId);
+        outState.putString(STORED_BUNDLE_CHANNEL_TITLE, mTitle);
+
+        Log.v(LOGTAG, "onSaveInstanceState, current chanId: " + mChannelId);
     }
 
     @Override
@@ -406,7 +412,7 @@ public class ChannelActivity extends MenuChannelActivity
     {
         if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
             aq.id(R.id.emptyMessage).gone();
-            aq.id(android.R.id.empty).text("Something broke while loading videos. Please try refreshing later.");
+            aq.id(android.R.id.empty).text(R.string.empty_error_loading_videos);
             return;
         }
 
@@ -445,7 +451,7 @@ public class ChannelActivity extends MenuChannelActivity
 
         } else {
             // ajax error
-            aq.id(android.R.id.empty).text("Something broke while loading videos. Please try refreshing later.");
+            aq.id(android.R.id.empty).text(R.string.empty_error_loading_videos);
             ErrorUtility.apiError(LOGTAG,
 //					"getMovieListSorted: null Json, could not get blink list for uuid " + mUuid, status, false, Log.ERROR);
                     "Error getting movies", status, this, true, Log.ERROR);

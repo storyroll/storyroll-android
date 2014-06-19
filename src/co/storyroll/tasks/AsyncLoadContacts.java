@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import co.storyroll.R;
 import co.storyroll.activity.ContactListFragment;
 import co.storyroll.model.Contact;
 
@@ -29,7 +28,7 @@ import java.util.LinkedHashMap;
 public class AsyncLoadContacts extends AsyncTask<Void, Void, Void>
 {
     public interface LoadContactsListener {
-        public void onContactsLoaded(int tabNum, View v);
+        public void onContactsLoaded(int tabNum);
     }
 
     private static final String LOGTAG = "AsyncLoadContacts";
@@ -38,23 +37,17 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void>
     private Activity act;
     private ProgressBar progress = null;
     private ImageButton button = null;
-    private View view;
 
     public static LinkedHashMap<String, Contact> allContacts = new LinkedHashMap<String, Contact>();
 //    public static ArrayList<Contact> phoneContacts = new ArrayList<Contact>();
 
 
 
-    public AsyncLoadContacts(int tabNum, LoadContactsListener lcl, Activity act, View v){
+    public AsyncLoadContacts(int tabNum, LoadContactsListener lcl, Activity act){
         super();
         this.tabNum = tabNum;
         this.lcListener = lcl;
         this.act = act;
-        if (v!=null) {
-            this.progress = (ProgressBar) v.findViewById(R.id.progress);
-            this.button = (ImageButton) v.findViewById(R.id.findFriendsBtn);
-            this.view = v;
-        }
     }
 
     @Override
@@ -94,7 +87,7 @@ public class AsyncLoadContacts extends AsyncTask<Void, Void, Void>
             progress.setVisibility(View.GONE);
             button.setVisibility(View.VISIBLE);
         }
-        lcListener.onContactsLoaded(tabNum, view);
+        lcListener.onContactsLoaded(tabNum);
 
     }
 

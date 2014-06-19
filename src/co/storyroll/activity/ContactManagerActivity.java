@@ -1,18 +1,20 @@
 package co.storyroll.activity;
 
 import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.*;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import co.storyroll.PQuery;
@@ -20,23 +22,34 @@ import co.storyroll.R;
 import co.storyroll.adapter.ContactAdapter;
 import co.storyroll.model.Contact;
 import co.storyroll.tasks.AsyncLoadContacts;
-import co.storyroll.util.ContactUtil;
-import co.storyroll.util.PrefUtility;
+import co.storyroll.ui.dialog.MatchFriendsDialog;
+import co.storyroll.util.*;
 import com.androidquery.auth.BasicHandle;
+import com.androidquery.callback.AjaxCallback;
+import com.androidquery.callback.AjaxStatus;
+import com.bugsense.trace.BugSenseHandler;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by martynas on 11/06/14.
  */
-public class ContactManagerActivity extends FragmentActivity {
+public class ContactManagerActivity extends FragmentActivity implements AsyncLoadContacts.LoadContactsListener, MatchFriendsDialog.MatchFriendsDialogListener {
 
     private static final int[] TAB_HEAD = {R.string.tab_friends, R.string.tab_adressbook};
-    private static final String LOGTAG = "ADDRESSBOOK";
+    private static final String LOGTAG = "CONTACT_MNGR";
 
     private String mUuid;
 
-    TabAdapter mAdapter;
+    ContactTabAdapter mAdapter;
 
     ViewPager mTabPager;
 
@@ -52,6 +65,7 @@ public class ContactManagerActivity extends FragmentActivity {
     private ProgressBar progress;
     private ImageView doneSelect;
 
+    public static SwipeRefreshLayout swipeContainer;
 
     public static final int MAX_INVITES_ALLOWED = 5 ;
 //    public static ArrayList<Contact> phoneContacts = new ArrayList<Contact>();
@@ -103,7 +117,7 @@ public class ContactManagerActivity extends FragmentActivity {
 
         //------------------------------------ TABS + PAGES ------------------------------------//
 
-        mAdapter = new TabAdapter(getSupportFragmentManager());
+        mAdapter = new ContactTabAdapter(getSupportFragmentManager());
         mTabPager = (ViewPager)findViewById(R.id.pager);
         mTabPager.setAdapter(mAdapter);
 
@@ -131,7 +145,7 @@ public class ContactManagerActivity extends FragmentActivity {
             }
         };
 
-        // Add 3 tabs, specifying the tab's text and TabListener
+        // Add 2 tabs,
         for (int i = 0; i < 2; i++) {
             actionBar.addTab(
                     actionBar.newTab()
@@ -150,13 +164,20 @@ public class ContactManagerActivity extends FragmentActivity {
                     }
                 });
 
+//        swipeContainer = (SwipeRefreshLayout)findViewById(R.id.swipe_container);
+
+    }
+
+    @Override
+    public void onMachFriendsConfirm(DialogFragment dialog) {
+        onUsersMatchClicked();
     }
 
     // ********* ADAPTER
 
-    public class TabAdapter extends FragmentPagerAdapter {
+    public class ContactTabAdapter extends FragmentPagerAdapter {
 
-        public TabAdapter(FragmentManager fm) {
+        public ContactTabAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -261,8 +282,135 @@ public class ContactManagerActivity extends FragmentActivity {
             setSelectedContacts();
             clearAllSelected(); // todo this is not accessible? see method above
             return true;
+        } else if (item.getItemId() == R.id.action_match_contacts) {
+            Log.v(LOGTAG, "doneSelect.onClick");
+            ContactUtil.hideSoftKeyboard(this);
+            new MatchFriendsDialog(this).show(getSupportFragmentManager(), "MatchFriendsDialog");
+
+//            onUsersMatchClicked();
+            return true;
         } else {
             return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    private void onUsersMatchClicked()
+    {
+        Log.v(LOGTAG, "onUsersMatchClicked");
+        // addressbook contact loader
+        if (ContactManagerActivity.contactLoaderTask==null || ContactManagerActivity.contactLoaderTask.getStatus()!= AsyncTask.Status.RUNNING)
+        {
+            Log.v(LOGTAG, "ContactLoadTask not running");
+
+            if ((ContactListFragment.phoneContacts == null || ContactListFragment.phoneContacts.size()<1))
+            {
+                ContactListFragment.phoneContacts = new ArrayList<Contact>();
+                // Asynchronously load all contacts
+                ContactManagerActivity.contactLoaderTask = new AsyncLoadContacts(0, ContactManagerActivity.this, ContactManagerActivity.this);
+                ContactManagerActivity.contactLoaderTask.execute(); // will result on interface call onContactsLoaded(), see below
+            }
+            else {
+                doServerUsersMatchCall();
+            }
+        }
+        else {
+            // Load task is running, wait to complete
+            Log.v(LOGTAG, "waiting for ContactLoadTask to complete");
+            // wait for the task to complete for at most 10 sec
+            try {
+                ContactManagerActivity.contactLoaderTask.get(10, TimeUnit.SECONDS);
+                doServerUsersMatchCall();
+            }
+            catch (InterruptedException e) {
+                Log.w(LOGTAG, "InterruptedException", e);
+            } catch (ExecutionException e) {
+                Log.w(LOGTAG, "ExecutionException", e);
+            } catch (TimeoutException e) {
+                Log.e(LOGTAG, "TimeoutException", e);
+                BugSenseHandler.sendException(e);
+            }
+        }
+
+    }
+
+    @Override
+    public void onContactsLoaded(int tabNum) {
+        if (tabNum==0) {
+            // this comes from onUsersMatchClicked, update the list
+            doServerUsersMatchCall();
+        }
+        else {
+//            // this comes from PhoneBook fragment initialization
+//            setListAdapter(new ContactAdapter(this, phoneContacts));
+//            ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+        }
+    }
+
+    class MatchServieCallback extends AjaxCallback<JSONArray>
+    {
+        @Override
+        public void callback(String url, JSONArray jarr, AjaxStatus status)
+        {
+            if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, ContactManagerActivity.this)) return;
+
+            Log.v(LOGTAG, "callback result: " + jarr.length());
+
+            ContactListFragment.friendContacts.clear();
+            for( int i=0; i<jarr.length(); i++ ) {
+                try {
+                    ContactListFragment.friendContacts.add(new Contact(jarr.getJSONObject(i)));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            Collections.sort(ContactListFragment.friendContacts);
+            Log.v(LOGTAG, "after upload: " + ContactListFragment.friendContacts.size());
+//                Collections.sort(friendContacts);
+//                setListAdapter(new ContactAdapter(getActivity(), contactList)); // todo optimizieren
+            Log.d(LOGTAG, "?refresh adapter for tab "+mTabPager.getCurrentItem());
+
+            Log.d(LOGTAG, "yes, trying to refresh adapter for tab "+mTabPager.getCurrentItem());
+            Fragment fr = getActiveFragment(mTabPager, mTabPager.getCurrentItem());
+            ((BaseAdapter)((ContactListFragment)fr).getListAdapter()).notifyDataSetChanged();
+        }
+    }
+
+    private void doServerUsersMatchCall()
+    {
+        JSONArray idsJson = new JSONArray();
+        TelephonyManager tMgr = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        String defaultCountryCode = tMgr.getNetworkCountryIso().toUpperCase();
+//        for(Contact c:phoneContacts) {
+        for(Contact c:AsyncLoadContacts.allContacts.values()) // todo remove dep on static refs
+        {
+            if ( !TextUtils.isEmpty(c.getContactEmail()) )
+                idsJson.put( DataUtility.md5(c.getContactEmail()) );
+
+            String num =  c.getContactNumber();
+            if ( !TextUtils.isEmpty(num) )
+            {
+                idsJson.put( DataUtility.md5(num) );
+                String intNum = DataUtility.getInternationalPhoneNumber(num, defaultCountryCode);
+                if (!num.equals(intNum))
+                    idsJson.put( DataUtility.md5(intNum) );
+            }
+        }
+        Log.v(LOGTAG, "uploading "+idsJson.length()+ " strings");
+        String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_USERS_MATCH, "uuid=" + PrefUtility.getUuid());
+
+        int k = 0;
+        AjaxCallback ac =  new MatchServieCallback();
+
+        try {
+            StringEntity entity = new StringEntity(idsJson.toString());
+            aq.auth(PrefUtility.getBasicHandle())
+                    .post(apiUrl, "application/json", entity, JSONArray.class, ac);
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            BugSenseHandler.sendException(e);
+            e.printStackTrace();
         }
     }
 

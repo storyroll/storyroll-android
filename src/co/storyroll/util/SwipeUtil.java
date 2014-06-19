@@ -11,7 +11,7 @@ import co.storyroll.R;
  */
 public class SwipeUtil
 {
-    public static SwipeRefreshLayout initSwiping(Activity act, final ListView chanListView, SwipeRefreshLayout.OnRefreshListener listener) {
+    public static SwipeRefreshLayout initSwiping(Activity act, final ListView listView, SwipeRefreshLayout.OnRefreshListener listener) {
         final SwipeRefreshLayout  swipeContainer = (SwipeRefreshLayout) act.findViewById(R.id.swipe_container);
         swipeContainer.setOnRefreshListener(listener);
         swipeContainer.setColorScheme(android.R.color.holo_blue_bright,
@@ -19,7 +19,7 @@ public class SwipeUtil
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
-        chanListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
 
@@ -28,8 +28,8 @@ public class SwipeUtil
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 int topRowVerticalPosition =
-                        (chanListView == null || chanListView.getChildCount() == 0) ?
-                                0 : chanListView.getChildAt(0).getTop();
+                        (listView == null || listView.getChildCount() == 0) ?
+                                0 : listView.getChildAt(0).getTop();
                 swipeContainer.setEnabled(topRowVerticalPosition >= 0);
             }
         });

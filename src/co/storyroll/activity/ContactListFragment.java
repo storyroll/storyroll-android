@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import co.storyroll.R;
 import co.storyroll.adapter.ContactAdapter;
@@ -49,7 +48,7 @@ public class ContactListFragment extends ListFragment
         implements AsyncLoadContacts.LoadContactsListener, MatchFriendsDialog.MatchFriendsDialogListener{
     private static final String LOGTAG = "TabListFragment";
     int mNum;
-    private static ArrayList<Contact> friendContacts = new ArrayList<Contact>();
+    public static ArrayList<Contact> friendContacts = new ArrayList<Contact>();
     public static ArrayList<Contact> phoneContacts = new ArrayList<Contact>();
 
 
@@ -89,23 +88,12 @@ public class ContactListFragment extends ListFragment
     {
         Log.v(LOGTAG, "creating view for tab num " + mNum);
         final View v = inflater.inflate(R.layout.fragment_pager_list, container, false);
-        if (mNum==0)
-        {
-            ImageButton friendMatchBtn = (ImageButton) v.findViewById(R.id.findFriendsBtn);
-            friendMatchBtn.setVisibility(View.VISIBLE);
-            friendMatchBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    new MatchFriendsDialog(ContactListFragment.this, v).show(getActivity().getSupportFragmentManager(), "MatchFriendsDialog");
-//                    onUsersMatchClicked();
-                }
-            });
-        }
-        else {
 
-        }
         // Init UI elements
         EditText myFilter = (EditText) v.findViewById(R.id.search_txt);
+        myFilter.setSelected(false);
+        myFilter.setFocusable(true);
+        myFilter.setFocusableInTouchMode(true);
         myFilter.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -122,6 +110,23 @@ public class ContactListFragment extends ListFragment
                 ((ContactAdapter) getListAdapter()).getFilter().filter(s.toString());
             }
         });
+
+        if (mNum==0)
+        {
+//            friendMatchBtn.setVisibility(View.VISIBLE);
+//            friendMatchBtn.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+////                    new MatchFriendsDialog(ContactListFragment.this, v).show(getActivity().getSupportFragmentManager(), "MatchFriendsDialog");
+//                    onUsersMatchClicked(view);
+//                }
+//            });
+        }
+        else {
+            // Auto-select filter field, and show soft keyboard
+
+        }
+
         return v;
     }
 //    ContactAdapter contactAdapter;
@@ -150,7 +155,7 @@ public class ContactListFragment extends ListFragment
             {
                 phoneContacts = new ArrayList<Contact>();
                 // Asynchronously load all contacts
-                AsyncLoadContacts contactLoaderTask = new AsyncLoadContacts(1, this, getActivity(), null);
+                AsyncLoadContacts contactLoaderTask = new AsyncLoadContacts(1, this, getActivity());
                 contactLoaderTask.execute(); // will result on interface call onContactsLoaded(), see below
             }
             else {
@@ -160,10 +165,10 @@ public class ContactListFragment extends ListFragment
     }
 
     @Override
-    public void onContactsLoaded(int tabNum, View v) {
+    public void onContactsLoaded(int tabNum) {
         if (tabNum==0) {
             // this comes from onUsersMatchClicked, update the list
-            doServerUsersMatchCall(v);
+            doServerUsersMatchCall();
         }
         else {
             // this comes from PhoneBook fragment initialization
@@ -212,7 +217,7 @@ public class ContactListFragment extends ListFragment
 
     // ------------------------------------- MATCH workflow
 
-    private void onUsersMatchClicked(View v)
+    private void onUsersMatchClicked()
     {
         Log.v(LOGTAG, "onUsersMatchClicked");
         // addressbook contact loader
@@ -224,11 +229,11 @@ public class ContactListFragment extends ListFragment
             {
                 phoneContacts = new ArrayList<Contact>();
                 // Asynchronously load all contacts
-                ContactManagerActivity.contactLoaderTask = new AsyncLoadContacts(0, this, getActivity(), v);
+                ContactManagerActivity.contactLoaderTask = new AsyncLoadContacts(0, this, getActivity());
                 ContactManagerActivity.contactLoaderTask.execute(); // will result on interface call onContactsLoaded(), see below
             }
             else {
-                doServerUsersMatchCall(v);
+                doServerUsersMatchCall();
             }
         }
         else {
@@ -237,7 +242,7 @@ public class ContactListFragment extends ListFragment
             // wait for the task to complete for at most 10 sec
             try {
                 ContactManagerActivity.contactLoaderTask.get(10, TimeUnit.SECONDS);
-                doServerUsersMatchCall(v);
+                doServerUsersMatchCall();
             }
             catch (InterruptedException e) {
                 Log.w(LOGTAG, "InterruptedException", e);
@@ -255,15 +260,9 @@ public class ContactListFragment extends ListFragment
 
     class MatchServieCallback extends AjaxCallback<JSONArray>
     {
-        private View v;
-
-        public MatchServieCallback(View v) {
-            this.v = v;
-        }
         @Override
         public void callback(String url, JSONArray jarr, AjaxStatus status)
         {
-            v.findViewById(R.id.findFriendsBtn).setVisibility(View.VISIBLE);
             if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, getActivity())) return;
 
             Log.v(LOGTAG, "callback result: " + jarr.length());
@@ -284,7 +283,7 @@ public class ContactListFragment extends ListFragment
         }
     }
 
-    private void doServerUsersMatchCall(View v)
+    private void doServerUsersMatchCall()
     {
         JSONArray idsJson = new JSONArray();
         TelephonyManager tMgr = (TelephonyManager)getActivity().getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
@@ -308,14 +307,13 @@ public class ContactListFragment extends ListFragment
         String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_USERS_MATCH, "uuid=" + PrefUtility.getUuid());
 
         int k = 0;
-        AjaxCallback ac =  new MatchServieCallback(v);
+        AjaxCallback ac =  new MatchServieCallback();
 
         try {
             Log.v(LOGTAG, "strings: "+idsJson.toString());
             StringEntity entity = new StringEntity(idsJson.toString());
-            v.findViewById(R.id.findFriendsBtn).setVisibility(View.GONE);
             ((ContactManagerActivity)getActivity()).getAQuery().auth(PrefUtility.getBasicHandle())
-                    .progress(v.findViewById(R.id.progress)).post(apiUrl, "application/json", entity, JSONArray.class, ac);
+                    .post(apiUrl, "application/json", entity, JSONArray.class, ac);
         }
         catch (UnsupportedEncodingException e)
         {
@@ -329,8 +327,8 @@ public class ContactListFragment extends ListFragment
 
 
     @Override
-    public void onMachFriendsConfirm(DialogFragment dialog, View v) {
+    public void onMachFriendsConfirm(DialogFragment dialog) {
         Log.v(LOGTAG, "Fragment received Dialog confirmation");
-        onUsersMatchClicked(v);
+        onUsersMatchClicked();
     }
 }

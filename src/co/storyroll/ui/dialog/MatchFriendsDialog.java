@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
-import android.view.View;
 import co.storyroll.R;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
@@ -21,7 +20,7 @@ public class MatchFriendsDialog extends DialogFragment {
      * implement this interface in order to receive event callbacks.
      * Each method passes the DialogFragment in case the host needs to query it. */
     public interface MatchFriendsDialogListener {
-        public void onMachFriendsConfirm(DialogFragment dialog, View view);
+        public void onMachFriendsConfirm(DialogFragment dialog);
     }
 
     // Use this instance of the interface to deliver action events
@@ -41,11 +40,9 @@ public class MatchFriendsDialog extends DialogFragment {
 //                    + " must implement MatchFriendsDialogListener");
 //        }
 //    }
-    private View mView;
 
-    public MatchFriendsDialog(MatchFriendsDialogListener mListener, View v) {
+    public MatchFriendsDialog(MatchFriendsDialogListener mListener) {
         this.mListener = mListener;
-        this.mView = v;
     }
 
     @Override
@@ -60,7 +57,7 @@ public class MatchFriendsDialog extends DialogFragment {
                                         .createEvent("ui_action", "mach_friends_dialog", "match_yes", null)
                                         .build()
                         );
-                        mListener.onMachFriendsConfirm(MatchFriendsDialog.this, mView);
+                        mListener.onMachFriendsConfirm(MatchFriendsDialog.this);
                     }
                 })
                 .setNegativeButton(R.string.button_no, new DialogInterface.OnClickListener() {

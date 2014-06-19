@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/action_match_contacts"
+          android:title="Select"
+          android:icon="@android:drawable/ic_menu_upload"
+          android:showAsAction="always"
+    />
     <item android:id="@+id/action_ok_selected"
           android:title="Select"
           android:icon="@drawable/done_white"
