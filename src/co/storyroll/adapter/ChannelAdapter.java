@@ -52,6 +52,9 @@ public class ChannelAdapter extends ArrayAdapter<ChannelInfo> {
         if (channelInfo != null) {
             Channel channel = channelInfo.getChannel();
             aq.id(view.findViewById(R.id.name)).text(channel.getTitle());
+            if (channel.isPublic()) {
+                aq.id(view.findViewById(R.id.chanAccessLabel)).text("Public, everyone can see");
+            }
 
             if (channelInfo.getLastActivityTime()>0)
             {
@@ -61,6 +64,9 @@ public class ChannelAdapter extends ArrayAdapter<ChannelInfo> {
                     ageText = ageText.replace(" ago", "");
                 }
                 aq.id(view.findViewById(R.id.age)).text(ageText);
+            }
+            if (channelInfo.getUnseenCount()>0) {
+                aq.id(view.findViewById(R.id.unseenMoviesText)).text(channelInfo.getUnseenCount()+"").visible();
             }
             // show user thumbs
             for ( int i=0;i< castIds.length; i++ ) {
