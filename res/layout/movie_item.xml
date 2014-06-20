@@ -87,7 +87,7 @@
 
         <!-- Reply control / RED button -->
         <ImageButton
-                android:id="@+id/interactButton"
+                android:id="@+id/cameraButton"
                 android:background="@android:color/transparent"
                 android:layout_centerInParent="true"
                 android:layout_width="wrap_content"

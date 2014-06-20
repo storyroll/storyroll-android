@@ -137,20 +137,25 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         ControlledMovieView videoView = (ControlledMovieView)rowView.findViewById(R.id.videoPlayerView);
         ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progress);
 //        View unseenIndicator = rowView.findViewById(R.id.unseenIndicator);
-        ImageButton interactButton = (ImageButton)rowView.findViewById(R.id.interactButton);
+        ImageButton cameraButton = (ImageButton)rowView.findViewById(R.id.cameraButton);
         ImageView arrowHolder = (ImageView)rowView.findViewById(R.id.arrowHolder);
 
         // 4. set data & callbacks
         if (movie.getClipCount()<4) {
             int stateNum = movie.getClipCount();
-            interactButton.setImageResource(btnCameraResIds[stateNum]);
+            cameraButton.setImageResource(btnCameraResIds[stateNum]);
+            ViewUtility.setViewSquare(cameraButton, calculcatedVideoWidth);
+
             arrowHolder.setImageResource(arrowResIds[stateNum]);
+            ViewUtility.setViewSquare(arrowHolder, calculcatedVideoWidth);
+
             ((TextView)rowView.findViewById(R.id.agePrefix)).setText("");
         }
         else {
             ((TextView)rowView.findViewById(R.id.agePrefix)).setText("Completed ");
-            interactButton.setImageResource(R.drawable.ic_play_roll);
-            interactButton.setOnClickListener(new ThumbClickListener(videoView));
+            ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
+            playControl.setVisibility(View.VISIBLE);
+            playControl.setOnClickListener(new ThumbClickListener(videoView));
         }
 
 //        if (!movie.isSeen()) {
@@ -159,8 +164,6 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 
         ViewUtility.setViewSquare(rowView.findViewById(R.id.bgHolder), calculcatedVideoWidth);
         ViewUtility.setViewSquare(rowView.findViewById(R.id.maskHolder), calculcatedVideoWidth);
-        ViewUtility.setViewSquare(interactButton, calculcatedVideoWidth);
-        ViewUtility.setViewSquare(arrowHolder, calculcatedVideoWidth);
 
         rowView.initAndLoadCast(movie, aq);
 
@@ -169,11 +172,11 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 
         if (movie.getClipCount()>3)
         {
-            videoView.adapterInit(this, interactButton, calculcatedVideoWidth, position,
+            videoView.adapterInit(this, playControl, calculcatedVideoWidth, position,
                     movie, uuid, progressBar, null, playControl);
 //            // todo: optimize to not create a listener for each, but reuse one listener
         }
-        interactButton.setOnClickListener(new ReplyClickListener(movie));
+        cameraButton.setOnClickListener(new ReplyClickListener(movie));
         aq.id(rowView.findViewById(R.id.shareImage)).clicked(this, "onShareClicked");
 
         String ageText = DateUtils.getRelativeTimeSpanString(

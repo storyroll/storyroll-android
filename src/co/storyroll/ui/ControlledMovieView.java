@@ -225,7 +225,9 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 		return mUuid;
 	}
 	public void markSeen() {
-		unseenIndicator.setVisibility(View.INVISIBLE);
+        if (unseenIndicator!=null) {
+            unseenIndicator.setVisibility(View.INVISIBLE);
+        }
 		playControl.setImageResource(R.drawable.ic_play_roll);
 		playControl.setVisibility(View.VISIBLE);
 	}
