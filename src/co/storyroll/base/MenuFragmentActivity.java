@@ -239,7 +239,7 @@ public class MenuFragmentActivity extends FragmentActivity
             if (chanId!=null && chanId!=-1L) {
 				intent.putExtra(VideoCaptureActivity.CURRENT_CHANNEL, chanId);
 			}
-            startActivityForResult(intent, TabbedChannelsActivity.VIDEOCAPTURE_REQUEST);
+            startActivityForResult(intent, ChannelActivity.VIDEOCAPTURE_REQUEST);
 		}
 		
 	}

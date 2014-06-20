@@ -1,7 +1,11 @@
 package co.storyroll.model;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Movie extends Clip {
 	private static final String LOGTAG = "Movie";
@@ -13,8 +17,11 @@ public class Movie extends Clip {
     private boolean seen = false;
     private String lastUserAvatar = null;
     private int clipCount = 0;
-	
-	public Movie(long id){
+    private List<Clip> clips = new ArrayList<Clip>();
+    private int likeCount = 0;
+
+
+    public Movie(long id){
 		super(id);
 	}
 
@@ -82,8 +89,27 @@ public class Movie extends Clip {
         this.clipCount = clipCount;
     }
 
+    public int getLikeCount() {
+        return likeCount;
+    }
+    public void setLikeCount(int likes) {
+        this.likeCount = likes;
+    }
+
+    public List<Clip> getClips() {
+        return clips;
+    }
+
+    public void setClips(List<Clip> clips) {
+        this.clips = clips;
+    }
+
     public Movie(JSONObject obj) throws JSONException {
-		super(obj);
+        super();
+        id = obj.getLong("id");
+        createdOn = obj.getLong("createdOn");
+        thumbUrl = obj.getString("thumbUrl");
+        fileUrl = obj.getString("url"); // todo make same as in Clip
 		lastClipId = obj.has("lastClipId")?obj.getLong("lastClipId"):-1L;
 		lastUserUuid = obj.getString("lastUserUuid");
         lastClipUrl = obj.getString("lastClipUrl");
@@ -93,6 +119,14 @@ public class Movie extends Clip {
         // todo: replace with real field
         lastUserAvatar = obj.getString("lastUserAvatarUrl");
         clipCount = obj.getInt("clipCount");
+        likeCount = obj.getInt("likeCount");
+
+        if (obj.has("clips")) {
+            JSONArray clipsJsonArr = obj.getJSONArray("clips");
+            for (int i=0;i<clipsJsonArr.length();i++) {
+                clips.add(new Clip(clipsJsonArr.getJSONObject(i)));
+            }
+        }
 	}
 	
 	@Override

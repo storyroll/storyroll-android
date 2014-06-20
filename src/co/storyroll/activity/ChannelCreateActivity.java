@@ -112,7 +112,7 @@ public class ChannelCreateActivity extends MenuActivity {
     protected void returnHomeActivity() {
         Intent intent = new Intent(this, AppUtility.ACTIVITY_HOME);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra(TabbedChannelsActivity.EXTRA_CHANNEL_ID, chanId);
+        intent.putExtra(ChannelActivity.EXTRA_CHANNEL_ID, chanId);
         aq.id(R.id.done_button).enabled(true);
         startActivity(intent);
     }

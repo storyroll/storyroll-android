@@ -132,10 +132,10 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 		this.mMovie = movie;
 		this.mUuid = uuid;
 		this.progressBar = progressBar;
-		this.unseenIndicator = unseenIndicator;
+//		this.unseenIndicator = unseenIndicator;
 		this.playControl = playControl;
 		this.mUpdateTag = movie.getPublishedOn();
-		this.movieFileUrl = movie.getUrl();
+		this.movieFileUrl = movie.getFileUrl();
 		
 		setOnPreparedListener(new MediaPlayer.OnPreparedListener()  {
             @Override

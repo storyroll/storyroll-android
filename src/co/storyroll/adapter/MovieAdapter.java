@@ -19,6 +19,7 @@ import co.storyroll.model.Movie;
 import co.storyroll.ui.ControlledMovieView;
 import co.storyroll.ui.MovieItemView;
 import co.storyroll.ui.RoundedImageView;
+import co.storyroll.ui.dialog.ShareDialog;
 import co.storyroll.util.*;
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
@@ -38,7 +39,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     private final long mChanId;
     public String LOGTAG = "MovieAdapter";
 
-    private static final boolean HIDE_AGE_AGO_POSTFIX = true;
+    private static final boolean HIDE_AGE_AGO_POSTFIX = false;
     private final Context context;
     private final ArrayList<Movie> movies;
     private final PQuery aq;
@@ -68,7 +69,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     public MovieAdapter(final Context context, ArrayList<Movie> movies,
                             PQuery aq, String uuid, long chanId, boolean trial) {
 
-        super(context, R.layout.tab_movie_item, movies);
+        super(context, R.layout.movie_item, movies);
 
         this.context = context;
         this.movies = movies;
@@ -99,6 +100,9 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 
     }
 
+    private static final int btnCameraResIds[] = {R.drawable.btn_camera_0, R.drawable.btn_camera_1, R.drawable.btn_camera_2, R.drawable.btn_camera_3};
+    private static final int arrowResIds[] = {R.drawable.arrow_0, R.drawable.arrow_1, R.drawable.arrow_2, R.drawable.arrow_3};
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 //			Log.v(LOGTAG, "getView "+position);
@@ -108,49 +112,68 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // 2. Get rowView from inflater
-        MovieItemView rowView = (MovieItemView)inflater.inflate(R.layout.tab_movie_item, parent, false);
+        MovieItemView rowView = (MovieItemView)inflater.inflate(R.layout.movie_item, parent, false);
 
         // 3. Get the views from the rowView
-        ImageView videoThumb = (ImageView) rowView.findViewById(R.id.videoThumb);
+//        ImageView videoThumb = (ImageView) rowView.findViewById(R.id.videoThumb);
         Movie movie = getItem(position);
-        aq.id(videoThumb).image(movie.getThumbUrl()); // first things first, this takes time to load
+        Log.v(LOGTAG, "movie has clips: "+movie.getClips().size());
+
+
+        for (int i=0; i<movie.getClips().size() && i<MovieItemView.thumbIds.length; i++) {
+            String thumbUrl = movie.getClips().get(i).getThumbUrl();
+            aq.id(rowView.findViewById(MovieItemView.thumbIds[i])).image(thumbUrl, true, true);
+        }
+        ViewUtility.setViewSquare(rowView.findViewById(R.id.thumbTable), calculcatedVideoWidth);
+
+//        aq.id(videoThumb).image(movie.getThumbUrl()); // first things first, this takes time to load
 
         ImageView playControl = (ImageView) rowView.findViewById(R.id.playControl);
-        ImageView removeControl = (ImageView) rowView.findViewById(R.id.removeControl);
-        removeControl.setOnClickListener(onMoviehideClick);
+//        ImageView removeControl = (ImageView) rowView.findViewById(R.id.removeControl);
+//        removeControl.setOnClickListener(onMoviehideClick);
 
-        ImageView trailerIndicator = (ImageView) rowView.findViewById(R.id.trailerIndicator);
         TextView likesNum = (TextView) rowView.findViewById(R.id.numLikes);
         ImageView likeControl = (ImageView) rowView.findViewById(R.id.likeImage);
-        ControlledMovieView videoView = (ControlledMovieView) rowView.findViewById(R.id.videoPlayerView);
+        ControlledMovieView videoView = (ControlledMovieView)rowView.findViewById(R.id.videoPlayerView);
         ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progress);
-        View unseenIndicator = rowView.findViewById(R.id.unseenIndicator);
-        ImageButton replyButton = (ImageButton)rowView.findViewById(R.id.replyButton);
+//        View unseenIndicator = rowView.findViewById(R.id.unseenIndicator);
+        ImageButton interactButton = (ImageButton)rowView.findViewById(R.id.interactButton);
+        ImageView arrowHolder = (ImageView)rowView.findViewById(R.id.arrowHolder);
 
         // 4. set data & callbacks
-        rowView.initAndLoadCast(movie, aq);
-
-        if (!movie.isSeen()) {
-            playControl.setImageResource(R.drawable.ic_play_roll_new);
-        }
-        if (movie.getClipCount()<2) {
-            // hide multiple movie indicator
-            trailerIndicator.setVisibility(View.GONE);
+        if (movie.getClipCount()<4) {
+            int stateNum = movie.getClipCount();
+            interactButton.setImageResource(btnCameraResIds[stateNum]);
+            arrowHolder.setImageResource(arrowResIds[stateNum]);
+            ((TextView)rowView.findViewById(R.id.agePrefix)).setText("");
         }
         else {
-            ViewUtility.setViewWidth(trailerIndicator, calculcatedVideoWidth);
+            ((TextView)rowView.findViewById(R.id.agePrefix)).setText("Completed ");
+            interactButton.setImageResource(R.drawable.ic_play_roll);
+            interactButton.setOnClickListener(new ThumbClickListener(videoView));
         }
 
-        ViewUtility.setViewSquare(videoThumb, calculcatedVideoWidth);
+//        if (!movie.isSeen()) {
+//            playControl.setImageResource(R.drawable.ic_play_roll_new);
+//        }
+
+        ViewUtility.setViewSquare(rowView.findViewById(R.id.bgHolder), calculcatedVideoWidth);
+        ViewUtility.setViewSquare(rowView.findViewById(R.id.maskHolder), calculcatedVideoWidth);
+        ViewUtility.setViewSquare(interactButton, calculcatedVideoWidth);
+        ViewUtility.setViewSquare(arrowHolder, calculcatedVideoWidth);
+
+        rowView.initAndLoadCast(movie, aq);
+
+//        ViewUtility.setViewSquare(videoThumb, calculcatedVideoWidth);
         ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
 
-
-        videoView.adapterInit(this, videoThumb, calculcatedVideoWidth, position,
-                movie, uuid, progressBar, unseenIndicator, playControl);
-        // todo: optimize to not create a listener for each, but reuse one listener
-        videoThumb.setOnClickListener(new ThumbClickListener(videoView));
-        replyButton.setOnClickListener(new ReplyClickListener(movie));
-
+        if (movie.getClipCount()>3)
+        {
+            videoView.adapterInit(this, interactButton, calculcatedVideoWidth, position,
+                    movie, uuid, progressBar, null, playControl);
+//            // todo: optimize to not create a listener for each, but reuse one listener
+        }
+        interactButton.setOnClickListener(new ReplyClickListener(movie));
         aq.id(rowView.findViewById(R.id.shareImage)).clicked(this, "onShareClicked");
 
         String ageText = DateUtils.getRelativeTimeSpanString(
@@ -331,7 +354,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     public void onShareClicked()
     {
         fireGAnalyticsEvent("ui_action", "touch", "share", null);
-//        new ShareDialog().show(context.getSupportFragmentManager(), "ShareDialog");
+        new ShareDialog().show( ((ChannelActivity)context).getSupportFragmentManager(), "ShareDialog");
     }
 
 

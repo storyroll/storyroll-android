@@ -6,14 +6,16 @@ import org.json.JSONObject;
 import java.io.Serializable;
 
 public class Clip implements Serializable, Comparable<Clip> {
-	private long id;
-	private long createdOn = 0;
+	protected long id;
+    protected long createdOn = 0;
 	
-	private int likeCount = 0;
 	private boolean userLikes = false;
 	private boolean unseen = true;
-	private String thumbUrl;
-	String url;
+    protected String thumbUrl;
+    protected String fileUrl;
+
+    public Clip() {
+    }
 
 	public Clip(long id) {
 		this.id = id;
@@ -23,8 +25,7 @@ public class Clip implements Serializable, Comparable<Clip> {
 		id = videoObj.getLong("id");
 		createdOn = videoObj.getLong("createdOn");
 		thumbUrl = videoObj.getString("thumbUrl");
-		url = videoObj.getString("url");
-		likeCount = videoObj.getInt("likeCount");
+        fileUrl = videoObj.getString("fileUrl");
 	}
 	
 	public long getId() {
@@ -39,7 +40,6 @@ public class Clip implements Serializable, Comparable<Clip> {
 		 return new Long(another.getId()).compareTo(new Long(getId()));
 	}
 
-	
 	public boolean isUnseen_() {
 		return unseen;
 	}
@@ -47,13 +47,7 @@ public class Clip implements Serializable, Comparable<Clip> {
 	public void setUnseen_(boolean unseen) {
 		this.unseen = unseen;
 	}
-	
-	public int getLikeCount() {
-		return likeCount;
-	}
-	public void setLikeCount(int likes) {
-		this.likeCount = likes;
-	}
+
 	public boolean isUserLikes() {
 		return userLikes;
 	}
@@ -70,12 +64,12 @@ public class Clip implements Serializable, Comparable<Clip> {
 		this.thumbUrl = thumbUrl;
 	}
 
-	public String getUrl() {
-		return url;
+	public String getFileUrl() {
+		return fileUrl;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	public void setFileUrl(String url) {
+		this.fileUrl = url;
 	}
 
 	

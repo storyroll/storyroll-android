@@ -7,7 +7,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import co.storyroll.PQuery;
 import co.storyroll.R;
 import co.storyroll.model.Movie;
@@ -19,8 +18,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MovieItemView extends LinearLayout {
-	public final static int[] castIds = {R.id.cast1, R.id.cast2, R.id.cast3};
-	private static final String LOGTAG = "MovieItemView";
+	public final static int[] castIds = {R.id.cast1, R.id.cast2, R.id.cast3, R.id.cast4};
+    public final static int[] thumbIds = {R.id.thumb1, R.id.thumb2, R.id.thumb3, R.id.thumb4};
+
+    private static final String LOGTAG = "MovieItemView";
 
 	Movie movie;
 	PQuery aq;
@@ -81,10 +82,10 @@ public class MovieItemView extends LinearLayout {
         	}
         	movie.setCast(castAvatars);
         	// indicate that there's more fragments
-        	if (i>=castIds.length && false) { // currently disabled 06/03/2014
-        		TextView castMore = (TextView) findViewById(R.id.cast_more);
-        		aq.id(castMore).text("+"+(i-castIds.length+1)).visible();
-        	}
+//        	if (i>=castIds.length && false) { // currently disabled 06/03/2014
+//        		TextView castMore = (TextView) findViewById(R.id.cast_more);
+//        		aq.id(castMore).text("+"+(i-castIds.length+1)).visible();
+//        	}
 	        	
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
