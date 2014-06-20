@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/action_match_contacts"
           android:title="Select"
-          android:icon="@android:drawable/ic_menu_upload"
+          android:icon="@drawable/ico_sync_contacts"
           android:showAsAction="always"
     />
     <item android:id="@+id/action_ok_selected"

@@ -131,7 +131,6 @@ public class MainChannelsActivity extends MenuChannelListActivity
 
     //    @Override
     protected void onListItemClick (ListView l, View v, int position, long id) {
-        Toast.makeText(this, "Clicked row " + position, Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, ChannelActivity.class);
         ChannelInfo channelInfo = channelAdapter.getItem(position);
         intent.putExtra(ChannelActivity.EXTRA_CHANNEL_ID, channelInfo.getChannel().getId());

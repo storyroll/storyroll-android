@@ -4,7 +4,9 @@
      android:layout_height="wrap_content"
     android:layout_width="0dp"
     android:paddingBottom="10dp"
-    android:paddingTop="20dp"
+    android:paddingTop="15dp"
+    android:layout_gravity="center"
+    android:foregroundGravity="center"
         >
 <ImageView
         android:src="@drawable/item_start_new"
@@ -18,5 +20,7 @@
         android:textColor="#569bb8"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:layout_gravity="center"
+        android:gravity="center"
         />
 </FrameLayout>

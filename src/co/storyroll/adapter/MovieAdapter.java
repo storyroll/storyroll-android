@@ -113,7 +113,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 
         // 2. Get rowView from inflater
         if (position==0) {
-            ImageView movieItemNew = (ImageView)inflater.inflate(R.layout.movie_item_new, parent, false);
+            View movieItemNew = inflater.inflate(R.layout.movie_item_new, parent, false);
             ViewUtility.setViewWidth(movieItemNew, calculcatedVideoWidth);
             aq.id(movieItemNew).clicked(this, "onNewPressed");
             return movieItemNew;

@@ -11,8 +11,6 @@
          android:layout_height="match_parent"
          android:paddingLeft="8dp"
          android:paddingRight="8dp"
-         android:paddingTop="4dp"
-
          android:background="#ffffffff"
             >
 
@@ -21,6 +19,8 @@
                   android:layout_height="match_parent"
                   android:layout_weight="1"
                   android:drawSelectorOnTop="false"
+                  android:divider="@null"
+                  android:dividerHeight="0dp"
                 />
 
         <TextView android:id="@android:id/empty"

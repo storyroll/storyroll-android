@@ -71,7 +71,7 @@ public class ChannelActivity extends MenuChannelActivity
 
         // We'll define a custom screen layout here (the one shown above), but
         // typically, you could just use the standard ListActivity layout.
-        setContentView(R.layout.activity_channel_list);
+        setContentView(R.layout.activity_movie_list);
         aq.id(android.R.id.empty).text("Loading clips...");
 
         movies = new ArrayList<Movie>();

@@ -69,7 +69,7 @@
         <activity
                 android:name=".activity.InvitesManager"
                 android:configChanges="orientation|screenSize"
-                android:label="@string/app_name"
+                android:label="@string/contacts_name"
                 android:screenOrientation="portrait"
                 android:theme="@style/SRTheme"
                 android:parentActivityName=".activity.MainChannelsActivity">
@@ -87,7 +87,7 @@
                 android:configChanges="orientation|screenSize"
                 android:label="@string/app_name"
                 android:screenOrientation="portrait"
-                android:theme="@style/SRTheme"
+                android:theme="@style/SRThemeStyledTabs"
                 android:windowSoftInputMode="stateHidden|adjustResize"
                 >
                 <!-- Do not specify parent activity! -->

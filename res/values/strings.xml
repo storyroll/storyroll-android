@@ -16,6 +16,8 @@
     <string name="save">Save</string>
 
     <string name="app_name">StoryRoll</string>
+    <string name="contacts_name">Invite contacts</string>
+
     <string name="app_desc">Create your story and let it roll.</string>
     
     <string name="dummy_button">Proceed</string>
