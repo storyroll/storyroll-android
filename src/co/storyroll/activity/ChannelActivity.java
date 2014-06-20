@@ -461,7 +461,7 @@ public class ChannelActivity extends MenuChannelActivity
         }
     }
 
-    protected void onNewPressed(Long chanId) {
+    public void onNewPressed(Long chanId) {
         Intent intent;
         if (isTrial) {
             fireGAnalyticsEvent("ui_action", "touch", "joinRoll_trial", null);

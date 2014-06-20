@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:id="@+id/item_start_new"
+     android:layout_height="wrap_content"
+    android:layout_width="0dp"
+    android:paddingBottom="10dp"
+    android:paddingTop="20dp"
+        >
+<ImageView
+        android:src="@drawable/item_start_new"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:color="#569bb8"/>
+<TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/button_start_new"
+        android:textColor="#569bb8"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        />
+</FrameLayout>

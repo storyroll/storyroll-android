@@ -245,19 +245,19 @@
                 android:id="@+id/agePrefix"
                 android:layout_height="match_parent"
                 android:layout_width="wrap_content"
-                android:textColor="@color/sr_cast_text"
+                android:textColor="@color/sr_movie_age_text"
                 android:textSize="16sp"
                 android:textStyle="italic"
                 android:layout_weight="1"
                 />
         <TextView
-            android:id="@+id/ageText"
-            android:layout_height="match_parent"
-            android:layout_width="wrap_content"
-            android:textColor="@color/sr_cast_text"
-            android:textSize="16sp"
-            android:textStyle="italic"
-            android:layout_weight="1"
+                android:id="@+id/ageText"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:textColor="@color/sr_movie_age_text"
+                android:textSize="16sp"
+                android:textStyle="italic"
+                android:layout_weight="1"
             />
     </LinearLayout>
 

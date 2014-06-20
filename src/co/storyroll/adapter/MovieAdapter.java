@@ -112,6 +112,16 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // 2. Get rowView from inflater
+        if (position==0) {
+            ImageView movieItemNew = (ImageView)inflater.inflate(R.layout.movie_item_new, parent, false);
+            ViewUtility.setViewWidth(movieItemNew, calculcatedVideoWidth);
+            aq.id(movieItemNew).clicked(this, "onNewPressed");
+            return movieItemNew;
+        }
+        else {
+            position = position++;
+        }
+
         MovieItemView rowView = (MovieItemView)inflater.inflate(R.layout.movie_item, parent, false);
 
         // 3. Get the views from the rowView
@@ -348,6 +358,11 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     }
 
     // --------- HELPERS & CALLBACKS
+
+    public void onNewPressed() {
+        // call the same method from parent Activity
+        ((ChannelActivity)context).onNewPressed(mChanId);
+    }
 
     public void onCastClickedCb()
     {

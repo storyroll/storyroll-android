@@ -16,7 +16,9 @@
     <color name="sr_bg_actionbar_shadow">#ff407290</color>
  	<color name="sr_bg_cast">#f5f3e4</color>
  	<color name="sr_cast_text">#464646</color>
- 	<color name="sr_bg_separator">#C6C6C6</color>
+    <color name="sr_movie_age_text">#7d7d7d</color>
+
+    <color name="sr_bg_separator">#C6C6C6</color>
 	
 	<color name="sr_bg_vidcap">#1e2834</color>
 	<color name="sr_vidcap_ctrl_text">#ebe8c9</color>
