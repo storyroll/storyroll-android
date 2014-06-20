@@ -23,7 +23,7 @@
     <string name="dummy_button">Proceed</string>
     <string name="dummy_content">STORYROLL\nCollaborative storytelling</string>
     <string name="login_text">Want to join the story? Please signup or login.</string>
-    <string name="channel_text">Create new private Channel</string>
+    <string name="channel_text">Create new private Room</string>
     <string name="channel_name">Name</string>
 
     <string name="user_name">User name</string>
@@ -49,7 +49,7 @@
     <string name="msg_password_email_required">Please enter both email and password</string>
     <string name="msg_uname_required">Please provide valid username</string>
     <string name="msg_uname_not_unique">Such username already registered, edit and try again</string>
-    <string name="msg_channel_name_required">Please enter Channel name</string>
+    <string name="msg_channel_name_required">Please name your Room</string>
 
     <string name="play_roll_info">To see next roll, swipe left</string>
 
@@ -157,7 +157,7 @@
     <string name="other_data">Other Info</string>
     <string name="help_text">Continue random\n stories by <font color='red'>recording</font>\n short video sequels\n and <font color='blue'>enjoy</font> unexpected\n outcome</string>
     <string name="action_add_group_trial">Invite people (signed)</string>
-    <string name="action_chan_new_trial">New channel (signed)</string>
+    <string name="action_chan_new_trial">New Room (signed)</string>
     <string name="dialog_signup">You have to be signed in to join the story. Sign up now?</string>
     <string name="button_signin">Sign-in</string>
     <string name="dialog_signup_title">Welcome to StoryRoll</string>
@@ -166,24 +166,24 @@
     <string name="btn_not_interested">Meh</string>
     <string name="btn_interested">Interested!</string>
     <string name="action_add_group">Invite people</string>
-    <string name="action_chan_new">New Channel</string>
+    <string name="action_chan_new">New Room</string>
     <string name="dialog_remove_movie">In future versions, this control will alow you to hide the video from your
         list.
     </string>
     <string name="notif_video_published">Your video was published</string>
     <string name="notif_you_got_response">You got response!</string>
     <string name="notif_new_video">New video</string>
-    <string name="notif_response_channel">Response in Channel</string>
+    <string name="notif_response_channel">Response in Room</string>
     <string name="msg_facebook_connected">Facebook connected, wait a moment...</string>
-    <string name="entity_channel">Channel</string>
+    <string name="entity_channel">Room</string>
     <string name="clear_cache">Clear cache</string>
     <string name="contacts_too_many">Only 5 contacts can be invited. Please unselect and reselect some of your
         contacts.
     </string>
-    <string name="action_leave_channel">Leave Channel</string>
+    <string name="action_leave_channel">Leave Room</string>
     <string name="pick_answer_share">Pick the way you would like to share in the future versions</string>
     <string name="pick_answer_roll">In future, we will add a feature here to generate a movie from your video clips.</string>
-    <string name="dialog_leave_channel">Leave channel? Currently it\'s not yet possible to re-discover left channels.
+    <string name="dialog_leave_channel">Leave room? Currently it\'s not yet possible to re-discover left rooms.
     </string>
     <string name="button_yes">Yes</string>
     <string name="button_no">No</string>
@@ -191,14 +191,16 @@
     <string name="tab_friends">StoryRoll Contacts</string>
     <string name="tab_adressbook">PhoneBook</string>
     <string name="update_friends">Update friends</string>
-    <string name="notif_channel_invite">Channel invite</string>
+    <string name="notif_channel_invite">Room invite</string>
     <string name="msg_storyroll_slogan">Share your life\nin 2 sec</string>
     <string name="login_alternative_login">or use an email/password combination:</string>
     <string name="empty_error_loading_videos">Something broke while loading videos.\nPlease try refreshing later.</string>
     <string name="dialog_friend_check">Check who from your contacts is using StoryRoll?\nYour address book will only be checked once, and it will not be stored on our server.</string>
     <string name="msg_short_friend_check">Check who from your contacts is using StoryRoll</string>
     <string name="msg_long_friend_check">Check who from your contacts is using StoryRoll? We\'ll check once, and will not store the contacts on our server.</string>
-    <string name="button_start_new">START NEW</string>
+    <string name="button_start_new">     START NEW ROLL</string>
+    <string name="msg_movie_list_empty">Room is waiting for your rolls!\nClick the icon on top bar to add one.</string>
+    <string name="msg_channels_not_loaded">Rooms not yet loaded</string>
 
 
 </resources>

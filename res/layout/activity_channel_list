@@ -29,7 +29,7 @@
                   android:layout_gravity="center"
                   android:gravity="center"
                   android:textColor="#ff777777"
-                  android:text="Channels not yet loaded"/>
+                  android:text="@string/msg_channels_not_loaded"/>
 
     </LinearLayout>
 </android.support.v4.widget.SwipeRefreshLayout>

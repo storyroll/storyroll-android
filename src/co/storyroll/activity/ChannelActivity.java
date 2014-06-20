@@ -344,7 +344,7 @@ public class ChannelActivity extends MenuChannelActivity
     public void refreshMovieListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted)
     {
         if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
-            aq.id(R.id.emptyMessage).gone();
+//            aq.id(R.id.emptyMessage).gone();
             return;
         }
 
@@ -397,7 +397,7 @@ public class ChannelActivity extends MenuChannelActivity
                     "Error getting movies", status, this, true, Log.ERROR);
         }
         if (movies.size()<1) {
-            aq.id(R.id.emptyMessage).gone();
+//            aq.id(R.id.emptyMessage).gone();
         }
     }
 
@@ -411,7 +411,7 @@ public class ChannelActivity extends MenuChannelActivity
     public void getMovieListSorted(String url, JSONArray jarr, AjaxStatus status, boolean sorted)
     {
         if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
-            aq.id(R.id.emptyMessage).gone();
+//            aq.id(R.id.emptyMessage).gone();
             aq.id(android.R.id.empty).text(R.string.empty_error_loading_videos);
             return;
         }
@@ -436,7 +436,7 @@ public class ChannelActivity extends MenuChannelActivity
                 }
                 Log.v(LOGTAG, "movies:" + movies.size());
                 if (movies.size()<1) {
-                    aq.id(android.R.id.empty).visible().text("No videos yet. You can post first!");
+                    aq.id(android.R.id.empty).visible().text(R.string.msg_movie_list_empty);
                 }
                 else {
                     aq.id(android.R.id.empty).gone();
@@ -457,7 +457,7 @@ public class ChannelActivity extends MenuChannelActivity
                     "Error getting movies", status, this, true, Log.ERROR);
         }
         if (movies.size()<1) {
-            aq.id(R.id.emptyMessage).gone();
+//            aq.id(R.id.emptyMessage).gone();
         }
     }
 

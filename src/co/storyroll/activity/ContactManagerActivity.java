@@ -86,7 +86,8 @@ public class ContactManagerActivity extends FragmentActivity implements AsyncLoa
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        // remove title ...
+
+        setTitle("Invite your contacts");
 
         final ActionBar actionBar = getActionBar();
 

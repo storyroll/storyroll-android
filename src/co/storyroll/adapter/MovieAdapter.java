@@ -103,6 +103,17 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     private static final int btnCameraResIds[] = {R.drawable.btn_camera_0, R.drawable.btn_camera_1, R.drawable.btn_camera_2, R.drawable.btn_camera_3};
     private static final int arrowResIds[] = {R.drawable.arrow_0, R.drawable.arrow_1, R.drawable.arrow_2, R.drawable.arrow_3};
 
+    // The following two methods overriden to trick Adapter into thinking we have +1 item (which is an interactive control)
+    @Override
+    public int getCount() {
+        return super.getCount()+1;
+    }
+
+    @Override
+    public Movie getItem(int position) {
+        return super.getItem(position-1);
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 //			Log.v(LOGTAG, "getView "+position);
@@ -522,9 +533,16 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         v.markSeen();
 
         // fire an event about new video start
-        // TODO do we track in trial?
-        String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_VIEW_ADD, "story="+ v.getMovieId() +"&uuid=" + v.getUuid());
-        aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
+        // don't track in trial, but track on Google Analytics
+        if (isTrial) {
+            fireGAnalyticsEvent("movie", "view", "anonymous", null);
+        }
+        else {
+            fireGAnalyticsEvent("movie", "view", v.getUuid(), null);
+            String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_VIEW_ADD, "story="+ v.getMovieId() +"&uuid=" + v.getUuid());
+            aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
+        }
+
     }
 
 }

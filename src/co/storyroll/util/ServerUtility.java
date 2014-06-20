@@ -2,8 +2,11 @@ package co.storyroll.util;
 
 import android.content.Context;
 import android.util.Log;
+import co.storyroll.PQuery;
 import co.storyroll.base.Constants;
 import com.androidquery.callback.AjaxStatus;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.MapBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -91,4 +94,24 @@ public class ServerUtility {
 			ErrorUtility.apiError(LOGTAG, "API call getServerProperties failed.", status, ctx, false, Log.WARN);
         }
 	}
+
+    public static void storeView(Context context, PQuery aq, String uuid, long movieId) {
+        // fire an event about new video start
+        // don't track in trial, but track on Google Analytics
+        if (uuid==null) {
+            fireGAnalyticsEvent(context, "movie", "view", "anonymous", null);
+        }
+        else {
+            fireGAnalyticsEvent(context, "movie", "view", uuid, null);
+            String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_VIEW_ADD, "story="+ movieId  +"&uuid=" + uuid);
+            aq.ajax(apiUrl, JSONObject.class, context, "addViewCb");
+        }
+    }
+
+    protected static void fireGAnalyticsEvent(Context context, String category, String action, String label, Long value) {
+        EasyTracker.getInstance(context).send(MapBuilder
+                        .createEvent(category, action, label, value)
+                        .build()
+        );
+    }
 }
