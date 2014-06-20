@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 import co.storyroll.PQuery;
 import co.storyroll.R;
-import co.storyroll.activity.TabbedChannelsActivity;
+import co.storyroll.activity.ChannelActivity;
 import co.storyroll.activity.VideoCaptureActivity;
 import co.storyroll.enums.AutostartMode;
 import co.storyroll.model.Movie;
@@ -233,8 +233,8 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
                 intent.putExtra(VideoCaptureActivity.MOVIE, movie.getId());
                 intent.putExtra(VideoCaptureActivity.LAST_USER_UUID, movie.getLastUserId());
                 intent.putExtra(VideoCaptureActivity.LAST_USER_AVATAR, movie.getLastUserAvatar());
-                ((TabbedChannelsActivity)context).
-                        startActivityForResult(intent, TabbedChannelsActivity.VIDEOCAPTURE_REQUEST);
+                ((ChannelActivity)context).
+                        startActivityForResult(intent, ChannelActivity.VIDEOCAPTURE_REQUEST);
 //                    startActivity(intent);
             }
         }
