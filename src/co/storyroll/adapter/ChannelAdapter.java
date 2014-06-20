@@ -68,6 +68,9 @@ public class ChannelAdapter extends ArrayAdapter<ChannelInfo> {
             if (channelInfo.getUnseenCount()>0) {
                 aq.id(view.findViewById(R.id.unseenMoviesText)).text(channelInfo.getUnseenCount()+"").visible();
             }
+            else {
+                aq.id(view.findViewById(R.id.unseenMoviesText)).gone();
+            }
             // show user thumbs
             for ( int i=0;i< castIds.length; i++ ) {
                 int cid = castIds[i];

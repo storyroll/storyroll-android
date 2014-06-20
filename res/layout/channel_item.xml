@@ -35,14 +35,37 @@
             android:textSize="16sp"
             android:textStyle="bold"
                 android:layout_alignParentTop="true"
-                android:layout_marginBottom="7dp"/>
-
+                android:layout_marginTop="-2dp"
+                />
+        <!--<TextView-->
+                <!--android:id="@+id/chanAccessLabel"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:ellipsize="end"-->
+                <!--android:singleLine="true"-->
+                <!--android:text=" (Private)"-->
+                <!--android:textSize="16sp"-->
+                <!--android:layout_toRightOf="@id/name"-->
+                <!--android:layout_alignBaseline="@id/name"-->
+                <!--/>-->
+        <TextView
+                android:id="@+id/chanAccessLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textColor="#ff444444"
+                android:textStyle="italic"
+                android:text="Private, only invited can see"
+                android:textSize="10sp"
+                android:layout_below="@id/name"
+                android:layout_marginBottom="3dp"
+                />
         <LinearLayout
                 android:id="@+id/lv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_below="@+id/name">
+                android:layout_below="@+id/chanAccessLabel">
 
             <co.storyroll.ui.RoundedImageView
                     android:id="@+id/cast1"
@@ -124,6 +147,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:paddingRight="3dp"/>
+            android:paddingRight="3dp"
+            android:paddingBottom="5dp"/>
+
+    <TextView
+            android:id="@+id/unseenMoviesText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="9dp"
+            android:textSize="11sp"
+            android:textColor="#ffffffff"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:textStyle="bold"
+            android:text="14"
+            android:background="@drawable/badge_circle"
+            android:visibility="invisible"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="5dp"
+            />
 
 </RelativeLayout>
