@@ -13,6 +13,8 @@ public class Clip implements Serializable, Comparable<Clip> {
 	private boolean unseen = true;
     protected String thumbUrl;
     protected String fileUrl;
+    protected long publishedOn = 0;
+
 
     public Clip() {
     }
@@ -26,6 +28,7 @@ public class Clip implements Serializable, Comparable<Clip> {
 		createdOn = videoObj.getLong("createdOn");
 		thumbUrl = videoObj.getString("thumbUrl");
         fileUrl = videoObj.getString("fileUrl");
+        publishedOn = videoObj.getLong("publishedOn");
 	}
 	
 	public long getId() {
@@ -72,6 +75,12 @@ public class Clip implements Serializable, Comparable<Clip> {
 		this.fileUrl = url;
 	}
 
-	
+    public long getPublishedOn() {
+        return publishedOn;
+    }
+
+    public void setPublishedOn(long publishedOn) {
+        this.publishedOn = publishedOn;
+    }
 	
 }

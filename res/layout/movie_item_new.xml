@@ -22,5 +22,6 @@
         android:textStyle="bold"
         android:layout_gravity="center"
         android:gravity="center"
+        android:paddingLeft="30dp"
         />
 </FrameLayout>

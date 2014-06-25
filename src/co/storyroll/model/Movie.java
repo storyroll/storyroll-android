@@ -1,5 +1,6 @@
 package co.storyroll.model;
 
+import co.storyroll.ui.MovieItemView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,13 +13,13 @@ public class Movie extends Clip {
     private long lastClipId = -1L;
     private String lastClipUrl = null;
     private String lastUserUuid = null;
-	private String[] cast = null;
-    private long publishedOn = 0;
+	private List<Cast> cast = new ArrayList<Cast>(MovieItemView.MAX_SHOWN_CLIPS);
     private boolean seen = false;
     private String lastUserAvatar = null;
     private int clipCount = 0;
-    private List<Clip> clips = new ArrayList<Clip>();
+    private List<Clip> clips = new ArrayList<Clip>(MovieItemView.MAX_SHOWN_CLIPS);
     private int likeCount = 0;
+    private boolean finished = true;
 
 
     public Movie(long id){
@@ -41,20 +42,12 @@ public class Movie extends Clip {
 		this.lastUserUuid = lastUserId;
 	}
 
-	public String[] getCast() {
+	public List<Cast> getCast() {
 		return cast;
 	}
 
-	public void setCast(String[] cast) {
+	public void setCast(List<Cast> cast) {
 		this.cast = cast;
-	}
-	
-	public long getPublishedOn() {
-		return publishedOn;
-	}
-
-	public void setPublishedOn(long publishedOn) {
-		this.publishedOn = publishedOn;
 	}
 	
 	public boolean isSeen() {
@@ -104,6 +97,14 @@ public class Movie extends Clip {
         this.clips = clips;
     }
 
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
     public Movie(JSONObject obj) throws JSONException {
         super();
         id = obj.getLong("id");
@@ -120,11 +121,17 @@ public class Movie extends Clip {
         lastUserAvatar = obj.getString("lastUserAvatarUrl");
         clipCount = obj.getInt("clipCount");
         likeCount = obj.getInt("likeCount");
-
+        if (obj.has("finished")) {
+            finished = obj.getBoolean("finished");
+        }
         if (obj.has("clips")) {
             JSONArray clipsJsonArr = obj.getJSONArray("clips");
-            for (int i=0;i<clipsJsonArr.length();i++) {
-                clips.add(new Clip(clipsJsonArr.getJSONObject(i)));
+            for (int i=0;i<clipsJsonArr.length() && i<MovieItemView.MAX_SHOWN_CLIPS;i++) {
+                JSONObject clipObj = clipsJsonArr.getJSONObject(i);
+                Clip clip = new Clip(clipObj);
+                clips.add(clip);
+                JSONObject owner = clipObj.getJSONObject("owner");
+                cast.add(new Cast(owner));
             }
         }
 	}

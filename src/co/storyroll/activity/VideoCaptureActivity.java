@@ -30,8 +30,6 @@ import com.google.analytics.tracking.android.Fields;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -56,6 +54,7 @@ public class VideoCaptureActivity extends BaseActivity implements
     public static final String MOVIE = "MOVIE";
 	private static final String CURRENT_CAMERA = "CURRENT_CAMERA";
 	private static final String LAST_STATE = "LAST_STATE";
+    private static final String LAST_FRAGMENT_PATH = "LAST_FRAGMENT_PATH" ;
 
 
 	
@@ -87,17 +86,16 @@ public class VideoCaptureActivity extends BaseActivity implements
 	private Camera camera;
 
 	JSONObject lastFragment = null;
-	private String lastFragmentPath = null;
+	private String mLastFragmentPath = null;
 	private boolean playsEarlierFragment;
 	
 	public static final int STATE_NO_STORY = -1;
 	public static final int STATE_INITIAL = 0;
-	public static final int STATE_PREV_LAST = 1;
-	public static final int STATE_PREV_CAM = 2;
-	public static final int STATE_REC = 3;
-	public static final int STATE_PREV_NEW = 4;
-	public static final int STATE_UPLOAD = 5;
-	public static final int STATE_UPLOAD_FAIL = 6;
+	public static final int STATE_PREV_CAM = 1;
+	public static final int STATE_REC = 2;
+	public static final int STATE_PREV_NEW = 3;
+	public static final int STATE_UPLOAD = 4;
+	public static final int STATE_UPLOAD_FAIL = 5;
 	
 	private static final int MAX_NEXT_FRAGMENT_ATTEMPTS =5;
 
@@ -113,7 +111,6 @@ public class VideoCaptureActivity extends BaseActivity implements
 
 	private long mRespondToClipId = NULL_RESPONSE_CLIP;
     private String mRespondToClipUrl = null;
-	private boolean isFragmentCarousel = false;
     private String mLastUserAvatar = null;
 
 	private long mCurrentChanlId = NULL_CHAN;
@@ -185,6 +182,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 			mRespondToClipId = getIntent().getLongExtra(RESPOND_TO_CLIP, NULL_RESPONSE_CLIP);
             mRespondToClipUrl = getIntent().getStringExtra(RESPOND_TO_CLIP_URL);
             mCurrentChanlId  = getIntent().getLongExtra(CURRENT_CHANNEL, NULL_CHAN);
+            mLastFragmentPath = getIntent().getStringExtra(LAST_FRAGMENT_PATH);
 			
 			if (mLastUserAvatar!=null) {
 				aq.id(avatar).image(mLastUserAvatar, true, true, 0, R.drawable.ic_avatar_default);
@@ -202,14 +200,11 @@ public class VideoCaptureActivity extends BaseActivity implements
 			else if (mRespondToClipId!=NULL_RESPONSE_CLIP) 
 			{
 				mLastState = STATE_INITIAL;
+                mLastState = processAndSwitchToState(STATE_PREV_CAM);
 				startVideoPreloadTask(mRespondToClipUrl);
 			}
 			else {
-				// get list of available fragments
-				show(progress);
-				aq.ajax(PrefUtility.getApiUrl(
-						ServerUtility.API_CLIPS_AVAILABLE, "uuid="+getUuid()+"&c="+NUM_PREVIEW_FRAGMENTS), 
-						JSONArray.class, this, "availableCb");
+				Log.e(LOGTAG, "trying to load fragment carousell");
 			}
 		}
 		else {
@@ -242,45 +237,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 //	private long currentLastFragmentId = 0;
 	
 	private long[] fragmentIds = null;
-	
-	public void availableCb(String url, JSONArray jarr, AjaxStatus status)
-	{
-//    	fireGAnalyticsEvent("story_workflow", "available", json==null?"got no story":"got stories", null);
-    	
-    	if (status.getCode()==AjaxStatus.NETWORK_ERROR) {
-    		hide(progress);
-    		ErrorUtility.apiError(LOGTAG, "Network error, check your connection", status, this, true, Log.ERROR);
-		}
-    	// TODO: is 500 resp ok when there is simply no story to join?
-    	if (isAjaxErrorThenReport(status)) return;
-    	
-        if(jarr != null){               
-            //successful ajax call
-        	Log.d(LOGTAG, "availableCb success: got "+jarr.length()+" items");
-        	fragmentIds = new long[jarr.length()];
-        	for (int i = 0; i < jarr.length(); i++) {
-				JSONObject fragObj;
-				try {
-					fragObj = jarr.getJSONObject(i);
-					fragmentIds[i] = fragObj.getLong("id");
-				} 
-				catch (JSONException e) 
-				{
-					fragmentIds[i] = 0;
-					e.printStackTrace();
-				}
-			}
-        	isFragmentCarousel = true;
-//			fragmentCarousel(0);
-        }
-        else{
-        	isFragmentCarousel = false;
-            //ajax error - means no story to join, offer to start new one
-        	Log.w(LOGTAG, "availableCb: null Json");
-        	mLastState = processAndSwitchToState(STATE_NO_STORY);
-        }
-        
-	}
+
 
 //	private void fragmentCarousel(int i)
 //	{
@@ -312,12 +269,12 @@ public class VideoCaptureActivity extends BaseActivity implements
 		hide(progress);
 		
 		// start playing last fragment and enable control button
-		lastFragmentPath = AppUtility.getVideoCacheDir(getApplicationContext())+"/"+cachedFileName;
-		Log.d(LOGTAG, "onVideoTaskCompleted: "+lastFragmentPath);
+		mLastFragmentPath = AppUtility.getVideoCacheDir(getApplicationContext())+"/"+cachedFileName;
+		Log.d(LOGTAG, "onVideoTaskCompleted: "+mLastFragmentPath);
 		
 		if (success) {
 			// below will do all the necessart UI cleanup
-			mLastState = processAndSwitchToState(STATE_PREV_LAST);
+//			mLastState = processAndSwitchToState(STATE_PREV_LAST);
 			failedAttempts = 0;
 		}
 		else {
@@ -418,30 +375,28 @@ public class VideoCaptureActivity extends BaseActivity implements
 			showClose();
 			showOk();
 			break;
-		case STATE_PREV_LAST:
-			hide(progress);
-			showOk();
-			showClose();
-//			surfaceView.setVisibility(View.VISIBLE);
-//			show(videocapReadyMessage);
-			
-			if (isFragmentCarousel) {
-				ImageUtility.sliderAnimateRightToLeft(sliderOverlay);
-			} else {
-				show(avatar);
-			}
-			
-			// start previewing last fragment
-			if (lastFragmentPath!=null) {
-				show(videoView);
-				videoView.setVideoPath(lastFragmentPath);
-				videoView.start();
-				return STATE_PREV_LAST;
-			}
-			else {
-				show(startStoryMessage);
-				return STATE_INITIAL;
-			}			
+//		case STATE_PREV_LAST:
+//			hide(progress);
+//			showOk();
+//			showClose();
+//
+//			if (isFragmentCarousel) {
+//				ImageUtility.sliderAnimateRightToLeft(sliderOverlay);
+//			} else {
+//				show(avatar);
+//			}
+//
+//			// start previewing last fragment
+//			if (lastFragmentPath!=null) {
+//				show(videoView);
+//				videoView.setVideoPath(lastFragmentPath);
+//				videoView.start();
+//				return STATE_PREV_LAST;
+//			}
+//			else {
+//				show(startStoryMessage);
+//				return STATE_INITIAL;
+//			}
 		case STATE_PREV_CAM:
 			// hide possibly previously shown elements
 			hide(startStoryMessage);
@@ -458,12 +413,12 @@ public class VideoCaptureActivity extends BaseActivity implements
 			showCamera();
 			
 			// only show back button if not starting a new story
-			if (lastFragmentPath!=null){
-				showBack();
-			}
-			else {
+//			if (lastFragmentPath!=null){
+//				showBack();
+//			}
+//			else {
 				showClose();
-			}
+//			}
 			break;
 		case STATE_REC:
 			showBack();
@@ -484,7 +439,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 			break;
 		case STATE_PREV_NEW:
 			gone(progress);
-			if (lastFragmentPath==null) {
+			if (mLastFragmentPath==null) {
 				// switch new fragment preview on
 				videoView.setVideoPath(CameraUtility.getNewFragmentFilePath(this));
 			}
@@ -512,7 +467,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 						mp.setLooping(false);
 					}
 				});
-				videoView.setVideoPath(lastFragmentPath);
+				videoView.setVideoPath(mLastFragmentPath);
 				playsEarlierFragment = true;
 				videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 					@Override
@@ -520,7 +475,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 						if (playsEarlierFragment && mLastState==STATE_PREV_NEW)
 							videoView.setVideoPath(CameraUtility.getNewFragmentFilePath(VideoCaptureActivity.this));
 						else
-							videoView.setVideoPath(lastFragmentPath);
+							videoView.setVideoPath(mLastFragmentPath);
 						playsEarlierFragment = !playsEarlierFragment;
 					    videoView.start();
 					}
@@ -766,9 +721,9 @@ public class VideoCaptureActivity extends BaseActivity implements
 //			aq.ajax(PrefUtility.getApiUrl()+"startStory?uuid="+getUuid(), JSONObject.class, this, "startStoryCb").progress(progress);
 			Log.e(LOGTAG, "workflowClickedCb STATE_NO_STORY");
 			break;
-		case STATE_PREV_LAST:
-			// stop previewing last fragment
-			videoView.stopPlayback();
+//		case STATE_PREV_LAST:
+//			// stop previewing last fragment
+//			videoView.stopPlayback();
 			
 		case STATE_INITIAL:
 			// switch camera preview on
@@ -825,8 +780,8 @@ public class VideoCaptureActivity extends BaseActivity implements
 		Intent intent;
 		switch (mLastState) {
 		case STATE_NO_STORY:
-		case STATE_PREV_LAST:
 		case STATE_INITIAL:
+        case STATE_PREV_CAM:
             // todo: obsolete
 			// return to the last used playlist
 //			intent = new Intent(VideoCaptureActivity.this, AppUtility.ACTIVITY_HOME);
@@ -840,24 +795,24 @@ public class VideoCaptureActivity extends BaseActivity implements
             finish();
 
 			break;
-		case STATE_PREV_CAM:
-			// restore button color
-			if (lastFragmentPath!=null)
-			{
-				// stop camera preview and return to last fragment review
-				hide(surfaceView);
-				show(videoView);
-			}
-			hide(rotateButton);
-			if (mStartNewMode) {
-                setResult(RESULT_CANCELED);
-                finish();
-			}
-			else {
-				mLastState = processAndSwitchToState(STATE_PREV_LAST);
-			}
-			
-			break;
+//		case STATE_PREV_CAM:
+//			// restore button color
+//			if (lastFragmentPath!=null)
+//			{
+//				// stop camera preview and return to last fragment review
+//				hide(surfaceView);
+//				show(videoView);
+//			}
+//			hide(rotateButton);
+//			if (mStartNewMode) {
+//                setResult(RESULT_CANCELED);
+//                finish();
+//			}
+//			else {
+//				mLastState = processAndSwitchToState(STATE_PREV_LAST);
+//			}
+//
+//			break;
 		case STATE_REC:
 			// stop recording
 			recorder.stop();
@@ -1213,6 +1168,7 @@ public class VideoCaptureActivity extends BaseActivity implements
 		outState.putInt(LAST_STATE, mLastState);
 		outState.putString(LAST_USER_UUID, mLastUserUuid);
         outState.putString(LAST_USER_AVATAR, mLastUserAvatar);
+        outState.putString(LAST_FRAGMENT_PATH, mLastFragmentPath);
 		
 	}
 	

@@ -198,7 +198,7 @@
     <string name="dialog_friend_check">Check who from your contacts is using StoryRoll?\nYour address book will only be checked once, and it will not be stored on our server.</string>
     <string name="msg_short_friend_check">Check who from your contacts is using StoryRoll</string>
     <string name="msg_long_friend_check">Check who from your contacts is using StoryRoll? We\'ll check once, and will not store the contacts on our server.</string>
-    <string name="button_start_new">     START NEW ROLL</string>
+    <string name="button_start_new">START NEW ROLL</string>
     <string name="msg_movie_list_empty">Room is waiting for your rolls!\nClick the icon on top bar to add one.</string>
     <string name="msg_channels_not_loaded">Rooms not yet loaded</string>
 

@@ -11,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.VideoView;
 import co.storyroll.R;
 import co.storyroll.adapter.MovieAdapter;
+import co.storyroll.model.Clip;
 import co.storyroll.model.Movie;
 import co.storyroll.tasks.VideoDownloadTask;
 import co.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
@@ -39,7 +40,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 
 	private ProgressBar progressBar;
 
-	private Movie mMovie;
+	private Clip mVideo;
 
 
 	public ControlledMovieView(Context context) {
@@ -68,12 +69,12 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	public void startVideoPreloading(boolean autoStart) 
 	{
 		Log.v(LOGTAG, "startVideoPreloading, autostart: "+autoStart);
-		markPlayable(false);
+        indicatePlayable(false);
 		if (autoStart) queueStartVideo();
 		if (!isLoading) {
 	   		// start a video preload task
 //			if(progressBar!=null) {
-				progressBar.setVisibility(View.VISIBLE);
+//				progressBar.setVisibility(View.VISIBLE);
 //			}
 			isLoading = true;
 //		        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
@@ -90,8 +91,9 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 			playQueued = false;
 		}
 		else if (isPlaying()) {
-			stopPlayback();
-			markPlayable(true);
+//			stopPlayback();
+            pauseVideo();
+            indicatePlayable(true);
 		}
 	}
 
@@ -104,32 +106,32 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 //        else if (parentFragment!=null) {
 //            parentFragment.switchCurrentlyPlayedMovie(this);
 //        }
-		markPlayable(false);
+        indicatePlayable(false);
 		Log.v(LOGTAG, "starting video playback");
 		start();
 		playQueued = false;
 	}
 	
 	public void pauseVideo() {
-		Log.v(LOGTAG, "stopping video");
-		markPlayable(true);
+		Log.v(LOGTAG, "pausing video");
+        indicatePlayable(true);
 		pause();
 	}
 
-    public void adapterInit(MovieAdapter parentAdapter, View controlView, int screenWidth, int itemPosition, Movie movie, String uuid,
+    public void adapterInit(MovieAdapter parentAdapter, View controlView, int screenWidth, int itemPosition, Clip movie, String uuid,
                      ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
         init(controlView, screenWidth, itemPosition, movie, uuid, progressBar, unseenIndicator, playControl);
         this.parentAdapter = parentAdapter;
 
     }
 	
-	public void init(View controlView, int screenWidth, int itemPosition, Movie movie, String uuid,
+	public void init(View controlView, int screenWidth, int itemPosition, Clip movie, String uuid,
 			ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
 		this.mMovieId = movie.getId();
-		this.mMovie = movie;
+		this.mVideo = movie;
 		this.mUuid = uuid;
 		this.progressBar = progressBar;
 //		this.unseenIndicator = unseenIndicator;
@@ -142,7 +144,6 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
             public void onPrepared(MediaPlayer mp) {                         
             	Log.i(LOGTAG, "Duration = " + getDuration());
 
-            	
             	// set preview window to square
             	setViewSquare();
             	
@@ -162,7 +163,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 			public boolean onTouch(View v, MotionEvent event) {
 				if (MotionEvent.ACTION_UP == event.getAction() ) 
 				{
-					Log.v(LOGTAG, "MotionEvent.ACTION_UP");
+					Log.v(LOGTAG, "onTouch==MotionEvent.ACTION_UP");
 	                if (isPlaying()) {
 						pauseVideo();
 					}
@@ -178,7 +179,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	
 	
 	
-	// once video download complete, play it
+	// video download complete
 	@Override
 	public void onVideoTaskCompleted(String fileName, boolean success, boolean wasCached, Exception e) 
 	{
@@ -196,7 +197,10 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 			isLoaded = true;
 			
 			if (playQueued) {
-				mMovie.setSeen(true);
+                if (mVideo instanceof Movie)
+                {
+                    ((Movie) mVideo).setSeen(true);
+                }
 				startVideo();
 			}
 		}
@@ -224,15 +228,27 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	public String getUuid() {
 		return mUuid;
 	}
-	public void markSeen() {
+	public void indicateSeenPlayable() {
         if (unseenIndicator!=null) {
             unseenIndicator.setVisibility(View.INVISIBLE);
         }
-		playControl.setImageResource(R.drawable.ic_play_roll);
-		playControl.setVisibility(View.VISIBLE);
+        if (playControl!=null) {
+            playControl.setImageResource(R.drawable.ic_play_roll);
+            playControl.setVisibility(View.VISIBLE);
+        }
 	}
-	public void markPlayable(boolean playable) {
-		Log.v(LOGTAG, "markPlayable: "+playable);
-		playControl.setVisibility(playable?View.VISIBLE:View.INVISIBLE);
+	public void indicatePlayable(boolean playable) {
+        if (playControl!=null) {
+            Log.v(LOGTAG, "indicatePlayable: " + playable);
+            playControl.setVisibility(playable ? View.VISIBLE : View.INVISIBLE);
+        }
 	}
+
+    public Clip getVideo() {
+        return mVideo;
+    }
+
+    public String getVideoType() {
+        return (mVideo instanceof Movie)?"movie":"clip";
+    }
 }

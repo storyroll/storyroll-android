@@ -54,6 +54,10 @@ public class ChannelAdapter extends ArrayAdapter<ChannelInfo> {
             aq.id(view.findViewById(R.id.name)).text(channel.getTitle());
             if (channel.isPublic()) {
                 aq.id(view.findViewById(R.id.chanAccessLabel)).text("Public, everyone can see");
+                aq.id(view.findViewById(R.id.chanAccessLabel1)).visible();
+            }
+            else {
+                aq.id(view.findViewById(R.id.chanAccessLabel1)).gone();
             }
 
             if (channelInfo.getLastActivityTime()>0)

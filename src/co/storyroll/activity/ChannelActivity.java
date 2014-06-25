@@ -123,6 +123,9 @@ public class ChannelActivity extends MenuChannelActivity
         setTitle(mTitle);
         Log.v(LOGTAG, "channelId: "+mChannelId);
 
+        // prepare "start new roll" big button
+        aq.id(R.id.item_start_new).clicked(this, "onNewPressed");
+
         // set adapter
         movieAdapter = new MovieAdapter(this, movies, aq, mUuid, mChannelId, isTrial);
 
@@ -214,7 +217,7 @@ public class ChannelActivity extends MenuChannelActivity
         if (json.getBoolean("result"))
         {
             // return home
-            // todo: indicate via bundle that channel list has to be updated?
+            // todo: indicatee via bundle that channel list has to be updated?
             finish();
         }
         else {
@@ -412,7 +415,7 @@ public class ChannelActivity extends MenuChannelActivity
     {
         if (ErrorUtility.isAjaxErrorThenReport(LOGTAG, status, this)) {
 //            aq.id(R.id.emptyMessage).gone();
-            aq.id(android.R.id.empty).text(R.string.empty_error_loading_videos);
+            aq.id(R.id.emptyMsg).text(R.string.empty_error_loading_videos);
             return;
         }
 
@@ -436,7 +439,8 @@ public class ChannelActivity extends MenuChannelActivity
                 }
                 Log.v(LOGTAG, "movies:" + movies.size());
                 if (movies.size()<1) {
-                    aq.id(android.R.id.empty).visible().text(R.string.msg_movie_list_empty);
+                    aq.id(android.R.id.empty).visible();
+                    aq.id(R.id.emptyMsg).text(R.string.msg_movie_list_empty);
                 }
                 else {
                     aq.id(android.R.id.empty).gone();
@@ -451,7 +455,7 @@ public class ChannelActivity extends MenuChannelActivity
 
         } else {
             // ajax error
-            aq.id(android.R.id.empty).text(R.string.empty_error_loading_videos);
+            aq.id(R.id.emptyMsg).text(R.string.empty_error_loading_videos);
             ErrorUtility.apiError(LOGTAG,
 //					"getMovieListSorted: null Json, could not get blink list for uuid " + mUuid, status, false, Log.ERROR);
                     "Error getting movies", status, this, true, Log.ERROR);
@@ -459,6 +463,11 @@ public class ChannelActivity extends MenuChannelActivity
         if (movies.size()<1) {
 //            aq.id(R.id.emptyMessage).gone();
         }
+    }
+
+    // callback
+    public void onNewPressed() {
+        onNewPressed(mChannelId);
     }
 
     public void onNewPressed(Long chanId) {

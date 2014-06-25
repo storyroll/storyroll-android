@@ -42,7 +42,7 @@ import android.view.ViewGroup;
  *
  * <p>PagerAdapter is more general than the adapters used for
  * {@link android.widget.AdapterView AdapterViews}. Instead of providing a
- * View recycling mechanism directly ViewPager uses callbacks to indicate the
+ * View recycling mechanism directly ViewPager uses callbacks to indicatee the
  * steps taken during an update. A PagerAdapter may implement a form of View
  * recycling if desired or use a more sophisticated method of managing page
  * Views such as Fragment transactions where each page is represented by its

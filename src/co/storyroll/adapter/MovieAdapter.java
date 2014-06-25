@@ -36,6 +36,7 @@ import java.util.Calendar;
 
 public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnScrollListener {
 
+
     private final long mChanId;
     public String LOGTAG = "MovieAdapter";
 
@@ -100,23 +101,22 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 
     }
 
-    private static final int btnCameraResIds[] = {R.drawable.btn_camera_0, R.drawable.btn_camera_1, R.drawable.btn_camera_2, R.drawable.btn_camera_3};
-    private static final int arrowResIds[] = {R.drawable.arrow_0, R.drawable.arrow_1, R.drawable.arrow_2, R.drawable.arrow_3};
-
     // The following two methods overriden to trick Adapter into thinking we have +1 item (which is an interactive control)
     @Override
     public int getCount() {
+        Log.v(LOGTAG, "getCount will return "+(super.getCount()+1));
         return super.getCount()+1;
     }
 
     @Override
     public Movie getItem(int position) {
+        Log.v(LOGTAG, "getItem: "+position);
         return super.getItem(position-1);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-//			Log.v(LOGTAG, "getView "+position);
+			Log.v(LOGTAG, "getView: "+position);
 
         // 1. Create inflater
         LayoutInflater inflater = (LayoutInflater) context
@@ -140,10 +140,33 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         Movie movie = getItem(position);
         Log.v(LOGTAG, "movie has clips: "+movie.getClips().size());
 
+        // set sizes of video table cells
+        for (int cid:MovieItemView.holderIds) {
+            ViewUtility.setViewSquare(rowView.findViewById(cid), calculcatedVideoWidth/2);
+        }
 
-        for (int i=0; i<movie.getClips().size() && i<MovieItemView.thumbIds.length; i++) {
+        for (int i=0; i<movie.getClips().size() && i<MovieItemView.MAX_SHOWN_CLIPS; i++)
+        {
             String thumbUrl = movie.getClips().get(i).getThumbUrl();
-            aq.id(rowView.findViewById(MovieItemView.thumbIds[i])).image(thumbUrl, true, true);
+
+            ImageView thumb = (ImageView)rowView.findViewById(MovieItemView.thumbIds[i]);
+            aq.id(thumb).image(thumbUrl, true, true);
+            if (i<MovieItemView.MAX_SHOWN_CLIPS)
+            {
+                ControlledMovieView videoView = (ControlledMovieView)rowView.findViewById(MovieItemView.vidPlayIds[i]);
+                ProgressBar pb = (ProgressBar)rowView.findViewById(MovieItemView.progressIds[i]);
+                videoView.adapterInit(this, thumb, calculcatedVideoWidth/2, position,
+                        movie.getClips().get(i), uuid, pb, null, null);
+                thumb.setOnClickListener(new ThumbClickListener(videoView));
+            }
+        }
+        // make last clip holder hold a rec button
+        if (movie.getClips().size()<MovieItemView.MAX_SHOWN_CLIPS)
+        {
+            int pos = movie.getClips().size();
+            ImageView thumb = (ImageView)rowView.findViewById(MovieItemView.thumbIds[pos]);
+            thumb.setImageResource(R.drawable.btn_camera);
+            thumb.setOnClickListener(new ReplyClickListener(movie));
         }
         ViewUtility.setViewSquare(rowView.findViewById(R.id.thumbTable), calculcatedVideoWidth);
 
@@ -158,18 +181,15 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         ControlledMovieView videoView = (ControlledMovieView)rowView.findViewById(R.id.videoPlayerView);
         ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progress);
 //        View unseenIndicator = rowView.findViewById(R.id.unseenIndicator);
-        ImageButton cameraButton = (ImageButton)rowView.findViewById(R.id.cameraButton);
+//        ImageButton cameraButton = (ImageButton)rowView.findViewById(R.id.cameraButton);
         ImageView arrowHolder = (ImageView)rowView.findViewById(R.id.arrowHolder);
 
         // 4. set data & callbacks
-        if (movie.getClipCount()<4) {
+        if (movie.getClipCount()<MovieItemView.MAX_SHOWN_CLIPS) {
             int stateNum = movie.getClipCount();
-            cameraButton.setImageResource(btnCameraResIds[stateNum]);
-            ViewUtility.setViewSquare(cameraButton, calculcatedVideoWidth);
-
-            arrowHolder.setImageResource(arrowResIds[stateNum]);
+//            cameraButton.setImageResource(btnCameraResIds[stateNum]);
+            arrowHolder.setImageResource(MovieItemView.arrowResIds[stateNum]);
             ViewUtility.setViewSquare(arrowHolder, calculcatedVideoWidth);
-
             ((TextView)rowView.findViewById(R.id.agePrefix)).setText("");
         }
         else {
@@ -182,11 +202,11 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 //        if (!movie.isSeen()) {
 //            playControl.setImageResource(R.drawable.ic_play_roll_new);
 //        }
-
+//        ViewUtility.setViewSquare(cameraButton, calculcatedVideoWidth);
         ViewUtility.setViewSquare(rowView.findViewById(R.id.bgHolder), calculcatedVideoWidth);
         ViewUtility.setViewSquare(rowView.findViewById(R.id.maskHolder), calculcatedVideoWidth);
 
-        rowView.initAndLoadCast(movie, aq);
+//        rowView.initAndLoadCast(movie, aq);
 
 //        ViewUtility.setViewSquare(videoThumb, calculcatedVideoWidth);
         ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
@@ -197,7 +217,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
                     movie, uuid, progressBar, null, playControl);
 //            // todo: optimize to not create a listener for each, but reuse one listener
         }
-        cameraButton.setOnClickListener(new ReplyClickListener(movie));
+//        cameraButton.setOnClickListener(new ReplyClickListener(movie));
         aq.id(rowView.findViewById(R.id.shareImage)).clicked(this, "onShareClicked");
 
         String ageText = DateUtils.getRelativeTimeSpanString(
@@ -208,20 +228,26 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         aq.id(rowView.findViewById(R.id.ageText)).text(ageText);
         likesNum.setText(shortLikesString(movie.getLikeCount()));
 
-        if (movie.getCast()!=null) {
-            for (int i=0; i<movie.getCast().length && i< MovieItemView.castIds.length; i++)
-            {
-                RoundedImageView castImage = (RoundedImageView) rowView.findViewById(MovieItemView.castIds[i]);
-                if (!TextUtils.isEmpty(movie.getCast()[i]))
-                {
-                    aq.id(castImage).image(movie.getCast()[i], true, true, 0, R.drawable.ic_avatar_default);
-                }
-                else {
+        int clipsNum = 0;
+        if (movie.getCast()!=null) clipsNum = movie.getCast().size();
+
+        for (int i=0; i< MovieItemView.MAX_AVAIL_POSITIONS_IN_DESIGN; i++)
+        {
+            RoundedImageView castImage = (RoundedImageView) rowView.findViewById(MovieItemView.castIds[i]);
+            if (i<clipsNum) {
+                if (!TextUtils.isEmpty(movie.getCast().get(i).getAvatarUrl())) {
+                    aq.id(castImage).image(movie.getCast().get(i).getAvatarUrl(), true, true, 0, R.drawable.ic_avatar_default);
+                    //                    castImage.setTag();
+                } else {
                     castImage.setImageResource(R.drawable.ic_avatar_default);
                 }
                 aq.id(castImage).visible().clicked(this, "onCastClickedCb");
             }
+            if (i>=MovieItemView.MAX_SHOWN_CLIPS) {
+                castImage.setVisibility(View.GONE);
+            }
         }
+
 
         // set current user-video like state
 //        movie.setUserLikes( userLikes.contains(movie.getId()+"") );
@@ -523,26 +549,30 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     // using this as a central point for play event counter
     public void switchCurrentlyPlayedMovie(ControlledMovieView v)
     {
-        if (currentlyPlayed!=null && currentlyPlayed.isPlaying()) {
-            currentlyPlayed.stopPlayback();
-            currentlyPlayed.markPlayable(true);
+        if (currentlyPlayed!=null && currentlyPlayed.isPlaying())
+        {
+//            currentlyPlayed.stopPlayback();
+            currentlyPlayed.pauseVideo();
+
+            currentlyPlayed.indicatePlayable(true);
         }
         currentlyPlayed = v;
 
         // hide "newness" indicator
-        v.markSeen();
+        v.indicateSeenPlayable();
 
         // fire an event about new video start
         // don't track in trial, but track on Google Analytics
         if (isTrial) {
-            fireGAnalyticsEvent("movie", "view", "anonymous", null);
+            fireGAnalyticsEvent(v.getVideoType(), "view", "anonymous", null);
         }
         else {
-            fireGAnalyticsEvent("movie", "view", v.getUuid(), null);
-            String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_VIEW_ADD, "story="+ v.getMovieId() +"&uuid=" + v.getUuid());
-            aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
+            fireGAnalyticsEvent(v.getVideoType(), "view", v.getUuid(), null);
+            if (v.getVideo() instanceof Movie) {
+                String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_VIEW_ADD, "story=" + v.getMovieId() + "&uuid=" + v.getUuid());
+                aq.ajax(apiUrl, JSONObject.class, this, "addViewCb");
+            }
         }
-
     }
 
 }

@@ -41,13 +41,15 @@ public abstract class MenuListActivity extends FragmentActivity implements Signu
 
         isTrial = !AppUtility.isLoggedIn();
         Log.d(LOGTAG, "isTrial: "+isTrial);
+
+        aq = new PQuery(this);
+
         if (!isTrial) {
             isTrial = getUuid() == null;
         }
         if (!isTrial){
            basicHandle = new BasicHandle(getUuid(), getPassword());
         }
-        aq = new PQuery(this);
 
         // Setup search by username on Android
 		BugSenseHandler.setUserIdentifier(getUuid());

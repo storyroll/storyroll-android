@@ -157,9 +157,9 @@ public class DataUtility {
             case VideoCaptureActivity.STATE_NO_STORY:
                 stateStr = "STATE_NO_STORY";
                 break;
-            case VideoCaptureActivity.STATE_PREV_LAST:
-                stateStr = "STATE_PREV_LAST";
-                break;
+//            case VideoCaptureActivity.STATE_PREV_LAST:
+//                stateStr = "STATE_PREV_LAST";
+//                break;
             case VideoCaptureActivity.STATE_INITIAL:
                 stateStr = "STATE_INITIAL";
                 break;

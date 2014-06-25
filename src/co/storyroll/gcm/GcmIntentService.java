@@ -27,7 +27,7 @@ import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import co.storyroll.R;
-import co.storyroll.util.AppUtility;
+import co.storyroll.activity.ChannelActivity;
 import co.storyroll.util.DataUtility;
 import co.storyroll.util.PrefUtility;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -137,7 +137,7 @@ public class GcmIntentService extends IntentService {
 
 //        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 //                new Intent(this, GcmTestActivity.class), 0);
-        Intent notificationIntent = new Intent(this, AppUtility.ACTIVITY_HOME);
+        Intent notificationIntent = new Intent(this, ChannelActivity.class);
         notificationIntent.putExtra(EXTRA_NOTIFICATION, true);
 
         String collapseKey = gcmExtras.getString(KEY_GCM_COLLAPSE_KEY);
