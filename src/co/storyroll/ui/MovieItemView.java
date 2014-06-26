@@ -9,7 +9,7 @@ import co.storyroll.R;
 import co.storyroll.model.Movie;
 
 public class MovieItemView extends LinearLayout {
-    public final static int MAX_SHOWN_CLIPS = 3;
+    public final static int MAX_SHOWN_CLIPS = 4;
     public final static int MAX_AVAIL_POSITIONS_IN_DESIGN = 4;
     public final static int[] castIds = {R.id.cast1, R.id.cast2, R.id.cast3, R.id.cast4};
     public final static int[] holderIds = new int[] {R.id.position1, R.id.position2, R.id.position3, R.id.position4};

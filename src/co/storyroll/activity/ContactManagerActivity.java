@@ -44,7 +44,10 @@ import java.util.concurrent.TimeoutException;
  */
 public class ContactManagerActivity extends FragmentActivity implements AsyncLoadContacts.LoadContactsListener, MatchFriendsDialog.MatchFriendsDialogListener {
 
-    private static final int[] TAB_HEAD = {R.string.tab_friends, R.string.tab_adressbook};
+    public static final int TAB_0_FRIENDS = 0;
+    public static final int TAB_1_ADDRESSBOOK = 1;
+    public static final int TAB_2_FEMAIL = 2;
+    private static final int[] TAB_HEAD = {R.string.tab_friends, R.string.tab_adressbook, R.string.tab_email};
     private static final String LOGTAG = "CONTACT_MNGR";
 
     private String mUuid;
@@ -127,12 +130,13 @@ public class ContactManagerActivity extends FragmentActivity implements AsyncLoa
         ActionBar.TabListener tabListener = new ActionBar.TabListener() {
             @Override
             public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction fragmentTransaction) {
+                Log.v(LOGTAG, "selected tab: "+tab.getPosition());
                 // show the given tab
                 mTabPager.setCurrentItem(tab.getPosition());
                 Log.v(LOGTAG, "onTabSelected=="+tab.getPosition());
 
                 // switch the progress on?
-                if (tab.getPosition()==1) {
+                if (tab.getPosition()== TAB_1_ADDRESSBOOK) {
                     if (contactLoaderTask != null && contactLoaderTask.getStatus() == AsyncTask.Status.RUNNING) {
                         swipeContainer.setRefreshing(true);
                     }
@@ -156,7 +160,7 @@ public class ContactManagerActivity extends FragmentActivity implements AsyncLoa
         };
 
         // Add 2 tabs,
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < TAB_HEAD.length; i++) {
             actionBar.addTab(
                     actionBar.newTab()
                             .setText(getResources().getString(TAB_HEAD[i]))
@@ -213,17 +217,36 @@ public class ContactManagerActivity extends FragmentActivity implements AsyncLoa
         ArrayList<String> selectedList = new ArrayList<String>();
 
         Intent intent = new Intent();
-        Log.v(LOGTAG, "current item: "+mTabPager.getCurrentItem());
-        ContactListFragment frag = (ContactListFragment)getActiveFragment(mTabPager, mTabPager.getCurrentItem());
-        ContactAdapter contactAdapter = (ContactAdapter)frag.getListAdapter();
-        Log.v(LOGTAG, "contactAdapter: "+contactAdapter);
+        int currentTab = mTabPager.getCurrentItem();
+        Log.v(LOGTAG, "current item: "+currentTab);
+        ContactListFragment frag = (ContactListFragment)getActiveFragment(mTabPager, currentTab);
 
-        if (contactAdapter!=null && contactAdapter.selected!=null)
-        {
+        if (currentTab!= TAB_2_FEMAIL) {
+            // lists of contacts
+            ContactAdapter contactAdapter = (ContactAdapter) frag.getListAdapter();
+            Log.v(LOGTAG, "contactAdapter: " + contactAdapter);
 
-            selectedList.addAll(contactAdapter.selected);
-            Log.v(LOGTAG, "total entries: "+selectedList.size());
+            if (contactAdapter != null && contactAdapter.selected != null) {
+                selectedList.addAll(contactAdapter.selected);
+                Log.v(LOGTAG, "total entries: " + selectedList.size());
+            }
         }
+        else {
+            // emails
+            String e1 = aq.id(frag.getView().findViewById(R.id.email1)).getText().toString();
+            String e2 = aq.id(frag.getView().findViewById(R.id.email2)).getText().toString();
+            String e3 = aq.id(frag.getView().findViewById(R.id.email3)).getText().toString();
+            if (!TextUtils.isEmpty(e1)) {
+                selectedList.add(e1);
+            }
+            if (!TextUtils.isEmpty(e2)) {
+                selectedList.add(e2);
+            }
+            if (!TextUtils.isEmpty(e3)) {
+                selectedList.add(e3);
+            }
+        }
+
         if (selectedList.size() > 0) {
             Log.v(LOGTAG, "Passing contacts: "+selectedList.toString());
 //            intent.putParcelableArrayListExtra("SELECTED_CONTACTS", selectedList);

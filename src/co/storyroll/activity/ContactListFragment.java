@@ -47,7 +47,7 @@ import java.util.concurrent.TimeoutException;
 public class ContactListFragment extends ListFragment
         implements AsyncLoadContacts.LoadContactsListener, MatchFriendsDialog.MatchFriendsDialogListener{
     private static final String LOGTAG = "TabListFragment";
-    int mNum;
+    int mTabNum;
     public static ArrayList<Contact> friendContacts = new ArrayList<Contact>();
     public static ArrayList<Contact> phoneContacts = new ArrayList<Contact>();
 
@@ -75,7 +75,7 @@ public class ContactListFragment extends ListFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mNum = getArguments() != null ? getArguments().getInt("num") : 1;
+        mTabNum = getArguments() != null ? getArguments().getInt("num") : 1;
     }
 
     /**
@@ -86,7 +86,14 @@ public class ContactListFragment extends ListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-        Log.v(LOGTAG, "creating view for tab num " + mNum);
+        Log.v(LOGTAG, "creating view for tab num " + mTabNum);
+
+        if (mTabNum == ContactManagerActivity.TAB_2_FEMAIL) {
+            // Special fragment
+            final View v = inflater.inflate(R.layout.fragment_invite_email, container, false);
+            return v;
+        }
+
         final View v = inflater.inflate(R.layout.fragment_pager_list, container, false);
 
         // Init UI elements
@@ -111,7 +118,7 @@ public class ContactListFragment extends ListFragment
             }
         });
 
-        if (mNum==0)
+        if (mTabNum ==ContactManagerActivity.TAB_0_FRIENDS)
         {
 //            friendMatchBtn.setVisibility(View.VISIBLE);
 //            friendMatchBtn.setOnClickListener(new View.OnClickListener() {
@@ -135,8 +142,7 @@ public class ContactListFragment extends ListFragment
         super.onActivityCreated(savedInstanceState);
 //            setListAdapter(new ArrayAdapter<String>(getActivity(),
 //                    android.R.layout.simple_list_item_1, friendList));
-        ContactAdapter contactAdapter;
-        if (mNum==0)
+        if (mTabNum ==ContactManagerActivity.TAB_0_FRIENDS)
         {
             getFriendsFromServer();
 
@@ -146,10 +152,10 @@ public class ContactListFragment extends ListFragment
 
 //            friendListAdapter = new ContactAdapter(AddressTabsActivity.this, friendContacts);
         }
-        else
+        else if (mTabNum ==ContactManagerActivity.TAB_1_ADDRESSBOOK)
         {
             Log.v(LOGTAG, "contactAdapter");
-            contactAdapter = new ContactAdapter(getActivity(), phoneContacts);
+            ContactAdapter contactAdapter = new ContactAdapter(getActivity(), phoneContacts);
 
             if (phoneContacts == null || phoneContacts.size()<1)
             {
@@ -167,17 +173,23 @@ public class ContactListFragment extends ListFragment
 
     @Override
     public void onContactsLoaded(int tabNum) {
-        if (tabNum==0) {
-            // this comes from onUsersMatchClicked, update the list
-            doServerUsersMatchCall();
-        }
-        else {
-            // this comes from PhoneBook fragment initialization
-            setListAdapter(new ContactAdapter(getActivity(), phoneContacts));
-            ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+        switch (tabNum){
+            case ContactManagerActivity.TAB_0_FRIENDS:
+                // this comes from onUsersMatchClicked, update the list
+                doServerUsersMatchCall();
+                break;
 
-            ContactManagerActivity.swipeContainer.setRefreshing(false);
+            case ContactManagerActivity.TAB_1_ADDRESSBOOK:
+                // this comes from PhoneBook fragment initialization
+                setListAdapter(new ContactAdapter(getActivity(), phoneContacts));
+                ((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+                ContactManagerActivity.swipeContainer.setRefreshing(false);
+                break;
+            default:
+                Log.e(LOGTAG, "Unexpected callback for tabNum "+tabNum);
+                break;
         }
+
     }
 
     @Override

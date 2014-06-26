@@ -188,8 +188,9 @@
     <string name="button_yes">Yes</string>
     <string name="button_no">No</string>
     <string name="video_uploaded">Got it! Video uploaded.</string>
-    <string name="tab_friends">StoryRoll Contacts</string>
+    <string name="tab_friends">StoryRoll</string>
     <string name="tab_adressbook">PhoneBook</string>
+    <string name="tab_email">Email</string>
     <string name="update_friends">Update friends</string>
     <string name="notif_channel_invite">Room invite</string>
     <string name="msg_storyroll_slogan">Share your life\nin 2 sec</string>
@@ -201,6 +202,7 @@
     <string name="button_start_new">START NEW ROLL</string>
     <string name="msg_movie_list_empty">Room is waiting for your rolls!\nClick the icon on top bar to add one.</string>
     <string name="msg_channels_not_loaded">Rooms not yet loaded</string>
+    <string name="invite_email_text">Enter email address(es) to invite</string>
 
 
 </resources>
