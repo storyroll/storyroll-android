@@ -1,9 +1,13 @@
 package co.storyroll.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
@@ -45,7 +49,6 @@ public class ChannelActivity extends MenuChannelActivity
     public static final String STORED_BUNDLE_CHANNEL_ID = "channelId" ;
     public static final String EXTRA_CHANNEL_TITLE = "channelTitle";
     public static final String STORED_BUNDLE_CHANNEL_TITLE = "channelTitle" ;
-
 
     static final int PICK_CONTACTS_REQUEST = 1111;  // The request code
     public static final int VIDEOCAPTURE_REQUEST = 1112;  // The request code
@@ -135,6 +138,12 @@ public class ChannelActivity extends MenuChannelActivity
 
         swipeContainer = SwipeUtil.initSwiping(this, lv, this);
 
+        // Register to receive messages from GCM Service about updated videos.
+        // We are registering an observer (mMessageReceiver) to receive Intents
+        // with actions named "custom-event-name".
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter(GcmIntentService.GCM_EVENT_CLIP_POSTED));
+
     }
 
     @Override
@@ -156,6 +165,22 @@ public class ChannelActivity extends MenuChannelActivity
 
         Log.v(LOGTAG, "onSaveInstanceState, current chanId: " + mChannelId);
     }
+
+    // Our handler for received Intents. This will be called whenever an Intent
+    // with an action named "custom-event-name" is broadcasted.
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra("message");
+            String chanId = intent.getStringExtra(GcmIntentService.EXTRA_CHANNEL_ID_STR);
+            String movieId = intent.getStringExtra(GcmIntentService.EXTRA_LAST_UPDATED_MOVIE);
+            Log.d(LOGTAG, "Got message from Service: " + message+", channel "+chanId+", movie "+movieId );
+            if (!TextUtils.isEmpty(chanId) && chanId.equals(mChannelId+"")) {
+                movieListAjaxCall();
+            }
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -179,6 +204,12 @@ public class ChannelActivity extends MenuChannelActivity
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        // Unregister since the activity is about to be closed.
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onDestroy();
+    }
 
     /* -------------------- -------------------- BUSINESS LOGICS -------------------- -------------------- */
 

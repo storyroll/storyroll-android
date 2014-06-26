@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import co.storyroll.R;
@@ -58,6 +59,7 @@ public class GcmIntentService extends IntentService {
     public static final String EXTRA_LAST_UPDATED_MOVIE = "lastUpdatedMovie";
     public static final String EXTRA_STORIES = "stories";
     public static final String EXTRA_CHANNEL_TITLE = "channelTitle";
+    public static final String GCM_EVENT_CLIP_POSTED = "gcm-video-posted";
     private static String NEW_MOVIE_IN_CHANNEL = "NEW_MOVIE_IN_CHANNEL";
 	private static String NEW_REPLY_IN_CHANNEL = "NEW_REPLY_IN_CHANNEL";
 	private static String STORY_PUBLISHED = "STORY_PUBLISHED";
@@ -73,7 +75,7 @@ public class GcmIntentService extends IntentService {
     public GcmIntentService() {
         super("GcmIntentService");
     }
-    public static final String LOGTAG = "GCM_INTENT_SVC";
+    public static final String LOGTAG = "GCM_SERVICE";
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -130,8 +132,9 @@ public class GcmIntentService extends IntentService {
         String currentUuid = PrefUtility.getUuid();
         if (uuid==null || !uuid.equals(currentUuid)) 
         {
-        	Log.w(LOGTAG, "GCM message received for "+uuid+", not for current user: "+currentUuid);
-        	// TODO: fire analytics or bugSense event
+            String errstr =  "GCM message received for "+uuid+", not for current user: "+currentUuid;
+        	Log.w(LOGTAG, errstr);
+            // TODO: fire analytics or bugSense event
         	return;
         }
 
@@ -149,7 +152,14 @@ public class GcmIntentService extends IntentService {
         String channelName = gcmExtras.getString(EXTRA_CHANNEL_NAME, DEFAULT_UNKNOWN_CHAN_NAME);
         String lastUserame = gcmExtras.getString(EXTRA_LAST_USERNAME, DEFAULT_LAST_USERNAME);
         String inviterName = gcmExtras.getString(EXTRA_INVITER_NAME, DEFAULT_LAST_USERNAME);
+        String chanIdStr = gcmExtras.getString(KEY_GCM_CHANNEL_ID_STR);
+        String lastUpdatedMovie = gcmExtras.getString(EXTRA_LAST_UPDATED_MOVIE);
 
+        if (STORY_PUBLISHED.equalsIgnoreCase(collapseKey)) {
+            Log.v(LOGTAG, "Got message: Published in "+channelName.toUpperCase()+"!");
+            sendVideoPostedMessage(chanIdStr, lastUpdatedMovie);
+            return;
+        }
 
         boolean addStoryNum = true;
         if (TextUtils.isEmpty(countNewStoriesStr)) 
@@ -157,11 +167,6 @@ public class GcmIntentService extends IntentService {
         	Log.w(LOGTAG, "No message count in GCM message payload");
 //        	BugSenseHandler.sendException(new Exception("No message count GCM message payload"));
         	msg = gcmExtras.getString("message");
-        }
-        else if (STORY_PUBLISHED.equalsIgnoreCase(collapseKey)) {
-        	contentTitle = getResources().getString(R.string.notif_video_published);
-        	msg = "Published in "+channelName.toUpperCase()+"!";
-        	
         }
         else if (REPLY_PUBLISHED.equalsIgnoreCase(collapseKey)) {
         	contentTitle = getResources().getString(R.string.notif_you_got_response);
@@ -187,11 +192,10 @@ public class GcmIntentService extends IntentService {
 		if (countNewStories>1 && addStoryNum) {
 	    	msg=msg+" You have "+countNewStories+" unchecked video(s).";
 	    }
-        
+
         String newStoriesStr = gcmExtras.getString(EXTRA_STORIES);
         notificationIntent.putExtra(EXTRA_STORIES, DataUtility.stringToIntArray(newStoriesStr));
-        notificationIntent.putExtra(EXTRA_LAST_UPDATED_MOVIE, gcmExtras.getString(EXTRA_LAST_UPDATED_MOVIE));
-        String chanIdStr = gcmExtras.getString(KEY_GCM_CHANNEL_ID_STR);
+        notificationIntent.putExtra(EXTRA_LAST_UPDATED_MOVIE, lastUpdatedMovie);
         Log.v(LOGTAG, "gcm chanId: "+chanIdStr);
         notificationIntent.putExtra(EXTRA_CHANNEL_ID_STR, chanIdStr);
         notificationIntent.putExtra(EXTRA_CHANNEL_TITLE, channelName);
@@ -212,5 +216,15 @@ public class GcmIntentService extends IntentService {
                 notificationIntent, 0);
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+    }
+
+    private void sendVideoPostedMessage(String chanIdStr, String lastUpdatedMovie) {
+        Log.d("sender", "Broadcasting message");
+        Intent intent = new Intent(GCM_EVENT_CLIP_POSTED);
+        // You can also include some extra data.
+        intent.putExtra("message", "This is my message!");
+        intent.putExtra(EXTRA_CHANNEL_ID_STR, chanIdStr);
+        intent.putExtra(EXTRA_LAST_UPDATED_MOVIE, lastUpdatedMovie);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

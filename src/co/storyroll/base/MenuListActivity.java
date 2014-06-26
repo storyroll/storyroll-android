@@ -284,9 +284,9 @@ public abstract class MenuListActivity extends FragmentActivity implements Signu
     /*-- lifecycle --*/
 
     @Override
-    public void onDestroy(){
-        super.onDestroy();
+    protected void onDestroy(){
         aq.dismiss();
+        super.onDestroy();
     }
 
     @Override
