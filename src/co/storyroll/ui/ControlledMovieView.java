@@ -125,19 +125,20 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 
     }
 	
-	public void init(View controlView, int screenWidth, int itemPosition, Clip movie, String uuid,
+	public void init(View controlView, int screenWidth, int itemPosition, Clip video, String uuid,
 			ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
 		this.controlView = controlView;
 		this.screenWidth = screenWidth;
 		this.itemPosition = itemPosition;
-		this.mMovieId = movie.getId();
-		this.mVideo = movie;
+		this.mMovieId = video.getId();
+		this.mVideo = video;
 		this.mUuid = uuid;
 		this.progressBar = progressBar;
 //		this.unseenIndicator = unseenIndicator;
 		this.playControl = playControl;
-		this.mUpdateTag = movie.getPublishedOn();
-		this.movieFileUrl = movie.getFileUrl();
+		this.mUpdateTag = video.getPublishedOn();
+        this.movieFileUrl = video.getFileUrl();
+        Log.v(LOGTAG, "init: "+video.getFileUrl());
 		
 		setOnPreparedListener(new MediaPlayer.OnPreparedListener()  {
             @Override
@@ -185,7 +186,9 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	{
         String videoFilePath = AppUtility.getVideoCacheDir(getContext().getApplicationContext())+File.separator+fileName;
         Log.d(LOGTAG, "onVideoTaskCompleted: "+videoFilePath+", success: "+success);
-        progressBar.setVisibility(View.GONE);
+        if (progressBar!=null) {
+            progressBar.setVisibility(View.GONE);
+        }
 		isLoading = false;
 
 		if (success) {

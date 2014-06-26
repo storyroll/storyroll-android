@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     private int autoRangeBottom;
     private boolean isTrial;
     private ImageButton.OnClickListener onMoviehideClick;
+    private AvatarClickListener avatarClickListener = new AvatarClickListener();
 
     static final Integer LIMIT_ITEMS = 40;
 
@@ -211,7 +213,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 //        ViewUtility.setViewSquare(videoThumb, calculcatedVideoWidth);
         ViewUtility.setViewSquare(playControl, calculcatedVideoWidth);
 
-        if (movie.getClipCount()>3)
+        if (movie.getClipCount()>=MovieItemView.MAX_SHOWN_CLIPS)
         {
             videoView.adapterInit(this, playControl, calculcatedVideoWidth, position,
                     movie, uuid, progressBar, null, playControl);
@@ -237,11 +239,12 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
             if (i<clipsNum) {
                 if (!TextUtils.isEmpty(movie.getCast().get(i).getAvatarUrl())) {
                     aq.id(castImage).image(movie.getCast().get(i).getAvatarUrl(), true, true, 0, R.drawable.ic_avatar_default);
-                    //                    castImage.setTag();
+                    // set username as tag so that it can be picked up by click listener
+                    castImage.setTag(movie.getCast().get(i).getUsername());
                 } else {
                     castImage.setImageResource(R.drawable.ic_avatar_default);
                 }
-                aq.id(castImage).visible().clicked(this, "onCastClickedCb");
+                aq.id(castImage).visible().clicked(avatarClickListener);
             }
             if (i>=MovieItemView.MAX_SHOWN_CLIPS) {
                 castImage.setVisibility(View.GONE);
@@ -267,6 +270,21 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 
         // 5. return rowView
         return rowView;
+    }
+
+    class AvatarClickListener implements  ImageView.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            if (view.getTag()!=null) {
+                fireGAnalyticsEvent("ui_action", "touch", "avatar", null);
+                Toast toast = Toast.makeText(context, view.getTag().toString(), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER_VERTICAL| Gravity.CENTER_HORIZONTAL, 0, 0);
+                toast.show();
+            }
+            else {
+                fireGAnalyticsEvent("ui_action", "touch", "avatar_placeholder", null);
+            }
+        }
     }
 
     // play/stop click listener
