@@ -33,6 +33,16 @@
                 android:entryValues="@array/autostart_pref_values"
                 android:defaultValue="NEVER"
                 android:dialogTitle="Autostart Options" />
+
+        <co.storyroll.ui.SummaryListPreference
+                android:key="co.storyroll.enums.AutofocusMode"
+                android:title="Camera Autofocus"
+                android:summary="Camera wil autofocus: %s"
+                android:entries="@array/autofocus_pref_items"
+                android:entryValues="@array/autofocus_pref_values"
+                android:defaultValue="FAST"
+                android:dialogTitle="Autostart Options" />
+
     </PreferenceCategory>
 
 
@@ -82,7 +92,7 @@
 	        android:key="version"
 	        android:title="@string/version"
 	        android:summary="" 
-	        android:enabled="false"
+	        android:enabled="true"
 		/>
         
         <Preference

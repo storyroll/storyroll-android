@@ -29,13 +29,16 @@
             android:singleLine="true"
             android:text="Contact Name"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_toLeftOf="@+id/rejectInvite"
+                />
 
         <TextView
             android:id="@+id/secondLine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/firstLine"
+            android:layout_toLeftOf="@+id/rejectInvite"
             android:layout_marginTop="1dp"
             android:ellipsize="end"
             android:padding="2dp"

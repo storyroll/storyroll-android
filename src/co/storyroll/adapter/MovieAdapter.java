@@ -1,5 +1,6 @@
 package co.storyroll.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
@@ -20,7 +21,6 @@ import co.storyroll.model.Movie;
 import co.storyroll.ui.ControlledMovieView;
 import co.storyroll.ui.MovieItemView;
 import co.storyroll.ui.RoundedImageView;
-import co.storyroll.ui.dialog.ShareDialog;
 import co.storyroll.util.*;
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
@@ -220,7 +220,14 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 //            // todo: optimize to not create a listener for each, but reuse one listener
         }
 //        cameraButton.setOnClickListener(new ReplyClickListener(movie));
-        aq.id(rowView.findViewById(R.id.shareImage)).clicked(this, "onShareClicked");
+        ImageView shareImage = (ImageView)rowView.findViewById(R.id.shareImage);
+        if (movie.getPlayerUrl()!=null)
+        {
+            shareImage.setTag(movie.getPlayerUrl());
+//            shareImage.setAlpha(1);
+            shareImage.setEnabled(true);
+        }
+        aq.id(shareImage).clicked(mOnShareClicked);
 
         String ageText = DateUtils.getRelativeTimeSpanString(
                 movie.getPublishedOn(), c.getTimeInMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE).toString();
@@ -424,12 +431,21 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         fireGAnalyticsEvent("ui_action", "touch", "cast", null);
     }
 
-    public void onShareClicked()
-    {
-        fireGAnalyticsEvent("ui_action", "touch", "share", null);
-        new ShareDialog().show( ((ChannelActivity)context).getSupportFragmentManager(), "ShareDialog");
-    }
+    private ImageView.OnClickListener mOnShareClicked = new ImageView.OnClickListener() {
 
+        @Override
+        public void onClick(View view) {
+            fireGAnalyticsEvent("ui_action", "touch", "share", null);
+//        new ShareDialog().show( ((ChannelActivity)context).getSupportFragmentManager(), "ShareDialog");
+            if (view.getTag()==null) return;
+
+            String link = view.getTag().toString();
+
+            String message = "A StoryRoll clip" + ":\n\n" + link;
+
+            IntentUtility.sendShare((Activity)context, "Check this StoryRoll clip", message);
+        }
+    };
 
     // TODO: improve to show like 1.5m
     private String shortLikesString(Integer num) {

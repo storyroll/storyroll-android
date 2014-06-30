@@ -14,6 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import co.storyroll.MainApplication;
 import co.storyroll.base.Constants;
+import co.storyroll.enums.AutofocusMode;
 import co.storyroll.enums.AutostartMode;
 import co.storyroll.enums.ServerPreference;
 import com.androidquery.auth.BasicHandle;
@@ -196,6 +197,11 @@ public class PrefUtility {
 		AutostartMode am = PrefUtility.getEnum(AutostartMode.class, AutostartMode.NEVER);
 		return am;
 	}
+
+    public static AutofocusMode getAutofocusMode() {
+        AutofocusMode am = PrefUtility.getEnum(AutofocusMode.class, AutofocusMode.FAST);
+        return am;
+    }
 
     public static String getApiUrl(String subj) {
         return getApiUrl(subj, null);

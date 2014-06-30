@@ -409,7 +409,6 @@
             android:layout_marginRight="10dp"
             android:paddingLeft="40dp"
             android:layout_gravity="center_vertical"
-            android:alpha="0.3"
             />
     </LinearLayout>
 

@@ -22,6 +22,7 @@ import android.widget.Toast;
 import co.storyroll.PQuery;
 import co.storyroll.R;
 import co.storyroll.base.Constants;
+import co.storyroll.enums.AutofocusMode;
 import co.storyroll.enums.AutostartMode;
 import co.storyroll.enums.ServerPreference;
 import co.storyroll.tasks.ClearCacheTask;
@@ -153,7 +154,10 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
         
         p = findPreference("co.storyroll.enums.AutostartMode");
         p.setOnPreferenceChangeListener(this);
-        
+
+        p = findPreference("co.storyroll.enums.AutofocusMode");
+        p.setOnPreferenceChangeListener(this);
+
         p = findPreference("co.storyroll.enums.ServerPreference");
         if (PrefUtility.isTestDevice())
         {
@@ -438,6 +442,11 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 		{
 			PrefUtility.putEnum(AutostartMode.valueOf(newValue.toString()));
 		}
+        else if (pref.getKey().equals("co.storyroll.enums.AutofocusMode"))
+        {
+            Log.d(LOGTAG, "new value: "+newValue.toString());
+            PrefUtility.putEnum(AutofocusMode.valueOf(newValue.toString()));
+        }
 		
 		return true;
 	}

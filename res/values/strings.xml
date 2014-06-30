@@ -64,7 +64,7 @@
 	<string name="commented">Commented</string>
 	<string name="updated">Updated</string>
 	<string name="liked">Liked</string>
-	<string name="share_app_message">Liking this StoryRoll app on Android</string>
+	<string name="share_app_message">Hey! Liking this StoryRoll app on Android</string>
 	<string name="videocap_ready_message">Continue this episode</string>
 	<string name="video_uploaded_message">Got it!\n\nYour roll\n will be ready\n in few moments.</string>
 	<string name="no_rolls_message">No rolls to display in this section.</string>

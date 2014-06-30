@@ -20,6 +20,8 @@ public class Movie extends Clip {
     private List<Clip> clips = new ArrayList<Clip>(MovieItemView.MAX_SHOWN_CLIPS);
     private int likeCount = 0;
     private boolean finished = true;
+    private String playerUrl = null;
+    private String quadUrl = null;
 
 
     public Movie(long id){
@@ -105,6 +107,22 @@ public class Movie extends Clip {
         this.finished = finished;
     }
 
+    public String getPlayerUrl() {
+        return playerUrl;
+    }
+
+    public void setPlayerUrl(String playerUrl) {
+        this.playerUrl = playerUrl;
+    }
+
+    public String getQuadUrl() {
+        return quadUrl;
+    }
+
+    public void setQuadUrl(String quadUrl) {
+        this.quadUrl = quadUrl;
+    }
+
     public Movie(JSONObject obj) throws JSONException {
         super();
         id = obj.getLong("id");
@@ -133,6 +151,14 @@ public class Movie extends Clip {
                 JSONObject owner = clipObj.getJSONObject("owner");
                 cast.add(new Cast(owner));
             }
+        }
+        if (obj.has("movieClip")) {
+            JSONObject movieClip = obj.getJSONObject("movieClip");
+            playerUrl = movieClip.getString("playerUrl");
+        }
+        if (obj.has("quadClip")) {
+            JSONObject movieClip = obj.getJSONObject("movieClip");
+            quadUrl = movieClip.getString("playerUrl");
         }
 	}
 	

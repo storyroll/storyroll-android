@@ -73,9 +73,9 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 		if (autoStart) queueStartVideo();
 		if (!isLoading) {
 	   		// start a video preload task
-//			if(progressBar!=null) {
-//				progressBar.setVisibility(View.VISIBLE);
-//			}
+			if(progressBar!=null) {
+				progressBar.setVisibility(View.VISIBLE);
+			}
 			isLoading = true;
 //		        String url = "https://archive.org/download/Pbtestfilemp4videotestmp4/video_test_512kb.mp4";
 //	        String url = PrefUtility.getApiUrl(ServerUtility.API_MOVIE_FILE, "story="+mMovieId+"&uuid="+mUuid+"&updateTag="+mUpdateTag);

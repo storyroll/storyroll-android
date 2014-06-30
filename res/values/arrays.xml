@@ -38,7 +38,19 @@
         <item>WIFI</item>
         <item>ALWAYS</item>   
     </string-array>
-    
+
+    <string-array name="autofocus_pref_items">
+        <item>Fast</item>
+        <item>Continuous</item>
+        <item>Auto</item>
+    </string-array>
+
+    <string-array name="autofocus_pref_values">
+        <item>FAST</item>
+        <item>CONTINUOUS</item>
+        <item>AUTO</item>
+    </string-array>
+
   	<string-array name="server_pref_items">
         <item>Dev</item>
         <item>Staging</item>

@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.*;
 import co.storyroll.R;
 import co.storyroll.base.BaseActivity;
+import co.storyroll.enums.AutofocusMode;
 import co.storyroll.tasks.VideoDownloadTask;
 import co.storyroll.tasks.VideoDownloadTask.OnVideoTaskCompleted;
 import co.storyroll.util.*;
@@ -974,11 +975,33 @@ public class VideoCaptureActivity extends BaseActivity implements
 //			cp.setRecordingHint(true);
 			
 			List<String> focusModes = cp.getSupportedFocusModes();
-			if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-			  // Autofocus mode is supported
-				cp.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-			}
-			fireGAnalyticsEvent("camera", "autoFocusMode", focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)?"supported":"not supported", null);
+            // Autofocus modes supported
+            AutofocusMode afm = PrefUtility.getAutofocusMode();
+            if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) && AutofocusMode.FAST.equals(afm))
+            {
+                cp.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                fireGAnalyticsEvent("camera", "autoFocusMode", "FOCUS_MODE_CONTINUOUS_PICTURE", null);
+                Log.d(LOGTAG, "FOCUS_MODE_CONTINUOUS_PICTURE");
+
+            }
+            else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO) && !AutofocusMode.AUTO.equals(afm))
+            {
+                cp.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                fireGAnalyticsEvent("camera", "autoFocusMode", "FOCUS_MODE_CONTINUOUS_VIDEO", null);
+                Log.d(LOGTAG, "FOCUS_MODE_CONTINUOUS_VIDEO");
+
+            }
+            else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO))
+            {
+			  	cp.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                fireGAnalyticsEvent("camera", "autoFocusMode", "FOCUS_MODE_AUTO", null);
+                Log.d(LOGTAG, "FOCUS_MODE_AUTO");
+
+            }
+            else {
+                fireGAnalyticsEvent("camera", "autoFocusMode", "NONE", null);
+                Log.d(LOGTAG, "FOCUS_MODE:NONE");
+            }
 
 
 			c.setParameters(cp);
