@@ -1,0 +1,1 @@
+keytool -import -v -trustcacerts -alias 0 -file ./storyroll-lb.crt -keystore /Users/martynas/Dev/keystore/storyroll_lb.jks -storetype BKS -provider org.bouncycastle.jce.provider.BouncyCastleProvider -providerpath /Users/martynas/Dev/android/bcprov/bcprov-jdk15on-146.jar -storepass storyroll123
