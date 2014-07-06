@@ -1,5 +1,6 @@
 package co.storyroll.model;
 
+import android.util.Log;
 import co.storyroll.ui.MovieItemView;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,7 +22,8 @@ public class Movie extends Clip {
     private int likeCount = 0;
     private boolean finished = true;
     private String playerUrl = null;
-    private String quadUrl = null;
+    private String quadPlayerUrl = null;
+    private String quadFileUrl = null;
 
 
     public Movie(long id){
@@ -115,12 +117,20 @@ public class Movie extends Clip {
         this.playerUrl = playerUrl;
     }
 
-    public String getQuadUrl() {
-        return quadUrl;
+    public String getQuadPlayerUrl() {
+        return quadPlayerUrl;
     }
 
-    public void setQuadUrl(String quadUrl) {
-        this.quadUrl = quadUrl;
+    public void setQuadPlayerUrl(String quadPlayerUrl) {
+        this.quadPlayerUrl = quadPlayerUrl;
+    }
+
+    public String getQuadFileUrl() {
+        return quadFileUrl;
+    }
+
+    public void setQuadFileUrl(String quadFileUrl) {
+        this.quadFileUrl = quadFileUrl;
     }
 
     public Movie(JSONObject obj) throws JSONException {
@@ -156,9 +166,11 @@ public class Movie extends Clip {
             JSONObject movieClip = obj.getJSONObject("movieClip");
             playerUrl = movieClip.getString("playerUrl");
         }
-        if (obj.has("quadClip")) {
-            JSONObject movieClip = obj.getJSONObject("movieClip");
-            quadUrl = movieClip.getString("playerUrl");
+        if (clipCount >= MovieItemView.MAX_SHOWN_CLIPS && obj.has("quadClip") && obj.get("quadClip")!=JSONObject.NULL) {
+            Log.v(LOGTAG, "quadclip: "+obj.get("quadClip"));
+            JSONObject movieClip = obj.getJSONObject("quadClip");
+            quadPlayerUrl = movieClip.getString("playerUrl");
+            quadFileUrl = movieClip.getString("mp4Url");
         }
 	}
 	

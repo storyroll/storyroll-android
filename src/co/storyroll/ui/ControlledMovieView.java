@@ -25,7 +25,8 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	protected static final boolean LOOPING = true;
 	
 	public boolean isLoading = false;
-	public boolean isLoaded = false;
+	public boolean isLoadedSeq = false;
+    public boolean isLoadedQuad = false;
 	boolean playQueued = true;
 	private View controlView, unseenIndicator;
 	private ImageView playControl;
@@ -37,6 +38,8 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	private String mUuid;
 	private long mUpdateTag;
 	private String movieFileUrl;
+    private String movieQuadFileUrl;
+    private boolean isQuadPlay = false;
 
 	private ProgressBar progressBar;
 
@@ -54,9 +57,10 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
        
     }
 	
-	public void queueStartVideo() {
+	public void queueStartVideo(boolean toggle) {
 		Log.v(LOGTAG, "queued video start");
-		if (!isPlaying() && isLoaded) 
+        boolean isLoaded = isQuadPlay?isLoadedQuad:isLoadedSeq;
+		if (!isPlaying() && isLoaded && !toggle)
 		{
 			playQueued = false;
 			startVideo();
@@ -66,11 +70,11 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 		}	
 	}
 	
-	public void startVideoPreloading(boolean autoStart) 
+	public void startVideoPreloading(boolean autoStart, boolean toggle)
 	{
 		Log.v(LOGTAG, "startVideoPreloading, autostart: "+autoStart);
         indicatePlayable(false);
-		if (autoStart) queueStartVideo();
+		if (autoStart) queueStartVideo(toggle);
 		if (!isLoading) {
 	   		// start a video preload task
 			if(progressBar!=null) {
@@ -81,7 +85,12 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 //	        String url = PrefUtility.getApiUrl(ServerUtility.API_MOVIE_FILE, "story="+mMovieId+"&uuid="+mUuid+"&updateTag="+mUpdateTag);
 	        		        
 	   		VideoDownloadTask task = new VideoDownloadTask(getContext().getApplicationContext(), this);
-	        task.execute(movieFileUrl+"#"+mUpdateTag);
+            if (isQuadPlay) {
+                task.execute(movieQuadFileUrl);
+            }
+            else {
+                task.execute(movieFileUrl + "#" + mUpdateTag);
+            }
 		}
 	}
 	
@@ -118,10 +127,23 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 		pause();
 	}
 
-    public void adapterInit(MovieAdapter parentAdapter, View controlView, int screenWidth, int itemPosition, Clip movie, String uuid,
+    public void adapterInit(MovieAdapter parentAdapter, View controlView, int screenWidth, int itemPosition, Movie movie, String uuid,
                      ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
         init(controlView, screenWidth, itemPosition, movie, uuid, progressBar, unseenIndicator, playControl);
         this.parentAdapter = parentAdapter;
+
+    }
+    public void adapterInit(MovieAdapter parentAdapter, View controlView, int screenWidth, int itemPosition, Clip movie, String uuid,
+                            ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
+        init(controlView, screenWidth, itemPosition, movie, uuid, progressBar, unseenIndicator, playControl);
+        this.parentAdapter = parentAdapter;
+
+    }
+    public void init(View controlView, int screenWidth, int itemPosition, Movie video, String uuid,
+                     ProgressBar progressBar, View unseenIndicator, ImageView playControl) {
+        init(controlView, screenWidth, itemPosition, (Clip)video, uuid, progressBar, unseenIndicator, playControl);
+        this.movieQuadFileUrl = video.getQuadFileUrl();
+        Log.v(LOGTAG, "movieQuadFileUrl: "+movieQuadFileUrl);
 
     }
 	
@@ -139,7 +161,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 		this.mUpdateTag = video.getPublishedOn();
         this.movieFileUrl = video.getFileUrl();
         Log.v(LOGTAG, "init: "+video.getFileUrl());
-		
+
 		setOnPreparedListener(new MediaPlayer.OnPreparedListener()  {
             @Override
             public void onPrepared(MediaPlayer mp) {                         
@@ -195,9 +217,11 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
             controlView.setVisibility(View.GONE);
             setVisibility(View.VISIBLE);
             setViewSquare();
-
             setVideoPath(videoFilePath);
-			isLoaded = true;
+            if (isQuadPlay())
+			    isLoadedQuad = true;
+            else
+                isLoadedSeq = true;
 			
 			if (playQueued) {
                 if (mVideo instanceof Movie)
@@ -253,5 +277,19 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 
     public String getVideoType() {
         return (mVideo instanceof Movie)?"movie":"clip";
+    }
+
+    public boolean isQuadPlay() {
+        return isQuadPlay;
+    }
+
+    public void toggleQuadPlay() {
+        isQuadPlay = !isQuadPlay;
+        Log.v(LOGTAG, "isQuadPlay: "+isQuadPlay);
+        if (isPlaying()) {
+            stopPlayback();
+            // play new movie
+            startVideoPreloading(true, true);
+        }
     }
 }

@@ -351,7 +351,7 @@ public class ChannelActivity extends MenuChannelActivity
 
     private void movieListAjaxCall() {
         String apiUrl = PrefUtility.getApiUrl(ServerUtility.API_CHAN_MOVIES,
-                "uuid=" + mUuid +"&channel="+mChannelId + "&limit=" + LIMIT_ITEMS);
+                "uuid=" + mUuid +"&channel="+mChannelId + "&l=" + LIMIT_ITEMS+"&p=0");
 
         swipeContainer.setRefreshing(true);
         // todo - synchronize on refresh's AsyncTask

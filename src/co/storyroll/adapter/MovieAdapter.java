@@ -53,6 +53,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     private boolean isTrial;
     private ImageButton.OnClickListener onMoviehideClick;
     private AvatarClickListener avatarClickListener = new AvatarClickListener();
+    private ToggleModeClickListener onToggleModeListener = new ToggleModeClickListener();
 
     static final Integer LIMIT_ITEMS = 40;
 
@@ -106,7 +107,6 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     // The following two methods overriden to trick Adapter into thinking we have +1 item (which is an interactive control)
     @Override
     public int getCount() {
-        Log.v(LOGTAG, "getCount will return "+(super.getCount()+1));
         return super.getCount()+1;
     }
 
@@ -229,6 +229,18 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         }
         aq.id(shareImage).clicked(mOnShareClicked);
 
+        ImageView displayModeControl = (ImageView)rowView.findViewById(R.id.modeControl);
+        if (movie.getClipCount()>=MovieItemView.MAX_SHOWN_CLIPS) {
+            displayModeControl.setTag(videoView);
+            displayModeControl.setOnClickListener(onToggleModeListener);
+        }
+        else {
+            displayModeControl.setVisibility(View.GONE);
+        }
+
+        ImageView soundControl = (ImageView)rowView.findViewById(R.id.soundControl);
+
+
         String ageText = DateUtils.getRelativeTimeSpanString(
                 movie.getPublishedOn(), c.getTimeInMillis(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE).toString();
         if (HIDE_AGE_AGO_POSTFIX) {
@@ -294,6 +306,28 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         }
     }
 
+    class ToggleModeClickListener implements  ImageView.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            if (view.getTag()!=null)
+            {
+                ControlledMovieView cmv = (ControlledMovieView)view.getTag();
+                fireGAnalyticsEvent("ui_action", "touch", "toggle_video_mode_"+(cmv.isQuadPlay()?"quad":"seq"), null);
+                if (cmv.isQuadPlay()) {
+                    ((ImageView)view).setImageResource(R.drawable.ico_mode_quad);
+                }
+                else {
+                    ((ImageView)view).setImageResource(R.drawable.ico_mode_seq);
+                }
+                cmv.toggleQuadPlay();
+            }
+            else {
+                fireGAnalyticsEvent("ui_action", "touch", "toggle_video_mode_undefined", null);
+            }
+        }
+    }
+
+
     // play/stop click listener
     class ThumbClickListener implements ImageView.OnClickListener {
         ControlledMovieView pv;
@@ -304,7 +338,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         @Override
         public void onClick(View v) {
             fireGAnalyticsEvent("ui_action", "touch", "movieThumb", null);
-            pv.startVideoPreloading(true);
+            pv.startVideoPreloading(true, false);
         }
     }
 
@@ -563,7 +597,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
                 break;
         }
         if (autoStart) {
-            videoView.startVideoPreloading(true);
+            videoView.startVideoPreloading(true, false);
         }
 
         fireGAnalyticsEvent("handle_autostart", "mode", am.toString(), null);

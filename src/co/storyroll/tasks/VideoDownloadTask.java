@@ -47,6 +47,7 @@ public class VideoDownloadTask extends AsyncTask<String, Void, Result> {
     @Override
     protected Result doInBackground(String... params) {
         final String paramUrl = params[0];
+        Log.v(LOGTAG, "doInBackground: load "+paramUrl);
 
         InputStream is = null;
         BufferedInputStream inStream = null;

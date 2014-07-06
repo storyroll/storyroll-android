@@ -387,29 +387,34 @@
             android:gravity="center_vertical"
             android:textStyle="bold"
                 />
-        <TextView
-            android:layout_height="match_parent"
-            android:layout_width="wrap_content"
-            android:textColor="#464646"
-            android:textSize="16sp"
-            android:text=" likes"
-            android:visibility="gone"
-            android:layout_gravity="center_vertical"
-            android:gravity="center_vertical"
-            android:textStyle="bold"
-        />
-        <TextView
-                android:layout_width="10dp"
-                android:layout_height="1dp"/>
         <ImageView
-            android:id="@+id/shareImage"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:src="@drawable/ic_share_off"
-            android:layout_marginRight="10dp"
-            android:paddingLeft="40dp"
-            android:layout_gravity="center_vertical"
-            />
+                android:id="@+id/shareImage"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/ic_share_off"
+                android:layout_marginRight="10dp"
+                android:paddingLeft="10dp"
+                android:layout_gravity="center_vertical"
+                />
+        <ImageView
+                android:id="@+id/modeControl"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/ico_mode_quad"
+                android:layout_marginRight="10dp"
+                android:paddingLeft="10dp"
+                android:layout_gravity="center_vertical"
+                />
+        <ImageView
+                android:id="@+id/soundControl"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/ico_soundtrack"
+                android:layout_marginRight="10dp"
+                android:paddingLeft="10dp"
+                android:layout_gravity="center_vertical"
+                android:alpha="0.4"
+                />
     </LinearLayout>
 
 
