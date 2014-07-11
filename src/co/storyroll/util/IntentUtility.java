@@ -20,17 +20,30 @@
 package co.storyroll.util;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.widget.Toast;
 import co.storyroll.R;
 import co.storyroll.base.Constants;
+import co.storyroll.tasks.VideoDownloadTask;
 import com.androidquery.util.AQUtility;
 
+import java.io.File;
+import java.util.List;
 import java.util.Locale;
 
 //import co.storyroll.ImageActivity;
 
 public class IntentUtility {
+    private static final String LOGTAG = "IntentUtility";
 
 	/*
     public static boolean openMarket(Activity act) {
@@ -182,5 +195,94 @@ public class IntentUtility {
     		AQUtility.report(ex);
     	    //Toast.makeText(MyActivity.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
     	}
+    }
+
+
+    public static void sendShareInstagram(Activity context, String link)
+    {
+        VideoDownloadTask task = new VideoDownloadTask(context.getApplicationContext(), new VideoDownloadCallback(context));
+        task.execute(link);
+    }
+
+    static class VideoDownloadCallback implements VideoDownloadTask.OnVideoTaskCompleted {
+
+        Context mContext;
+
+        public VideoDownloadCallback(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        public void onVideoTaskCompleted(String cachedFileName, boolean success, boolean wasCached, Exception e) {
+            if (success) {
+                Log.v(LOGTAG, "Sharing file: "+cachedFileName);
+                shareVideo(mContext, cachedFileName);
+            }
+            else {
+                Toast.makeText(mContext, "Error downloading video", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public static void shareVideo(final Context context, final String fileName){
+        new Handler().post(new Runnable() {
+
+            @Override
+            public void run() {
+                Uri videoURI = Uri.fromFile( new File(AppUtility.getVideoCacheDir(context.getApplicationContext()), fileName) );
+//                Uri videoURI = Uri.parse("content://" + CachedFileProvider.AUTHORITY + "/"
+//                        + fileName);
+//                Uri photoUri = FileProvider.getUriForFile(context, "com.myapp.fileprovider", new File(fileName));
+
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Title");
+                intent.setType("video/mp4");
+                intent.putExtra(Intent.EXTRA_STREAM, videoURI);
+
+                // Grant permissions to all apps that can handle this intent
+                // thanks to this answer http://stackoverflow.com/a/18332000
+                List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolveInfo : resInfoList) {
+                    String packageName = resolveInfo.activityInfo.packageName;
+                    context.grantUriPermission(packageName, videoURI,
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+
+                try {
+                    context.startActivity(Intent.createChooser(intent, "Upload video via:"));
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Log.e(LOGTAG, "ActivityNotFoundException", ex);
+                }
+            }
+        });
+    };
+
+    public static String getVideoContentUriFromFilePath(Context ctx, String filePath) {
+
+        ContentResolver contentResolver = ctx.getContentResolver();
+        String videoUriStr = null;
+        long videoId = -1;
+        Log.d("first log","Loading file " + filePath);
+
+        // This returns us content://media/external/videos/media (or something like that)
+        // I pass in "external" because that's the MediaStore's name for the external
+        // storage on my device (the other possibility is "internal")
+        Uri videosUri = MediaStore.Video.Media.getContentUri("external");
+
+        Log.d("second log","videosUri = " + videosUri.toString());
+
+        String[] projection = {MediaStore.Video.VideoColumns._ID};
+
+        // TODO This will break if we have no matching item in the MediaStore.
+        Cursor cursor = contentResolver.query(videosUri, projection, MediaStore.Video.VideoColumns.DATA + " LIKE ?", new String[] { filePath }, null);
+        cursor.moveToFirst();
+
+        int columnIndex = cursor.getColumnIndex(projection[0]);
+        videoId = cursor.getLong(columnIndex);
+
+        Log.d("third log","Video ID is " + videoId);
+        cursor.close();
+        if (videoId != -1 ) videoUriStr = videosUri.toString() + "/" + videoId;
+        return videoUriStr;
     }
 }

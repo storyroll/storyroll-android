@@ -229,6 +229,14 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         }
         aq.id(shareImage).clicked(mOnShareClicked);
 
+        ImageView shareInsta = (ImageView)rowView.findViewById(R.id.shareInsta);
+        if (movie.getPlayerUrl()!=null)
+        {
+            shareInsta.setTag(movie.getFileUrl());
+            shareInsta.setEnabled(true);
+        }
+        aq.id(shareInsta).clicked(mOnShareInstaClicked);
+
         ImageView displayModeControl = (ImageView)rowView.findViewById(R.id.modeControl);
         if (movie.getClipCount()>=MovieItemView.MAX_SHOWN_CLIPS) {
             displayModeControl.setTag(videoView);
@@ -478,6 +486,17 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
             String message = "A StoryRoll clip" + ":\n\n" + link;
 
             IntentUtility.sendShare((Activity)context, "Check this StoryRoll clip", message);
+        }
+    };
+
+    private ImageView.OnClickListener mOnShareInstaClicked = new ImageView.OnClickListener() {
+
+        @Override
+        public void onClick(View view) {
+            fireGAnalyticsEvent("ui_action", "touch", "share_insta", null);
+            if (view.getTag()==null) return;
+            String link = view.getTag().toString();
+            IntentUtility.sendShareInstagram((Activity)context, link);
         }
     };
 

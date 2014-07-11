@@ -246,7 +246,7 @@
           The com.google.android.c2dm.permission.SEND permission is necessary
           so only GCM services can send data messages for the app.
         -->
- 
+
         
     </application>
 
