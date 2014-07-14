@@ -3,6 +3,7 @@ package co.storyroll.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
@@ -35,14 +36,15 @@ import java.util.Calendar;
  * Created by martynas on 17/06/14.
  */
 
-public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnScrollListener {
+public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnScrollListener, SwipeRefreshLayout.OnRefreshListener {
 
+    private final int FIRST_VIDEO_ITEM_IDX = 1; // index of the first element in ListView, which is an actual video
 
     private final long mChanId;
     public String LOGTAG = "MovieAdapter";
 
     private static final boolean HIDE_AGE_AGO_POSTFIX = false;
-    private final Context context;
+    private final Activity context;
     private final ArrayList<Movie> movies;
     private final PQuery aq;
     private final String uuid;
@@ -70,7 +72,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 
     private Calendar c = Calendar.getInstance();
 
-    public MovieAdapter(final Context context, ArrayList<Movie> movies,
+    public MovieAdapter(final Activity context, ArrayList<Movie> movies,
                             PQuery aq, String uuid, long chanId, boolean trial) {
 
         super(context, R.layout.movie_item, movies);
@@ -299,6 +301,12 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         return rowView;
     }
 
+    @Override
+    public void onRefresh() {
+        ((ChannelActivity)context).onRefresh();
+    }
+
+
     class AvatarClickListener implements  ImageView.OnClickListener {
         @Override
         public void onClick(View view) {
@@ -520,6 +528,12 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem,
                          int visibleItemCount, int totalItemCount) {
+        Log.v(LOGTAG, "onScroll:  " +firstVisibleItem);
+
+        int topRowVerticalPosition =
+                (view == null || view.getChildCount() == 0) ?
+                        0 : view.getChildAt(0).getTop();
+        ((ChannelActivity)context).setEnabledSwipeContainer(topRowVerticalPosition >= 0);
 
         boolean stopCurrent = false;
         if (currentlyPlayed!=null) {
@@ -542,10 +556,10 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
         if (lastTrackedPos==-1 && visibleItemCount>0) {
             // TODO: if it's currently selected fragment, autoplay, if not, schedule
 
-            MovieItemView pv = (MovieItemView) ((ViewGroup)view).getChildAt(0);
+            MovieItemView pv = (MovieItemView) ((ViewGroup)view).getChildAt(FIRST_VIDEO_ITEM_IDX); // normally 0, but we have the top item as "new roll" controll
             if (pv!=null)
             {
-//					Log.v(LOGTAG, "onScroll: starting freshly shown tab's first video");
+					Log.v(LOGTAG, "onScroll: starting freshly shown channel's first video");
 
                 lastTrackedPos = firstVisibleItem;
                 if (currentlyPlayed!=null) {
@@ -562,29 +576,34 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
+        Log.v(LOGTAG, "onScrollStateChanged:  " +scrollState);
+
         // autostart here - when the scoll event is over (state idle)
         if (AbsListView.OnScrollListener.SCROLL_STATE_IDLE == scrollState)
         {
             int first = view.getFirstVisiblePosition();
             int last = view.getLastVisiblePosition();
-//				Log.v(LOGTAG, "onScrollStateChanged: first " +first+" last "+last + " lastTrackedPos "+lastTrackedPos);
+				Log.v(LOGTAG, "onScrollStateChanged: first " +first+" last "+last + " lastTrackedPos "+lastTrackedPos);
 
             // find the first VideoView that falls in the "active" range
             boolean found = false;
             for (int current=first, i=0; current<=last && !found; current++, i++)
             {
-                MovieItemView pv = (MovieItemView) ((ViewGroup)view).getChildAt(i);
+                View v = view.getChildAt(i);
+                if (!(v instanceof MovieItemView))
+                    continue;
+                MovieItemView pv = (MovieItemView)v;
                 ControlledMovieView videoView = (ControlledMovieView) pv.findViewById(R.id.videoPlayerView);
                 int[] location = new int[2];
                 videoView.getLocationOnScreen(location);
                 int viewCenterY = location[1] + calculcatedVideoWidth/2;
-//					Log.d(LOGTAG, "onScrollStateChanged: "+current+" videoView's center y location: "+viewCenterY);
+					Log.d(LOGTAG, "onScrollStateChanged: "+current+" videoView's center y location: "+viewCenterY);
 
                 if (viewCenterY>autoRangeTop && viewCenterY<autoRangeBottom) {
                     // that's the one
                     found = true;
                     if (lastTrackedPos!=current) {
-//							Log.d(LOGTAG, "onScrollStateChanged: new roll in active range: "+current);
+							Log.d(LOGTAG, "onScrollStateChanged: new roll in active range: "+current);
                         lastTrackedPos = current;
                         handleAutostart(pv, videoView);
                     }
@@ -599,9 +618,9 @@ public class MovieAdapter extends ArrayAdapter<Movie> implements AbsListView.OnS
     private void handleAutostart(MovieItemView pv, ControlledMovieView videoView) {
 
 
-//			Log.v(LOGTAG, "handleAutostart: first visible item's position in list: "+videoView.getItemPosition());
+			Log.v(LOGTAG, "handleAutostart: first visible item's position in list: "+videoView.getItemPosition());
         AutostartMode am = PrefUtility.getAutostartMode();
-//			Log.v(LOGTAG, "autostartMode = "+am.toString());
+			Log.v(LOGTAG, "autostartMode = "+am.toString());
 
         boolean autoStart = false;
         switch (am) {

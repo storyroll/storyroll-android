@@ -2,6 +2,7 @@ package co.storyroll.ui;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -21,6 +22,7 @@ import java.io.File;
 
 public class ControlledMovieView extends VideoView implements OnVideoTaskCompleted {
 	private static final String LOGTAG = "ControlledMovieView";
+    public static boolean DEFAULT_IS_QUAD_PLAY = true;
 
 	protected static final boolean LOOPING = true;
 	
@@ -39,7 +41,7 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	private long mUpdateTag;
 	private String movieFileUrl;
     private String movieQuadFileUrl;
-    private boolean isQuadPlay = false;
+    private boolean isQuadPlay = DEFAULT_IS_QUAD_PLAY;
 
 	private ProgressBar progressBar;
 
@@ -86,10 +88,14 @@ public class ControlledMovieView extends VideoView implements OnVideoTaskComplet
 	        		        
 	   		VideoDownloadTask task = new VideoDownloadTask(getContext().getApplicationContext(), this);
             if (isQuadPlay) {
-                task.execute(movieQuadFileUrl);
+                if (!TextUtils.isEmpty(movieQuadFileUrl)) {
+                    task.execute(movieQuadFileUrl);
+                }
             }
             else {
-                task.execute(movieFileUrl + "#" + mUpdateTag);
+                if (!TextUtils.isEmpty(movieFileUrl)) {
+                    task.execute(movieFileUrl + "#" + mUpdateTag);
+                }
             }
 		}
 	}

@@ -110,7 +110,7 @@ public class MainChannelsActivity extends MenuChannelListActivity
             }
         }
 
-        swipeContainer = SwipeUtil.initSwiping(this, listView, this);
+        swipeContainer = SwipeUtil.initSwiping(this, listView, this, true);
     }
 
 

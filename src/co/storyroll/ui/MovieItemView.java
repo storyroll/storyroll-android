@@ -4,9 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
-import co.storyroll.PQuery;
 import co.storyroll.R;
-import co.storyroll.model.Movie;
 
 public class MovieItemView extends LinearLayout {
     public final static int MAX_SHOWN_CLIPS = 4;
@@ -21,8 +19,6 @@ public class MovieItemView extends LinearLayout {
     private static final int[] btnCameraResIds = {R.drawable.btn_camera_0, R.drawable.btn_camera_1, R.drawable.btn_camera_2, R.drawable.btn_camera_3};
     public static final int[] arrowResIds = {R.drawable.arrow_0, R.drawable.arrow_1, R.drawable.arrow_2, R.drawable.arrow_3};
 
-    Movie movie;
-	PQuery aq;
 //	ArrayMoviesFragment parent;
 	
 	public MovieItemView(Context context) {

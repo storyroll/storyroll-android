@@ -41,7 +41,7 @@ import java.util.Collections;
  * Created by martynas on 17/06/14.
  */
 public class ChannelActivity extends MenuChannelActivity
-        implements SwipeRefreshLayout.OnRefreshListener, LeaveChanDialog.LeaveChanDialogListener {
+        implements LeaveChanDialog.LeaveChanDialogListener {
 
     private static final String LOGTAG = "MOVIE_LIST";
     private static final String SCREEN_NAME = "ListMovies";
@@ -123,6 +123,7 @@ public class ChannelActivity extends MenuChannelActivity
 
             }
         }
+
         setTitle(mTitle);
         Log.v(LOGTAG, "channelId: "+mChannelId);
 
@@ -135,12 +136,14 @@ public class ChannelActivity extends MenuChannelActivity
         ListView lv = (ListView)findViewById(android.R.id.list);
         // Bind to our new adapter.
         lv.setAdapter(movieAdapter);
+        swipeContainer = SwipeUtil.initSwiping(this, lv, movieAdapter, false);
 
-        swipeContainer = SwipeUtil.initSwiping(this, lv, this);
+        lv.setOnScrollListener(movieAdapter);
+
 
         // Register to receive messages from GCM Service about updated videos.
         // We are registering an observer (mMessageReceiver) to receive Intents
-        // with actions named "custom-event-name".
+        // with actions named stored in GCM_EVENT_CLIP_POSTED.
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter(GcmIntentService.GCM_EVENT_CLIP_POSTED));
 
@@ -519,10 +522,13 @@ public class ChannelActivity extends MenuChannelActivity
 
     }
 
-    @Override
     public void onRefresh() {
         Log.v(LOGTAG, "refresh");
         movieListAjaxCall();
+    }
+
+    public void setEnabledSwipeContainer(boolean b) {
+        swipeContainer.setEnabled(b);
     }
 
 //    public PQuery getAQuery() {
