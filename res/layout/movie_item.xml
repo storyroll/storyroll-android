@@ -264,6 +264,7 @@
         android:orientation="horizontal"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
+        android:visibility="gone"
             >
 
         <co.storyroll.ui.RoundedImageView
@@ -400,7 +401,7 @@
                 android:id="@+id/shareInsta"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:src="@drawable/ic_share_off"
+                android:src="@drawable/ic_share_instagram"
                 android:layout_marginRight="10dp"
                 android:paddingLeft="10dp"
                 android:layout_gravity="center_vertical"

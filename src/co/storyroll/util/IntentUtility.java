@@ -238,6 +238,8 @@ public class IntentUtility {
                 intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Title");
                 intent.setType("video/mp4");
                 intent.putExtra(Intent.EXTRA_STREAM, videoURI);
+                intent.setPackage("com.instagram.android");
+
 
                 // Grant permissions to all apps that can handle this intent
                 // thanks to this answer http://stackoverflow.com/a/18332000
