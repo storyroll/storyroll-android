@@ -459,7 +459,8 @@ public class ChannelActivity extends MenuChannelActivity
             // do something with the jsonarray
             try {
                 movies.clear();
-                for (int i = 0; i < jarr.length(); i++) {
+                for (int i = 0; i < jarr.length(); i++)
+                {
                     JSONObject movieObj = jarr.getJSONObject(i);
                     Movie movie = new Movie(movieObj);
 //					if (clip.isPublished()) {

@@ -162,16 +162,20 @@ public class Movie extends Clip {
                 cast.add(new Cast(owner));
             }
         }
-        if (obj.has("movieClip")) {
-            JSONObject movieClip = obj.getJSONObject("movieClip");
-            playerUrl = movieClip.getString("playerUrl");
+        if (clipCount >= MovieItemView.MAX_SHOWN_CLIPS) // todo: remove this clause?
+        {
+            if (obj.has("movieClip") && obj.get("movieClip")!=JSONObject.NULL) {
+                JSONObject movieClip = obj.getJSONObject("movieClip");
+                playerUrl = movieClip.getString("playerUrl");
+            }
+            if (obj.has("quadClip") && obj.get("quadClip")!=JSONObject.NULL) {
+                Log.v(LOGTAG, "quadclip: "+obj.get("quadClip"));
+                JSONObject movieClip = obj.getJSONObject("quadClip");
+                quadPlayerUrl = movieClip.getString("playerUrl");
+                quadFileUrl = movieClip.getString("mp4Url");
+            }
         }
-        if (clipCount >= MovieItemView.MAX_SHOWN_CLIPS && obj.has("quadClip") && obj.get("quadClip")!=JSONObject.NULL) {
-            Log.v(LOGTAG, "quadclip: "+obj.get("quadClip"));
-            JSONObject movieClip = obj.getJSONObject("quadClip");
-            quadPlayerUrl = movieClip.getString("playerUrl");
-            quadFileUrl = movieClip.getString("mp4Url");
-        }
+
 	}
 	
 	@Override
